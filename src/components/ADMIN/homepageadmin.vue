@@ -66,7 +66,7 @@
         <!-- Strand Dropdown -->
         <div class="list-group" @click="handleItemClick('/strand-section')">
           <span class="icon-label dropdow">
-            <i class="bi bi-grid-fill fs-4" style="padding-right: 10px;"></i> Strand & Section
+            <i class="bi bi-grid-fill fs-4" style="padding-right: 10px;"></i> Strand
           </span>
         </div> 
 
@@ -105,9 +105,10 @@ export default {
       selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
       items: [
         { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-bar-chart-fill fs-4' },
-     
         { path: '/ASection', label: 'Manage Section', icon: 'bi bi-bar-chart-fill fs-4' },
-        { path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-bar-chart-fill fs-4' }
+        { path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-bar-chart-fill fs-4' },
+        { path: '/ASemester', label: 'Manage Semester', icon: 'bi bi-bar-chart-fill fs-4' },
+        { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-bar-chart-fill fs-4' }
       ],
     };
   },
