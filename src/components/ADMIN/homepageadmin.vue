@@ -38,7 +38,6 @@
     <div class="d-flex">
       <div :class="['sidebar', isSidebarCollapsed ? 'collapsed' : '']">
         <img :src="require('@/assets/i12.png')" class="img-fluid logo" alt="Your Image">
-
         <router-link
           v-for="(item, index) in items"
           :key="index"
@@ -66,7 +65,7 @@
         </div>
         <!-- Strand Dropdown -->
         <div class="list-group" @click="handleItemClick('/strand-section')">
-          <span class="icon-label dropdow">
+          <span class="icon-label">
             <i class="bi bi-grid-fill fs-4" style="padding-right: 10px;"></i> Strand
           </span>
         </div> 
@@ -80,7 +79,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -106,10 +104,11 @@ export default {
       isSidebarCollapsed: false, // New data property for sidebar state
       selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
       items: [
-        { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-bar-chart-fill fs-4' },
-     
-        { path: '/ASection', label: 'Manage Section', icon: 'bi bi-bar-chart-fill fs-4' },
-        { path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-bar-chart-fill fs-4' }
+        { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-house-door-fill' },
+        { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder-symlink-fill' },
+        { path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-calendar-date-fill' },
+        { path: '/ASemester', label: 'Manage Semesters', icon: 'bi bi-calendar-week-fill'},
+        { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-calendar-month-fill'}
       ],
     };
   },
@@ -180,18 +179,15 @@ export default {
 };
 </script>
 
-
 <style scoped>
 h2 {
   font-family: Arial, Helvetica, sans-serif;
   color: rgb(14, 1, 1);
- 
   margin-left: 270px;
- 
 }
 
 .navbar {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Horizontal offset, vertical offset, blur radius, spread radius, and color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .modal-content {
@@ -219,8 +215,8 @@ h2 {
   font-weight: 500;
   padding: 10px;
   border: #130404;
-  color:white ;
-  border-bottom: 2px solid #ccc; /* Light gray border color */
+  color: white;
+  border-bottom: 2px solid #ccc;
 }
 
 .dropdown {
@@ -228,7 +224,6 @@ h2 {
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 10px;
-
 }
 
 .icon-label {
@@ -245,8 +240,9 @@ h2 {
   margin-left: 250px;
   padding: 20px;
   width: calc(100% - 250px);
-  
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
+
 .title-container {
   transition: margin-left 0.3s ease;
 }
@@ -254,7 +250,6 @@ h2 {
 .title-container.collapsed h2 {
   margin-left: 100px;
 }
-
 
 .popover {
   position: absolute;
@@ -265,12 +260,11 @@ h2 {
   border: 1px solid #ddd;
   border-radius: 4px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
   width: 250px;
-  top: 50px; /* Adjust this value based on where you want it to appear */
-  left: -170px; /* Adjust this value to position it relative to the profile icon */
+  top: 50px;
+  left: -170px;
   opacity: 0;
-  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   font-size: 16px;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -288,12 +282,8 @@ h2 {
   border-style: solid;
   border-color: white transparent transparent transparent;
   top: 50%;
-  right: 100%; /* Position the arrow on the left side of the popover */
+  right: 100%;
   transform: translateY(-50%);
-}
-
-.popover.show {
-  display: block;
 }
 
 .dropdown-menu {
@@ -303,7 +293,6 @@ h2 {
   margin: 5px;
   background-color: #fff;
   font-size: 15px;
-
 }
 
 .dropdown-item {
@@ -319,7 +308,6 @@ h2 {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 20px;
   font-weight: 500;
-
   margin-top: 10px;
   cursor: pointer;
 }
@@ -327,14 +315,15 @@ h2 {
 .sidebar {
   width: 250px;
   background-color: #0e68bc;
-  height: 100vh;
+  height: 100vh; /* Full viewport height */
   padding: 20px;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
   transition: width 0.3s ease;
-  overflow: hidden; /* Hide overflow content when collapsed */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Hide horizontal overflow if necessary */
 }
 
 .sidebar.collapsed {
@@ -354,7 +343,7 @@ h2 {
 .sidebar .list-group .icon-label {
   display: flex;
   align-items: center;
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap;
   transition: opacity 0.3s ease;
 }
 
@@ -377,16 +366,8 @@ h2 {
 }
 
 /* Content Area Styling */
-.content {
-  margin-left: 250px;
-  padding: 20px;
-  width: calc(100% - 250px);
-  transition: margin-left 0.3s ease, width 0.3s ease;
-}
-
 .content.collapsed {
   margin-left: 80px;
   width: calc(100% - 80px);
 }
-
 </style>
