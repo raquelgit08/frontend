@@ -3,7 +3,7 @@ import App from './App.vue';
 import HomePageAdmin from './components/ADMIN/homepageadmin.vue';
 import AdminDashboard from './components/ADMIN/ADashboard.vue';
 import BarChart from './components/ADMIN/adminbarchart.vue';
-import RegisterUser from './components/ADMIN/AregisterUser.vue'
+import RegisterUser from './components/ADMIN/Aregisterstudent.vue'
 import ManageUser from './components/ADMIN/AManageUser.vue';
 import ManageUserTeachers from './components/ADMIN/manageTeachers.vue';
 import ManageUserStudents from './components/ADMIN/manegeStudents.vue';
@@ -48,7 +48,7 @@ const routes = [
   { path: '/adminpage', component: HomePageAdmin },
   { path: '/barchart', component: BarChart},
   { path: '/adashboard', component: AdminDashboard },
-  { path: '/aregister', component: RegisterUser },
+  { path: '/aregisterstudent', component: RegisterUser },
    { path: '/allusers', component: ManageUser },
   { path: '/manage_teachers', component: ManageUserTeachers },
   { path: '/manage_students', component: ManageUserStudents },
