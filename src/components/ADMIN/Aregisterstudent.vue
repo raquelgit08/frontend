@@ -66,7 +66,7 @@
       <div class="row mb-3">
         <div class="col-md-2">
           <label for="section" class="form-label">Section:</label>
-          <select v-model="formData.section" id="section" class="form-select" required>
+          <select v-model="formData.section_id" id="section" class="form-select" required>
             <option value="">Select Section</option>
             <option v-for="section in sections" :key="section.id" :value="section.value">
               {{ section.label }}
@@ -75,7 +75,7 @@
         </div>
         <div class="col-md-2">
           <label for="gradelevel" class="form-label">Grade Level:</label>
-          <select v-model="formData.gradelevel" id="gradelevel" class="form-select" required>
+          <select v-model="formData.gradelevel_id" id="gradelevel" class="form-select" required>
             <option value="">Select Grade Level</option>
             <option v-for="gradelevel in gradelevels" :key="gradelevel.id" :value="gradelevel.value">
               {{ gradelevel.label }}
@@ -85,7 +85,7 @@
 
         <div class="col-md-4">
           <label for="strand" class="form-label">Strand:</label>
-          <select v-model="formData.strand" id="strand" class="form-select" required>
+          <select v-model="formData.strand_id" id="strand" class="form-select" required>
             <option value="">Select Strand</option>
             <option v-for="strand in strands" :key="strand.id" :value="strand.value">
             {{ strand.label }}
