@@ -35,7 +35,7 @@
     </nav>
     <div class="d-flex">
       <div :class="['sidebar', isSidebarCollapsed ? 'collapsed' : '']">
-        <img :src="require('@/assets/i5.png')" class="img-fluid logo" alt="Your Image">
+        <img :src="require('@/assets/i12.png')" class="img-fluid logo" alt="Your Image">
 
         <router-link
           v-for="(item, index) in items"
@@ -68,7 +68,7 @@
           <span class="icon-label dropdow">
             <i class="bi bi-grid-fill fs-4" style="padding-right: 10px;"></i> Strand & Section
           </span>
-        </div>
+        </div> 
 
         <!-- Chevron Icon to Collapse/Expand Sidebar -->
         <i @click="toggleSidebar" class="bi" :class="isSidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
@@ -105,7 +105,9 @@ export default {
       selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
       items: [
         { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-bar-chart-fill fs-4' },
-       
+     
+        { path: '/ASection', label: 'Manage Section', icon: 'bi bi-bar-chart-fill fs-4' },
+        { path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-bar-chart-fill fs-4' }
       ],
     };
   },

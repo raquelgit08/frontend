@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-4">
     <div class="title-container mb-4">
-      <h5 class="text-center">Manage Strands</h5>
+      <h5 class="text-center">Manage Grade Levels</h5>
     </div>
 
     <div class="search-container d-flex justify-content-between mb-3">
@@ -18,14 +18,14 @@
         <thead class="table-light">
           <tr>
             <th>No.</th>
-            <th>Strand</th>
+            <th>Grade Level</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in filteredList" :key="item.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.addstrand }}</td>
+            <td>{{ item.glevel }}</td>
             <td>
               <button class="btn btn-warning btn-sm me-1" @click="openEditModal(item)">
                 <i class="bi bi-pencil"></i>
@@ -43,12 +43,12 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ isEdit ? 'Edit' : 'Add' }} Strand</h5>
+            <h5 class="modal-title">{{ isEdit ? 'Edit' : 'Add' }} Grade Level</h5>
             <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <input type="text" v-model="newStrand" class="form-control" placeholder="Strand">
+              <input type="text" v-model="newGradeLevel" class="form-control" placeholder="Grade Level">
             </div>
           </div>
           <div class="modal-footer">
@@ -66,12 +66,12 @@ import axios from 'axios';
 import { Modal } from 'bootstrap';
 
 export default {
-  name: 'StrandSection',
+  name: 'YearLevel',
   data() {
     return {
       searchQuery: '',
       items: [],
-      newStrand: '',
+      newGradeLevel: '',
       isEdit: false,
       editItemId: null,
       error: null,
@@ -82,24 +82,24 @@ export default {
       return this.items.filter(item => {
         return (
           this.searchQuery === '' || 
-          item.addstrand.toLowerCase().includes(this.searchQuery.toLowerCase())
+          item.glevel.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       });
     }
   },
   methods: {
-    async fetchStrands() {
+    async fetchGradeLevels() {
       try {
         const token = localStorage.getItem('token'); 
-        const response = await axios.get('http://localhost:8000/api/viewstrand', {
+        const response = await axios.get('http://localhost:8000/api/viewgradelevel', {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         this.items = response.data.data;
       } catch (error) {
-        console.error('Error fetching strands:', error);
-        this.error = 'Failed to fetch strands.';
+        console.error('Error fetching grade levels:', error);
+        this.error = 'Failed to fetch grade levels.';
       }
     },
 
@@ -107,43 +107,43 @@ export default {
       try {
         const token = localStorage.getItem('token'); 
         if (this.isEdit) {
-          await axios.put(`http://localhost:8000/api/strands/${this.editItemId}`, {
-            addstrand: this.newStrand
+          await axios.put(`http://localhost:8000/api/updategradelevel/${this.editItemId}`, {
+            glevel: this.newGradeLevel
           }, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
         } else {
-          await axios.post('http://localhost:8000/api/addstrand', {
-            addstrand: this.newStrand
+          await axios.post('http://localhost:8000/api/addgradelevel', {
+            glevel: this.newGradeLevel
           }, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
         }
-        await this.fetchStrands(); // Ensure this is awaited to update items
+        await this.fetchGradeLevels(); // Ensure this is awaited to update items
         this.resetForm();
         this.closeModal();
       } catch (error) {
-        console.error('Error saving strand:', error);
-        this.error = 'Failed to save strand.';
+        console.error('Error saving grade level:', error);
+        this.error = 'Failed to save grade level.';
       }
     },
 
     async deleteItem(id) {
       try {
         const token = localStorage.getItem('token'); 
-        await axios.delete(`http://localhost:8000/api/strands/${id}`, {
+        await axios.delete(`http://localhost:8000/api/deletegradelevel/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        await this.fetchStrands(); // Ensure this is awaited to update items
+        await this.fetchGradeLevels(); // Ensure this is awaited to update items
       } catch (error) {
-        console.error('Error deleting strand:', error);
-        this.error = 'Failed to delete strand.';
+        console.error('Error deleting grade level:', error);
+        this.error = 'Failed to delete grade level.';
       }
     },
 
@@ -156,7 +156,7 @@ export default {
     openEditModal(item) {
       this.isEdit = true;
       this.editItemId = item.id;
-      this.newStrand = item.addstrand;
+      this.newGradeLevel = item.glevel;
       this.showModal();
     },
 
@@ -172,56 +172,21 @@ export default {
     },
 
     resetForm() {
-      this.newStrand = '';
+      this.newGradeLevel = '';
       this.isEdit = false;
       this.editItemId = null;
     },
   },
 
   mounted() {
-    this.fetchStrands();
+    this.fetchGradeLevels();
   }
 };
 </script>
 
 <style scoped>
 .container {
-  max-width: 900px;
-}
-
-.title-container {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 0.375rem;
-}
-
-.search-container {
-  margin-bottom: 1rem;
-}
-
-.table-container {
-  margin-bottom: 1rem;
-}
-
-.table {
-  background-color: #ffffff;
-}
-
-.table th, .table td {
-  text-align: center;
-  vertical-align: middle;
-}
-
-.table td {
-  color: #000;
-}
-
-.modal-backdrop.show {
-  opacity: 0.5;
-}
-
-.modal-content {
-  background-color: #fff;
-  color: #000;
+  max-width: 800px;
+  margin: auto;
 }
 </style>

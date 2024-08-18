@@ -5,7 +5,7 @@
     <Student_homepage v-else-if="isStudent" @logout="handleLogout" />
     <div v-else class="d-flex vh-100">
       <div class="left-side d-flex align-items-center justify-content-center">
-        <img src="./assets/newlogo.png" class="img-fluid logo" alt="Your Image">
+        <img src="./assets/i12.png" class="img-fluid logo" alt="Your Image">
       </div>
       <div class="right-side d-flex align-items-center justify-content-center">
         <form class="login-form d-flex flex-column justify-content-center" @submit.prevent="handleSubmit">
@@ -196,11 +196,7 @@ html, body {
 .login-form {
   width: 90%;
   max-width: 600px;
-  max-height: 900px;
-
-  
   padding: 50px;
- 
 }
 
 .form-title {
@@ -221,11 +217,23 @@ html, body {
   margin-bottom: 20px;
 }
 
+.form-control {
+  border-radius: 0.25rem;
+  border-color: #ced4da;
+  padding: 0.75rem 1.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+}
+
 .password-toggle {
   cursor: pointer;
   position: absolute;
   right: 10px;
-  top: 70%;
+  top: 68%;
   transform: translateY(-50%);
 }
 
@@ -236,15 +244,20 @@ html, body {
 
 .forgot-password:hover {
   text-decoration: underline;
+  color: #0056b3;
 }
 
 .btn-primary {
   background-color: #007bff;
   border-color: #007bff;
+  border-radius: 0.25rem;
+  padding: 0.75rem 1.25rem;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 
 .btn-primary:hover {
   background-color: #0056b3;
+  border-color: #004085;
 }
 
 .btn-custom-width {
