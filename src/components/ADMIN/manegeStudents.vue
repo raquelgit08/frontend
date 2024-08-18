@@ -1,41 +1,33 @@
 <template>
-<div>
-  <div class="container-fluid ">
-    <h4 class="text-center">Manage STUDENT Users</h4><br>
-    <div class="row mb-4 justify-content-end align-items-center">
-      <div class="col-md-4 d-flex align-items-center">
-        <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-            Sort By: {{ sortDirection === 'asc' ? 'A -> Z' : 'Z -> A' }}
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-            <li><button class="dropdown-item" type="button" @click="sortItems('asc')">A -> Z</button></li>
-            <li><button class="dropdown-item" type="button" @click="sortItems('desc')">Z -> A</button></li>
-          </ul>
+  <div>
+    <div class="container-fluid">
+      <h4 class="text-center">Student Users </h4><br>
+      <div class="row mb-4 justify-content-end align-items-center">
+        <div class="col-md-4 d-flex align-items-center">
+          <label for="userStrand" class="form-label me-2">SELECT STRAND:</label>
+          <select v-model="selectedStrand" class="form-select" id="userStrand">
+            <option value="">All Strands</option>
+            <option v-for="strand in strands" :key="strand.value" :value="strand.value">
+              {{ strand.label }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" v-model="search" class="form-control" placeholder="Search" />
+            <router-link to="/aregisterstudent" title="Add Record">
+              <i class="bi bi-clipboard2-plus-fill register"></i>
+            </router-link>
+          </div>
         </div>
       </div>
-      <div class="col-md-4 d-flex align-items-center">
-        <label for="userStrand" class="form-label me-2">SELECT STRAND:</label>
-        <select v-model="selectedStrand" class="form-select" id="userStrand">
-          <option value="">All Strands</option>
-          <option v-for="strand in strands" :key="strand.value" :value="strand.value">
-            {{ strand.label }}
-          </option>
-        </select>
-      </div>
-      <div class="col-md-4">
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="bi bi-search"></i>
-          </span>
-          <input type="text" v-model="search" class="form-control" placeholder="Search" />
-        </div>
-      </div>
-    </div>
 
-    <table class="table table-bordered table-hover">
-      <thead class="table-success">
-        <tr>
+      <table class="table table-bordered table-hover">
+        <thead class="table-info">
+          <tr>
           <th scope="col" class="text-center">No.</th>
           <th scope="col" class="text-center">LRN</th>
           <th scope="col" class="text-center">Name</th>
@@ -47,35 +39,60 @@
           <th scope="col" class="text-center">Date Modified</th>
           <th scope="col" class="text-center">Actions</th>
         </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in sortedFilteredItems" :key="item.lrn">
-          <td class="text-center">{{ index + 1 }}</td>
-          <td class="text-center">{{ item.idnumber }}</td>
-          <td class="text-center">{{ item.lname}},{{ item.fname}} {{ item.mname}}</td>
-          <td class="text-center">{{ item.sex }}</td>
-          <td class="text-center">{{ item.email }}</td>
-          <td class="text-center">{{ item.strand }}</td>
-          <td class="text-center">{{ item.gradelevel }}</td>
-          <td class="text-center">{{ formatDate(item.created_at) }}</td>
-          <td class="text-center">{{ formatDate(item.updated_at) }}</td>
-          <td class="text-center">
-            <i class="bi bi-pencil-square custom-icon me-2" @click="openModal(item)"></i>
-            <i class="bi bi-person-x-fill custom-icon" @click="removeUser(item)"></i>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in paginatedItems" :key="item.idnumber">
+            <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+            <td class="text-center">{{ item.idnumber }}</td>
+            <td class="text-center">{{ item.lname}},{{ item.fname}} {{ item.mname}}</td>
+            <td class="text-center">{{ item.sex }}</td>
+            <td class="text-center">{{ item.email }}</td>
+            <td class="text-center">{{ item.strand }}</td>
+            <td class="text-center">{{ item.gradelevel }}</td>
+            <td class="text-center">{{ formatDate(item.created_at) }}</td>
+            <td class="text-center">{{ formatDate(item.updated_at) }}</td>
+            <td class="text-center">
+              <div class="icon-container">
+                <span class="icon-box reset-box">
+                  <i class="bi bi-key-fill custom-icon" @click="openModal(item)"></i>
+                </span>
+                <span class="icon-box edit-box">
+                  <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
+                </span>
+                <span class="icon-box delete-box">
+                  <i class="bi bi-person-x-fill custom-icon" @click="removeUser(item)"></i>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-  <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Edit User</h5>
-          <button type="button" class="btn-close" @click="showModal = false" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
+      <!-- Basic Pagination Controls -->
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+          </li>
+          <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
+            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit User</h5>
+            <button type="button" class="btn-close" @click="showModal = false" aria-label="Close"></button>
+          </div>
+          
+          <div class="modal-body">
           <form>
             <div class="row mb-3">
               <div class="col-md-4">
@@ -131,45 +148,46 @@
                 </div>
               </div>
             </div>
-        
           </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
-          <button type="button" class="btn btn-primary" @click="saveChanges">Save changes</button>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
+            <button type="button" class="btn btn-primary" @click="saveChanges">Save changes</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 </template>
-
 <script>
 import axios from 'axios';
 import moment from 'moment';
 
 export default {
-name: 'ManageUserStudents',
-data() {
-  return {
-    search: '',
-    showModal: false,
-    selectedStrand: '', // Bind this to the strand dropdown
-    strands: [
+  name: 'ManageUserStudents',
+  data() {
+    return {
+      search: '',
+      showModal: false,
+      selectedStrand: '',
+      strands: [
       { value: '', label: 'All Strands' }, // Option to show all strands
       { value: 'HUMMS', label: 'HUMMS' },
       { value: 'STEM', label: 'STEM' },
       { value: 'TVL-ICT', label: 'TVL-ICT' },
       { value: 'ABM', label: 'ABM' }
     ],
-    serverItems: [],
-    currentUser: {},  // Holds the user data being edited
-    showPassword: false,  // Track password visibility state
-    sortDirection: 'asc', // default sort direction ,, the finction is being initialize
-  };
-},
-computed: {
-  filteredItems() {
+      showPassword: false,
+      itemsPerPage: 10,
+      currentPage: 1,
+    
+      serverItems: [],
+      currentUser: {}  // Holds the user data being edited
+    };
+  },
+  computed: {
+    filteredItems() {
     return this.serverItems.filter(item => {
       const idnumberStr = item.idnumber ? item.idnumber.toString().toLowerCase() : '';
       const searchLower = this.search.toLowerCase();
@@ -183,74 +201,89 @@ computed: {
       );
     });
   },
-  sortedFilteredItems() {
-    const sortedItems = [...this.filteredItems].sort((a, b) => {
-      const comparison = a.lname.localeCompare(b.lname); // a.lname.localeCompare(b.lname) compares the lname property of two items (a and b) for sorting.
-      return this.sortDirection === 'asc' ? comparison : -comparison;
-    });
-    return sortedItems;
-  }
-},
 
-methods: {
-  async fetchData() {
-    try {
-      const response = await axios.get('http://localhost:8000/api/index2', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      this.serverItems = response.data;
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredItems.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredItems.length / this.itemsPerPage);
     }
   },
-  openModal(item) {
-    this.currentUser = { ...item }; // Populate the modal with user data
-    this.showModal = true;
-  },
-  removeUser(item) {
-    console.log('Remove user:', item);
-    // Add remove functionality here
-  },
-  async saveChanges() {
-   // Example Axios PUT request
-    axios.put(`http://localhost:8000/api/users/${this.currentUser.id}`, this.currentUser, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => {
-      alert (response.data.message);
-    })
-    .catch(error => {
-      alert.error('Error saving changes:', error.response ? error.response.data : error.message);
-    });
-
-  },
-  togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  },
-  formatDate(date) {
+  methods: {
+    formatDate(date) {
     return moment(date).format('YYYY/M/D [time] h:mm a');
   },
-  sortItems(direction) {
-    this.sortDirection = direction;
+    openModal(user) {
+      this.currentUser = { ...user };
+      this.showModal = true;
+    },
+    async saveChanges() {
+    // Example Axios PUT request
+      axios.put(`http://localhost:8000/api/users/${this.currentUser.id}`, this.currentUser, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        alert (response.data.message);
+      })
+      .catch(error => {
+        alert.error('Error saving changes:', error.response ? error.response.data : error.message);
+      });
+
+    },
+
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+    },
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+      }
+    },
+    async fetchData() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/index2', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        this.serverItems = response.data;
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },
+
+    
+    removeUser() {
+      axios.delete('http://localhost:8000/api/users/${user.id}')
+        .then(() => {
+          this.fetchData();
+        })
+        .catch(error => {
+          console.error('Error deleting user:', error);
+        });
+    },
+    
+  },
+  mounted() {
+    this.fetchData();
   }
-},
-mounted() {
-  this.fetchData();
-}
 };
 </script>
-
 
 
 <style scoped>
 .container-fluid {
   margin-top: 10px;
-  padding: 20px;
+ 
+}
+tbody{
+  font-size: 15px;
+
 }
 
 h4 {
@@ -264,14 +297,43 @@ h4 {
 
 .custom-icon {
   cursor: pointer;
-  color: black;
-  font-size: 25px;
+  color: rgb(255, 255, 255);
+  font-size: 18px;
 }
 
-.custom-icon:hover {
-  color: rgb(18, 108, 211);
-  font-size: 30px;
+.icon-container {
+  display: flex;
+  gap: 10px; /* Space between the boxes */
 }
+.register{
+  font-size: 30px; padding-left: 20px;
+  color: #495057;
+
+}
+.icon-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.reset-box {
+  background-color: #efd305; 
+  color: white; /* White icon color */
+}
+.edit-box {
+  background-color: #0f64dc; 
+  color: white; /* White icon color */
+}
+
+.delete-box {
+  background-color: #e50c0c; /* Red background */
+  color: white; /* White icon color */
+}
+
+
 
 .form-select {
   width: 200px;
@@ -293,9 +355,6 @@ h4 {
   font-weight: bold;
 }
 
-.btn-close {
-  filter: invert(1); /* White close button icon */
-}
 
 .modal-body {
   background-color: #f0f8ff; /* Alice blue background for form */

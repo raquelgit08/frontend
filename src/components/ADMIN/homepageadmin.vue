@@ -2,7 +2,9 @@
   <div v-if="isVisible">
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
-        <h2>Admin Portal</h2>
+        <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
+          <h2>Admin Portal</h2>
+        </div>
       </div>
       <div class="d-flex align-items-center ms-auto">
         <h4 class="mb-0 me-3">WELCOME ADMIN!</h4>
@@ -14,7 +16,7 @@
               <div v-if="userProfile">
                 <div class="popover-body">
                   ID number: {{ userProfile.idnumber }}
-                  NAME : {{ userProfile.lname }}
+                  NAME : {{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }}
                   <br />
                 </div>
                 <button class="btn btn-danger btn-sm mt-2" @click="handleLogout">Log Out</button>
@@ -62,7 +64,6 @@
             <li><router-link to="/manage_students" class="dropdown-item" @click="handleItemClick('/manage_students')">Manage Students</router-link></li>
           </ul>
         </div>
-
         <!-- Strand Dropdown -->
         <div class="list-group" @click="handleItemClick('/strand-section')">
           <span class="icon-label dropdow">
@@ -79,6 +80,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -105,10 +107,9 @@ export default {
       selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
       items: [
         { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-bar-chart-fill fs-4' },
+     
         { path: '/ASection', label: 'Manage Section', icon: 'bi bi-bar-chart-fill fs-4' },
-        { path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-bar-chart-fill fs-4' },
-        { path: '/ASemester', label: 'Manage Semester', icon: 'bi bi-bar-chart-fill fs-4' },
-        { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-bar-chart-fill fs-4' }
+        { path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-bar-chart-fill fs-4' }
       ],
     };
   },
@@ -188,6 +189,7 @@ h2 {
   margin-left: 270px;
  
 }
+
 .navbar {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Horizontal offset, vertical offset, blur radius, spread radius, and color */
 }
@@ -209,18 +211,6 @@ h2 {
 
 .modal-body {
   background-color: #f7f7f7;
-}
-
-.sidebar {
-  width: 250px;
-  background-color: #0e68bc;
-
-  height: 100vh; /* Full viewport height */
-  padding: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
 }
 
 .list-group {
@@ -255,9 +245,15 @@ h2 {
   margin-left: 250px;
   padding: 20px;
   width: calc(100% - 250px);
-  background-color: #f5f5f5;
+  
+}
+.title-container {
+  transition: margin-left 0.3s ease;
 }
 
+.title-container.collapsed h2 {
+  margin-left: 100px;
+}
 
 
 .popover {
@@ -327,7 +323,7 @@ h2 {
   margin-top: 10px;
   cursor: pointer;
 }
-/* Sidebar Styling */
+
 .sidebar {
   width: 250px;
   background-color: #0e68bc;
