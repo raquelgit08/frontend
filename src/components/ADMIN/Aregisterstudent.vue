@@ -28,20 +28,20 @@
       </div>
 
       <div class="row mb-3">
-        <div class="col-md-2">
+        <!-- <div class="col-md-2">
           <label for="usertype" class="form-label">User Type:</label>
           <input v-model="formData.usertype" type="text" id="usertype" class="form-control" value="student" readonly required>
-        </div>
+        </div> -->
 
 
         <div class="col-md-2">
           <label class="form-label d-block">Gender:</label>
           <div class="form-check form-check-inline">
-            <input v-model="formData.sex" class="form-check-input" type="radio" name="sex" id="male" value="m" required>
+            <input v-model="formData.sex" class="form-check-input" type="radio" name="sex" id="male" value="male" required>
             <label class="form-check-label" for="male">Male</label>
           </div>
           <div class="form-check form-check-inline">
-            <input v-model="formData.sex" class="form-check-input" type="radio" name="sex" id="female" value="f" required>
+            <input v-model="formData.sex" class="form-check-input" type="radio" name="sex" id="female" value="female" required>
             <label class="form-check-label" for="female">Female</label>
           </div>
         </div>
@@ -64,37 +64,26 @@
       </div>
 
       <div class="row mb-3">
-        <div class="col-md-2">
-          <label for="section" class="form-label">Section:</label>
-          <select v-model="formData.section_id" id="section" class="form-select" required>
-            <option value="">Select Section</option>
-            <option v-for="section in sections" :key="section.id" :value="section.value">
-              {{ section.label }}
-            </option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label for="gradelevel" class="form-label">Grade Level:</label>
-          <select v-model="formData.gradelevel_id" id="gradelevel" class="form-select" required>
-            <option value="">Select Grade Level</option>
-            <option v-for="gradelevel in gradelevels" :key="gradelevel.id" :value="gradelevel.value">
-              {{ gradelevel.label }}
-            </option>
-          </select>
-        </div>
-
         <div class="col-md-4">
           <label for="strand" class="form-label">Strand:</label>
           <select v-model="formData.strand_id" id="strand" class="form-select" required>
             <option value="">Select Strand</option>
-            <option v-for="strand in strands" :key="strand.id" :value="strand.value">
-            {{ strand.label }}
-          </option>
+            <option v-for="strand in strands" :key="strand.id" :value="strand.id">
+              {{ strand.label }}
+            </option>
           </select>
         </div>
 
-        
-        
+        <div class="col-md-3">
+          <label for="section" class="form-label">Section:</label>
+          <select v-model="formData.section_id" id="section" class="form-select" required>
+            <option value="">Select Section</option>
+                <option v-for="section in filteredSections" :key="section.id" :value="section.id">
+                  {{ section.label }}
+                </option>
+          </select>
+        </div>
+
         <div class="col-md-4">
           <label for="Mobile_no" class="form-label">Mobile Number:</label>
           <input v-model="formData.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
@@ -152,27 +141,27 @@ export default {
         fname: '',
         mname: '',
         sex: '',
-        usertype: 'student',
+        // usertype: 'student',
         email: '',
         password: '',
         section_id: '',
         strand_id: '',
-        gradelevel_id: '',
         Mobile_no: '',
       },
       sections: [],
-      gradeLevels: [],
       strands: [],
+      filteredSections: [], // This will hold the sections filtered by the selected strand
       passwordFieldType: 'password',
       passwordIcon: 'bi bi-eye',
-  
       isModalVisible: false
     };
   },
   mounted() {
     this.fetchSections();
-    this.fetchGradeLevels();
     this.fetchStrands();
+  },
+  watch: {
+    'formData.strand_id': 'filterSections' // Watch for changes to strand_id
   },
   methods: {
     togglePasswordVisibility() {
@@ -192,66 +181,16 @@ export default {
       }
     },
     validateForm() {
-      const requiredFields = ['idnumber', 'usertype', 'sex', 'lname', 'fname', 'mname', 'email', 'password'];
+      const requiredFields = ['idnumber',  'lname', 'fname', 'mname','sex', 'email', 'password', 'strand_id','section_id', 'Mobile_no'];
       for (const field of requiredFields) {
         if (!this.formData[field]) {
           return false;
         }
       }
-      
+      return true;
     },
     closeModal() {
       this.isModalVisible = false;
-    },
-    async fetchSections() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewsection', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        console.log('Fetched section:', response.data); // Check the response format
-
-        if (response.data && Array.isArray(response.data.data)) {
-          this.sections = response.data.data.map(section => ({
-            id: section.id,
-            value: section.section,  // variable from the laravel - addstrand -from API response
-            label: section.section  // Adjust based on your API response
-          }));
-        } else {
-          console.error('Unexpected response format:', response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching strands:', error);
-      }
-    
-    },
-    async fetchGradeLevels() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewgradelevel', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        console.log('Fetched gradelevel:', response.data); // Check the response format
-
-        if (response.data && Array.isArray(response.data.data)) {
-          this.gradelevels = response.data.data.map(gradelevel => ({
-            id: gradelevel.id,
-            value: gradelevel.glevel,  // variable from the laravel - addstrand -from API response
-            label: gradelevel.glevel  // Adjust based on your API response
-          }));
-        } else {
-          console.error('Unexpected response format:', response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching strands:', error);
-      }
-    
     },
     async fetchStrands() {
       try {
@@ -262,13 +201,11 @@ export default {
           }
         });
 
-        console.log('Fetched strands:', response.data); // Check the response format
-
         if (response.data && Array.isArray(response.data.data)) {
           this.strands = response.data.data.map(strand => ({
             id: strand.id,
-            value: strand.addstrand,  // variable from the laravel - addstrand -from API response
-            label: strand.addstrand  // Adjust based on your API response
+            value: `${strand.addstrand} ${strand.grade_level}`,
+            label: `${strand.addstrand} ${strand.grade_level}`
           }));
         } else {
           console.error('Unexpected response format:', response.data);
@@ -276,40 +213,63 @@ export default {
       } catch (error) {
         console.error('Error fetching strands:', error);
       }
-    }
     },
+    async fetchSections() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/api/viewsection', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
+        if (response.data.sections && Array.isArray(response.data.sections)) {
+          this.sections = response.data.sections.map(section => ({
+            id: section.id,
+            strand_id: section.strand.id,
+            value: section.section,
+            label: `${section.section}`
+          }));
+          this.filterSections(); // Initialize filtered sections
+        }
+      } catch (error) {
+        console.error('Error fetching sections:', error);
+      }
+    },
+    filterSections() {
+      if (this.formData.strand_id) {
+        this.filteredSections = this.sections.filter(section => section.strand_id === this.formData.strand_id);
+      } else {
+        this.filteredSections = this.sections;
+      }
+    },
     async saveUser() {
       try {
         await axios.post('http://localhost:8000/api/registerstudent', this.formData);
         alert('User registered successfully');
         this.isModalVisible = false;
-
-        // Reset form data
-        this.formData = {
-          idnumber: '',
-        lname: '',
-        fname: '',
-        mname: '',
-        sex: '',
-        usertype: 'student',
-        email: '',
-        password: '',
-        section_id: '',
-        strand_id: '',
-        gradelevel_id: '',
-        Mobile_no: '',
-        };
-        // redirect sa showing ng data 
+        this.resetForm();
         this.$router.push('/manage_students');
       } catch (error) {
         alert('Error registering user: ' + error.message);
       }
-    
+    },
+    resetForm() {
+      this.formData = {
+        idnumber: '',
+        lname: '',
+        fname: '',
+        mname: '',
+        sex: '',
+        // usertype: 'student',
+        email: '',
+        password: '',
+        section_id: '',
+        strand_id: '',
+        Mobile_no: '',
+      };
+    }
   }
 };
 </script>
-
    
 
 <style scoped>
