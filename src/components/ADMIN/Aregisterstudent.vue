@@ -301,7 +301,7 @@ export default {
         Mobile_no: '',
         };
         // redirect sa showing ng data 
-        this.$router.push('/allusers');
+        this.$router.push('/manage_students');
       } catch (error) {
         alert('Error registering user: ' + error.message);
       }

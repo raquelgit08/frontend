@@ -3,17 +3,7 @@
     <div class="container-fluid ">
       <h4 class="text-center">Manage Users TEACHERS</h4><br>
       <div class="row mb-4 justify-content-end align-items-center">
-        <div class="col-md-4 d-flex align-items-center">
-          <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-              Sort By: {{ sortDirection === 'asc' ? 'A -> Z' : 'Z -> A' }}
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-              <li><button class="dropdown-item" type="button" @click="sortItems('asc')">A -> Z</button></li>
-              <li><button class="dropdown-item" type="button" @click="sortItems('desc')">Z -> A</button></li>
-            </ul>
-          </div>
-        </div>
+        
         <!-- Dropdown for Position Filtering -->
         <div class="col-md-4 d-flex align-items-center">
           <label for="userPosition" class="form-label me-2">SELECT POSITION:</label>
@@ -29,7 +19,11 @@
               <i class="bi bi-search"></i>
             </span>
             <input type="text" v-model="search" class="form-control" placeholder="Search" />
+            <router-link to="/aregisterteacher" title="Add Record">
+              <i class="bi bi-clipboard2-plus-fill register"></i>
+            </router-link>
           </div>
+          
         </div>
       </div>
 
@@ -66,8 +60,17 @@
             <td class="text-center">{{ formatDate(item.created_at) }}</td>
             <td class="text-center">{{ formatDate(item.updated_at) }}</td>
             <td class="text-center">
-              <i class="bi bi-pencil-square custom-icon me-2" @click="openModal(item)"></i>
-              <i class="bi bi-person-x-fill custom-icon" @click="removeUser(item)"></i>
+              <div class="icon-container">
+                <span class="icon-box reset-box">
+                  <i class="bi bi-key-fill custom-icon" @click="openModal(item)"></i>
+                </span>
+                <span class="icon-box edit-box">
+                  <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
+                </span>
+                <span class="icon-box delete-box">
+                  <i class="bi bi-person-x-fill custom-icon" @click="removeUser(item)"></i>
+                </span>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -267,7 +270,11 @@ export default {
   color: red;
   font-weight: bold;
 }
+.register{
+  font-size: 30px; padding-left: 20px;
+  color: #495057;
 
+}
 h4 {
   background-color: #87CEFA; /* Sky blue background */
   color: rgb(6, 0, 0);
