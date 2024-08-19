@@ -27,9 +27,7 @@
               <i class="bi bi-search"></i>
             </span>
             <input type="text" v-model="search" class="form-control" placeholder="Search" />
-            <router-link to="/aregister">
-              <i class="bi bi-clipboard2-plus-fill register"></i>
-            </router-link>
+            
 
           </div>
        

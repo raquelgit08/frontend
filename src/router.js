@@ -50,7 +50,7 @@ const routes = [
   { path: '/adminpage', component: HomePageAdmin },
   { path: '/barchart', component: BarChart},
   { path: '/adashboard', component: AdminDashboard },
-  { path: '/aregister', component: RegisterUser },
+  { path: '/aregisterstudent', component: RegisterUser },
    { path: '/allusers', component: ManageUser },
   { path: '/manage_teachers', component: ManageUserTeachers },
   { path: '/manage_students', component: ManageUserStudents },
