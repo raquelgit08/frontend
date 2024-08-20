@@ -14,7 +14,9 @@
             <div class="popover-body">     
                 <span> {{ userProfile.idnumber }}</span>              
                 <span>{{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }}</span> 
-                <span>STRAND: {{ userProfile.strand }}</span>    
+                <span>STRAND: {{ userProfile.strand_name }} - {{ userProfile.section_name }}</span>
+                <span>GRADE: {{ userProfile.grade_level }}</span>
+   
                 <button class="btn btn-success btn-sm mt-2" @click="showModal = true">My Profile</button>
             </div>
           </div>
@@ -153,7 +155,7 @@ export default {
         lname: '',
         fname: '',
         mname: '',
-        strand: ''
+        strand_name: ''
        
       },
       strands: [
@@ -183,18 +185,34 @@ export default {
       this.isLoggedIn = !!token;
     },
     async fetchUserProfile() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/userprofile', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        this.userProfile = response.data.data || { idnumber: '', lname: '', strand: '' }; // Ensure fallback in case of missing data
-      } catch (error) {
-        console.error('Failed to fetch user profile:', error);
-        this.userProfile = { idnumber: '', lname: '' }; // Fallback if fetch fails
+  try {
+    const response = await axios.get('http://localhost:8000/api/userprofile', {
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token')
       }
-    },
+    });
+
+    const userData = response.data.data;
+
+    // Access and assign data directly
+    this.userProfile.idnumber = userData.idnumber;
+    this.userProfile.lname = userData.lname;
+    this.userProfile.fname = userData.fname;
+    this.userProfile.mname = userData.mname;
+
+    // Check if the student object exists before accessing its properties
+    if (userData.student) {
+      this.userProfile.strand_name = userData.student.strand_name;
+      this.userProfile.grade_level = userData.student.grade_level;
+      this.userProfile.section_name = userData.student.section_name;
+      this.userProfile.Mobile_no = userData.student.Mobile_no;
+    }
+
+  } catch (error) {
+    console.log('Failed to fetch user profile:', error);
+  }
+},
+
     async handleLogoutClick() {
       try {
         const token = localStorage.getItem('token');

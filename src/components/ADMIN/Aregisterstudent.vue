@@ -242,7 +242,9 @@ export default {
       }
     },
     async saveUser() {
+      
       try {
+
         await axios.post('http://localhost:8000/api/registerstudent', this.formData);
         alert('User registered successfully');
         this.isModalVisible = false;

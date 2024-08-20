@@ -30,7 +30,8 @@
         <div class="row mb-3">
           <div class="col-md-2">
             <label for="usertype" class="form-label">User Type:</label>
-            <input v-model="formData.usertype" type="text" id="usertype" class="form-control" value="student" readonly required>
+            <input v-model="formData.usertype" type="text" id="usertype" class="form-control" value="teacher" readonly required>
+
           </div>
   
   
@@ -110,11 +111,12 @@
               <p><strong>First Name:</strong> {{ formData.fname }}</p>
               <p><strong>Middle Name:</strong> {{ formData.mname }}</p>
               <p><strong>Email:</strong> {{ formData.email }}</p>
-              <p ><strong>Position:</strong>{{ formData.position }}</p>
+              <p ><strong>Position:</strong>{{ formData.position_id}}</p>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn-secondary" @click="closeModal">Cancel</button>
-              <button type="button" class="btn-primary" @click="saveUser">Register Now</button>
+              <button type="button" class="btn-primary" @click="saveUserTheacher">Register Now</button>
+
             </div>
           </div>
         </div>
@@ -136,10 +138,10 @@
           fname: '',
           mname: '',
           sex: '',
-          usertype: 'teacher',
+          // usertype: 'teacher',
           email: '',
           password: '',
-          position: '',
+          position_id: '',
           strand_id: '',
           
 
@@ -175,7 +177,7 @@
         }
       },
       validateForm() {
-        const requiredFields = ['idnumber', 'usertype', 'sex', 'lname', 'fname', 'mname', 'email', 'password', 'position_id', 'strand_id'];
+        const requiredFields = ['idnumber',  'lname', 'fname', 'mname','sex', 'email', 'password', 'position_id', 'strand_id'];
         for (const field of requiredFields) {
             if (!this.formData[field]) {
             return false;
@@ -238,7 +240,8 @@
       }
       },
   
-      async saveUser() {
+      async saveUserTheacher() {
+        console.log('Add User button clicked'); // Add this line for debugging
         try {
           await axios.post('http://localhost:8000/api/registerTeacher', this.formData);
           alert('User registered successfully');
@@ -305,6 +308,7 @@
     border: 2px solid #05045d;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1050; 
     
   }
   
