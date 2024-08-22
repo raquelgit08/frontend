@@ -8,11 +8,12 @@ import RegisterTeacher from './components/ADMIN/Aregisterteacher.vue';
 import ManageUser from './components/ADMIN/AManageUser.vue';
 import ManageUserTeachers from './components/ADMIN/manageTeachers.vue';
 import ManageUserStudents from './components/ADMIN/manegeStudents.vue';
-import StrandSection from './components/ADMIN/AStrandSection.vue';
 import SectioninSHS from './components/ADMIN/ASection.vue';
 import YearLevel from './components/ADMIN/AYearLevel.vue';
 import SemesterinENHS from './components/ADMIN/ASemester.vue';
 import SchoolYear from './components/ADMIN/ASchoolYear.vue';
+import ManagingStrandsinENHS from './components/ADMIN/ManageStrandsinSHS.vue';
+import ManageSubjectinSHS from './components/ADMIN/AManageSubject.vue';
 import Humms11Page from './components/ADMIN/STRAND/humms11.vue';
 import Humms12Page from './components/ADMIN/STRAND/humms12.vue';
 import Abm11Page from './components/ADMIN/STRAND/abm11.vue';
@@ -57,11 +58,12 @@ const routes = [
   { path: '/manage_teachers', component: ManageUserTeachers },
   { path: '/manage_students', component: ManageUserStudents },
   { path: '/pie', component: PieChart},
-  { path: '/strand-section', component: StrandSection },
   { path: '/ASection', component: SectioninSHS},
   { path: '/AYearLevel', component: YearLevel},
   { path: '/ASemester', component: SemesterinENHS},
   { path: '/ASchoolYear', component: SchoolYear},
+  { path: '/ManageStrandsinSHS', component: ManagingStrandsinENHS},
+  { path: '/AManageSubject', component: ManageSubjectinSHS},
   { path: '/strand-section/abm11', component: Abm11Page},
   { path: '/strand-section/abm12', component: Abm12Page},
   { path: '/strand-section/humms11', component: Humms11Page},

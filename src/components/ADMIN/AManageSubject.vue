@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-4">
     <div class="title-container mb-4">
-      <h5 class="text-center">Manage Strands</h5>
+      <h5 class="text-center">Manage Subjects</h5>
     </div>
 
     <div class="search-container d-flex justify-content-between mb-3">
@@ -18,14 +18,14 @@
         <thead class="table-light">
           <tr>
             <th>No.</th>
-            <th>Strand</th>
+            <th>Subject Name</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in filteredList" :key="item.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.addstrand }}</td>
+            <td>{{ item.subjectname }}</td>
             <td>
               <button class="btn btn-warning btn-sm me-1" @click="openEditModal(item)">
                 <i class="bi bi-pencil"></i>
@@ -43,12 +43,12 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ isEdit ? 'Edit' : 'Add' }} Strand</h5>
+            <h5 class="modal-title">{{ isEdit ? 'Edit' : 'Add' }} Subject</h5>
             <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <input type="text" v-model="newStrand" class="form-control" placeholder="Strand">
+              <input type="text" v-model="newSubjectName" class="form-control" placeholder="Subject Name">
             </div>
           </div>
           <div class="modal-footer">
@@ -66,12 +66,12 @@ import axios from 'axios';
 import { Modal } from 'bootstrap';
 
 export default {
-  name: 'StrandSection',
+  name: 'SubjectManagement',
   data() {
     return {
       searchQuery: '',
       items: [],
-      newStrand: '',
+      newSubjectName: '',
       isEdit: false,
       editItemId: null,
       error: null,
@@ -82,24 +82,24 @@ export default {
       return this.items.filter(item => {
         return (
           this.searchQuery === '' || 
-          item.addstrand.toLowerCase().includes(this.searchQuery.toLowerCase())
+          item.subjectname.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       });
     }
   },
   methods: {
-    async fetchStrands() {
+    async fetchSubjects() {
       try {
         const token = localStorage.getItem('token'); 
-        const response = await axios.get('http://localhost:8000/api/viewstrand', {
+        const response = await axios.get('http://localhost:8000/api/viewsubject', {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         this.items = response.data.data;
       } catch (error) {
-        console.error('Error fetching strands:', error);
-        this.error = 'Failed to fetch strands.';
+        console.error('Error fetching subjects:', error);
+        this.error = 'Failed to fetch subjects.';
       }
     },
 
@@ -107,43 +107,43 @@ export default {
       try {
         const token = localStorage.getItem('token'); 
         if (this.isEdit) {
-          await axios.put(`http://localhost:8000/api/strands/${this.editItemId}`, {
-            addstrand: this.newStrand
+          await axios.put(`http://localhost:8000/api/updatesubject/${this.editItemId}`, {
+            subjectname: this.newSubjectName
           }, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
         } else {
-          await axios.post('http://localhost:8000/api/addstrand', {
-            addstrand: this.newStrand
+          await axios.post('http://localhost:8000/api/addsubject', {
+            subjectname: this.newSubjectName
           }, {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
         }
-        await this.fetchStrands(); // Ensure this is awaited to update items
+        await this.fetchSubjects();
         this.resetForm();
         this.closeModal();
       } catch (error) {
-        console.error('Error saving strand:', error);
-        this.error = 'Failed to save strand.';
+        console.error('Error saving subject:', error);
+        this.error = 'Failed to save subject.';
       }
     },
 
     async deleteItem(id) {
       try {
         const token = localStorage.getItem('token'); 
-        await axios.delete(`http://localhost:8000/api/strands/${id}`, {
+        await axios.delete(`http://localhost:8000/api/deletesubject/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        await this.fetchStrands(); // Ensure this is awaited to update items
+        await this.fetchSubjects();
       } catch (error) {
-        console.error('Error deleting strand:', error);
-        this.error = 'Failed to delete strand.';
+        console.error('Error deleting subject:', error);
+        this.error = 'Failed to delete subject.';
       }
     },
 
@@ -156,7 +156,7 @@ export default {
     openEditModal(item) {
       this.isEdit = true;
       this.editItemId = item.id;
-      this.newStrand = item.addstrand;
+      this.newSubjectName = item.subjectname;
       this.showModal();
     },
 
@@ -172,56 +172,21 @@ export default {
     },
 
     resetForm() {
-      this.newStrand = '';
+      this.newSubjectName = '';
       this.isEdit = false;
       this.editItemId = null;
     },
   },
 
   mounted() {
-    this.fetchStrands();
+    this.fetchSubjects();
   }
 };
 </script>
 
 <style scoped>
 .container {
-  max-width: 900px;
-}
-
-.title-container {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 0.375rem;
-}
-
-.search-container {
-  margin-bottom: 1rem;
-}
-
-.table-container {
-  margin-bottom: 1rem;
-}
-
-.table {
-  background-color: #ffffff;
-}
-
-.table th, .table td {
-  text-align: center;
-  vertical-align: middle;
-}
-
-.table td {
-  color: #000;
-}
-
-.modal-backdrop.show {
-  opacity: 0.5;
-}
-
-.modal-content {
-  background-color: #fff;
-  color: #000;
+  max-width: 10000px;
+  margin: 0 auto;
 }
 </style>
