@@ -230,7 +230,7 @@ export default {
         alert('User registered successfully');
         this.isModalVisible = false;
         this.resetForm();
-        this.$router.push('/manage_teacher');
+        this.$router.push('/manage_teachers');
       } catch (error) {
         alert('Error registering user: ' + error.message);
       }

@@ -28,29 +28,29 @@
       <table class="table table-bordered table-hover">
         <thead class="table-info">
           <tr>
-          <th scope="col" class="text-center">No.</th>
-          <th scope="col" class="text-center">LRN</th>
-          <th scope="col" class="text-center">Name</th>
-          <th scope="col" class="text-center">Sex</th>
-          <th scope="col" class="text-center">Email</th>
-          <th scope="col" class="text-center">Strand</th>
-          <th scope="col" class="text-center">Grade Level</th>
-          <th scope="col" class="text-center">Date Registered</th>
-          <th scope="col" class="text-center">Date Modified</th>
-          <th scope="col" class="text-center">Actions</th>
-        </tr>
+            <th scope="col" class="text-center">No.</th>
+            <th scope="col" class="text-center">LRN</th>
+            <th scope="col" class="text-center">Name</th>
+            <th scope="col" class="text-center">Sex</th>
+            <th scope="col" class="text-center">Email</th>
+            <th scope="col" class="text-center">Strand </th>
+            <th scope="col" class="text-center">Section</th>
+            <th scope="col" class="text-center">Date Registered</th>
+            <th scope="col" class="text-center">Date Modified</th>
+            <th scope="col" class="text-center">Actions</th>
+          </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in paginatedItems" :key="item.idnumber">
+          <tr v-for="(students, index) in paginatedItems" :key="students.idnumber">
             <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-            <td class="text-center">{{ item.idnumber }}</td>
-            <td class="text-center">{{ item.lname}},{{ item.fname}} {{ item.mname}}</td>
-            <td class="text-center">{{ item.sex }}</td>
-            <td class="text-center">{{ item.email }}</td>
-            <td class="text-center">{{ item.strand }}</td>
-            <td class="text-center">{{ item.gradelevel }}</td>
-            <td class="text-center">{{ formatDate(item.created_at) }}</td>
-            <td class="text-center">{{ formatDate(item.updated_at) }}</td>
+            <td>{{ students.user.idnumber }}</td>
+            <td class="text-center">{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</td>
+            <td class="text-center">{{ students.user.sex }}</td>
+            <td class="text-center">{{ students.user.email }}</td>
+            <td class="text-center">{{ students.strands.addstrand }} {{ students.strands.grade_level }}</td>
+            <td class="text-center">{{ students.section.section }}</td>
+            <td class="text-center">{{ formatDate(students.created_at) }}</td>
+            <td class="text-center">{{ formatDate(students.updated_at) }}</td>
             <td class="text-center">
               <div class="icon-container">
                 <span class="icon-box reset-box">
@@ -84,6 +84,7 @@
       </nav>
     </div>
 
+    <!-- Modal for Editing User -->
     <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
@@ -91,66 +92,11 @@
             <h5 class="modal-title">Edit User</h5>
             <button type="button" class="btn-close" @click="showModal = false" aria-label="Close"></button>
           </div>
-          
           <div class="modal-body">
-          <form>
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <label for="id" class="form-label">LRN Number:</label>
-                <input type="text" id="id" v-model="currentUser.idnumber" class="form-control" >
-              </div>
-              <div class="col-md-4">
-                <label class="form-label d-block">Gender:</label>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="currentUser.sex">
-                  <label class="form-check-label" for="male">Male</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="currentUser.sex">
-                  <label class="form-check-label" for="female">Female</label>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <label for="strand" class="form-label">Strand:</label>
-                <select v-model="currentUser.strand" id="strand" class="form-select">
-                  <option v-for="(strand, index) in strands" :key="index" :value="strand.value">{{ strand.label }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <label for="lname" class="form-label">Last Name:</label>
-                <input type="text" id="lname" v-model="currentUser.lname" class="form-control" >
-              </div>
-              <div class="col-md-4">
-                <label for="fname" class="form-label">First Name:</label>
-                <input type="text" id="fname" v-model="currentUser.fname" class="form-control" >
-              </div>
-              <div class="col-md-4">
-                <label for="mname" class="form-label">Middle Name:</label>
-                <input type="text" id="mname" v-model="currentUser.mname" class="form-control" >
-              </div>
-            </div>
-            
-
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="email" class="form-label">Email Address:</label>
-                <input type="email" id="email" v-model="currentUser.email" class="form-control" >
-              </div>
-              <div class="col-md-6 position-relative">
-                <label for="password" class="form-label">Password:</label>
-                <div class="input-group">
-                  <input :type="showPassword ? 'text' : 'password'" id="password" v-model="currentUser.password" class="form-control" required>
-                  <button type="button" class="btn btn-outline-secondary" @click="togglePasswordVisibility">
-                    <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-
+            <form>
+              <!-- Form Fields -->
+            </form>
+          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
             <button type="button" class="btn btn-primary" @click="saveChanges">Save changes</button>
@@ -160,6 +106,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 import moment from 'moment';
@@ -172,36 +119,35 @@ export default {
       showModal: false,
       selectedStrand: '',
       strands: [
-      { value: '', label: 'All Strands' }, // Option to show all strands
-      { value: 'HUMMS', label: 'HUMMS' },
-      { value: 'STEM', label: 'STEM' },
-      { value: 'TVL-ICT', label: 'TVL-ICT' },
-      { value: 'ABM', label: 'ABM' }
-    ],
+        { value: '', label: 'All Strands' }, // Option to show all strands
+        { value: 'HUMMS', label: 'HUMMS' },
+        { value: 'STEM', label: 'STEM' },
+        { value: 'TVL-ICT', label: 'TVL-ICT' },
+        { value: 'ABM', label: 'ABM' }
+      ],
       showPassword: false,
       itemsPerPage: 10,
       currentPage: 1,
-    
       serverItems: [],
+      students: [],
       currentUser: {}  // Holds the user data being edited
     };
   },
   computed: {
     filteredItems() {
-    return this.serverItems.filter(item => {
-      const idnumberStr = item.idnumber ? item.idnumber.toString().toLowerCase() : '';
-      const searchLower = this.search.toLowerCase();
-      return (
-        (!this.selectedStrand || item.strand === this.selectedStrand) &&
-        (idnumberStr.includes(searchLower) ||
-        (item.username && item.username.toLowerCase().includes(searchLower)) ||
-        (item.lname && item.lname.toLowerCase().includes(searchLower)) ||
-        (item.fname && item.fname.toLowerCase().includes(searchLower)) ||
-        (item.mname && item.mname.toLowerCase().includes(searchLower)))
-      );
-    });
-  },
-
+      return this.serverItems.filter(item => {
+        const idnumberStr = item.idnumber ? item.idnumber.toString().toLowerCase() : '';
+        const searchLower = this.search.toLowerCase();
+        return (
+          (!this.selectedStrand || item.strand === this.selectedStrand) &&
+          (idnumberStr.includes(searchLower) ||
+          (item.username && item.username.toLowerCase().includes(searchLower)) ||
+          (item.lname && item.lname.toLowerCase().includes(searchLower)) ||
+          (item.fname && item.fname.toLowerCase().includes(searchLower)) ||
+          (item.mname && item.mname.toLowerCase().includes(searchLower)))
+        );
+      });
+    },
     paginatedItems() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
@@ -213,67 +159,65 @@ export default {
   },
   methods: {
     formatDate(date) {
-    return moment(date).format('YYYY/M/D [time] h:mm a');
-  },
+      return moment(date).format('YYYY/M/D [time] h:mm a');
+    },
     openModal(user) {
       this.currentUser = { ...user };
       this.showModal = true;
     },
     async saveChanges() {
-    // Example Axios PUT request
-      axios.put(`http://localhost:8000/api/users/${this.currentUser.id}`, this.currentUser, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => {
-        alert (response.data.message);
-      })
-      .catch(error => {
-        alert.error('Error saving changes:', error.response ? error.response.data : error.message);
-      });
-
-    },
-
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
-    },
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
+      try {
+        const response = await axios.put(`http://localhost:8000/api/users/${this.currentUser.id}`, this.currentUser, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        alert(response.data.message);
+        this.showModal = false;
+        this.fetchStudents();
+      } catch (error) {
+        alert('Error saving changes:', error.response ? error.response.data : error.message);
       }
     },
-    async fetchData() {
+    async removeUser(user) {
+      if (confirm('Are you sure you want to delete this user?')) {
+        try {
+          const response = await axios.delete(`http://localhost:8000/api/users/${user.idnumber}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          alert(response.data.message);
+          this.fetchStudents();
+        } catch (error) {
+          alert('Error deleting user:', error.response ? error.response.data : error.message);
+        }
+      }
+    },
+    async fetchStudents() {
       try {
-        const response = await axios.get('http://localhost:8000/api/index2', {
+        const response = await axios.get('http://localhost:8000/api/viewAllStudents', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        this.serverItems = response.data;
+        this.serverItems = response.data.students;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        alert('Error fetching students:', error.message);
       }
     },
-
-    
-    removeUser() {
-      axios.delete('http://localhost:8000/api/users/${user.id}')
-        .then(() => {
-          this.fetchData();
-        })
-        .catch(error => {
-          console.error('Error deleting user:', error);
-        });
-    },
-    
+    changePage(page) {
+      this.currentPage = page;
+    }
   },
   mounted() {
-    this.fetchData();
+    this.fetchStudents();
   }
 };
 </script>
+
+
 
 
 <style scoped>
