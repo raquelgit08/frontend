@@ -63,6 +63,23 @@
           </div>
         </div>
       </div>
+  
+      <div class="modal fade" id="errorModal" tabindex="-1" ref="errorModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Error</h5>
+              <button type="button" class="btn-close" @click="closeErrorModal"></button>
+            </div>
+            <div class="modal-body">
+              <p>{{ error }}</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" @click="closeErrorModal">OK</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </template>
   
@@ -113,6 +130,20 @@
       async saveItem() {
         try {
           const token = localStorage.getItem('token'); 
+  
+          // Check for duplicate strand and grade level
+          const isDuplicate = this.items.some(item => 
+            item.addstrand.toLowerCase() === this.newStrand.toLowerCase() && 
+            item.grade_level.toLowerCase() === this.newGradeLevel.toLowerCase()
+          );
+  
+          if (isDuplicate) {
+            this.error = 'This strand and grade level combination already exists.';
+            this.closeModal();  // Close the Add/Edit Modal
+            this.showErrorModal();  // Show the Error Modal
+            return;
+          }
+  
           if (this.isEdit) {
             await axios.put(`http://localhost:8000/api/strands/${this.editItemId}`, {
               addstrand: this.newStrand,
@@ -132,12 +163,14 @@
               }
             });
           }
+  
           await this.fetchStrands();
           this.resetForm();
           this.closeModal();
         } catch (error) {
           console.error('Error saving strand:', error);
           this.error = 'Failed to save strand.';
+          this.showErrorModal();  // Show the Error Modal
         }
       },
   
@@ -153,6 +186,7 @@
         } catch (error) {
           console.error('Error deleting strand:', error);
           this.error = 'Failed to delete strand.';
+          this.showErrorModal();  // Show the Error Modal
         }
       },
   
@@ -179,6 +213,16 @@
         const modal = Modal.getInstance(this.$refs.addEditModal);
         modal.hide();
         this.resetForm();
+      },
+  
+      showErrorModal() {
+        const modal = new Modal(this.$refs.errorModal);
+        modal.show();
+      },
+  
+      closeErrorModal() {
+        const modal = Modal.getInstance(this.$refs.errorModal);
+        modal.hide();
       },
   
       resetForm() {

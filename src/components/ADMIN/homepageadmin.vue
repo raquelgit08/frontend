@@ -105,7 +105,8 @@ export default {
       { path: '/ManageStrandsinSHS', label: 'Manage Strand', icon: 'bi bi-calendar-month-fill'},
       { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder-symlink-fill' },
       //{ path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-calendar-date-fill' }, static nalang daw ito//
-      { path: '/ASemester', label: 'Manage Curriculum', icon: 'bi bi-calendar-week-fill'}
+      { path: '/ASemester', label: 'Manage Curriculum', icon: 'bi bi-calendar-week-fill'},
+      { path: '/AManageSubject', label:'Manage Subjects', icon:'bi bi-house-door-fill'  }
        
       ],
     };

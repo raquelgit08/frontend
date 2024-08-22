@@ -183,8 +183,8 @@
   
   <style scoped>
   .container {
-    max-width: 600px;
-    margin: auto;
+    max-width: 10000px;
+    margin: 0 auto;
   }
   .table th, .table td {
     text-align: center;
