@@ -64,11 +64,7 @@
           </ul>
         </div>
         <!-- Strand Dropdown -->
-        <div class="list-group" @click="handleItemClick('/strand-section')">
-          <span class="icon-label">
-            <i class="bi bi-grid-fill fs-4" style="padding-right: 10px;"></i> Strand
-          </span>
-        </div> 
+       
 
         <!-- Chevron Icon to Collapse/Expand Sidebar -->
         <i @click="toggleSidebar" class="bi" :class="isSidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
@@ -104,11 +100,13 @@ export default {
       isSidebarCollapsed: false, // New data property for sidebar state
       selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
       items: [
-        { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-house-door-fill' },
-        { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder-symlink-fill' },
-        { path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-calendar-date-fill' },
-        { path: '/ASemester', label: 'Manage Semesters', icon: 'bi bi-calendar-week-fill'},
-        { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-calendar-month-fill'}
+      { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-house-door-fill' },
+      { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-calendar-month-fill'},
+      { path: '/ManageStrandsinSHS', label: 'Manage Strand', icon: 'bi bi-calendar-month-fill'},
+      { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder-symlink-fill' },
+      //{ path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-calendar-date-fill' }, static nalang daw ito//
+      { path: '/ASemester', label: 'Manage Curriculum', icon: 'bi bi-calendar-week-fill'}
+       
       ],
     };
   },
