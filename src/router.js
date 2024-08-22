@@ -14,6 +14,9 @@ import SemesterinENHS from './components/ADMIN/ASemester.vue';
 import SchoolYear from './components/ADMIN/ASchoolYear.vue';
 import ManagingStrandsinENHS from './components/ADMIN/ManageStrandsinSHS.vue';
 import ManageSubjectinSHS from './components/ADMIN/AManageSubject.vue';
+import ManageTeacherPosition from './components/ADMIN/AManagePosition.vue';
+import ManageCurricuminENHS from './components/ADMIN/ManageCuricculuminSHS.vue';
+
 import Humms11Page from './components/ADMIN/STRAND/humms11.vue';
 import Humms12Page from './components/ADMIN/STRAND/humms12.vue';
 import Abm11Page from './components/ADMIN/STRAND/abm11.vue';
@@ -64,6 +67,9 @@ const routes = [
   { path: '/ASchoolYear', component: SchoolYear},
   { path: '/ManageStrandsinSHS', component: ManagingStrandsinENHS},
   { path: '/AManageSubject', component: ManageSubjectinSHS},
+  { path: '/AManagePosition', component: ManageTeacherPosition},
+  { path: '/ManageCuricculuminSHS', component: ManageCurricuminENHS},
+
   { path: '/strand-section/abm11', component: Abm11Page},
   { path: '/strand-section/abm12', component: Abm12Page},
   { path: '/strand-section/humms11', component: Humms11Page},

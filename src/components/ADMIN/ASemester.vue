@@ -1,222 +1,169 @@
 <template>
-    <div class="container mt-4">
-      <h5 class="text-center">Manage Semester</h5>
-  
-      <div class="d-flex justify-content-between mb-3">
-        <div class="input-group">
-          <input type="text" v-model="searchQuery" class="form-control" placeholder="Search Semesters...">
-          <button class="btn btn-outline-secondary" @click="openAddModal">
-            <i class="bi bi-plus"></i>
-          </button>
-        </div>
+  <div class="container mt-4">
+    <h5 class="text-center">Set Up Curriculum</h5>
+
+    <div class="row">
+      <!-- Curriculum Dropdown -->
+      <div class="col-md-6 mb-3">
+        <label for="curriculum" class="form-label">Curriculum</label>
+        <select v-model="selectedCurriculum" @change="fetchStrands" class="form-select" id="curriculum">
+          <option value="" disabled>Select Curriculum</option>
+          <option v-for="curriculum in curricula" :key="curriculum.id" :value="curriculum.id">{{ curriculum.Namecuriculum }}</option>
+        </select>
       </div>
-  
-      <div>
-        <table class="table table-bordered table-striped">
-          <thead class="table-light">
-            <tr>
-              <th>No.</th>
-              <th>Semester</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(semester, index) in filteredList" :key="semester.id">
-              <td>{{ index + 1 }}</td>
-              <td>{{ semester.sem }}</td>
-              <td>{{ semester.status ? 'Active' : 'Inactive' }}</td>
-              <td>
-                <button class="btn btn-warning btn-sm me-1" @click="openEditModal(semester)">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-danger btn-sm" @click="deleteSemester(semester.id)">
-                  <i class="bi bi-trash"></i>
-                </button>
-                <button class="btn btn-secondary btn-sm" @click="toggleStatus(semester)">
-                  <i class="bi bi-toggle-{{ semester.status ? 'on' : 'off' }}"></i> 
-                  {{ semester.status ? 'Set Inactive' : 'Set Active' }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+      <!-- Strand Dropdown -->
+      <div class="col-md-6 mb-3">
+        <label for="strand" class="form-label">Strand</label>
+        <select v-model="selectedStrand" @change="setGradeLevel" class="form-select" id="strand" :disabled="!selectedCurriculum">
+          <option value="" disabled>Select Strand</option>
+          <option v-for="strand in strands" :key="strand.id" :value="strand.id">{{ strand.strand_name }}</option>
+        </select>
       </div>
-  
-      <!-- Add/Edit Modal -->
-      <div class="modal fade" id="semesterModal" tabindex="-1" ref="semesterModal">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">{{ isEdit ? 'Edit Semester' : 'Add Semester' }}</h5>
-              <button type="button" class="btn-close" @click="closeModal"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <input type="text" v-model="newSemester" class="form-control" placeholder="Semester Name">
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" v-model="newSemesterStatus">
-                <label class="form-check-label">Is Active?</label>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-              <button type="button" class="btn btn-primary" @click="saveSemester">{{ isEdit ? 'Update' : 'Save' }}</button>
-            </div>
-          </div>
-        </div>
+
+      <!-- Grade Level (auto-filled) -->
+      <div class="col-md-6 mb-3">
+        <label for="gradeLevel" class="form-label">Grade Level</label>
+        <input type="text" v-model="gradeLevel" class="form-control" id="gradeLevel" disabled />
+      </div>
+
+      <!-- Semester Dropdown -->
+      <div class="col-md-6 mb-3">
+        <label for="semester" class="form-label">Semester</label>
+        <select v-model="selectedSemester" class="form-select" id="semester">
+          <option value="" disabled>Select Semester</option>
+          <option value="1st Semester">1st Semester</option>
+          <option value="2nd Semester">2nd Semester</option>
+        </select>
+      </div>
+
+      <!-- Subject Dropdown -->
+      <div class="col-md-6 mb-3">
+        <label for="subject" class="form-label">Subject</label>
+        <select v-model="selectedSubject" class="form-select" id="subject">
+          <option value="" disabled>Select Subject</option>
+          <option v-for="subject in subjects" :key="subject.id" :value="subject.id">{{ subject.subjectname }}</option>
+        </select>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  import { Modal } from 'bootstrap';
-  
-  export default {
-    name: 'SemesterinENHS',
-    data() {
-      return {
-        searchQuery: '',
-        semesters: [],
-        newSemester: '',
-        newSemesterStatus: true,
-        isEdit: false,
-        editSemesterId: null,
-        error: null,
-      };
-    },
-    computed: {
-      filteredList() {
-        return this.semesters.filter(semester => {
-          return semester.sem.toLowerCase().includes(this.searchQuery.toLowerCase());
-        });
+
+    <div class="text-center">
+      <button class="btn btn-primary" @click="submitCurriculumSetup">Submit Curriculum Setup</button>
+    </div>
+
+    <!-- Success and Error Messages -->
+    <div v-if="message" class="alert alert-info mt-3">{{ message }}</div>
+    <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'SemesterinENHS',
+  data() {
+    return {
+      curricula: [],
+      strands: [],
+      subjects: [],
+      selectedCurriculum: '',
+      selectedStrand: '',
+      gradeLevel: '',
+      selectedSemester: '',
+      selectedSubject: '',
+      message: '',
+      error: '',
+    };
+  },
+  methods: {
+    async fetchCurricula() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/viewcuri');
+        this.curricula = response.data.data;
+      } catch (error) {
+        console.error('Error fetching curricula:', error);
+        this.error = 'Failed to fetch curricula.';
       }
     },
-    methods: {
-      async fetchSemesters() {
+
+    async fetchStrands() {
+      if (this.selectedCurriculum) {
         try {
-          const token = localStorage.getItem('token');
-          const response = await axios.get('http://localhost:8000/api/viewsemester', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+          const response = await axios.get('http://localhost:8000/api/viewstrands', {
+            params: { curriculum_id: this.selectedCurriculum }
           });
-          this.semesters = response.data.data;
+          this.strands = response.data.data;
         } catch (error) {
-          console.error('Error fetching semesters:', error);
-          this.error = 'Failed to fetch semesters.';
+          console.error('Error fetching strands:', error);
+          this.error = 'Failed to fetch strands.';
         }
-      },
-  
-      async saveSemester() {
-        try {
-          const token = localStorage.getItem('token');
-          if (this.newSemester) {
-            const payload = {
-              sem: this.newSemester,
-              status: this.newSemesterStatus
-            };
-  
-            if (this.isEdit) {
-              await axios.put(`http://localhost:8000/api/updatesemester/${this.editSemesterId}`, payload, {
-                headers: {
-                  Authorization: `Bearer ${token}`
-                }
-              });
-            } else {
-              await axios.post('http://localhost:8000/api/addsemester', payload, {
-                headers: {
-                  Authorization: `Bearer ${token}`
-                }
-              });
-            }
-  
-            await this.fetchSemesters();
-            this.resetForm();
-            this.closeModal();
+      }
+    },
+
+    async fetchSubjects() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/viewsubject');
+        this.subjects = response.data.data;
+      } catch (error) {
+        console.error('Error fetching subjects:', error);
+        this.error = 'Failed to fetch subjects.';
+      }
+    },
+
+    setGradeLevel() {
+      if (this.selectedStrand) {
+        // Set the grade level based on selected strand (example logic, adjust as needed)
+        const strand = this.strands.find(s => s.id === this.selectedStrand);
+        this.gradeLevel = strand ? strand.grade_level : '';
+      }
+    },
+
+    async submitCurriculumSetup() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post('http://localhost:8000/api/addcuriculum', {
+          scuriculum_id: this.selectedCurriculum,
+          subject_id: this.selectedSubject,
+          strand_id: this.selectedStrand,
+          semester: this.selectedSemester,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        } catch (error) {
-          console.error('Error saving semester:', error);
-        }
-      },
-  
-      async deleteSemester(id) {
-        try {
-          const token = localStorage.getItem('token');
-          await axios.delete(`http://localhost:8000/api/deletesemester/${id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          await this.fetchSemesters();
-        } catch (error) {
-          console.error('Error deleting semester:', error);
-        }
-      },
-  
-      async toggleStatus(semester) {
-        try {
-          const token = localStorage.getItem('token');
-          const newStatus = !semester.status;
-          await axios.put(`http://localhost:8000/api/togglesemesterstatus/${semester.id}`, { status: newStatus }, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          await this.fetchSemesters();
-        } catch (error) {
-          console.error('Error updating status:', error);
-        }
-      },
-  
-      openAddModal() {
-        this.isEdit = false;
+        });
+
+        this.message = response.data.message;
         this.resetForm();
-        this.showModal();
-      },
-  
-      openEditModal(semester) {
-        this.isEdit = true;
-        this.editSemesterId = semester.id;
-        this.newSemester = semester.sem;
-        this.newSemesterStatus = semester.status;
-        this.showModal();
-      },
-  
-      showModal() {
-        const modal = new Modal(this.$refs.semesterModal);
-        modal.show();
-      },
-  
-      closeModal() {
-        const modal = Modal.getInstance(this.$refs.semesterModal);
-        modal.hide();
-        this.resetForm();
-      },
-  
-      resetForm() {
-        this.newSemester = '';
-        this.newSemesterStatus = true;
-        this.isEdit = false;
-        this.editSemesterId = null;
+      } catch (error) {
+        console.error('Error submitting curriculum setup:', error);
+        this.error = 'Failed to submit curriculum setup.';
       }
     },
-  
-    mounted() {
-      this.fetchSemesters();
+
+    resetForm() {
+      this.selectedCurriculum = '';
+      this.selectedStrand = '';
+      this.gradeLevel = '';
+      this.selectedSemester = '';
+      this.selectedSubject = '';
     }
-  };
-  </script>
-  
-  <style scoped>
-  .container {
-    max-width: 600px;
-    margin: auto;
+  },
+
+  mounted() {
+    this.fetchCurricula();
+    this.fetchSubjects();
   }
-  .table th, .table td {
-    text-align: center;
-  }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.row {
+  margin-bottom: 15px;
+}
+</style>

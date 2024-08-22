@@ -5,10 +5,15 @@
     </div>
 
     <div class="d-flex justify-content-between mb-3">
+      <!-- Search Bar -->
       <div class="input-group">
-        <input type="text" v-model="searchQuery" class="form-control" placeholder="Search Sections...">
+        <input type="text" v-model="searchQuery" class="form-control" placeholder="Search Section...">
+      </div>
+
+      <!-- Add School Year Button -->
+      <div>
         <button class="btn btn-outline-secondary" @click="openAddModal">
-          <i class="bi bi-plus"></i>
+          <i class="bi bi-plus"></i> Add Section
         </button>
       </div>
     </div>
@@ -291,5 +296,8 @@ export default {
   margin: 0 auto;
 }
 
+.input-group{
+  max-width: 1080px;
 
+}
 </style>

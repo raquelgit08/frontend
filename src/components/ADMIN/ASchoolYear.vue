@@ -3,10 +3,15 @@
     <h5 class="text-center">Manage School Year</h5>
 
     <div class="d-flex justify-content-between mb-3">
+      <!-- Search Bar -->
       <div class="input-group">
         <input type="text" v-model="searchQuery" class="form-control" placeholder="Search Years...">
+      </div>
+
+      <!-- Add School Year Button -->
+      <div>
         <button class="btn btn-outline-secondary" @click="openAddModal">
-          <i class="bi bi-plus"></i>
+          <i class="bi bi-plus"></i> Add School Year
         </button>
       </div>
     </div>
@@ -220,10 +225,16 @@ export default {
 
 <style scoped>
 .container {
-  max-width: 1000px;
+  max-width: 10000px;
   margin: 0 auto;
 }
+
 .table th, .table td {
   text-align: center;
+}
+
+.input-group{
+  max-width: 1050px;
+
 }
 </style>
