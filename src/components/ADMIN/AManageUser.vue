@@ -186,14 +186,17 @@ export default {
     }
   },
   methods: {
-    fetchData() {
-      axios.get('http://localhost:8000/api/users')
-        .then(response => {
-          this.serverItems = response.data;
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
+    async fetchData() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/viewallusers', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
         });
+        this.serverItems = response.data;
+      } catch (error) {
+        alert('Error fetching data:', error.message);
+      }
     },
     openModal(user) {
       this.currentUser = { ...user };
