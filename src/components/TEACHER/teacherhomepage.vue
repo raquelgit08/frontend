@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2>Admin Portal</h2>
+          <h2>Teacher Portal</h2>
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto">
