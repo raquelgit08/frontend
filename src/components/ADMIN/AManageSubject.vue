@@ -39,6 +39,7 @@
       </table>
     </div>
 
+    <!-- Add/Edit Modal -->
     <div class="modal fade" id="addEditModal" tabindex="-1" ref="addEditModal">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -54,6 +55,24 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
             <button type="button" class="btn btn-primary" @click="saveItem">{{ isEdit ? 'Update' : 'Save' }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Duplicate Error Modal -->
+    <div class="modal fade" id="duplicateModal" tabindex="-1" ref="duplicateModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Duplicate Subject</h5>
+            <button type="button" class="btn-close" @click="closeDuplicateModal"></button>
+          </div>
+          <div class="modal-body">
+            <p>{{ duplicateErrorMessage }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeDuplicateModal">Close</button>
           </div>
         </div>
       </div>
@@ -75,6 +94,7 @@ export default {
       isEdit: false,
       editItemId: null,
       error: null,
+      duplicateErrorMessage: '',
     };
   },
   computed: {
@@ -127,8 +147,14 @@ export default {
         this.resetForm();
         this.closeModal();
       } catch (error) {
-        console.error('Error saving subject:', error);
-        this.error = 'Failed to save subject.';
+        if (error.response && error.response.status === 409) {
+          this.duplicateErrorMessage = error.response.data.message;
+          this.closeModal();
+          this.showDuplicateModal();
+        } else {
+          console.error('Error saving subject:', error);
+          this.error = 'Failed to save subject.';
+        }
       }
     },
 
@@ -167,6 +193,17 @@ export default {
 
     closeModal() {
       const modal = Modal.getInstance(this.$refs.addEditModal);
+      modal.hide();
+      this.resetForm();
+    },
+
+    showDuplicateModal() {
+      const modal = new Modal(this.$refs.duplicateModal);
+      modal.show();
+    },
+
+    closeDuplicateModal() {
+      const modal = Modal.getInstance(this.$refs.duplicateModal);
       modal.hide();
       this.resetForm();
     },

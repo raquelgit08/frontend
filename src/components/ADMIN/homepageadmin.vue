@@ -105,8 +105,10 @@ export default {
       { path: '/ManageStrandsinSHS', label: 'Manage Strand', icon: 'bi bi-calendar-month-fill'},
       { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder-symlink-fill' },
       //{ path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-calendar-date-fill' }, static nalang daw ito//
-      { path: '/ASemester', label: 'Manage Curriculum', icon: 'bi bi-calendar-week-fill'},
-      { path: '/AManageSubject', label:'Manage Subjects', icon:'bi bi-house-door-fill'  }
+      { path: '/ASemester', label: 'Set Up Curriculum', icon: 'bi bi-calendar-week-fill'}, //ibahan pa yung tawag di ko alam e
+      { path: '/AManageSubject', label:'Manage Subjects', icon:'bi bi-house-door-fill'  },
+      { path: '/AManagePosition', label: 'Manage Position', icon:'bi bi-house-door-fill' },
+      { path: '/ManageCuricculuminSHS', label: 'Manage Curriculum', icon:'bi bi-house-door-fill' }
        
       ],
     };
@@ -233,6 +235,7 @@ h2 {
 
 .label {
   margin-left: 10px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 .content {
