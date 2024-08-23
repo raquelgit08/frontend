@@ -31,9 +31,9 @@
         <tbody>
           <tr v-for="(curriculum, index) in filteredList" :key="curriculum.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ curriculum.Namecuriculum }}</td>
-            <td>{{ curriculum.strand }}</td>
-            <td>{{ curriculum.subjectname }}</td>
+            <td>{{ getCurriculumName(curriculum.scuriculum_id) }}</td>
+            <td>{{ getStrandName(curriculum.strand_id) }}</td>
+            <td>{{ getSubjectName(curriculum.subject_id) }}</td>
             <td>{{ curriculum.semester }}</td>
             <td>
               <button class="btn btn-warning btn-sm me-1" @click="openEditModal(curriculum)">
@@ -190,7 +190,18 @@ export default {
         this.error = 'Failed to fetch curriculum entries.';
       }
     },
-
+    getCurriculumName(id) {
+      const curriculum = this.curriculums.find(c => c.id === id);
+      return curriculum ? curriculum.Namecuriculum : '';
+    },
+    getStrandName(id) {
+      const strand = this.strands.find(s => s.id === id);
+      return strand ? strand.addstrand : '';
+    },
+    getSubjectName(id) {
+      const subject = this.subjects.find(s => s.id === id);
+      return subject ? subject.subjectname : '';
+    },
     async fetchStrands() {
       try {
         const token = localStorage.getItem('token');
