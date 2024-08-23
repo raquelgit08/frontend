@@ -32,8 +32,8 @@
           <tr v-for="(curriculum, index) in filteredList" :key="curriculum.id">
             <td>{{ index + 1 }}</td>
             <td>{{ curriculum.Namecuriculum }}</td>
-            <td>{{ curriculum.strand_name }}</td>
-            <td>{{ curriculum.subject_name }}</td>
+            <td>{{ curriculum.strand }}</td>
+            <td>{{ curriculum.subjectname }}</td>
             <td>{{ curriculum.semester }}</td>
             <td>
               <button class="btn btn-warning btn-sm me-1" @click="openEditModal(curriculum)">
@@ -154,7 +154,7 @@ export default {
       }
 
       return this.curriculumEntries.filter(entry => {
-        const name = entry?.Namecuriculum || '';
+        const name = entry?.strandcurriculum?.Namecuriculum || '';
         return name.toLowerCase().includes(this.searchQuery.toLowerCase());
       });
     }
@@ -180,9 +180,10 @@ export default {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:8000/api/viewcuriculum', {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
+        console.log('Curriculum Entries:', response.data.data); // Log the data to check the structure
         this.curriculumEntries = response.data.data;
       } catch (error) {
         console.error('Error fetching curriculum entries:', error);
@@ -339,3 +340,18 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.container {
+  max-width: 10000px;
+  margin: 0 auto;
+}
+
+.table th, .table td {
+  text-align: center;
+}
+
+.input-group {
+  max-width: 1050px;
+}
+</style>
