@@ -4,18 +4,6 @@
       <h4 class="text-center">Manage ALL Users</h4><br>
       <div class="row mb-4 justify-content-end align-items-center">
         <div class="col-md-4 d-flex align-items-center">
-          <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-              Sort By: {{ sortDirection === 'asc' ? 'A -> Z' : 'Z -> A' }}
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-              <li><button class="dropdown-item" type="button" @click="sortItems('asc')">A -> Z</button></li>
-              <li><button class="dropdown-item" type="button" @click="sortItems('desc')">Z -> A</button></li>
-            </ul>
-          </div>
-        </div>
-        
-        <div class="col-md-4 d-flex align-items-center">
           <label for="userType" class="form-label me-2">SELECT USER TYPE:</label>
           <select v-model="selectedUserType" class="form-select" id="userType">
             <option v-for="type in userTypes" :key="type" :value="type">{{ type }}</option>
@@ -27,10 +15,7 @@
               <i class="bi bi-search"></i>
             </span>
             <input type="text" v-model="search" class="form-control" placeholder="Search" />
-            
-
           </div>
-       
         </div>
       </div>
 
@@ -49,7 +34,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in sortedFilteredItems" :key="item.idnumber">
+          <tr v-for="(item, index) in paginatedItems" :key="item.idnumber">
             <td class="text-center">{{ index + 1 }}</td>
             <td class="text-center">{{ item.idnumber }}</td>
             <td class="text-center">{{ item.lname }}, {{ item.fname }} {{ item.mname }}</td>
@@ -60,21 +45,45 @@
             <td class="text-center">{{ formatDate(item.updated_at) }}</td>
             <td class="text-center">
               <div class="icon-container">
-                <span class="icon-box reset-box">
-                  <i class="bi bi-key-fill custom-icon" @click="openModal(item)"></i>
+                <span class="icon-box reset-box" @click="openModal(item)" aria-label="Reset Password">
+                  <i class="bi bi-key-fill custom-icon"></i>
                 </span>
-                <span class="icon-box edit-box">
-                  <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
+                <span class="icon-box edit-box" @click="openModal(item)" aria-label="Edit User">
+                  <i class="bi bi-pencil-square custom-icon"></i>
                 </span>
-                <span class="icon-box delete-box">
-                  <i class="bi bi-person-x-fill custom-icon" @click="removeUser(item)"></i>
+                <span class="icon-box delete-box" @click="removeUser(item)" aria-label="Delete User">
+                  <i class="bi bi-person-x-fill custom-icon"></i>
                 </span>
               </div>
-
             </td>
           </tr>
         </tbody>
       </table>
+      <div class="row mb-4">
+        <div class="col-md-2">
+          <h6 class="text-center">Male : {{ maleCountPerPage }}</h6>
+        </div>
+        <div class="col-md-2">
+          <h6 class="text-center">Female : {{ femaleCountPerPage }}</h6>
+        </div>
+        <div class="col-md-8">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+              </li>
+              <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
+                <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+              </li>
+              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      
     </div>
 
     <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
@@ -154,10 +163,12 @@ export default {
     return {
       search: '',
       showModal: false,
-      selectedUserType: '',
+      selectedUserType: 'all', // Default to 'all'
       showPassword: false,
-      sortDirection: 'asc', // default sort direction
-      userTypes: ['student', 'teacher'],
+      itemsPerPage: 10,
+      currentPage: 1,
+      sortDirection: 'asc', // Default sort direction
+      userTypes: ['all', 'admin', 'teacher', 'student'], // Example user types
       serverItems: [],
       currentUser: {}  // Holds the user data being edited
     };
@@ -168,7 +179,7 @@ export default {
         const idnumberStr = item.idnumber ? item.idnumber.toString().toLowerCase() : '';
         const searchLower = this.search.toLowerCase();
         return (
-          (!this.selectedUserType || item.usertype === this.selectedUserType) &&
+          (this.selectedUserType === 'all' || item.usertype === this.selectedUserType) &&
           (idnumberStr.includes(searchLower) ||
           (item.username && item.username.toLowerCase().includes(searchLower)) ||
           (item.lname && item.lname.toLowerCase().includes(searchLower)) ||
@@ -179,10 +190,24 @@ export default {
     },
     sortedFilteredItems() {
       const sortedItems = [...this.filteredItems].sort((a, b) => {
-        const comparison = a.lname.localeCompare(b.lname); //// a.lname.localeCompare(b.lname) compares the lname property of two items (a and b) for sorting.
+        const comparison = a.lname.localeCompare(b.lname); // Sort by last name
         return this.sortDirection === 'asc' ? comparison : -comparison;
       });
       return sortedItems;
+    },
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.sortedFilteredItems.slice(start, end); // Use sortedFilteredItems here
+    },
+    totalPages() {
+      return Math.ceil(this.sortedFilteredItems.length / this.itemsPerPage); // Use sortedFilteredItems here
+    },
+    maleCountPerPage() {
+      return this.paginatedItems.filter(item => item.sex === 'male').length;
+    },
+    femaleCountPerPage() {
+      return this.paginatedItems.filter(item => item.sex === 'female').length;
     }
   },
   methods: {
@@ -229,11 +254,16 @@ export default {
     },
     sortItems(direction) {
       this.sortDirection = direction;
+    },
+    changePage(page) {
+      if (page > 0 && page <= this.totalPages) {
+        this.currentPage = page;
+      }
     }
   },
   mounted() {
     this.fetchData();
-  },
+  }
 };
 </script>
 

@@ -4,13 +4,19 @@
       <h4 class="text-center">Teachers Accounts </h4><br>
       <div class="row mb-4 justify-content-end align-items-center">
         <div class="col-md-4 d-flex align-items-center">
-          <label for="userStrand" class="form-label me-2">SELECT  POSITION:</label>
-          <select v-model="selectedStrand" class="form-select" id="userStrand">
-            <option value="">All Strands</option>
-            <option v-for="strand in strands" :key="strand.value" :value="strand.value">
-              {{ strand.label }}
-            </option>
+          <label for="userType" class="form-label me-2">SELECT GENDER:</label>
+          <select v-model="selectedGender" class="form-select" id="gender">
+            <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
           </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-center">
+          <label for="userStrand" class="form-label me-2">SELECT  POSITION:</label>
+          <select v-model="position_id" id="position" class="form-select" required>
+          <option value="">Select Position</option>
+          <option v-for="position in positions" :key="position.id" :value="position.id">
+            {{ position.teacher_postion }}
+          </option>
+        </select>
         </div>
         <div class="col-md-4">
           <div class="input-group">
@@ -68,20 +74,30 @@
         </tbody>
       </table>
 
-      <!-- Basic Pagination Controls -->
-      <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
-          </li>
-          <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
-            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-          </li>
-          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-            <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
-          </li>
-        </ul>
-      </nav>
+      <div class="row mb-4">
+        <div class="col-md-2">
+          <h6 class="text-center">Male : {{ maleCountPerPage }}</h6>
+        </div>
+        <div class="col-md-2">
+          <h6 class="text-center">Female : {{ femaleCountPerPage }}</h6>
+        </div>
+        <div class="col-md-8">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+              </li>
+              <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
+                <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+              </li>
+              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
     </div>
 
     <!-- Modal for Editing User -->
@@ -117,34 +133,39 @@ export default {
     return {
       search: '',
       showModal: false,
-      selectedStrand: '',
-      strands: [
-        { value: '', label: 'All Strands' }, // Option to show all strands
-        { value: 'HUMMS', label: 'HUMMS' },
-        { value: 'STEM', label: 'STEM' },
-        { value: 'TVL-ICT', label: 'TVL-ICT' },
-        { value: 'ABM', label: 'ABM' }
-      ],
       showPassword: false,
+      selectedGender: 'all', // Default to 'all'
+  
+      gender: ['all', 'male', 'female'],
       itemsPerPage: 10,
       currentPage: 1,
       serverItems: [],
       students: [],
+      position_id: '', // Ensure this is defined
+      positions: [],   // Initialize positions as an empty array
       currentUser: {}  // Holds the user data being edited
     };
   },
   computed: {
     filteredItems() {
+      const searchLower = this.search.toLowerCase();
       return this.serverItems.filter(item => {
-        const idnumberStr = item.idnumber ? item.idnumber.toString().toLowerCase() : '';
-        const searchLower = this.search.toLowerCase();
+        const idnumberStr = item.user.idnumber ? item.user.idnumber.toString().toLowerCase() : '';
+        const lname = item.user.lname ? item.user.lname.toLowerCase() : '';
+        const fname = item.user.fname ? item.user.fname.toLowerCase() : '';
+        const mname = item.user.mname ? item.user.mname.toLowerCase() : '';
+        const positionMatches = !this.position_id || item.position.id === this.position_id;
+        const genderMatches = this.selectedGender === 'all' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
+
         return (
-          (!this.selectedStrand || item.strand === this.selectedStrand) &&
-          (idnumberStr.includes(searchLower) ||
-          (item.username && item.username.toLowerCase().includes(searchLower)) ||
-          (item.lname && item.lname.toLowerCase().includes(searchLower)) ||
-          (item.fname && item.fname.toLowerCase().includes(searchLower)) ||
-          (item.mname && item.mname.toLowerCase().includes(searchLower)))
+          positionMatches &&
+          genderMatches &&
+          (
+            idnumberStr.includes(searchLower) ||
+            lname.includes(searchLower) ||
+            fname.includes(searchLower) ||
+            mname.includes(searchLower)
+          )
         );
       });
     },
@@ -155,6 +176,12 @@ export default {
     },
     totalPages() {
       return Math.ceil(this.filteredItems.length / this.itemsPerPage);
+    },
+    maleCountPerPage() {
+      return this.paginatedItems.filter(item => item.user.sex === 'male').length;
+    },
+    femaleCountPerPage() {
+      return this.paginatedItems.filter(item => item.user.sex === 'female').length;
     }
   },
   methods: {
@@ -204,15 +231,28 @@ export default {
         });
         this.serverItems = response.data.teachers;
       } catch (error) {
-        alert('Error fetching students:', error.message);
+        alert('Error fetching teachers:', error.message);
       }
     },
     changePage(page) {
       this.currentPage = page;
+    },
+    async fetchPositions() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/viewposition', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        this.positions = response.data.data; // Ensure this is correct based on your API response
+      } catch (error) {
+        console.error('Error fetching positions:', error.response ? error.response.data : error.message);
+      }
     }
   },
   mounted() {
     this.fetchTeachers();
+    this.fetchPositions();
   }
 };
 </script>
