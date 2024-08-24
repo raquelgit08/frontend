@@ -60,7 +60,8 @@
             <td class="text-center">
               <div class="icon-container">
                 <span class="icon-box reset-box">
-                  <i class="bi bi-key-fill custom-icon" @click="resetPassword(user)"></i>
+                  <i class="bi bi-key-fill custom-icon" @click="openResetModal(students)"></i>
+
                 </span>
                 <span class="icon-box edit-box">
                   <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
@@ -99,6 +100,40 @@
       </div>
 
     </div>
+    <!-- Reset Password Modal -->
+    <div v-if="showResetModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Reset Password</h5>
+            <button type="button" class="btn-close" @click="showResetModal = false" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            
+            <form @submit.prevent="resetPassword">
+              
+              <div class="row">
+                <div class="mb-3 col-12 col-md-8">
+                  <label for="newPassword" class="form-label">New Password</label>
+                  <input type="text" class="form-control" id="newPassword" v-model="form.newPassword" required>
+                </div>
+                <div class="mb-3 col-12 col-md-4">
+                  <button type="button" class="btn btn-secondary" @click="generatePassword">Generate New Password</button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                <input type="text" class="form-control" id="confirmPassword" v-model="form.confirmPassword" required>
+              </div>
+              <div v-if="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+              </div>
+              <button type="submit" class="btn btn-primary">Reset Password</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Modal for Editing User -->
     <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
@@ -132,40 +167,43 @@ export default {
   data() {
     return {
       search: '',
-      strand: '',
-      showModal: false,
       selectedStrand: '',
       strands: [],
-      selectedGender: 'all', // Default to 'all'
+      selectedUserId: null, // ID of the user to update
+      selectedGender: 'all',
       gender: ['all', 'male', 'female'],
-      showPassword: false,
+      showModal: false,
+      showResetModal: false,
+      form: {
+        newPassword: '',
+        confirmPassword: ''
+      },
       itemsPerPage: 10,
       currentPage: 1,
       serverItems: [],
-      students: [],
       currentUser: {}  // Holds the user data being edited
     };
   },
   computed: {
     filteredItems() {
-    const searchLower = this.search.toLowerCase();
-    return this.serverItems.filter(item => {
-      const idnumberStr = item.user.idnumber ? item.user.idnumber.toString().toLowerCase() : '';
-      const lname = item.user.lname ? item.user.lname.toLowerCase() : '';
-      const fname = item.user.fname ? item.user.fname.toLowerCase() : '';
-      const mname = item.user.mname ? item.user.mname.toLowerCase() : '';
-      const strandMatches = !this.selectedStrand || item.strands.id === this.selectedStrand;
-      const genderMatches = this.selectedGender === 'all' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
-      return (
-       strandMatches &&
-      genderMatches &&
-             (idnumberStr.includes(searchLower) ||
-              lname.includes(searchLower) ||
-              fname.includes(searchLower) ||
-              mname.includes(searchLower))
-    );
-    });
-  },
+      const searchLower = this.search.toLowerCase();
+      return this.serverItems.filter(item => {
+        const idnumberStr = item.user.idnumber ? item.user.idnumber.toString().toLowerCase() : '';
+        const lname = item.user.lname ? item.user.lname.toLowerCase() : '';
+        const fname = item.user.fname ? item.user.fname.toLowerCase() : '';
+        const mname = item.user.mname ? item.user.mname.toLowerCase() : '';
+        const strandMatches = !this.selectedStrand || item.strands.id === this.selectedStrand;
+        const genderMatches = this.selectedGender === 'all' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
+        return (
+          strandMatches &&
+          genderMatches &&
+          (idnumberStr.includes(searchLower) ||
+           lname.includes(searchLower) ||
+           fname.includes(searchLower) ||
+           mname.includes(searchLower))
+        );
+      });
+    },
     paginatedItems() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
@@ -189,33 +227,42 @@ export default {
       this.currentUser = { ...user };
       this.showModal = true;
     },
+    openResetModal(user) {
+      if (user && user.id) {
+        this.currentUser = user;
+        this.showResetModal = true;
+      } else {
+        console.error('User object is undefined or missing the id property.');
+      }
+    },
+
     async saveChanges() {
       try {
-        const response = await axios.put(`http://localhost:8000/api/users/${this.currentUser.id}`, this.currentUser, {
+        await axios.put(`http://localhost:8000/api/users/${this.currentUser.id}`, this.currentUser, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
           }
         });
-        alert(response.data.message);
+        alert('Changes saved successfully');
         this.showModal = false;
         this.fetchStudents();
       } catch (error) {
-        alert('Error saving changes:', error.response ? error.response.data : error.message);
+        alert('Error saving changes: ' + (error.response ? error.response.data : error.message));
       }
     },
     async removeUser(user) {
       if (confirm('Are you sure you want to delete this user?')) {
         try {
-          const response = await axios.delete(`http://localhost:8000/api/users/${user.idnumber}`, {
+          await axios.delete(`http://localhost:8000/api/users/${user.idnumber}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
           });
-          alert(response.data.message);
+          alert('User deleted successfully');
           this.fetchStudents();
         } catch (error) {
-          alert('Error deleting user:', error.response ? error.response.data : error.message);
+          alert('Error deleting user: ' + (error.response ? error.response.data : error.message));
         }
       }
     },
@@ -228,7 +275,7 @@ export default {
         });
         this.serverItems = response.data.students;
       } catch (error) {
-        alert('Error fetching students:', error.message);
+        alert('Error fetching students: ' + error.message);
       }
     },
     changePage(page) {
@@ -243,7 +290,48 @@ export default {
         });
         this.strands = response.data.data; // Ensure this is correct based on your API response
       } catch (error) {
-        console.error('Error fetching positions:', error.response ? error.response.data : error.message);
+        console.error('Error fetching strands:', error.response ? error.response.data : error.message);
+      }
+    },
+    generatePassword() {
+      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+      let password = "";
+      for (let i = 0; i < 12; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+      }
+      this.form.newPassword = password;
+      this.form.confirmPassword = password; // Set confirm password to the generated password
+    },
+    async resetPassword() {
+      const newPassword = this.form.newPassword;
+      const confirmPassword = this.form.confirmPassword;
+
+      if (newPassword !== confirmPassword) {
+        this.errorMessage = 'Passwords do not match.';
+        return;
+      }
+
+      if (!this.currentUser.id) {
+        this.errorMessage = 'Please select a user.';
+        return;
+      }
+
+      try {
+        const response = await axios.put(`http://localhost:8000/api/user/${this.currentUser.id}/update-password`, {
+          new_password: newPassword,
+          new_password_confirmation: confirmPassword,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        alert(response.data.message);
+        this.showResetModal = false;
+        this.fetchStudents();
+      } catch (error) {
+        this.errorMessage = error.response ? error.response.data.message : 'An error occurred while updating the password.';
       }
     }
   },
@@ -253,8 +341,6 @@ export default {
   }
 };
 </script>
-
-
 
 
 <style scoped>
