@@ -23,26 +23,29 @@
             <th>No.</th>
             <th>Curriculum Name</th>
             <th>Strand</th>
-            <th>Subject</th>
+            <th>Subjects</th>
             <th>Semester</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(curriculum, index) in filteredList" :key="curriculum.id">
+          <tr v-for="(curriculum, index) in groupedCurriculums" :key="index">
             <td>{{ index + 1 }}</td>
-            <td>{{ getCurriculumName(curriculum.scuriculum_id) }}</td>
-            <td>{{ getStrandName(curriculum.strand_id) }}</td>
-            <td>{{ getSubjectName(curriculum.subject_id) }}</td>
+            <td>{{ curriculum.curriculumName }}</td>
+            <td>{{ curriculum.strandName }}</td>
+            <td>{{ curriculum.subjects.join(', ') }}</td> <!-- Displaying all subjects in a single cell -->
             <td>{{ curriculum.semester }}</td>
-            <td>
+            
+              <td>
               <button class="btn btn-warning btn-sm me-1" @click="openEditModal(curriculum)">
                 <i class="bi bi-pencil"></i>
               </button>
+       
               <button class="btn btn-danger btn-sm" @click="deleteCurriculum(curriculum.id)">
                 <i class="bi bi-trash"></i>
               </button>
             </td>
+         
           </tr>
         </tbody>
       </table>
@@ -82,16 +85,18 @@
               </select>
             </div>
             <div class="mb-3">
-              <label for="subject">Subject:</label>
-              <select v-model="selectedSubject" class="form-control">
-                <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
-                  {{ subject.subjectname }}
-                </option>
-              </select>
+              <label for="subject">Subjects:</label>
+              <div v-for="subject in subjects" :key="subject.id" class="form-check">
+                <input type="checkbox" :id="'subject-' + subject.id" :value="subject.id" v-model="selectedSubjects" class="form-check-input">
+                <label :for="'subject-' + subject.id" class="form-check-label">{{ subject.subjectname }}</label>
+              </div>
             </div>
             <div class="mb-3">
               <label for="semester">Semester:</label>
-              <input type="text" v-model="newSemester" class="form-control" placeholder="Semester">
+              <select v-model="newSemester" class="form-control">
+                <option value="First Semester">First Semester</option>
+                <option value="Second Semester">Second Semester</option>
+              </select>
             </div>
           </div>
           <div class="modal-footer">
@@ -139,8 +144,7 @@ export default {
       selectedCurriculum: null,
       selectedStrand: null,
       selectedGradeLevel: null,
-      selectedSubject: null,
-      filteredGradeLevels: [],
+      selectedSubjects: [], // Store selected subjects
       isEdit: false,
       editCurriculumId: null,
       error: null,
@@ -157,6 +161,27 @@ export default {
         const name = entry?.strandcurriculum?.Namecuriculum || '';
         return name.toLowerCase().includes(this.searchQuery.toLowerCase());
       });
+    },
+    groupedCurriculums() {
+      const grouped = {};
+
+      this.curriculumEntries.forEach(entry => {
+        const key = `${entry.scuriculum_id}-${entry.strand_id}-${entry.semester}`;
+
+        if (!grouped[key]) {
+          grouped[key] = {
+            id: entry.id,
+            curriculumName: this.getCurriculumName(entry.scuriculum_id),
+            strandName: this.getStrandName(entry.strand_id),
+            subjects: [this.getSubjectName(entry.subject_id)],
+            semester: entry.semester
+          };
+        } else {
+          grouped[key].subjects.push(this.getSubjectName(entry.subject_id));
+        }
+      });
+
+      return Object.values(grouped);
     }
   },
   methods: {
@@ -247,28 +272,36 @@ export default {
         const data = {
           scuriculum_id: this.selectedCurriculum,
           strand_id: this.selectedStrand,
-          subject_id: this.selectedSubject,
+          subject_ids: this.selectedSubjects, // Ensure this matches what the backend expects
           semester: this.newSemester,
         };
 
+        console.log('Payload:', data); // Log the payload to inspect its structure
+
+        let response;
         if (this.isEdit) {
-          await axios.put(`http://localhost:8000/api/updatecuri/${this.editCurriculumId}`, data, {
+          response = await axios.put(`http://localhost:8000/api/updatecuriculum/${this.editCurriculumId}`, data, {
             headers: {
-              Authorization: `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
         } else {
-          await axios.post('http://localhost:8000/api/addcuriculum', data, {
+          response = await axios.post('http://localhost:8000/api/addcuriculum', data, {
             headers: {
-              Authorization: `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
         }
+
+        console.log('Response:', response.data); // Log the response to inspect what the server returns
         await this.fetchCurriculumEntries(); // Fetch the updated list after saving
         this.resetForm();
         this.closeModal();
       } catch (error) {
-        if (error.response && error.response.status === 409) {
+        if (error.response && error.response.status === 422) {
+          console.error('Validation Error:', error.response.data);
+          this.error = 'Failed to save curriculum due to validation error.';
+        } else if (error.response && error.response.status === 409) {
           this.duplicateErrorMessage = error.response.data.message;
           this.showDuplicateModal();
         } else {
@@ -278,10 +311,10 @@ export default {
       }
     },
 
-    async deleteCurriculum(id) {
+    async deleteCurriculum() {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:8000/api/deletecuri/${id}`, {
+        await axios.delete('http://localhost:8000/api/deletecuriculum', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -304,7 +337,7 @@ export default {
       this.editCurriculumId = curriculum.id;
       this.selectedCurriculum = curriculum.scuriculum_id;
       this.selectedStrand = curriculum.strand_id;
-      this.selectedSubject = curriculum.subject_id;
+      this.selectedSubjects = curriculum.subject_id; // Assume subjects stored as an array
       this.newSemester = curriculum.semester;
       this.showModal();
     },
@@ -335,7 +368,7 @@ export default {
       this.selectedCurriculum = null;
       this.selectedStrand = null;
       this.selectedGradeLevel = null;
-      this.selectedSubject = null;
+      this.selectedSubjects = []; // Reset selected subjects
       this.newSemester = '';
       this.isEdit = false;
       this.editCurriculumId = null;
