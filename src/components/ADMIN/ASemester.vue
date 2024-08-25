@@ -35,17 +35,14 @@
             <td>{{ curriculum.strandName }}</td>
             <td>{{ curriculum.subjects.join(', ') }}</td> <!-- Displaying all subjects in a single cell -->
             <td>{{ curriculum.semester }}</td>
-            
-              <td>
+            <td>
               <button class="btn btn-warning btn-sm me-1" @click="openEditModal(curriculum)">
                 <i class="bi bi-pencil"></i>
               </button>
-       
               <button class="btn btn-danger btn-sm" @click="deleteCurriculum(curriculum.id)">
                 <i class="bi bi-trash"></i>
               </button>
             </td>
-         
           </tr>
         </tbody>
       </table>
@@ -129,7 +126,7 @@
 
 <script>
 import axios from 'axios';
-import { Modal } from 'bootstrap';
+ 
 
 export default {
   name: 'SemesterinENHS',
@@ -280,7 +277,7 @@ export default {
 
         let response;
         if (this.isEdit) {
-          response = await axios.put(`http://localhost:8000/api/updatecuriculum/${this.editCurriculumId}`, data, {
+          response = await axios.put(`http://localhost:8000/api/updatecuri/${this.editCurriculumId}`, data, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -311,10 +308,10 @@ export default {
       }
     },
 
-    async deleteCurriculum() {
+    async deleteCurriculum(id) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete('http://localhost:8000/api/deletecuriculum', {
+        await axios.delete(`http://localhost:8000/api/deletecuri/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -387,7 +384,7 @@ export default {
 
 <style scoped>
 .container {
-  max-width: 10000px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
