@@ -38,13 +38,16 @@
 
           <div class="modal-body">
             <div class="form-group">
-              <label for="curriculum">Curriculum</label>
-              <select class="form-control" id="curriculum" v-model="newClass.curriculum" @change="fetchCurriculumDetails">
-                <option v-for="curriculum in curriculums" :key="curriculum.id" :value="curriculum.id">
-                  {{ curriculum.Namecuriculum }}
-                </option>
-              </select>
-            </div>
+            <label for="curriculum">Curriculum</label>
+            <select class="form-control" id="curriculum" v-model="selectedCurriculumId" @change="fetchCurriculumDetails">
+              <option value="">Select Curriculum</option>
+              <option v-for="curriculum in curriculums" :key="curriculum.id" :value="curriculum.id">
+                <!-- {{ curriculum.Namecuriculum }} -->
+                {{ curriculum.scuriculum_id }}
+              </option>
+            </select>
+          </div>
+
 
             <div v-if="curriculumDetails.strand">
               <div class="form-group">
@@ -74,8 +77,14 @@
 
             <div class="form-group">
               <label for="section">Section</label>
-              <input type="text" class="form-control" id="section" v-model="newClass.section">
+              <select v-model="newClass.section" id="section" class="form-select" required>
+                <option value="">Select Section</option>
+                <option v-for="section in sections" :key="section.id" :value="section.id">
+                  {{ section.label }}
+                </option>
+              </select>
             </div>
+
 
             <div class="form-group">
               <label for="year">Year</label>
@@ -123,16 +132,25 @@ export default {
   name: 'TeacherAddSubject',
   data() {
     return {
-      newClass: this.getEmptyClass(),
+      selectedCurriculumId: '',
+      curriculumDetails: {
+        gradeLevel: '',
+        strand: {
+          addstrand: ''
+        },
+        subjects: [],
+        semester: '',
+        Namecuriculum:''
+      },
+      sections: [],
       classes: [], // To hold the list of classes
       curriculums: [], // To hold the list of available curriculums
-      curriculumDetails: {
-        strand: null,
-        gradeLevel: '',
-        subjects: [],
-        semester: ''
-      }
+      newClass: this.getEmptyClass(),
     };
+  },
+  mounted() {
+    this.fetchCurriculums();
+    this.fetchSections();
   },
   methods: {
     getEmptyClass() {
@@ -151,7 +169,7 @@ export default {
     },
     openModal() {
       this.newClass = this.getEmptyClass(); // Reset form
-      this.curriculumDetails = { strand: null, gradeLevel: '', subjects: [], semester: '' }; // Reset details
+      this.curriculumDetails = { strand: { addstrand: '' }, gradeLevel: '', subjects: [], semester: '' }; // Reset details
       const modalElement = document.getElementById('addClassModal');
       const modalInstance = new Modal(modalElement);
       modalInstance.show();
@@ -170,7 +188,7 @@ export default {
       }
     },
     generateCode() {
-      this.newClass.code = Math.random().toString(36).substring(2, 8);
+      this.newClass.code = Math.random().toString(36).substring(2, 8).toUpperCase();
     },
     async addClass() {
       try {
@@ -190,19 +208,23 @@ export default {
       }
     },
     async fetchCurriculumDetails() {
-      if (this.newClass.curriculum) {
+      if (this.selectedCurriculumId) {
         try {
-          const response = await axios.get(`http://localhost:8000/api/curriculum/${this.newClass.curriculum}/details`);
-          this.curriculumDetails = response.data;
-          this.newClass.strand = this.curriculumDetails.strand.addstrand;
-          this.newClass.gradeLevel = this.curriculumDetails.gradeLevel;
-          this.newClass.semester = this.curriculumDetails.semester;
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`http://localhost:8000/api/viewcuriculum/${this.selectedCurriculumId}/details`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          this.curriculumDetails = response.data.data;
         } catch (error) {
           console.error('Error fetching curriculum details:', error);
         }
+      } else {
+        this.curriculumDetails = { strand: { addstrand: '' }, gradeLevel: '', subjects: [], semester: '' }; // Reset details
       }
     },
-    async mounted() {
+    async fetchCurriculums() {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:8000/api/viewcuriculum', {
@@ -211,13 +233,28 @@ export default {
           }
         });
         this.curriculums = response.data.data;
+        console.log(this.curriculums); // Log the data to verify
       } catch (error) {
         console.error('Error fetching curriculums:', error);
+      }
+    },
+    async fetchSections() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/api/viewsection', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        this.sections = response.data.data;
+      } catch (error) {
+        console.error('Error fetching sections:', error);
       }
     }
   }
 };
 </script>
+
 
 <style scoped>
 .add-class-card {
