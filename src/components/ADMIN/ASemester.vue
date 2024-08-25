@@ -126,7 +126,7 @@
 
 <script>
 import axios from 'axios';
- 
+import {Modal} from 'bootstrap'; 
 
 export default {
   name: 'SemesterinENHS',
