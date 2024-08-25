@@ -217,7 +217,7 @@ h2 {
   padding: 10px;
   border: #130404;
   color: white;
-  border-bottom: 2px solid #ccc;
+
 }
 
 .dropdown {
