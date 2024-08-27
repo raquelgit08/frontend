@@ -66,9 +66,7 @@
                 <span class="icon-box edit-box">
                   <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
                 </span>
-                <span class="icon-box delete-box">
-                  <i class="bi bi-person-x-fill custom-icon" @click="removeUser(item)"></i>
-                </span>
+               
               </div>
             </td>
           </tr>
@@ -145,8 +143,64 @@
           </div>
           <div class="modal-body">
             <form>
-              <!-- Form Fields -->
-            </form>
+              <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="idnumber" class="form-label">ID NUMBER:</label>
+                <input type="idnumber" id="idnumber" v-model="currentUser.idnumber" class="form-control" >
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email Address:</label>
+                <input type="email" id="email" v-model="currentUser.email" class="form-control" >
+              </div>
+            </div>
+
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <label for="lname" class="form-label">Last Name:</label>
+                  <input type="text" id="lname" v-model="currentUser.lname" class="form-control" >
+                </div>
+                <div class="col-md-4">
+                  <label for="fname" class="form-label">First Name:</label>
+                  <input type="text" id="fname" v-model="currentUser.fname" class="form-control" >
+                </div>
+                <div class="col-md-4">
+                  <label for="mname" class="form-label">Middle Name:</label>
+                  <input type="text" id="mname" v-model="currentUser.mname" class="form-control" >
+                </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label d-block">Gender:</label>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="currentUser.sex">
+                  <label class="form-check-label" for="male">Male</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="currentUser.sex">
+                  <label class="form-check-label" for="female">Female</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="strand" class="form-label">Strand:</label>
+                <select v-model="formData.strand_id" id="strand" class="form-select" required>
+                  <option value="">Select Strand</option>
+                  <option v-for="strand in strands" :key="strand.id" :value="strand.id">
+                    {{ strand.label }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="section" class="form-label">Section:</label>
+                <select v-model="formData.section_id" id="section" class="form-select" required>
+                  <option value="">Select Section</option>
+                  <option v-for="section in filteredSections" :key="section.id" :value="section.id">
+                    {{ section.label }}
+                  </option>
+                </select>
+              </div>
+            </div>    
+          </form>
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
@@ -166,9 +220,10 @@ export default {
   name: 'ManageUserStudents',
   data() {
     return {
+
       search: '',
       selectedStrand: '',
-      strands: [],
+  
       selectedUserId: null, // ID of the user to update
       selectedGender: 'all',
       gender: ['all', 'male', 'female'],
@@ -181,7 +236,26 @@ export default {
       itemsPerPage: 10,
       currentPage: 1,
       serverItems: [],
-      currentUser: {}  // Holds the user data being edited
+      currentUser: {
+        idnumber:''
+      }, 
+      // Holds the user data being edited
+      formData: {
+        idnumber: '',
+        lname: '',
+        fname: '',
+        mname: '',
+        sex: '',
+        // usertype: 'student',
+        email: '',
+        password: '',
+        section_id: '',
+        strand_id: '',
+        Mobile_no: '',
+      },
+      sections: [],
+      strands: [],
+      filteredSections: [],
     };
   },
   computed: {
@@ -219,6 +293,15 @@ export default {
       return this.paginatedItems.filter(item => item.user.sex === 'female').length;
     }
   },
+  mounted() {
+    this.fetchStudents();
+    this.fetchStrands();
+    this.fetchSections();
+  
+  },
+  watch: {
+    'formData.strand_id': 'filterSections' // Watch for changes to strand_id
+  },
   methods: {
     formatDate(date) {
       return moment(date).format('YYYY/M/D [time] h:mm a');
@@ -251,21 +334,7 @@ export default {
         alert('Error saving changes: ' + (error.response ? error.response.data : error.message));
       }
     },
-    async removeUser(user) {
-      if (confirm('Are you sure you want to delete this user?')) {
-        try {
-          await axios.delete(`http://localhost:8000/api/users/${user.idnumber}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          alert('User deleted successfully');
-          this.fetchStudents();
-        } catch (error) {
-          alert('Error deleting user: ' + (error.response ? error.response.data : error.message));
-        }
-      }
-    },
+    
     async fetchStudents() {
       try {
         const response = await axios.get('http://localhost:8000/api/viewAllStudents', {
@@ -283,14 +352,51 @@ export default {
     },
     async fetchStrands() {
       try {
+        const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:8000/api/viewstrand', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${token}`
           }
         });
-        this.strands = response.data.data; // Ensure this is correct based on your API response
+
+        if (response.data && Array.isArray(response.data.data)) {
+          this.strands = response.data.data.map(strand => ({
+            id: strand.id,
+            value: `${strand.addstrand} ${strand.grade_level}`,
+            label: `${strand.addstrand} ${strand.grade_level}`
+          }));
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
       } catch (error) {
-        console.error('Error fetching strands:', error.response ? error.response.data : error.message);
+        console.error('Error fetching strands:', error);
+      }
+    },
+    async fetchSections() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/api/viewsection', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data.sections && Array.isArray(response.data.sections)) {
+          this.sections = response.data.sections.map(section => ({
+            id: section.id,
+            strand_id: section.strand.id,
+            value: section.section,
+            label: `${section.section}`
+          }));
+          this.filterSections(); // Initialize filtered sections
+        }
+      } catch (error) {
+        console.error('Error fetching sections:', error);
+      }
+    },
+    filterSections() {
+      if (this.formData.strand_id) {
+        this.filteredSections = this.sections.filter(section => section.strand_id === this.formData.strand_id);
+      } else {
+        this.filteredSections = this.sections;
       }
     },
     generatePassword() {
@@ -335,10 +441,7 @@ export default {
       }
     }
   },
-  mounted() {
-    this.fetchStudents();
-    this.fetchStrands();
-  }
+  
 };
 </script>
 
@@ -387,7 +490,7 @@ h4 {
   cursor: pointer;
 }
 .reset-box {
-  background-color: #efd305; 
+  background-color: #a8d908; 
   color: white; /* White icon color */
 }
 .edit-box {

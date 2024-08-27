@@ -38,49 +38,46 @@
 
           <div class="modal-body">
             <div class="form-group">
-            <label for="curriculum">Curriculum</label>
-            <select class="form-control" id="curriculum" v-model="selectedCurriculumId" @change="fetchCurriculumDetails">
-              <option value="">Select Curriculum</option>
-              <option v-for="curriculum in curriculums" :key="curriculum.id" :value="curriculum.id">
-                <!-- {{ curriculum.Namecuriculum }} -->
-                {{ curriculum.scuriculum_id }}
-              </option>
-            </select>
-          </div>
-
-
-            <div v-if="curriculumDetails.strand">
-              <div class="form-group">
-                <label for="strand">Strand</label>
-                <input type="text" class="form-control" id="strand" v-model="curriculumDetails.strand.addstrand" readonly>
-              </div>
-
-              <div class="form-group">
-                <label for="gradeLevel">Grade Level</label>
-                <input type="text" class="form-control" id="gradeLevel" v-model="curriculumDetails.gradeLevel" readonly>
-              </div>
-
-              <div class="form-group">
-                <label for="semester">Semester</label>
-                <input type="text" class="form-control" id="semester" v-model="curriculumDetails.semester" readonly>
-              </div>
-
-              <div class="form-group">
-                <label for="subject">Subjects</label>
-                <ul>
-                  <li v-for="subject in curriculumDetails.subjects" :key="subject.id">
-                    {{ subject.subjectname }}
-                  </li>
-                </ul>
-              </div>
+              <label for="curriculum" class="form-label">Curriculum:</label>
+              <select v-model="formData.curriculum_id" id="curriculum" class="form-select" @change="onCurriculumChange" required>
+                <option value="">Select Curriculum</option>
+                <option v-for="curriculum in curriculums" :key="curriculum.id" :value="curriculum.id">
+                  {{ curriculum.Namecuriculum }}
+                </option>
+              </select>
             </div>
 
             <div class="form-group">
-              <label for="section">Section</label>
-              <select v-model="newClass.section" id="section" class="form-select" required>
+              <label for="strand">Strand:</label>
+              <input type="text" class="form-control" id="strand" v-model="curriculumDetails.strands" readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="section" class="form-label">Section:</label>
+              <select v-model="formData.section_id" id="section" class="form-select" required>
                 <option value="">Select Section</option>
-                <option v-for="section in sections" :key="section.id" :value="section.id">
-                  {{ section.label }}
+                    <option v-for="section in sections" :key="section.id" :value="section.id">
+                      {{ section.label }}
+                    </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="gradeLevel">Grade Level</label>
+              <input type="text" class="form-control" id="gradeLevel" v-model="curriculumDetails.gradeLevel" readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="semester">Semester</label>
+              <input type="text" class="form-control" id="semester" v-model="curriculumDetails.semester" readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="subject">Subjects</label>
+              <select v-model="formData.subject_id" id="subjects" class="form-select" required>
+                <option value="">Select Subjects</option>
+                <option v-for="subject in curriculumDetails.subjects" :key="subject.id" :value="subject.id">
+                  {{curriculumDetails.subjects }}
                 </option>
               </select>
             </div>
@@ -132,33 +129,48 @@ export default {
   name: 'TeacherAddSubject',
   data() {
     return {
-      selectedCurriculumId: '',
+      formData: {
+        curriculum_id: '',
+        strand_id: '',
+        section_id: '',
+        subject_id: ''
+      },
       curriculumDetails: {
         gradeLevel: '',
-        strand: {
-          addstrand: ''
-        },
-        subjects: [],
+        strands: [], // Ensure this is always an array
         semester: '',
-        Namecuriculum:''
+        subjectname: '',
+        subjects: []
       },
       sections: [],
-      classes: [], // To hold the list of classes
-      curriculums: [], // To hold the list of available curriculums
-      newClass: this.getEmptyClass(),
+      curriculums: [], // List of available curriculums
+      newClass: {
+        curriculum_id: '',
+        strand_id: '',
+        section_id: '',
+        gradeLevel: '',
+        subjects:'',
+        semester: '',
+        year: '',
+        description: '',
+        image: '',
+        code: '',
+        progress: 0
+      },
+      filteredSections: [] // Ensure this is defined
     };
   },
   mounted() {
     this.fetchCurriculums();
-    this.fetchSections();
+    this.fetchSections(); // Fetch sections initially if needed
   },
   methods: {
-    getEmptyClass() {
-      return {
-        curriculum: '',
-        strand: '',
+    openModal() {
+      this.newClass = {
+        curriculum_id: '',
+        strand_id: '',
+        section_id: '',
         gradeLevel: '',
-        section: '',
         semester: '',
         year: '',
         description: '',
@@ -166,10 +178,7 @@ export default {
         code: '',
         progress: 0
       };
-    },
-    openModal() {
-      this.newClass = this.getEmptyClass(); // Reset form
-      this.curriculumDetails = { strand: { addstrand: '' }, gradeLevel: '', subjects: [], semester: '' }; // Reset details
+      this.curriculumDetails = { gradeLevel: '', strands: [], semester: '', subjects: [] };
       const modalElement = document.getElementById('addClassModal');
       const modalInstance = new Modal(modalElement);
       modalInstance.show();
@@ -177,7 +186,7 @@ export default {
     onFileChange(event) {
       const file = event.target.files[0];
       if (file) {
-        this.newClass.image = URL.createObjectURL(file); // Preview image
+        this.newClass.image = URL.createObjectURL(file);
       }
     },
     onFileDrop(event) {
@@ -190,66 +199,70 @@ export default {
     generateCode() {
       this.newClass.code = Math.random().toString(36).substring(2, 8).toUpperCase();
     },
-    async addClass() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.post('http://localhost:8000/api/addclass', this.newClass, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log('Class created:', response.data);
-        this.classes.push({ ...this.newClass });
-        const modalElement = document.getElementById('addClassModal');
-        const modalInstance = Modal.getInstance(modalElement);
-        modalInstance.hide();
-      } catch (error) {
-        console.error('Error creating class:', error);
-      }
-    },
-    async fetchCurriculumDetails() {
-      if (this.selectedCurriculumId) {
-        try {
-          const token = localStorage.getItem('token');
-          const response = await axios.get(`http://localhost:8000/api/viewcuriculum/${this.selectedCurriculumId}/details`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          this.curriculumDetails = response.data.data;
-        } catch (error) {
-          console.error('Error fetching curriculum details:', error);
+    fetchCurriculums() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewcuriculum3', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
+        if (response.data && Array.isArray(response.data.data)) {
+          this.curriculums = response.data.data;
+        } else {
+          console.error('Unexpected response format:', response.data);
         }
-      } else {
-        this.curriculumDetails = { strand: { addstrand: '' }, gradeLevel: '', subjects: [], semester: '' }; // Reset details
-      }
-    },
-    async fetchCurriculums() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewcuriculum', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        this.curriculums = response.data.data;
-        console.log(this.curriculums); // Log the data to verify
-      } catch (error) {
+      })
+      .catch(error => {
         console.error('Error fetching curriculums:', error);
+      });
+    },
+    onCurriculumChange() {
+      const selectedCurriculum = this.curriculums.find(curriculum => curriculum.id === this.formData.curriculum_id);
+      if (selectedCurriculum) {
+        this.curriculumDetails.gradeLevel = selectedCurriculum.grade_level;
+        this.curriculumDetails.semester = selectedCurriculum.semester;
+        this.curriculumDetails.subjects = selectedCurriculum.subjectname || [];
+        this.curriculumDetails.strands = selectedCurriculum.addstrand || []; // Ensure it's an array
+        this.formData.strand_id = ''; // Reset strand id
+        this.filteredSections = [];
+        this.fetchSections(); // Fetch sections for the selected curriculum
+        console.log(this.curriculumDetails);
+
       }
     },
     async fetchSections() {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:8000/api/viewsection', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
-        this.sections = response.data.data;
+
+        if (response.data.sections && Array.isArray(response.data.sections)) {
+          this.sections = response.data.sections.map(section => ({
+            id: section.id,
+            strand_id: section.strand.id,
+            value: section.section,
+            label: `${section.section}`
+          }));
+          // this.filterSections(); // Initialize filtered sections
+        }
       } catch (error) {
         console.error('Error fetching sections:', error);
       }
+    },
+    // filterSections() {
+    //   if (this.formData.strand_id) {
+    //     this.filteredSections = this.sections.filter(section => section.strand_id === this.formData.strand_id);
+    //   } else {
+    //     this.filteredSections = [];
+    //   }
+    // },
+    addClass() {
+      // Add class logic here
+    }
+  },
+  watch: {
+    'formData.strand_id': function() {
+      this.filterSections(); // Filter sections whenever the strand id changes
     }
   }
 };
@@ -257,54 +270,33 @@ export default {
 
 
 <style scoped>
-.add-class-card {
-  border: 2px dashed #ccc;
-  height: 200px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: border-color 0.3s ease;
-}
-.add-class-card:hover {
-  border-color: #007bff;
-}
-.plus-icon {
-  color: #007bff;
-}
 .upload-area {
-  border: 2px dashed #007bff;
+  border: 2px dashed #ccc;
   border-radius: 4px;
   padding: 20px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.3s ease;
-  position: relative;
-  height: 150px;
-  background-color: #f8f9fa;
-}
-.upload-area:hover {
-  border-color: #0056b3;
-}
-.upload-area .custom-file-input {
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  cursor: pointer;
 }
 .upload-message {
-  color: #007bff;
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 150px;
+  font-size: 1.2em;
+  color: #999;
 }
-.img-thumbnail {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
+.plus-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.add-class-card {
+  border: 2px dashed #007bff;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+}
+.add-class-card:hover {
+  background-color: #f8f9fa;
+}
+.card-img-top {
+  height: 150px;
+  object-fit: cover;
 }
 </style>
