@@ -20,7 +20,7 @@
         <div class="card add-class-card" @click="openModal">
           <div class="card-body d-flex justify-content-center align-items-center">
             <div class="plus-icon">
-              <i class="fa fa-plus fa-3x"></i>
+              <i class="fa fa-plus fa-3x" @click="openModal"></i> <!-- Ensure this triggers modal -->
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="curriculum" class="form-label">Curriculum:</label>
-              <select v-model="formData.curriculum_id" id="curriculum" class="form-select" @change="onCurriculumChange" required>
+              <select v-model="newClass.curriculum_id" id="curriculum" class="form-select" @change="onCurriculumChange" required>
                 <option value="">Select Curriculum</option>
                 <option v-for="curriculum in curriculums" :key="curriculum.id" :value="curriculum.id">
                   {{ curriculum.Namecuriculum }}
@@ -49,43 +49,52 @@
 
             <div class="form-group">
               <label for="strand">Strand:</label>
-              <input type="text" class="form-control" id="strand" v-model="curriculumDetails.strands" readonly>
+              <select v-model="newClass.strand_id" id="strand" class="form-select" required>
+                <option value="">Select Strand</option>
+                <option v-for="strand in strands" :key="strand.id" :value="strand.id">
+                  {{ strand.label }}
+                </option>
+              </select>
             </div>
 
             <div class="form-group">
               <label for="section" class="form-label">Section:</label>
-              <select v-model="formData.section_id" id="section" class="form-select" required>
+              <select v-model="newClass.section_id" id="section" class="form-select" required>
                 <option value="">Select Section</option>
-                    <option v-for="section in sections" :key="section.id" :value="section.id">
+                <option v-for="section in filteredSections" :key="section.id" :value="section.id">
                       {{ section.label }}
                     </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="gradeLevel">Grade Level</label>
-              <input type="text" class="form-control" id="gradeLevel" v-model="curriculumDetails.gradeLevel" readonly>
-            </div>
-
-            <div class="form-group">
               <label for="semester">Semester</label>
-              <input type="text" class="form-control" id="semester" v-model="curriculumDetails.semester" readonly>
+              <select v-model="newClass.semester" id="semester" class="form-select" required>
+                <option value="">Select Semester</option>
+                <option value="first">First Semester</option>
+                <option value="second">Second Semester</option>
+              </select>
             </div>
 
             <div class="form-group">
               <label for="subject">Subjects</label>
-              <select v-model="formData.subject_id" id="subjects" class="form-select" required>
+              <select v-model="newClass.subject_id" id="subjects" class="form-select" required>
                 <option value="">Select Subjects</option>
-                <option v-for="subject in curriculumDetails.subjects" :key="subject.id" :value="subject.id">
-                  {{curriculumDetails.subjects }}
-                </option>
+                <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
+                      {{ subject.label }}
+                    </option>
               </select>
+              
             </div>
-
 
             <div class="form-group">
               <label for="year">Year</label>
-              <input type="text" class="form-control" id="year" v-model="newClass.year">
+              <select v-model="newClass.year_id" id="subjects" class="form-select" required>
+                <option value="">Select Subjects</option>
+                <option v-for="year in years" :key="year.id" :value="year.id">
+                      {{ year.label }}
+                    </option>
+              </select>
             </div>
 
             <div class="form-group">
@@ -111,6 +120,7 @@
               </div>
             </div>
           </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" @click="addClass">Save</button>
@@ -123,33 +133,20 @@
 
 <script>
 import axios from 'axios';
-import { Modal } from 'bootstrap';
+import { Modal } from 'bootstrap'; // Make sure you have Bootstrap JavaScript imported
 
 export default {
   name: 'TeacherAddSubject',
   data() {
     return {
-      formData: {
-        curriculum_id: '',
-        strand_id: '',
-        section_id: '',
-        subject_id: ''
-      },
-      curriculumDetails: {
-        gradeLevel: '',
-        strands: [], // Ensure this is always an array
-        semester: '',
-        subjectname: '',
-        subjects: []
-      },
-      sections: [],
-      curriculums: [], // List of available curriculums
+      
       newClass: {
         curriculum_id: '',
         strand_id: '',
         section_id: '',
         gradeLevel: '',
-        subjects:'',
+        subject_id: '',
+        year_id: '',
         semester: '',
         year: '',
         description: '',
@@ -157,31 +154,29 @@ export default {
         code: '',
         progress: 0
       },
-      filteredSections: [] // Ensure this is defined
+      strands: [],
+      sections: [],
+      curriculums: [],
+      subjects:[],
+      years: [],
+      filteredSections: []
     };
   },
   mounted() {
     this.fetchCurriculums();
-    this.fetchSections(); // Fetch sections initially if needed
+    this.fetchSections();
+    this.fetchStrands();
+    this.fetchSubjects();
+    this.fetchYear();
+  },
+  watch: {
+    'newClass.strand_id': 'filterSections' // Watch for changes to strand_id
   },
   methods: {
     openModal() {
-      this.newClass = {
-        curriculum_id: '',
-        strand_id: '',
-        section_id: '',
-        gradeLevel: '',
-        semester: '',
-        year: '',
-        description: '',
-        image: '',
-        code: '',
-        progress: 0
-      };
-      this.curriculumDetails = { gradeLevel: '', strands: [], semester: '', subjects: [] };
       const modalElement = document.getElementById('addClassModal');
-      const modalInstance = new Modal(modalElement);
-      modalInstance.show();
+      const modal = new Modal(modalElement);
+      modal.show();
     },
     onFileChange(event) {
       const file = event.target.files[0];
@@ -201,7 +196,7 @@ export default {
     },
     fetchCurriculums() {
       const token = localStorage.getItem('token');
-      axios.get('http://localhost:8000/api/viewcuriculum3', {
+      axios.get('http://localhost:8000/api/viewcuri', {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(response => {
@@ -215,18 +210,26 @@ export default {
         console.error('Error fetching curriculums:', error);
       });
     },
-    onCurriculumChange() {
-      const selectedCurriculum = this.curriculums.find(curriculum => curriculum.id === this.formData.curriculum_id);
-      if (selectedCurriculum) {
-        this.curriculumDetails.gradeLevel = selectedCurriculum.grade_level;
-        this.curriculumDetails.semester = selectedCurriculum.semester;
-        this.curriculumDetails.subjects = selectedCurriculum.subjectname || [];
-        this.curriculumDetails.strands = selectedCurriculum.addstrand || []; // Ensure it's an array
-        this.formData.strand_id = ''; // Reset strand id
-        this.filteredSections = [];
-        this.fetchSections(); // Fetch sections for the selected curriculum
-        console.log(this.curriculumDetails);
+    async fetchStrands() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/api/viewstrand', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
 
+        if (response.data && Array.isArray(response.data.data)) {
+          this.strands = response.data.data.map(strand => ({
+            id: strand.id,
+            value: `${strand.id} ${strand.grade_level}`,
+            label: `${strand.addstrand} ${strand.grade_level}`
+          }));
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching strands:', error);
       }
     },
     async fetchSections() {
@@ -240,63 +243,127 @@ export default {
           this.sections = response.data.sections.map(section => ({
             id: section.id,
             strand_id: section.strand.id,
-            value: section.section,
+            value: section.id,
             label: `${section.section}`
           }));
-          // this.filterSections(); // Initialize filtered sections
+          this.filterSections();
+        } else {
+          console.error('Unexpected response format:', response.data);
         }
       } catch (error) {
         console.error('Error fetching sections:', error);
       }
     },
-    // filterSections() {
-    //   if (this.formData.strand_id) {
-    //     this.filteredSections = this.sections.filter(section => section.strand_id === this.formData.strand_id);
-    //   } else {
-    //     this.filteredSections = [];
-    //   }
-    // },
-    addClass() {
-      // Add class logic here
-    }
-  },
-  watch: {
-    'formData.strand_id': function() {
-      this.filterSections(); // Filter sections whenever the strand id changes
+    filterSections() {
+      this.filteredSections = this.sections.filter(
+        section => section.strand_id === this.newClass.strand_id
+      );
+    },
+    async fetchSubjects() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/api/viewsubject', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.data && Array.isArray(response.data.data)) {
+          this.subjects = response.data.data.map(subject => ({
+            id: subject.id,
+            value: `${subject.id} `,
+            label: `${subject.subjectname} `
+          }));
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching strands:', error);
+      }
+    },
+    async fetchYear() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/api/viewyear', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.data && Array.isArray(response.data.data)) {
+          this.years = response.data.data.map(year => ({
+            id: year.id,
+            value: `${year.id} `,
+            label: `${year.addyear} `
+          }));
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching strands:', error);
+      }
+    },
+    async addClass() {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.post('http://localhost:8000/api/addclass', {
+          curriculum: this.newClass.curriculum_id,
+          strand_id: this.newClass.strand_id,
+          section_id: this.newClass.section_id,
+          subject_id: this.newClass.subject_id,
+          year_id: this.newClass.year_id,
+          semester: this.newClass.semester,
+          description: this.newClass.description,
+          image: this.newClass.image,
+          gen_code: this.newClass.code
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.status === 201) {
+          console.log('Class created successfully:', response.data);
+          // Handle successful creation (e.g., close the modal, clear form, refresh class list)
+          const modalElement = document.getElementById('addClassModal');
+          const modal = Modal.getInstance(modalElement);
+          modal.hide();
+        } else {
+          console.error('Error creating class:', response.data);
+        }
+      } catch (error) {
+        console.error('Error adding class:', error);
+      }
     }
   }
 };
 </script>
 
-
 <style scoped>
+.add-class-card {
+  cursor: pointer;
+  border: 2px dashed #ccc;
+  background-color: #f8f9fa;
+}
+
+.plus-icon {
+  color: #007bff;
+}
+
 .upload-area {
   border: 2px dashed #ccc;
-  border-radius: 4px;
   padding: 20px;
   text-align: center;
   cursor: pointer;
 }
-.upload-message {
-  font-size: 1.2em;
-  color: #999;
-}
-.plus-icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.add-class-card {
-  border: 2px dashed #007bff;
-  border-radius: 10px;
-  cursor: pointer;
-  text-align: center;
-}
-.add-class-card:hover {
+
+.upload-area:hover {
   background-color: #f8f9fa;
 }
-.card-img-top {
-  height: 150px;
-  object-fit: cover;
+
+.upload-message {
+  color: #888;
+  margin-top: 10px;
 }
 </style>

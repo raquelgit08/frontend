@@ -14,7 +14,8 @@
           <select v-model="selectedStrand" class="form-select" id="userStrand">
           <option value="">All Strands</option>
           <option v-for="strand in strands" :key="strand.id" :value="strand.id">
-            {{ strand.addstrand }} {{ strand.grade_level }}
+            {{ strand.label }}
+
           </option>
         </select>
         </div>
