@@ -4,7 +4,7 @@
       <div class="row">
         <div class="col-md-2 left-column">
           <div class="list-group-container">
-            <router-link to="/teacherlistofsubject" class="list-group">
+            <router-link to="/teacheraddsubject" class="list-group">
               <span class="icon-label">
                 <i class="bi bi-arrow-left fs-4"></i> Back to List of Subjects
               </span>
