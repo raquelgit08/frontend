@@ -3,14 +3,20 @@
     <h5 class="text-center">Create Class</h5>
 
     <div class="row">
-      <!-- Existing classes -->
+      <!-- Display classes fetched from the backend -->
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
         <div class="card">
-          <img :src="classItem.image" class="card-img-top" alt="Class Image">
-          <div class="card-body">
-            <h5 class="card-title">{{ classItem.name }}</h5>
-            <p class="card-text">{{ classItem.description }}</p>
-            <p class="card-text"><strong>Completed:</strong> {{ classItem.progress }}%</p>
+          
+          <img :src="require('@/assets/back1.jpg')" class="card-img" alt="Class Image">
+          <div class="card-container">
+            <p class="card-text"><strong>Subject:</strong> {{ classItem.subject.subjectname }}</p>
+            <p class="card-text">{{ classItem.class_desc }}</p>
+            <p class="card-text"><strong>Strand:</strong> {{ classItem.strand.addstrand }} {{ classItem.strand.grade_level }}</p>
+            <p class="card-text"><strong>Section:</strong> {{ classItem.section.section }}</p>
+            <p class="card-text"><strong>Year:</strong> {{ classItem.year.addyear }}</p>
+            <p class="card-text"><strong>CODE:</strong> {{ classItem.gen_code }}</p>
+            <p class="card-text"> {{ classItem.semester }} <a>semester</a></p>
+            <p class="card-text"><strong>Curriculum:</strong> {{ classItem.curriculum.Namecuriculum }}</p>
           </div>
         </div>
       </div>
@@ -20,12 +26,13 @@
         <div class="card add-class-card" @click="openModal">
           <div class="card-body d-flex justify-content-center align-items-center">
             <div class="plus-icon">
-              <i class="fa fa-plus fa-3x" @click="openModal"></i> <!-- Ensure this triggers modal -->
+              <i class="fa fa-plus fa-3x"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
+    
 
     <!-- Modal for creating a new class -->
     <div class="modal fade" id="addClassModal" tabindex="-1" aria-labelledby="addClassModalLabel" aria-hidden="true">
@@ -154,6 +161,7 @@ export default {
         gen_code: '',
         progress: 0
       },
+      classes:[],
       strands: [],
       sections: [],
       curriculums: [],
@@ -168,7 +176,8 @@ export default {
     this.fetchStrands();
     this.fetchSubjects();
     this.fetchYear();
-    this.addClass();
+    this.fetchClasses();
+    
   },
   watch: {
     'newClass.strand_id': 'filterSections' // Watch for changes to strand_id
@@ -305,69 +314,92 @@ export default {
       }
     },
     async addClass() {
-  const token = localStorage.getItem('token');
-  try {
-    console.log('Payload:', {
-      curiculum_id: this.newClass.curiculum_id,
-      strand_id: this.newClass.strand_id,
-      section_id: this.newClass.section_id,
-      subject_id: this.newClass.subject_id,
-      year_id: this.newClass.year_id,
-      semester: this.newClass.semester,
-      class_desc: this.newClass.class_desc,
-      image: this.newClass.image,
-      gen_code: this.newClass.gen_code
-    });
-
-    const response = await axios.post('http://127.0.0.1:8000/api/addclass', {
-      curiculum_id: this.newClass.curiculum_id,
-      strand_id: this.newClass.strand_id,
-      section_id: this.newClass.section_id,
-      subject_id: this.newClass.subject_id,
-      year_id: this.newClass.year_id,
-      semester: this.newClass.semester,
-      class_desc: this.newClass.class_desc,
-      image: this.newClass.image,
-      gen_code: this.newClass.gen_code
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('curiculum_id', this.newClass.curiculum_id);
+      formData.append('strand_id', this.newClass.strand_id);
+      formData.append('section_id', this.newClass.section_id);
+      formData.append('subject_id', this.newClass.subject_id);
+      formData.append('year_id', this.newClass.year_id);
+      formData.append('semester', this.newClass.semester);
+      formData.append('class_desc', this.newClass.class_desc);
+      formData.append('gen_code', this.newClass.gen_code);
+      formData.append('progress', this.newClass.progress); ////.sppends the name of the field in the form data
+      
+      // Check if there's a file
+      const file = this.$refs.fileInput.files[0];
+      if (file) {
+        formData.append('image', file);
       }
-    });
 
-    console.log('Response:', response.data);
+      try {
+        const response = await axios.post('http://localhost:8000/api/addclass', formData, {
+          headers: {
+            // 'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    if (response.status === 201) {
-      console.log('Class created successfully:', response.data);
-      this.clearForm();
-      const modalElement = document.getElementById('addClassModal');
-      const modal = Modal.getInstance(modalElement);
-      modal.hide();
-    } else {
-      console.error('Error creating class:', response.data);
-    }
-  } catch (error) {
-    console.error('Error adding class:', error);
-  }
-},
+        console.log('Response:', response.data);
 
-    clearForm() {
-  this.newClass = {
-    curiculum_id: '',
-    strand_id: '',
-    section_id: '',
-    gradeLevel: '',
-    subject_id: '',
-    year_id: '',
-    semester: '',
-    year: '',
-    class_desc: '',
-    image: '',
-    gen_code: '',
-    progress: 0
-  };
-}
+        if (response.status === 201) {
+          console.log('Class created successfully:', response.data);
+          this.fetchClasses(); // Refresh classes list
+          this.clearForm();
+          const modalElement = document.getElementById('addClassModal');
+          const modal = Modal.getInstance(modalElement);
+          modal.hide();
+        } else {
+          console.error('Error creating class:', response.data);
+        }
+      } catch (error) {
+        console.error('Error adding class:', error);
+        alert('ERROR: Class is already created in this section with this subject.');
+      }
+    },
 
+  clearForm() {
+    this.newClass = {
+      curiculum_id: '',
+      strand_id: '',
+      section_id: '',
+      gradeLevel: '',
+      subject_id: '',
+      year_id: '',
+      semester: '',
+      year: '',
+      class_desc: '',
+      image: '',
+      gen_code: '',
+      progress: 0
+    };
+  },
+    fetchClasses() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewAllClassDetails', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(response => {
+        if (response.data && response.data.classes) {
+          this.classes = response.data.classes.map(classItem => ({
+            id: classItem.id,
+            class_desc: classItem.class_desc,
+            strand: classItem.strand ||  {},
+            section: classItem.section || {},
+            subject: classItem.subject || {},
+            year: classItem.year || {},
+            gen_code: classItem.gen_code,
+            semester: classItem.semester,
+            curriculum: classItem.curriculum || {},
+          }));
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching classes:', error);
+      });
+    },
 
   }
 };
@@ -398,5 +430,40 @@ export default {
 .upload-message {
   color: #888;
   margin-top: 10px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #2c71c1;
+  border-radius: 8px;
+  width: 100%; /* Card width set to fill container */
+  max-width: 350px; /* Maximum width of the card */
+  background-color: #abd5f767;
+  margin-bottom: 20px; /* Space between cards */
+  
+}
+
+.card-img {
+  width: 100%;
+  height: 180px; /* Adjusted height for a wider card */
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+
+.card-title {
+  font-size: 1.2rem; /* Increased title font size */
+  margin-bottom: 0.5rem;
+}
+
+.card-text {
+  font-size: 0.9rem; /* Slightly smaller text size */
+  margin-bottom: 0.5rem; /* Space between text items */
+}
+.card-container{
+  padding: 20px;
 }
 </style>
