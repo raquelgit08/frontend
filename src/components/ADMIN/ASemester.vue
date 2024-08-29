@@ -73,6 +73,7 @@
                 </option>
               </select>
             </div>
+
             <div class="mb-3">
               <label for="gradeLevel">Grade Level:</label>
               <select v-model="selectedGradeLevel" class="form-control">
@@ -81,6 +82,7 @@
                 </option>
               </select>
             </div>
+
             <div class="mb-3">
               <label for="subject">Subjects:</label>
               <div v-for="subject in subjects" :key="subject.id" class="form-check">
@@ -88,6 +90,7 @@
                 <label :for="'subject-' + subject.id" class="form-check-label">{{ subject.subjectname }}</label>
               </div>
             </div>
+            
             <div class="mb-3">
               <label for="semester">Semester:</label>
               <select v-model="newSemester" class="form-control">

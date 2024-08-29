@@ -7,17 +7,16 @@
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto">
-        <h4 class="mb-0 me-3">WELCOME ADMIN!</h4>
-        <div @click="togglePopover" style="cursor: pointer; position: relative;">
-          <i class="bi bi-person-lock" style="font-size: 40px; margin-right: 20px;"></i>
+        <h4 class="welcome-text">WELCOME ADMIN!</h4>
+        <div @click="togglePopover" class="profile-icon-container">
+          <i class="bi bi-person-lock profile-icon"></i>
           <div v-if="isPopoverVisible" class="popover show" role="tooltip">
             <div class="popover-arrow"></div>
             <div v-if="isLoggedIn">
               <div v-if="userProfile">
                 <div class="popover-body">
-                  ID number: {{ userProfile.idnumber }}
-                  NAME : {{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }}
-                  <br />
+                  <p>ID number: {{ userProfile.idnumber }}</p>
+                  <p>NAME: {{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }}</p>
                 </div>
                 <button class="btn btn-danger btn-sm mt-2" @click="handleLogout">Log Out</button>
               </div>
@@ -38,8 +37,27 @@
     <div class="d-flex">
       <div :class="['sidebar', isSidebarCollapsed ? 'collapsed' : '']">
         <img :src="require('@/assets/i12.png')" class="img-fluid logo" alt="Your Image">
+
+        <!-- Dashboard Section -->
+        <h5 class="sidebar-section-label">Dashboard</h5>
         <router-link
-          v-for="(item, index) in items"
+          v-for="(item, index) in items.filter(i => i.section === 'dashboard')"
+          :key="index"
+          :to="item.path"
+          class="list-group"
+          :class="{ active: selectedItem === item.path }"
+          @click="handleItemClick(item.path)"
+        >
+          <span class="icon-label">
+            <i :class="item.icon"></i>
+            <span class="label">{{ item.label }}</span>
+          </span>
+        </router-link>
+
+        <!-- Manage Section -->
+        <h5 class="sidebar-section-label">Manage</h5>
+        <router-link
+          v-for="(item, index) in items.filter(i => i.section === 'manage')"
           :key="index"
           :to="item.path"
           class="list-group"
@@ -54,8 +72,8 @@
 
         <!-- Manage User Dropdown -->
         <div class="list-group dropdown" @click="toggleDropdown('manageUser')">
-          <span class="icon-label dropdown-toggle" style="cursor: pointer;">
-            <i class="bi bi-people-fill fs-4" style="padding-right: 20px;"></i> Manage User
+          <span class="icon-label dropdown-toggle">
+            <i class="bi bi-people-fill fs-4"></i> Manage User
           </span>
           <ul v-if="isDropdownVisible.manageUser" class="dropdown-menu show">
             <li><router-link to="/allusers" class="dropdown-item" @click="handleItemClick('/allusers')">All Users</router-link></li>
@@ -63,8 +81,22 @@
             <li><router-link to="/manage_students" class="dropdown-item" @click="handleItemClick('/manage_students')">Manage Students</router-link></li>
           </ul>
         </div>
-        <!-- Strand Dropdown -->
-       
+
+        <!-- Report Section -->
+        <h5 class="sidebar-section-label">Report</h5>
+        <router-link
+          v-for="(item, index) in items.filter(i => i.section === 'report')"
+          :key="index"
+          :to="item.path"
+          class="list-group"
+          :class="{ active: selectedItem === item.path }"
+          @click="handleItemClick(item.path)"
+        >
+          <span class="icon-label">
+            <i :class="item.icon"></i>
+            <span class="label">{{ item.label }}</span>
+          </span>
+        </router-link>
 
         <!-- Chevron Icon to Collapse/Expand Sidebar -->
         <i @click="toggleSidebar" class="bi" :class="isSidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
@@ -97,19 +129,23 @@ export default {
         manageUser: false,
         strand: false,
       },
-      isSidebarCollapsed: false, // New data property for sidebar state
+      isSidebarCollapsed: false,
       selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
       items: [
-      { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-house-door-fill' },
-      { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-calendar-month-fill'},
-      { path: '/ManageStrandsinSHS', label: 'Manage Strand', icon: 'bi bi-calendar-month-fill'},
-      { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder-symlink-fill' },
-      //{ path: '/AYearLevel', label: 'Manage Year Level', icon: 'bi bi-calendar-date-fill' }, static nalang daw ito//
-      { path: '/ASemester', label: 'Set Up Curriculum', icon: 'bi bi-calendar-week-fill'}, //ibahan pa yung tawag di ko alam e
-      { path: '/AManageSubject', label:'Manage Subjects', icon:'bi bi-house-door-fill'  },
-      { path: '/AManagePosition', label: 'Manage Position', icon:'bi bi-house-door-fill' },
-      { path: '/ManageCuricculuminSHS', label: 'Manage Curriculum', icon:'bi bi-house-door-fill' }
-       
+        // Dashboard Section
+        { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-house-door-fill', section: 'dashboard' },
+
+        // Manage Section
+        { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-calendar-month-fill', section: 'manage' },
+        { path: '/ManageStrandsinSHS', label: 'Manage Strand', icon: 'bi bi-calendar-month-fill', section: 'manage' },
+        { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder-symlink-fill', section: 'manage' },
+        { path: '/AManageSubject', label: 'Manage Subjects', icon: 'bi bi-house-door-fill', section: 'manage' },
+        { path: '/AManagePosition', label: 'Manage Position', icon: 'bi bi-house-door-fill', section: 'manage' },
+        { path: '/ManageCuricculuminSHS', label: 'Manage Curriculum', icon: 'bi bi-house-door-fill', section: 'manage' },
+
+        // Report Section
+        { path: '/ReportListofStudent', label: 'List of Student', icon: 'bi bi-house-door-fill', section: 'report' },
+        { path: '/ReportListofTeacher', label: 'List of Teacher', icon: 'bi bi-house-door-fill', section: 'report' },
       ],
     };
   },
@@ -182,13 +218,38 @@ export default {
 
 <style scoped>
 h2 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: rgb(14, 1, 1);
   margin-left: 270px;
+  transition: margin-left 0.3s ease;
 }
 
 .navbar {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-text {
+  margin-right: 20px;
+  font-size: 1.25rem;
+  color: white;
+}
+
+.profile-icon-container {
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-icon {
+  font-size: 40px;
+  margin-right: 10px;
+  color: white;
+  transition: color 0.3s;
+}
+
+.profile-icon-container:hover .profile-icon {
+  color: #0056b3;
 }
 
 .modal-content {
@@ -211,17 +272,26 @@ h2 {
 }
 
 .list-group {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
   font-weight: 500;
   padding: 10px;
-  border: #130404;
+  border: none;
   color: white;
+  background-color: transparent;
+  transition: background-color 0.3s, color 0.3s;
+}
 
+.list-group.active {
+  background-color: #007bff;
+}
+
+.list-group:hover {
+  background-color: #0056b3;
 }
 
 .dropdown {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 10px;
@@ -235,7 +305,7 @@ h2 {
 
 .label {
   margin-left: 10px;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .content {
@@ -243,10 +313,6 @@ h2 {
   padding: 20px;
   width: calc(100% - 250px);
   transition: margin-left 0.3s ease, width 0.3s ease;
-}
-
-.title-container {
-  transition: margin-left 0.3s ease;
 }
 
 .title-container.collapsed h2 {
@@ -257,7 +323,7 @@ h2 {
   position: absolute;
   z-index: 1050;
   display: block;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -266,7 +332,6 @@ h2 {
   top: 50px;
   left: -170px;
   opacity: 0;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   font-size: 16px;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -326,6 +391,7 @@ h2 {
   transition: width 0.3s ease;
   overflow-y: auto; /* Enable vertical scrolling */
   overflow-x: hidden; /* Hide horizontal overflow if necessary */
+  color: #fff;
 }
 
 .sidebar.collapsed {
@@ -365,6 +431,11 @@ h2 {
   font-size: 1.5rem;
   cursor: pointer;
   color: wheat;
+  transition: color 0.3s;
+}
+
+.bi-chevron-left:hover, .bi-chevron-right:hover {
+  color: #0056b3;
 }
 
 /* Content Area Styling */

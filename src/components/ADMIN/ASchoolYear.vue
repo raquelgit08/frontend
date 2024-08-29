@@ -2,7 +2,7 @@
   <div class="container mt-4">
     <h5 class="text-center">Manage School Year</h5>
 
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between mb-3 align-items-center">
       <!-- Search Bar -->
       <div class="input-group">
         <input type="text" v-model="searchQuery" class="form-control" placeholder="Search Years...">
@@ -10,15 +10,15 @@
 
       <!-- Add School Year Button -->
       <div>
-        <button class="btn btn-outline-secondary" @click="openAddModal">
+        <button class="btn btn-primary" @click="openAddModal">
           <i class="bi bi-plus"></i> Add School Year
         </button>
       </div>
     </div>
 
     <div>
-      <table class="table table-bordered table-striped">
-        <thead class="table-light">
+      <table class="table table-hover table-bordered table-striped">
+        <thead class="table-dark">
           <tr>
             <th>No.</th>
             <th>Year</th>
@@ -26,7 +26,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(year, index) in filteredList" :key="year.id">
+          <tr v-for="(year, index) in filteredList" :key="year.id" class="align-middle">
             <td>{{ index + 1 }}</td>
             <td>{{ year.addyear }}</td>
             <td>
@@ -55,7 +55,7 @@
               <input type="text" v-model="newYear" class="form-control" placeholder="Year Name">
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer d-flex justify-content-between">
             <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
             <button type="button" class="btn btn-primary" @click="saveYear">{{ isEdit ? 'Update' : 'Save' }}</button>
           </div>
@@ -74,7 +74,7 @@
           <div class="modal-body">
             <p>{{ duplicateErrorMessage }}</p>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer d-flex justify-content-center">
             <button type="button" class="btn btn-secondary" @click="closeDuplicateModal">Close</button>
           </div>
         </div>
@@ -225,16 +225,89 @@ export default {
 
 <style scoped>
 .container {
-  max-width: 10000px;
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 20px;
+}
+
+h5 {
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.input-group {
+  max-width: 400px;
+  flex-grow: 1;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
+.table {
+  margin-top: 20px;
 }
 
 .table th, .table td {
   text-align: center;
+  vertical-align: middle;
 }
 
-.input-group{
-  max-width: 1050px;
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
 
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-close {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.btn-close:hover {
+  color: #000;
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+.modal-content {
+  border-radius: 8px;
+}
+
+.modal-title {
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .d-flex {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-group, .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .table {
+    font-size: 14px;
+  }
 }
 </style>

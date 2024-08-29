@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>DASHBOARD</h3>
-    <div class="row mb-3" style="margin: 10px">
+    <div class="row mb-3">
       <!-- Chart Section -->
       <div class="col-lg-8 col-md-12 mb-3">
         <div class="graph">
@@ -16,73 +16,11 @@
       <!-- Statistics Section -->
       <div class="col-lg-4 col-md-12">
         <div class="row">
-          <div class="col-6 mb-3">
+          <div class="col-6 mb-3" v-for="(stat, label) in stats" :key="label">
             <div class="boxes">
               <center>
-                <h4>{{ stemStudents }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>STEM</b> STUDENTS</span>
-              </center>
-            </div>
-          </div>
-          <div class="col-6 mb-3">
-            <div class="boxes">
-              <center>
-                <h4>{{ abmStudents }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>ABM</b> STUDENTS</span>
-              </center>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-6 mb-3">
-            <div class="boxes">
-              <center>
-                <h4>{{ hummsStudents }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>HUMMS</b> STUDENTS</span>
-              </center>
-            </div>
-          </div>
-          <div class="col-6 mb-3">
-            <div class="boxes">
-              <center>
-                <h4>{{ tvlictStudents }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>TVL-ICT</b> STUDENTS</span>
-              </center>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-6 mb-3">
-            <div class="boxes">
-              <center>
-                <h4>{{ femaleUsers }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>FEMALE USERS</b></span>
-              </center>
-            </div>
-          </div>
-          <div class="col-6 mb-3">
-            <div class="boxes">
-              <center>
-                <h4>{{ maleUsers }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>MALE USERS</b></span>
-              </center>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-6 mb-3">
-            <div class="boxes">
-              <center>
-                <h4>{{ teacher }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>TEACHERS</b></span>
-              </center>
-            </div>
-          </div>
-          <div class="col-6 mb-3">
-            <div class="boxes" >
-              <center>
-                <h4>{{ student }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>STUDENTS</b></span>
+                <h4>{{ stat }}</h4>
+                <span class="label">TOTAL NUMBER OF <br /><b>{{ label }}</b></span>
               </center>
             </div>
           </div>
@@ -92,9 +30,8 @@
   </div>
 </template>
 
-
 <script>
-import BarChart from './adminbarchart.vue'; // Ensure correct path
+import BarChart from './adminbarchart.vue';
 import axios from 'axios';
 
 export default {
@@ -104,26 +41,23 @@ export default {
   },
   data() {
     return {
-      femaleUsers: 0,
-      maleUsers: 0,
-      teacher: 0,
-      student: 0,
-      stemStudents: 0,
-      abmStudents: 0,
-      hummsStudents: 0,
-      tvlictStudents: 0,
+      stats: {
+        STEM: 0,
+        ABM: 0,
+        HUMMS: 0,
+        'TVL-ICT': 0,
+        'FEMALE USERS': 0,
+        'MALE USERS': 0,
+        TEACHERS: 0,
+        STUDENTS: 0,
+      },
       chartData: {
         labels: ['STEM', 'ABM', 'HUMMS', 'TVL ICT'],
         datasets: [
           {
             label: 'Number of Students',
             data: [0, 0, 0, 0],
-            backgroundColor: [
-              '#28a045', // Green for STEM
-              '#007bff', // Blue for ABM
-              '#ffc107', // Yellow for HUMMS
-              '#dc3545', // Red for TVL ICT
-            ],
+            backgroundColor: ['#28a045', '#007bff', '#ffc107', '#dc3545'],
           },
         ],
       },
@@ -131,9 +65,7 @@ export default {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'top',
-          },
+          legend: { position: 'top' },
           tooltip: {
             callbacks: {
               label: function (tooltipItem) {
@@ -147,7 +79,12 @@ export default {
   },
   computed: {
     totalStudents() {
-      return this.stemStudents + this.abmStudents + this.hummsStudents + this.tvlictStudents;
+      return (
+        this.stats.STEM +
+        this.stats.ABM +
+        this.stats.HUMMS +
+        this.stats['TVL-ICT']
+      );
     },
   },
   mounted() {
@@ -158,10 +95,10 @@ export default {
     async fetchUsersCounts() {
       try {
         const response = await axios.get('http://localhost:8000/api/user-counts');
-        this.femaleUsers = response.data.femaleUsers;
-        this.maleUsers = response.data.maleUsers;
-        this.teacher = response.data.teacher;
-        this.student = response.data.student;
+        this.stats['FEMALE USERS'] = response.data.femaleUsers;
+        this.stats['MALE USERS'] = response.data.maleUsers;
+        this.stats.TEACHERS = response.data.teacher;
+        this.stats.STUDENTS = response.data.student;
       } catch (error) {
         console.error('Failed to fetch Users counts:', error);
       }
@@ -169,65 +106,94 @@ export default {
     async fetchDataStrand() {
       try {
         const response = await axios.get('http://localhost:8000/api/countstrand', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
 
         const { total_stem, total_abm, total_humms, total_tvl } = response.data;
 
-        this.stemStudents = total_stem;
-        this.abmStudents = total_abm;
-        this.hummsStudents = total_humms;
-        this.tvlictStudents = total_tvl;
+        this.stats.STEM = total_stem;
+        this.stats.ABM = total_abm;
+        this.stats.HUMMS = total_humms;
+        this.stats['TVL-ICT'] = total_tvl;
 
-        // Update chart data
         this.chartData.datasets[0].data = [
-          this.stemStudents,
-          this.abmStudents,
-          this.hummsStudents,
-          this.tvlictStudents,
+          total_stem,
+          total_abm,
+          total_humms,
+          total_tvl,
         ];
       } catch (error) {
         console.error('Error fetching data:', error);
       }
-    }
+    },
   },
 };
 </script>
 
 <style>
 h3 {
-  color: rgb(6, 0, 0);
+  color: #060000;
   padding: 10px;
   border-radius: 8px 8px 0 0;
   font-family: 'Georgia', serif;
   margin: 20px;
+  text-align: center;
+  background-color: #f7f7f7;
 }
 
 .graph {
   border: 2px solid whitesmoke;
-  padding: 20px; /* Adjust padding for smaller screens */
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 .chart-container {
   position: relative;
-  height: 300px; /* Adjust height for smaller screens */
+  height: 300px;
 }
 
 .boxes {
-  border: 2px solid rgb(122, 122, 122);
-  background-color: whitesmoke; /* Change background color to white */
-  border-radius: 5px;
-  height: 100px; /* Adjust height for smaller screens */
-  padding: 5px;
-  padding-top: 10px; /* Adjust padding for smaller screens */
+  border: 1px solid #ccc;
+  background-color: #ffffff;
+  border-radius: 8px;
+  height: 100px;
+  padding: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.boxes:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .label {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-size: 14px; /* Adjust font size for smaller screens */
-  margin-top: 0;
+  font-family: 'Verdana', Geneva, Tahoma, sans-serif;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    height: 200px;
+  }
+  .boxes {
+    height: 80px;
+  }
+  .label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  h3 {
+    font-size: 18px;
+  }
+  .boxes {
+    height: 70px;
+  }
+  .label {
+    font-size: 10px;
+  }
 }
 </style>

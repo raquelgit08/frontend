@@ -1,135 +1,108 @@
 <template>
-    <div class="analysis-page">
-      <div class="container-fluid">
-        <div class="row">
-          <!-- Drawer Section -->
-          <div class="col-md-2 left-column">
-            <div class="list-group-container">
-              <router-link to="/teacherlistofsubject" class="list-group">
-                <span class="icon-label">
-                  <i class="bi bi-arrow-left fs-4"></i> Back to List of Subjects
-                </span>
-              </router-link>
-              <router-link v-for="(item, index) in items" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
-                <span class="icon-label">
-                  <i :class="item.icon"></i> {{ item.label }}
-                </span>
-              </router-link>
-              <div class="list-group logOut" @click="handleLogoutClick" style="margin-top: auto;">
-                <span class="icon-label">
-                  <i class="bi bi-box-arrow-left fs-4"></i> LOG OUT
-                </span>
-              </div>
-            </div>
-          </div>
-  
-          <!-- Main Content Section -->
-          <div class="col-md-10 right-column">
-            <h1>List of Students</h1>
-          </div>
-        </div>
+  <div class="container-fluid">
+    <h4 class="text-center">Manage Students</h4><br>
+    <div class="row mb-4">
+      <div class="col-md-8 offset-md-2">
+        <table class="table table-bordered table-hover">
+          <thead class="table-info">
+            <tr>
+              <th scope="col" class="text-center">Email</th>
+              <th scope="col" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(student) in students" :key="student.id">
+              <td class="text-center">{{ student.email }}</td>
+              <td class="text-center">
+                <button class="btn btn-danger" @click="kickStudent(student.id)">Kick</button>
+                <button class="btn btn-primary" @click="inviteStudent(student.id)">Invite</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'StudentsListSubject',
-    data() {
-      return {
-        selectedItem: '',
-        items: [
-          { path: '/studentslist', label: 'List of Students', icon: 'bi bi-speedometer2 fs-4' },
-          { path: '/AddExam', label: 'Add Exam', icon: 'bi bi-file-earmark-text fs-4' },
-          { path: '/Feedback', label: 'Feedback', icon: 'bi bi-chat-square-text fs-4' },
-          { path: '/ItemAnalysis', label: 'Item Analysis', icon: 'bi bi-graph-up-arrow fs-4' },
-          { path: '/PerformanceTracking', label: 'Performance Tracking', icon: 'bi bi-speedometer2 fs-4' },
-          { path: '/GenerateReport', label: 'Report Generating', icon: 'bi bi-speedometer2 fs-4' }
-        ]
-      };
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'ManageStudentEmails',
+  data() {
+    return {
+      students: []
+    };
+  },
+  methods: {
+    async fetchStudents() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/viewAllStudents', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        this.students = response.data.students;
+      } catch (error) {
+        alert('Error fetching students: ' + error.message);
+      }
     },
-    methods: {
-      handleLogoutClick() {
-        // Logout logic here
-      },
-      handleItemClick(path) {
-        this.selectedItem = path;
+    async kickStudent(studentId) {
+      if (confirm('Are you sure you want to remove this student from the class?')) {
+        try {
+          await axios.delete(`http://localhost:8000/api/students/${studentId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          alert('Student removed successfully');
+          this.fetchStudents();
+        } catch (error) {
+          alert('Error removing student: ' + error.message);
+        }
+      }
+    },
+    async inviteStudent(studentId) {
+      try {
+        const response = await axios.post(`http://localhost:8000/api/inviteStudent`, {
+          student_id: studentId
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        alert(response.data.message || 'Invitation sent successfully');
+      } catch (error) {
+        alert('Error inviting student: ' + error.message);
       }
     }
-  };
-  </script>
-  
-  <style scoped>
-  .analysis-page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  },
+  mounted() {
+    this.fetchStudents();
   }
-  
-  .container-fluid {
-    flex: 1;
-  }
-  
-  .left-column {
-    background-color: white;
-    padding: 10px;
-    border-right: 1px solid #ddd;
-    height: 100vh;
-    width: 250px;
-  }
-  
-  .right-column {
-    padding: 20px;
-    background-color: white;
-    flex: 1;
-  }
-  
-  .list-group-container {
-    height: 100%;
-  }
-  
-  .list-group {
-    color: #333;
-    text-decoration: none;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin: 10px 0;
-    padding: 10px;
-    font-family: 'Arial', sans-serif;
-    font-size: 16px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-  }
-  
-  .list-group.active,
-  .list-group:hover,
-  .logOut:hover {
-    background-color: #50C878;
-    color: white;
-  }
-  
-  .icon-label {
-    display: flex;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .icon-label i {
-    margin-right: 10px;
-  }
-  
-  .icon-label .label {
-    flex: 1;
-  }
-  
-  .analysis-page h1 {
-    font-family: 'Arial', sans-serif;
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.container-fluid {
+  margin-top: 10px;
+}
+h4 {
+  background-color: #87CEFA;
+  color: #060000;
+  padding: 10px;
+  border-radius: 8px 8px 0 0;
+  font-family: 'Georgia', serif;
+  margin-bottom: 20px;
+}
+.table {
+  font-size: 15px;
+}
+.table-info {
+  background-color: #e0ffff;
+}
+.btn-danger {
+  margin-right: 10px;
+}
+</style>

@@ -16,6 +16,8 @@ import ManagingStrandsinENHS from './components/ADMIN/ManageStrandsinSHS.vue';
 import ManageSubjectinSHS from './components/ADMIN/AManageSubject.vue';
 import ManageTeacherPosition from './components/ADMIN/AManagePosition.vue';
 import ManageCurricuminENHS from './components/ADMIN/ManageCuricculuminSHS.vue';
+import ReportGenerateStudents from './components/ADMIN/ReportListofStudent.vue';
+import ReportGenerateTeachers from './components/ADMIN/ReportListofTeacher.vue';
 
 import Humms11Page from './components/ADMIN/STRAND/humms11.vue';
 import Humms12Page from './components/ADMIN/STRAND/humms12.vue';
@@ -41,6 +43,7 @@ import FeedbacksofStudent from './components/TEACHER/Feedback.vue';
 import ITEManalysis from './components/TEACHER/ItemAnalysis.vue';
 import PerformancesTracking from './components/TEACHER/ItemAnalysis.vue';
 import ReportGenerating from './components/TEACHER/GenerateReport.vue';
+
 
 import Student_homepage from './components/STUDENT/studenthomepage.vue';
 import StudentDashboard from './components/STUDENT/Sdashboard.vue';
@@ -69,6 +72,8 @@ const routes = [
   { path: '/AManageSubject', component: ManageSubjectinSHS},
   { path: '/AManagePosition', component: ManageTeacherPosition},
   { path: '/ManageCuricculuminSHS', component: ManageCurricuminENHS},
+  { path: '/ReportListofStudent', component: ReportGenerateStudents },
+  { path: '/ReportListofTeacher', component: ReportGenerateTeachers},
 
   { path: '/strand-section/abm11', component: Abm11Page},
   { path: '/strand-section/abm12', component: Abm12Page},

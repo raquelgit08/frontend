@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div> 
     <div class="container-fluid">
       <h4 class="text-center">Teachers Accounts </h4><br>
       <div class="row mb-4 justify-content-end align-items-center">
