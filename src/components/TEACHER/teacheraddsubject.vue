@@ -39,7 +39,7 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="curriculum" class="form-label">Curriculum:</label>
-              <select v-model="newClass.curriculum_id" id="curriculum" class="form-select" @change="onCurriculumChange" required>
+              <select v-model="newClass.curiculum_id" id="curriculum" class="form-select" @change="onCurriculumChange" required>
                 <option value="">Select Curriculum</option>
                 <option v-for="curriculum in curriculums" :key="curriculum.id" :value="curriculum.id">
                   {{ curriculum.Namecuriculum }}
@@ -99,7 +99,7 @@
 
             <div class="form-group">
               <label for="description">Class Description</label>
-              <textarea class="form-control" id="description" v-model="newClass.description"></textarea>
+              <textarea class="form-control" id="description" v-model="newClass.class_desc"></textarea>
             </div>
 
             <!-- Upload Picture -->
@@ -115,7 +115,7 @@
             <div class="form-group">
               <label for="code">Generate Code</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="code" v-model="newClass.code" readonly>
+                <input type="text" class="form-control" id="code" v-model="newClass.gen_code" readonly>
                 <button class="btn btn-secondary" @click="generateCode">Generate Code</button>
               </div>
             </div>
@@ -141,7 +141,7 @@ export default {
     return {
       
       newClass: {
-        curriculum_id: '',
+        curiculum_id: '',
         strand_id: '',
         section_id: '',
         gradeLevel: '',
@@ -149,9 +149,9 @@ export default {
         year_id: '',
         semester: '',
         year: '',
-        description: '',
+        class_desc: '',
         image: '',
-        code: '',
+        gen_code: '',
         progress: 0
       },
       strands: [],
@@ -168,6 +168,7 @@ export default {
     this.fetchStrands();
     this.fetchSubjects();
     this.fetchYear();
+    this.addClass();
   },
   watch: {
     'newClass.strand_id': 'filterSections' // Watch for changes to strand_id
@@ -192,7 +193,7 @@ export default {
       }
     },
     generateCode() {
-      this.newClass.code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      this.newClass.gen_code = Math.random().toString(36).substring(2, 8).toUpperCase();
     },
     fetchCurriculums() {
       const token = localStorage.getItem('token');
@@ -222,7 +223,7 @@ export default {
         if (response.data && Array.isArray(response.data.data)) {
           this.strands = response.data.data.map(strand => ({
             id: strand.id,
-            value: `${strand.id} ${strand.grade_level}`,
+            value: `${strand.addstrand} ${strand.grade_level}`,
             label: `${strand.addstrand} ${strand.grade_level}`
           }));
         } else {
@@ -243,7 +244,7 @@ export default {
           this.sections = response.data.sections.map(section => ({
             id: section.id,
             strand_id: section.strand.id,
-            value: section.id,
+            value: section.section,
             label: `${section.section}`
           }));
           this.filterSections();
@@ -271,7 +272,7 @@ export default {
         if (response.data && Array.isArray(response.data.data)) {
           this.subjects = response.data.data.map(subject => ({
             id: subject.id,
-            value: `${subject.id} `,
+            value: `${subject.subjectname} `,
             label: `${subject.subjectname} `
           }));
         } else {
@@ -293,7 +294,7 @@ export default {
         if (response.data && Array.isArray(response.data.data)) {
           this.years = response.data.data.map(year => ({
             id: year.id,
-            value: `${year.id} `,
+            value: `${year.addyear} `,
             label: `${year.addyear} `
           }));
         } else {
@@ -304,38 +305,70 @@ export default {
       }
     },
     async addClass() {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await axios.post('http://localhost:8000/api/addclass', {
-          curriculum: this.newClass.curriculum_id,
-          strand_id: this.newClass.strand_id,
-          section_id: this.newClass.section_id,
-          subject_id: this.newClass.subject_id,
-          year_id: this.newClass.year_id,
-          semester: this.newClass.semester,
-          description: this.newClass.description,
-          image: this.newClass.image,
-          gen_code: this.newClass.code
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+  const token = localStorage.getItem('token');
+  try {
+    console.log('Payload:', {
+      curiculum_id: this.newClass.curiculum_id,
+      strand_id: this.newClass.strand_id,
+      section_id: this.newClass.section_id,
+      subject_id: this.newClass.subject_id,
+      year_id: this.newClass.year_id,
+      semester: this.newClass.semester,
+      class_desc: this.newClass.class_desc,
+      image: this.newClass.image,
+      gen_code: this.newClass.gen_code
+    });
 
-        if (response.status === 201) {
-          console.log('Class created successfully:', response.data);
-          // Handle successful creation (e.g., close the modal, clear form, refresh class list)
-          const modalElement = document.getElementById('addClassModal');
-          const modal = Modal.getInstance(modalElement);
-          modal.hide();
-        } else {
-          console.error('Error creating class:', response.data);
-        }
-      } catch (error) {
-        console.error('Error adding class:', error);
+    const response = await axios.post('http://127.0.0.1:8000/api/addclass', {
+      curiculum_id: this.newClass.curiculum_id,
+      strand_id: this.newClass.strand_id,
+      section_id: this.newClass.section_id,
+      subject_id: this.newClass.subject_id,
+      year_id: this.newClass.year_id,
+      semester: this.newClass.semester,
+      class_desc: this.newClass.class_desc,
+      image: this.newClass.image,
+      gen_code: this.newClass.gen_code
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
+    });
+
+    console.log('Response:', response.data);
+
+    if (response.status === 201) {
+      console.log('Class created successfully:', response.data);
+      this.clearForm();
+      const modalElement = document.getElementById('addClassModal');
+      const modal = Modal.getInstance(modalElement);
+      modal.hide();
+    } else {
+      console.error('Error creating class:', response.data);
     }
+  } catch (error) {
+    console.error('Error adding class:', error);
+  }
+},
+
+    clearForm() {
+  this.newClass = {
+    curiculum_id: '',
+    strand_id: '',
+    section_id: '',
+    gradeLevel: '',
+    subject_id: '',
+    year_id: '',
+    semester: '',
+    year: '',
+    class_desc: '',
+    image: '',
+    gen_code: '',
+    progress: 0
+  };
+}
+
+
   }
 };
 </script>
