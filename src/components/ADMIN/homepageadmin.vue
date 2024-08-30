@@ -55,15 +55,9 @@
         </router-link>
 
         <!-- Manage Section -->
-        <h5 class="sidebar-section-label">Manage</h5>
+        <h5 class="sidebar-section-label">Set Up</h5>
         <router-link
-          v-for="(item, index) in items.filter(i => i.section === 'manage')"
-          :key="index"
-          :to="item.path"
-          class="list-group"
-          :class="{ active: selectedItem === item.path }"
-          @click="handleItemClick(item.path)"
-        >
+          v-for="(item, index) in items.filter(i => i.section === 'manage')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
           <span class="icon-label">
             <i :class="item.icon"></i>
             <span class="label">{{ item.label }}</span>
@@ -382,7 +376,7 @@ h2 {
 }
 
 .sidebar {
-  width: 250px;
+  width: 270px;
   background-color: #0e68bc;
   height: 100vh;
   padding: 20px;

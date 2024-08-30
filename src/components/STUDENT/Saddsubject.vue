@@ -61,7 +61,7 @@ export default {
     async addSubject() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.post('http://localhost:8000/api/store4', 
+        const response = await axios.post('http://localhost:8000/api/jcstudent2', 
           { gen_code: this.genCode },
           { headers: { 
               'Authorization': `Bearer ${token}`, 

@@ -1,10 +1,10 @@
 <template>
   <div class="container-fluid">
     <h4 >
-      <center>Register New  TEACHER User</center>
+      Register New Teacher
     </h4>
     <div class="register-form">
-      <div class="row mb-3">
+      <div class="row mb-3 Row">
         <div class="col-md-3">
           <label for="idnumber" class="form-label">ID / LRN Number:</label>
           <input v-model="formData.idnumber" type="text" id="idnumber" class="form-control" required>
@@ -29,7 +29,7 @@
 
       <div class="row mb-3">
        
-        <div class="col-md-2">
+        <div class="col-md-3">
           <label class="form-label d-block">Gender:</label>
           <div class="form-check form-check-inline">
             <input v-model="formData.sex" class="form-check-input" type="radio" name="sex" id="male" value="male" required>
@@ -46,7 +46,7 @@
           <input v-model="formData.email" type="email" id="email" class="form-control" required>
         </div>
        
-        <div class="col-md-4">
+        <div class="col-md-5">
           <label for="password" class="form-label">Password:</label>
           <div class="input-group">
             <input v-model="formData.password" :type="passwordFieldType" id="password" class="form-control" required>
@@ -69,7 +69,7 @@
             </select>
           </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label for="strand" class="form-label">Strand:</label>
           <select v-model="formData.strand_id" id="strand" class="form-select" >
             <option value="">Select Strand</option>
@@ -258,19 +258,14 @@ export default {
 <style scoped>
 .register-container {
   padding: 20px;
-  background-color: #f8f9fa94;
-  border: 1px solid #0b355e;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fab1;
   max-width: 900px;
   margin: 20px auto;
 }
 
 h4 {
-  background-color: #87CEFA; /* Sky blue background */
   color: rgb(6, 0, 0);
   padding: 10px;
-  border-radius: 8px 8px 0 0;
   font-family: 'Georgia', serif;
   margin-bottom: 20px;
 }
@@ -296,7 +291,9 @@ h4 {
 .form-control, .form-select {
   border-radius: 5px;
   height: 40px;
-  border: 2px solid #032272;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  margin-bottom: 20px;
 }
 .btn-secondary{
   background-color: #7a7f7c;
@@ -318,6 +315,7 @@ h4 {
   border-radius: 5px;
   width: 180px;
 }
+
 
 .btn {
   background-color: #1d3ca1;
@@ -346,5 +344,8 @@ h4 {
 
 .modal-backdrop {
   display: none;
+}
+span{
+  height: 40px;
 }
 </style>
