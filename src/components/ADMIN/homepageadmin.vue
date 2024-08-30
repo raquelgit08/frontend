@@ -273,12 +273,12 @@ h2 {
 
 .list-group {
   font-family: 'Roboto', sans-serif;
-  font-size: 18px;
-  font-weight: 500;
-  padding: 10px;
-  border: none;
+  font-size: 25px;
+  font-weight: normal; /* Make text bold */
+  padding: 5px; /* Reduce padding for less space */
   color: white;
   background-color: transparent;
+  text-decoration: none; /* Ensure no underline */
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -293,8 +293,9 @@ h2 {
 .dropdown {
   font-family: 'Roboto', sans-serif;
   font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 10px;
+  font-weight: bold; /* Make text bold */
+  margin-bottom: 5px; /* Reduce margin to lessen space */
+  text-decoration: none; /* Ensure no underline */
 }
 
 .icon-label {
@@ -365,6 +366,7 @@ h2 {
 .dropdown-item {
   font-size: 18px;
   padding: 5px 10px;
+  text-decoration: none; /* Ensure no underline */
 }
 
 .dropdown-item:hover {
@@ -382,30 +384,29 @@ h2 {
 .sidebar {
   width: 250px;
   background-color: #0e68bc;
-  height: 100vh; /* Full viewport height */
+  height: 100vh;
   padding: 20px;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
   transition: width 0.3s ease;
-  overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: hidden; /* Hide horizontal overflow if necessary */
+  overflow-y: auto;
+  overflow-x: hidden;
   color: #fff;
 }
 
 .sidebar.collapsed {
-  width: 80px; /* Width of collapsed sidebar */
+  width: 80px;
 }
 
-/* Sidebar Content */
 .sidebar .logo {
   width: 100%;
   transition: opacity 0.3s ease;
 }
 
 .sidebar .list-group {
-  margin-top: 20px;
+  margin-top: 10px; /* Reduce space between items */
 }
 
 .sidebar .list-group .icon-label {
@@ -416,14 +417,13 @@ h2 {
 }
 
 .sidebar.collapsed .icon-label .label {
-  display: none; /* Hide text when collapsed */
+  display: none;
 }
 
 .sidebar.collapsed .icon-label i {
-  font-size: 1.5rem; /* Adjust icon size if needed */
+  font-size: 1.5rem;
 }
 
-/* Chevron Icon for Toggling Sidebar */
 .bi-chevron-left, .bi-chevron-right {
   position: absolute;
   bottom: 20px;
@@ -438,7 +438,6 @@ h2 {
   color: #0056b3;
 }
 
-/* Content Area Styling */
 .content.collapsed {
   margin-left: 80px;
   width: calc(100% - 80px);
