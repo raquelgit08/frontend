@@ -55,7 +55,7 @@
         </router-link>
 
         <!-- Manage Section -->
-        <h5 class="sidebar-section-label">Manage</h5>
+        <h5 class="sidebar-section-label">Set Up</h5>
         <router-link
           v-for="(item, index) in items.filter(i => i.section === 'manage')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
           <span class="icon-label">

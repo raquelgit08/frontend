@@ -314,8 +314,10 @@ h4 {
 
 .form-control, .form-select {
   border-radius: 5px;
-  height: 40px;
-  border: 2px solid #032272;
+  height: 50px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  margin-bottom: 20px;
 }
 .btn-secondary{
   background-color: #7a7f7c;
