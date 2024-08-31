@@ -17,7 +17,9 @@
             <p class="card-text"> {{ classItem.semester }} <a>semester</a></p>
             <p class="card-text"><strong>Curriculum:</strong> {{ classItem.curriculum.Namecuriculum }}</p>
             <center>
-            <router-link to="/subject" class="btn btn-primary"> Go to Room</router-link></center>
+              <router-link :to="`/subject/${classItem.id}`" class="btn btn-primary">
+  Go to Room
+</router-link></center>
 
           </div>
         </div>
