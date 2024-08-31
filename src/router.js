@@ -93,7 +93,7 @@ const routes = [
   { path: '/teacherlistofsubject', component: TeacherListsofSubject},
   { path: '/managesubject', component: ManagingSubjects},
 
-  { path: '/subject', component: SubjectPages, name: 'SubjectPage' },
+  { path: '/subject/:class_id', component: SubjectPages, name: 'SubjectPage' },
   { path: '/studentslist', component: StudentsListSubject},
   { path: '/pendingstudentslist', component: PendingStudent},
   { path: '/AddExam', component: Addexaminations },

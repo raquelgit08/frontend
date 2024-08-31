@@ -4,7 +4,7 @@
     <div v-if="subject.subjectName" class="subject-name">
       <h2>{{ subject.subjectName }}</h2>
     </div>
-    
+
     <!-- Navigation Bar -->
     <div class="container-fluid">
       <nav class="nav nav-pills nav-fill">
@@ -43,18 +43,18 @@ export default {
   data() {
     return {
       subject: {
-        subjectName: ''
+        subjectName: '' // Initialize subjectName
       },
       error: '' // To store error messages
     };
   },
   created() {
-    this.fetchSubject();
+    this.fetchSubject(); // Fetch subject details when the component is created
   },
   methods: {
     async fetchSubject() {
       try {
-        const classId = this.$route.params.class_id;
+        const classId = this.$route.params.class_id; // Get class_id from route params
         const token = localStorage.getItem('token');
 
         if (!token) {
@@ -69,15 +69,16 @@ export default {
         });
 
         // Check if the response data structure is correct
-        if (!response.data.class || !response.data.class.subjectName) {
+        if (!response.data.class || !response.data.class.subject.subjectname) {
           this.error = 'Class not found or you are not authorized to view this class.';
           return;
         }
 
-        this.subject = response.data.class; // Adjust according to actual response
+        // Update subject name from the API response
+        this.subject.subjectName = response.data.class.subject.subjectname;
       } catch (error) {
-        console.error('Error fetching subject:', error); // Logs error to the console for debugging
-        // Handling specific error cases
+        console.error('Error fetching subject:', error); // Log error to the console for debugging
+        // Handle specific error cases
         if (error.response) {
           if (error.response.status === 404) {
             this.error = 'Class not found or you are not authorized to view this class.';
