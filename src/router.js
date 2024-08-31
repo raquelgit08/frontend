@@ -42,6 +42,7 @@ import Addexaminations from './components/TEACHER/AddExam.vue';
 import CreationOfExaminations from './components/TEACHER/CreatingExam.vue';
 import FeedbacksofStudent from './components/TEACHER/Feedback.vue';
 import ITEManalysis from './components/TEACHER/ItemAnalysis.vue';
+import PendingStudent from './components/TEACHER/pendingstudentlist.vue'
 import PerformancesTracking from './components/TEACHER/PerformanceTracking.vue';
 import ReportGenerating from './components/TEACHER/GenerateReport.vue';
 
@@ -94,6 +95,7 @@ const routes = [
 
   { path: '/subject', component: SubjectPages, name: 'SubjectPage' },
   { path: '/studentslist', component: StudentsListSubject},
+  { path: '/pendingstudentslist', component: PendingStudent},
   { path: '/AddExam', component: Addexaminations },
   { path: '/CreatingExam', component: CreationOfExaminations},
   { path: '/Feedback', component: FeedbacksofStudent },
