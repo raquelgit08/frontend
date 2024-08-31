@@ -305,7 +305,7 @@ h2 {
 
 .content {
   margin-left: 250px;
-  background-color:whitesmoke;
+  background-color: #eaeaea; /* Gray background */
   padding: 20px;
   width: calc(100% - 250px);
   transition: margin-left 0.3s ease, width 0.3s ease;

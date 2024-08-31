@@ -1,39 +1,42 @@
 <template>
   <div>
     <div class="container-fluid">
-      <h4 class="text-center">Manage ALL Users</h4><br>
+      <h4 >List of All Users</h4>
       <div class="row mb-4 justify-content-end align-items-center">
+        <div class="col-md-8">
+          <div class="search-bar-container">
+            <div class="input-group search-bar">
+              <input type="text" v-model="searchQuery" class="form-control"   placeholder="Search Years..."/>
+              <span class="input-group-text">
+                <i class="bi bi-search"></i>
+              </span>
+            </div>
+          </div>
+        </div>
         <div class="col-md-4 d-flex align-items-center">
           <label for="userType" class="form-label me-2">SELECT USER TYPE:</label>
           <select v-model="selectedUserType" class="form-select" id="userType">
             <option v-for="type in userTypes" :key="type" :value="type">{{ type }}</option>
           </select>
         </div>
-        <div class="col-md-4">
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="bi bi-search"></i>
-            </span>
-            <input type="text" v-model="search" class="form-control" placeholder="Search" />
-          </div>
-        </div>
+        
       </div>
 
-      <table class="table table-bordered table-hover">
-        <thead class="table-info">
-          <tr>
-            <th scope="col" class="text-center">No.</th>
-            <th scope="col" class="text-center">LRN</th>
-            <th scope="col" class="text-center">Name</th>
-            <th scope="col" class="text-center">Sex</th>
-            <th scope="col" class="text-center">Email</th>
-            <th scope="col" class="text-center">User Type</th>
-            <th scope="col" class="text-center">Date Registered</th>
-            <th scope="col" class="text-center">Date Modified</th>
-            <th scope="col" class="text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div class="table-wrapper">
+        <table class="table table-hover table-custom">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Id Number</th>
+              <th>Name</th>
+              <th>Sex</th>
+              <th>Email</th>
+              <th>User Type</th>
+              <th>Date Registered</th>
+              <th>Date Modified</th>
+            </tr>
+          </thead>
+          <tbody>
           <tr v-for="(item, index) in paginatedItems" :key="item.idnumber">
             <td class="text-center">{{ index + 1 }}</td>
             <td class="text-center">{{ item.idnumber }}</td>
@@ -43,30 +46,23 @@
             <td class="text-center">{{ item.usertype }}</td>
             <td class="text-center">{{ formatDate(item.created_at) }}</td>
             <td class="text-center">{{ formatDate(item.updated_at) }}</td>
-            <td class="text-center">
-              <div class="icon-container">
-                <span class="icon-box reset-box" @click="openModal(item)" aria-label="Reset Password">
-                  <i class="bi bi-key-fill custom-icon"></i>
-                </span>
-                <span class="icon-box edit-box" @click="openModal(item)" aria-label="Edit User">
-                  <i class="bi bi-pencil-square custom-icon"></i>
-                </span>
-                <span class="icon-box delete-box" @click="removeUser(item)" aria-label="Delete User">
-                  <i class="bi bi-person-x-fill custom-icon"></i>
-                </span>
-              </div>
-            </td>
           </tr>
         </tbody>
-      </table>
+
+        </table>
+      </div>
       <div class="row mb-4">
-        <div class="col-md-2">
-          <h6 class="text-center">Male : {{ maleCountPerPage }}</h6>
-        </div>
-        <div class="col-md-2">
-          <h6 class="text-center">Female : {{ femaleCountPerPage }}</h6>
-        </div>
-        <div class="col-md-8">
+        <div class="col-md-2 d-flex align-items-center">
+        <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
+        <h6 >Male : {{ maleCountPerPage }}</h6>
+      </div>
+
+      <div class="col-md-3 d-flex align-items-center">
+        <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
+        <h6>Female : {{ femaleCountPerPage }}</h6>
+      </div>
+
+        <div class="col-md-7">
           <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
               <li class="page-item" :class="{ disabled: currentPage === 1 }">
@@ -227,25 +223,7 @@ export default {
       this.currentUser = { ...user };
       this.showModal = true;
     },
-    saveChanges() {
-      axios.put(`http://localhost:8000/api/user/${this.currentUser.id}`, this.currentUser)
-        .then(() => {
-          this.fetchData();
-          this.showModal = false;
-        })
-        .catch(error => {
-          console.error('Error saving changes:', error);
-        });
-    },
-    removeUser(user) {
-      axios.delete(`http://localhost:8000/api/users/${user.id}`)
-        .then(() => {
-          this.fetchData();
-        })
-        .catch(error => {
-          console.error('Error deleting user:', error);
-        });
-    },
+    
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
     },
@@ -269,38 +247,38 @@ export default {
 
 <style scoped>
 .container-fluid {
-  margin-top: 10px;
+ 
+  background-color: #ffffff;
+  border-radius: 10px;
  
 }
-tbody{
-  font-size: 15px;
 
+tbody{
+  font-size: 14px;
 }
 
 h4 {
-  background-color: #87CEFA; /* Sky blue background */
   color: rgb(6, 0, 0);
   padding: 10px;
-  border-radius: 8px 8px 0 0;
-  font-family: 'Georgia', serif;
-  margin-bottom: 20px;
-}
+  padding-top: 20px;
 
-.custom-icon {
-  cursor: pointer;
-  color: rgb(255, 255, 255);
-  font-size: 18px;
 }
-
+.lalaki, .babae{
+  font-size: 20px;
+  padding-left: 50px;
+  padding-right: 12px;
+}
+.lalaki {
+  color: blue;
+}
+.babae {
+  color: red;
+}
 .icon-container {
   display: flex;
   gap: 10px; /* Space between the boxes */
 }
-.register{
-  font-size: 30px; padding-left: 20px;
-  color: #495057;
 
-}
 .icon-box {
   display: inline-flex;
   justify-content: center;
@@ -310,20 +288,40 @@ h4 {
   border-radius: 5px;
   cursor: pointer;
 }
-.reset-box {
-  background-color: #efd305; 
-  color: white; /* White icon color */
-}
-.edit-box {
-  background-color: #0f64dc; 
-  color: white; /* White icon color */
-}
-
-.delete-box {
-  background-color: #e50c0c; /* Red background */
-  color: white; /* White icon color */
+/* Table Wrapper */
+.table-wrapper {
+  margin: 0 auto;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
+/* Table Styles */
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d0d0d0;
+  overflow: hidden;
+}
+
+.table-custom th {
+  background-color: #edf4fad7;
+  color: #333;
+  font-weight: 600;
+}
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
+}
 
 
 .form-select {

@@ -1,23 +1,32 @@
 <template>
-    <div class="container mt-4">
-      <div class="title-container mb-4">
-        <h5 class="text-center">Manage Strands</h5>
-      </div>
-  
-      <div class="search-container d-flex justify-content-between mb-3">
-        <div class="input-group">
-          <input type="text" v-model="searchQuery" class="form-control" placeholder="Search...">
-          <button class="btn btn-outline-secondary" @click="openAddModal">
-            <i class="bi bi-plus"></i>
-          </button>
+  <div class="container">
+    <h5 class="text-center mb-4">Manage Strand</h5>
+      
+      <!-- Search and Add Button -->
+      <div class="d-flex justify-content-between mb-4">
+        <div class="search-bar-container">
+          <div class="input-group search-bar">
+            <input type="text" v-model="searchQuery" class="form-control" placeholder="Search...">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+          </div>
         </div>
+        <button class="btn btn-primary btn-gradient" @click="openAddModal">
+          <i class="bi bi-plus"></i> Add Strand
+        </button>
       </div>
   
-      <div class="table-container">
-        <table class="table table-bordered table-striped">
-          <thead class="table-light">
+        <!-- Loading Indicator -->
+      <div v-if="loading" class="text-center mb-3">
+        <i class="bi bi-hourglass-split"></i> Loading...
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table table-hover table-custom">
+          <thead>
             <tr>
-              <th>No.</th>
+              <th>#</th>
               <th>Strand</th>
               <th>Grade Level</th>
               <th>Actions</th>
@@ -29,11 +38,11 @@
               <td>{{ item.addstrand }}</td>
               <td>{{ item.grade_level }}</td>
               <td>
-                <button class="btn btn-warning btn-sm me-1" @click="openEditModal(item)">
-                  <i class="bi bi-pencil"></i>
+                <button class="btn btn-warning btn-md me-1" @click="openEditModal(item)">
+                  <i class="bi bi-pencil"></i> Edit
                 </button>
-                <button class="btn btn-danger btn-sm" @click="deleteItem(item.id)">
-                  <i class="bi bi-trash"></i>
+                <button class="btn btn-danger btn-md" @click="deleteItem(item.id)">
+                  <i class="bi bi-trash"></i> Delete
                 </button>
               </td>
             </tr>
@@ -80,8 +89,9 @@
           </div>
         </div>
       </div>
-    </div>
-  </template>
+    
+  </div>
+</template>
   
   <script>
   import axios from 'axios';
@@ -98,6 +108,7 @@
         isEdit: false,
         editItemId: null,
         error: null,
+        loading: false,
       };
     },
     computed: {
@@ -113,6 +124,7 @@
     },
     methods: {
       async fetchStrands() {
+        this.loading = true;
         try {
           const token = localStorage.getItem('token'); 
           const response = await axios.get('http://localhost:8000/api/viewstrand', {
@@ -125,6 +137,7 @@
           console.error('Error fetching strands:', error);
           this.error = 'Failed to fetch strands.';
         }
+        this.loading = false;
       },
   
       async saveItem() {
@@ -240,22 +253,79 @@
   </script>
 <style scoped>
 .container {
-  max-width: 100%;
-  margin: 0 auto;
   padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+  background-color: #eaeaea; /* Gray background */
+  min-height: 100vh; /* Ensure container spans full viewport height */
 }
 
-h5 {
+.table-wrapper {
+  margin: 0 auto;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Table Styles */
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d0d0d0;
+  overflow: hidden;
+}
+
+.table-custom th {
+  background-color: #f8f9fa;
   color: #333;
-  font-weight: bold;
-  margin-bottom: 20px;
-  font-family: "Arial", sans-serif;
-  text-align: center;
+  text-align: left;
+  padding: 12px;
+  padding-left: 50px;
+  font-weight: 600;
+}
+
+.table-custom td {
+  padding: 12px;
+  padding-left: 50px;
+  vertical-align: middle;
+  color: #555;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+
+/* Container */
+.container {
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+  background-color: #eaeaea; /* Gray background */
+  min-height: 100vh; /* Ensure container spans full viewport height */
+}
+
+/* Search Bar Container */
+.search-bar-container {
+  flex-grow: 1;
+  margin-right: 15px; /* Space between search bar and add button */
+}
+
+/* Search Bar Styles */
+.search-bar .form-control {
+  border-radius: 5px;
+  border: 1px solid #ced4da;
 }
 
 .search-bar .input-group-text {
-  background-color: #fff;
+  background-color: #ffffff;
   border-left: none;
+  border-radius: 5px;
 }
 
 .input-group {
@@ -288,19 +358,6 @@ h5 {
   background: linear-gradient(45deg, #0056b3, #0080ff);
 }
 
-.table {
-  margin-top: 20px;
-  width: 100%; /* Ensure the table fits within its container */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  table-layout: fixed; /* Prevents columns from stretching excessively */
-}
-
-.table th,
-.table td {
-  text-align: center;
-  vertical-align: middle;
-  overflow-wrap: break-word; /* Ensure long words break appropriately */
-}
 
 .table-hover tbody tr:hover {
   background-color: #f1f1f1;
@@ -348,14 +405,9 @@ h5 {
     margin-bottom: 10px;
   }
 
-  .table {
-    font-size: 14px;
-    width: 100%; /* Ensure the table adapts to smaller screens */
-  }
-
-  .table th,
-  .table td {
-    padding: 10px 5px; /* Adjust padding for smaller screens */
-  }
+}
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
 }
 </style>

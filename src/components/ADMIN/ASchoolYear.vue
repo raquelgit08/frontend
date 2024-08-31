@@ -6,12 +6,7 @@
     <div class="d-flex justify-content-between mb-4">
       <div class="search-bar-container">
         <div class="input-group search-bar">
-          <input
-            type="text"
-            v-model="searchQuery"
-            class="form-control"
-            placeholder="Search Years..."
-          />
+          <input type="text" v-model="searchQuery" class="form-control"   placeholder="Search Years..."/>
           <span class="input-group-text">
             <i class="bi bi-search"></i>
           </span>
@@ -42,10 +37,10 @@
             <td>{{ index + 1 }}</td>
             <td>{{ year.addyear }}</td>
             <td>
-              <button class="btn btn-sm btn-primary me-2" @click="openEditModal(year)">
+              <button class="btn btn-md btn-primary me-2" @click="openEditModal(year)">
                 <i class="bi bi-pencil"></i> Edit
               </button>
-              <button class="btn btn-sm btn-danger" @click="deleteYear(year.id)">
+              <button class="btn btn-md btn-danger" @click="deleteYear(year.id)">
                 <i class="bi bi-trash"></i> Delete
               </button>
             </td>
@@ -97,6 +92,7 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -257,16 +253,16 @@ export default {
 
 /* Button Styles */
 .btn-gradient {
-  background: linear-gradient(135deg, #6c757d, #5a6268); /* Gray gradient */
-  color: white;
+  background: linear-gradient(45deg, #007bff, #00bfff);
   border: none;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
+  color: #fff;
+  transition: background 0.3s ease;
 }
 
 .btn-gradient:hover {
-  background: linear-gradient(135deg, #5a6268, #4e555b);
+  background: linear-gradient(45deg, #0056b3, #0080ff);
 }
+
 
 /* Table Wrapper */
 .table-wrapper {
@@ -290,11 +286,16 @@ export default {
   color: #333;
   text-align: left;
   padding: 12px;
+  padding-left: 50px;
   font-weight: 600;
 }
-
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+}
 .table-custom td {
   padding: 12px;
+  padding-left: 50px;
   vertical-align: middle;
   color: #555;
 }

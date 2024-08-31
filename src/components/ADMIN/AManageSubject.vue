@@ -1,26 +1,33 @@
 <template>
-  <div class="container mt-4">
-    <div class="title-container mb-4">
-      <h5 class="text-center">Manage Subjects</h5>
+  <div class="container">
+    <h5 class="text-center mb-4">Manage Subject</h5>
+
+    <!-- Search and Add Button -->
+    <div class="d-flex justify-content-between mb-4">
+      <div class="search-bar-container">
+        <div class="input-group search-bar">
+          <input type="text" v-model="searchQuery" class="form-control" placeholder="Search...">
+          <span class="input-group-text">
+            <i class="bi bi-search"></i>
+          </span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-gradient" @click="openAddModal">
+        <i class="bi bi-plus"></i> Add Subject 
+      </button>
     </div>
 
-    <div class="search-container d-flex justify-content-between mb-3 align-items-center">
-      <div class="input-group">
-        <input type="text" v-model="searchQuery" class="form-control" placeholder="Search...">
-      </div>
-
-      <div>
-        <button class="btn btn-primary" @click="openAddModal">
-          <i class="bi bi-plus"></i> Add Subject
-        </button>
-      </div>
+    <!-- Loading Indicator -->
+    <div v-if="loading" class="text-center mb-3">
+      <i class="bi bi-hourglass-split"></i> Loading...
     </div>
 
-    <div class="table-container">
-      <table class="table table-hover table-bordered table-striped">
-        <thead class="table-dark">
+    <!-- Table for School Years -->
+    <div class="table-wrapper">
+      <table class="table table-hover table-custom">
+        <thead>
           <tr>
-            <th>No.</th>
+            <th>#</th>
             <th>Subject Name</th>
             <th>Actions</th>
           </tr>
@@ -30,11 +37,11 @@
             <td>{{ index + 1 }}</td>
             <td>{{ item.subjectname }}</td>
             <td>
-              <button class="btn btn-warning btn-sm me-1" @click="openEditModal(item)">
-                <i class="bi bi-pencil"></i>
+              <button class="btn btn-warning btn-md me-1" @click="openEditModal(item)">
+                <i class="bi bi-pencil"></i> Edit
               </button>
-              <button class="btn btn-danger btn-sm" @click="deleteItem(item.id)">
-                <i class="bi bi-trash"></i>
+              <button class="btn btn-danger btn-md" @click="deleteItem(item.id)">
+                <i class="bi bi-trash"></i> Delete
               </button>
             </td>
           </tr>
@@ -42,8 +49,8 @@
       </table>
     </div>
 
-    <!-- Add/Edit Modal -->
-    <div class="modal fade" id="addEditModal" tabindex="-1" ref="addEditModal">
+     <!-- Add/Edit Modal -->
+     <div class="modal fade" id="addEditModal" tabindex="-1" ref="addEditModal">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -80,6 +87,7 @@
         </div>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -98,6 +106,7 @@ export default {
       editItemId: null,
       error: null,
       duplicateErrorMessage: '',
+      loading: false,
     };
   },
   computed: {
@@ -112,6 +121,7 @@ export default {
   },
   methods: {
     async fetchSubjects() {
+      this.loading = true;
       try {
         const token = localStorage.getItem('token'); 
         const response = await axios.get('http://localhost:8000/api/viewsubject', {
@@ -124,6 +134,7 @@ export default {
         console.error('Error fetching subjects:', error);
         this.error = 'Failed to fetch subjects.';
       }
+      this.loading = false;
     },
 
     async saveItem() {
@@ -223,92 +234,96 @@ export default {
   }
 };
 </script>
-
 <style scoped>
+/* Container */
 .container {
-  max-width: 1000px;
-  margin: 0 auto;
   padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+  background-color: #eaeaea; /* Gray background */
+  min-height: 100vh; /* Ensure container spans full viewport height */
 }
 
-h5 {
-  color: #333;
-  font-weight: bold;
-  margin-bottom: 20px;
-  font-family: 'Arial', sans-serif;
-}
-
-.input-group {
-  max-width: 400px;
+/* Search Bar Container */
+.search-bar-container {
   flex-grow: 1;
+  margin-right: 15px; /* Space between search bar and add button */
 }
 
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
+/* Search Bar Styles */
+.search-bar .form-control {
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+.search-bar .input-group-text {
+  background-color: #ffffff;
+  border-left: none;
+  border-radius: 5px;
+}
+
+/* Button Styles */
+.btn-gradient {
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  border: none;
   color: #fff;
+  transition: background 0.3s ease;
 }
 
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #004085;
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0056b3, #0080ff);
 }
 
-.table {
-  margin-top: 20px;
+
+/* Table Wrapper */
+.table-wrapper {
+  margin: 0 auto;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Table Styles */
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d0d0d0;
+  overflow: hidden;
+}
+
+.table-custom th {
+  background-color: #f8f9fa;
+  color: #333;
+  text-align: left;
+  padding: 12px;
+  padding-left: 50px;
+  font-weight: 600;
+}
+
+.table-custom td {
+  padding: 12px;
+  padding-left: 50px;
+  vertical-align: middle;
+  color: #555;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .table th, .table td {
   text-align: center;
   vertical-align: middle;
-}
-
-.table-hover tbody tr:hover {
-  background-color: #f1f1f1;
-}
-
-.modal-header {
-  border-bottom: 1px solid #e9ecef;
-}
-
-.modal-footer {
-  border-top: 1px solid #e9ecef;
-}
-
-.btn-close {
-  background-color: transparent;
-  border: none;
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.btn-close:hover {
-  color: #000;
-  text-decoration: none;
-  opacity: 0.75;
-}
-
-.modal-content {
-  border-radius: 8px;
-}
-
-.modal-title {
-  font-weight: bold;
-}
-
-@media (max-width: 768px) {
-  .d-flex {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .input-group, .btn {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  .table {
-    font-size: 14px;
-  }
 }
 </style>

@@ -1,26 +1,33 @@
 <template>
-  <div class="container mt-4">
-    <h5 class="text-center">Manage Strand Curriculum</h5>
+  <div class="container">
+    <h5 class="text-center mb-4">Manage Strand Curriculum</h5>
 
-    <div class="d-flex justify-content-between mb-3">
-      <!-- Search Bar -->
-      <div class="input-group">
-        <input type="text" v-model="searchQuery" class="form-control" placeholder="Search Strand Curriculum...">
+    <!-- Search and Add Button -->
+    <div class="d-flex justify-content-between mb-4">
+      <div class="search-bar-container">
+        <div class="input-group search-bar">
+          <input type="text" v-model="searchQuery" class="form-control" placeholder="Search Strand Curriculum...">
+          <span class="input-group-text">
+            <i class="bi bi-search"></i>
+          </span>
+        </div>
       </div>
-
-      <!-- Add Strand Curriculum Button -->
-      <div>
-        <button class="btn btn-outline-secondary" @click="openAddModal">
-          <i class="bi bi-plus"></i> Add Strand Curriculum
-        </button>
-      </div>
+      <button class="btn btn-primary btn-gradient" @click="openAddModal">
+        <i class="bi bi-plus"></i> Add Strand Curriculum
+      </button>
     </div>
 
-    <div>
-      <table class="table table-bordered table-striped">
-        <thead class="table-light">
+    <!-- Loading Indicator -->
+    <div v-if="loading" class="text-center mb-3">
+      <i class="bi bi-hourglass-split"></i> Loading...
+    </div>
+
+    <!-- Table for School Years -->
+    <div class="table-wrapper">
+      <table class="table table-hover table-custom">
+        <thead>
           <tr>
-            <th>No.</th>
+            <th>#</th>
             <th>Strand Curriculum Name</th>
             <th>Actions</th>
           </tr>
@@ -30,11 +37,11 @@
             <td>{{ index + 1 }}</td>
             <td>{{ strandCurriculum.Namecuriculum }}</td>
             <td>
-              <button class="btn btn-warning btn-sm me-1" @click="openEditModal(strandCurriculum)">
-                <i class="bi bi-pencil"></i>
+              <button class="btn btn-warning btn-md me-1" @click="openEditModal(strandCurriculum)">
+                <i class="bi bi-pencil"></i> Edit
               </button>
-              <button class="btn btn-danger btn-sm" @click="deleteStrandCurriculum(strandCurriculum.id)">
-                <i class="bi bi-trash"></i>
+              <button class="btn btn-danger btn-md" @click="deleteStrandCurriculum(strandCurriculum.id)">
+                <i class="bi bi-trash"></i> Delete
               </button>
             </td>
           </tr>
@@ -101,6 +108,7 @@ export default {
       editStrandCurriculumId: null,
       error: null,
       duplicateErrorMessage: '',
+      loading:false,
     };
   },
   computed: {
@@ -112,6 +120,7 @@ export default {
   },
   methods: {
     async fetchStrandCurriculums() {
+      this.loading = true;
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:8000/api/viewcuri', {
@@ -125,6 +134,7 @@ export default {
         console.error('Error fetching strand curriculums:', error);
         this.error = 'Failed to fetch strand curriculums.';
       }
+      this.loading = false;
     },
 
     async saveStrandCurriculum() {
@@ -227,16 +237,93 @@ export default {
 </script>
 
 <style scoped>
+/* Container */
 .container {
-  max-width: 1050px;
+  padding: 20px;
+  max-width: 1600px;
   margin: 0 auto;
+  background-color: #eaeaea; /* Gray background */
+  min-height: 100vh; /* Ensure container spans full viewport height */
 }
 
+/* Search Bar Container */
+.search-bar-container {
+  flex-grow: 1;
+  margin-right: 15px; /* Space between search bar and add button */
+}
+
+/* Search Bar Styles */
+.search-bar .form-control {
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+.search-bar .input-group-text {
+  background-color: #ffffff;
+  border-left: none;
+  border-radius: 5px;
+}
+
+/* Button Styles */
+.btn-gradient {
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  border: none;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0056b3, #0080ff);
+}
+
+
+/* Table Wrapper */
+.table-wrapper {
+  margin: 0 auto;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Table Styles */
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d0d0d0;
+  overflow: hidden;
+}
+
+.table-custom th {
+  background-color: #f8f9fa;
+  color: #333;
+  text-align: left;
+  padding: 12px;
+  padding-left: 50px;
+  font-weight: 600;
+}
 .table th, .table td {
   text-align: center;
+  vertical-align: middle;
+}
+.table-custom td {
+  padding: 12px;
+  padding-left: 50px;
+  vertical-align: middle;
+  color: #555;
 }
 
-.input-group {
-  max-width: 1050px;
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 </style>
