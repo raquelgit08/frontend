@@ -276,26 +276,27 @@ export default {
   margin: auto;
 }
 
+
 .nav {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.nav-link {
-  color: black !important;
-  text-decoration: none;
-  padding: 10px 15px;
-}
-
-.nav-link:hover {
-  color: #333;
-}
-
-.router-link-active {
-  border-bottom: 3px solid #007bff; /* Blue bottom border for active link */
-  color: #007bff !important; /* Change text color for active link */
-}
-
-.nav-link i {
-  margin-right: 5px;
-}
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-link {
+    color: black !important;
+    text-decoration: none;
+    padding: 10px 15px;
+  }
+  
+  .nav-link:hover {
+    color: #333;
+  }
+  
+  .router-link-active {
+    border-bottom: 3px solid #007bff; /* Blue bottom border for active link */
+    color: #007bff !important; /* Change text color for active link */
+  }
+  
+  .nav-link i {
+    margin-right: 5px;
+  }
 </style>
