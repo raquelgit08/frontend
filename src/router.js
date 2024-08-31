@@ -34,6 +34,7 @@ import Teacher_homepage from './components/TEACHER/teacherhomepage.vue';
 import TeachersDashboard from './components/TEACHER/teacherdashboard.vue';
 import TeacherAddSubject from './components/TEACHER/teacheraddsubject.vue';
 import TeacherListsofSubject from './components/TEACHER/teacherlistofsubject.vue';
+
 import ManagingSubjects from './components/TEACHER/managesubject.vue';
 import SubjectPages from './components/TEACHER/subjectspage.vue';
 import StudentsListSubject from './components/TEACHER/studentslist.vue';
@@ -41,7 +42,7 @@ import Addexaminations from './components/TEACHER/AddExam.vue';
 import CreationOfExaminations from './components/TEACHER/CreatingExam.vue';
 import FeedbacksofStudent from './components/TEACHER/Feedback.vue';
 import ITEManalysis from './components/TEACHER/ItemAnalysis.vue';
-import PerformancesTracking from './components/TEACHER/ItemAnalysis.vue';
+import PerformancesTracking from './components/TEACHER/PerformanceTracking.vue';
 import ReportGenerating from './components/TEACHER/GenerateReport.vue';
 
 
@@ -90,7 +91,8 @@ const routes = [
   { path: '/teacheraddsubject', component: TeacherAddSubject},
   { path: '/teacherlistofsubject', component: TeacherListsofSubject},
   { path: '/managesubject', component: ManagingSubjects},
-  { path: '/subjectspage/:subjectId', component: SubjectPages, name: 'SubjectPage' },
+
+  { path: '/subject', component: SubjectPages, name: 'SubjectPage' },
   { path: '/studentslist', component: StudentsListSubject},
   { path: '/AddExam', component: Addexaminations },
   { path: '/CreatingExam', component: CreationOfExaminations},
@@ -98,6 +100,7 @@ const routes = [
   { path: '/ItemAnalysis', component: ITEManalysis },
   { path: '/PerformanceTracking', component: PerformancesTracking },
   { path: '/GenerateReport', component: ReportGenerating},
+
   { path: '/student', component: Student_homepage },
   { path: '/sdashboard', component: StudentDashboard },
   { path: '/saddsubject', component: AddSubject },

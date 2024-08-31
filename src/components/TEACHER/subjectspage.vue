@@ -1,125 +1,93 @@
 <template>
-  <div class="subjects-layout">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-2 left-column">
-          <div class="list-group-container">
-            <router-link to="/teacheraddsubject" class="list-group">
-              <span class="icon-label">
-                <i class="bi bi-arrow-left fs-4"></i> Back to List of Subjects
-              </span>
-            </router-link>
-
-            <router-link v-for="(item, index) in items" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
-                <span class="icon-label">
-                  <i :class="item.icon"></i> {{ item.label }}
-                </span>
-              </router-link>
-              <div class="list-group logOut" @click="handleLogoutClick" style="margin-top: auto;">
-                <span class="icon-label">
-                  <i class="bi bi-box-arrow-left fs-4"></i> LOG OUT
-                </span>
-              </div>
-          </div>
-        </div>
+  <div v-if="subject.subjectName" class="subject-name">
+    <h2>{{ subject.subjectName }}</h2>
+  </div>
+  <div class="container-fluid">
+    <nav class="nav nav-pills nav-fill">
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-4"></i></span>
+      </router-link>
+      <router-link to="/subject" class="nav-link" aria-current="page"> Dashboard</router-link>
+      <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i>Exams</router-link>
+      <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i>Feedback</router-link>
+      <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i>Item Analysis</router-link>
+      <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i>Performance tracking</router-link>
+      <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> List of Students</router-link>
+      <router-link to="/studentslist" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+    </nav>
+  </div>
+  <div class="subject-page">
+      <div class="container-fluid">
+        <h5>dashboard</h5>
       </div>
     </div>
-  </div>
+
+
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'SubjectPages',
   data() {
     return {
-      selectedItem: '',
-      items: [
-        { path: '/studentslist', label: 'List of Students', icon: 'bi bi-speedometer2 fs-4' },
-        { path: '/AddExam', label: 'Add Exam', icon: 'bi bi-file-earmark-text fs-4' },
-        { path: '/Feedback', label: 'Feedback', icon: 'bi bi-chat-square-text fs-4' },
-        { path: '/ItemAnalysis', label: 'Item Analysis', icon: 'bi bi-graph-up-arrow fs-4' },
-        { path: '/PerformanceTracking', label: 'Performance Tracking', icon: 'bi bi-speedometer2 fs-4' },
-        { path: '/GenerateReport', label: 'Report Generating', icon: 'bi bi-speedometer2 fs-4' }
-      ],
+      subject: {
+        subjectName: ''
+      },
+      error: '' // To store error messages
     };
   },
+  created() {
+    this.fetchSubject();
+  },
   methods: {
-    handleItemClick(path) {
-      this.selectedItem = path;
-    },
-    handleContentClick() {
-      // Handle content click if needed
-    },
-    handleLogoutClick() {
-      console.log('Logging out...');
-      this.$router.push('/login');
+    async fetchSubject() {
+      try {
+        // Assuming 'class_id' is a route parameter
+        const classId = this.$route.params.class_id;
+        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        // Ensure the data structure matches your API response
+        this.subject = response.data.class; // Adjust according to actual response
+      } catch (error) {
+        this.error = error.response && error.response.data.message
+          ? error.response.data.message
+          : 'Failed to fetch subject data';
+      }
     }
   }
 };
 </script>
 
 <style scoped>
-.subjects-layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
 .container-fluid {
-  flex: 1;
+  margin: auto;
 }
 
-.left-column {
-  background-color: white;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-  height: 100vh;
-  width: 250px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+.nav {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.right-column {
-  padding: 20px;
-  background-color: white;
-}
-
-.list-group-container {
-  height: 100%;
-}
-
-.list-group {
-  color: #333;
+.nav-link {
+  color: black !important;
   text-decoration: none;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin: 10px 0;
-  padding: 10px;
-  font-family: 'Arial', sans-serif;
-  font-size: 16px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
+  padding: 10px 15px;
 }
 
-.list-group.active,
-.list-group:hover,
-.logOut:hover {
-  background-color: #50C878;
-  color: white;
+.nav-link:hover {
+  color: #333;
 }
 
-.icon-label {
-  display: flex;
-  align-items: center;
-  width: 100%;
+.router-link-active {
+  border-bottom: 3px solid #007bff; /* Blue bottom border for active link */
+  color: #007bff !important; /* Change text color for active link */
 }
 
-.icon-label i {
-  margin-right: 10px;
-}
-
-.icon-label .label {
-  flex: 1;
+.nav-link i {
+  margin-right: 5px;
 }
 </style>

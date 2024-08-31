@@ -1,36 +1,22 @@
 <template>
-    <div class="analysis-page">
+    <nav class="nav nav-pills nav-fill">
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-4"></i></span>
+      </router-link>
+      <router-link to="/subject" class="nav-link" aria-current="page"> Dashboard</router-link>
+      <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i>Exams</router-link>
+      <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i>Feedback</router-link>
+      <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i>Item Analysis</router-link>
+      <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i>Performance tracking</router-link>
+      <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> List of Students</router-link>
+      <router-link to="/studentslist" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+    </nav>
+    <div class="itemanalysis-page">
       <div class="container-fluid">
-        <div class="row">
-          <!-- Drawer Section -->
-          <div class="col-md-2 left-column">
-            <div class="list-group-container">
-              <router-link to="/teacherlistofsubject" class="list-group">
-                <span class="icon-label">
-                  <i class="bi bi-arrow-left fs-4"></i> Back to List of Subjects
-                </span>
-              </router-link>
-              <router-link v-for="(item, index) in items" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
-                <span class="icon-label">
-                  <i :class="item.icon"></i> {{ item.label }}
-                </span>
-              </router-link>
-              <div class="list-group logOut" @click="handleLogoutClick" style="margin-top: auto;">
-                <span class="icon-label">
-                  <i class="bi bi-box-arrow-left fs-4"></i> LOG OUT
-                </span>
-              </div>
-            </div>
-          </div>
-  
-          <!-- Main Content Section -->
-          <div class="col-md-10 right-column">
-            <h1>Analysis</h1>
-          </div>
-        </div>
+        <h5>Itttttttttem Anlaysis</h5>
       </div>
     </div>
-  </template>
+</template>
   
   <script>
   export default {
@@ -38,14 +24,7 @@
     data() {
       return {
         selectedItem: '',
-        items: [
-        { path: '/studentslist', label: 'List of Students', icon: 'bi bi-speedometer2 fs-4' },
-          { path: '/AddExam', label: 'Add Exam', icon: 'bi bi-file-earmark-text fs-4' },
-          { path: '/Feedback', label: 'Feedback', icon: 'bi bi-chat-square-text fs-4' },
-          { path: '/ItemAnalysis', label: 'Item Analysis', icon: 'bi bi-graph-up-arrow fs-4' },
-          { path: '/PerformanceTracking', label: 'Performance Tracking', icon: 'bi bi-speedometer2 fs-4' },
-          { path: '/GenerateReport', label: 'Report Generating', icon: 'bi bi-speedometer2 fs-4' }
-        ]
+       
       };
     },
     methods: {
@@ -59,7 +38,7 @@
   };
   </script>
   
-  <style scoped>
+<style scoped>
   .analysis-page {
     display: flex;
     flex-direction: column;
@@ -131,5 +110,28 @@
     margin-bottom: 20px;
     text-align: center;
   }
+  
+.nav {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+  color: black !important;
+  text-decoration: none;
+  padding: 10px 15px;
+}
+
+.nav-link:hover {
+  color: #333;
+}
+
+.router-link-active {
+  border-bottom: 3px solid #007bff; /* Blue bottom border for active link */
+  color: #007bff !important; /* Change text color for active link */
+}
+
+.nav-link i {
+  margin-right: 5px;
+}
   </style>
   
