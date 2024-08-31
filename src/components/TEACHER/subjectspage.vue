@@ -4,7 +4,7 @@
     <div v-if="subject.subjectName" class="subject-name">
       <h2>{{ subject.subjectName }}</h2>
     </div>
-    
+
     <!-- Navigation Bar -->
     <div class="container-fluid">
       <nav class="nav nav-pills nav-fill">
@@ -43,34 +43,55 @@ export default {
   data() {
     return {
       subject: {
-        subjectName: ''
+        subjectName: '' // Initialize subjectName
       },
       error: '' // To store error messages
     };
   },
   created() {
-    this.fetchClassData();
+    this.fetchSubject(); // Fetch subject details when the component is created
   },
   methods: {
-    async fetchClassData() {
+    async fetchSubject() {
       try {
+        const classId = this.$route.params.class_id; // Get class_id from route params
         const token = localStorage.getItem('token');
-        
-        const response = await axios.get('http://127.0.0.1:8000/api/showClass2', {
+
+        if (!token) {
+          this.error = 'Authorization token is missing. Please log in again.';
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
           headers: {
-            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
-          },
+            Authorization: `Bearer ${token}`
+          }
         });
 
-        const classData = response.data.class;
+        // Check if the response data structure is correct
+        if (!response.data.class || !response.data.class.subject.subjectname) {
+          this.error = 'Class not found or you are not authorized to view this class.';
+          return;
+        }
 
-        this.subject.subjectName = classData.subject.subjectname;
+        // Update subject name from the API response
+        this.subject.subjectName = response.data.class.subject.subjectname;
       } catch (error) {
-        console.error('Error fetching class data:', error);
-        this.error = 'Failed to load class data. Please try again later.';
+        console.error('Error fetching subject:', error); // Log error to the console for debugging
+        // Handle specific error cases
+        if (error.response) {
+          if (error.response.status === 404) {
+            this.error = 'Class not found or you are not authorized to view this class.';
+          } else if (error.response.status === 403) {
+            this.error = 'You are not authorized to view this class.';
+          } else {
+            this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
+          }
+        } else {
+          this.error = 'Failed to fetch subject data. Please try again later.';
+        }
       }
-    },
-
+    }
   }
 };
 </script>
@@ -104,8 +125,8 @@ export default {
 }
 
 .subject-name {
-  padding: 5px;
-  /* text-align: center; */
+  margin: 20px 0;
+  text-align: center;
 }
 
 .alert {
