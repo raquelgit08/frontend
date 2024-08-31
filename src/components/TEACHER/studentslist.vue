@@ -1,35 +1,39 @@
 <template>
-  <div>
-    <!-- Subject Name Display -->
-    <div v-if="subject.subjectName" class="subject-name">
-      <h2>{{ subject.subjectName }}</h2>
-    </div>
-
-    <!-- Navigation Bar -->
-    <div class="container-fluid">
-      <nav class="nav nav-pills nav-fill">
-        <router-link to="/teacheraddsubject" class="nav-link">
-          <span><i class="bi bi-arrow-left fs-4"></i></span>
-        </router-link>
-        <router-link to="/subject" class="nav-link" aria-current="page">Dashboard</router-link>
-        <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-        <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-        <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
-        <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-        <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> List of Students</router-link>
-        <router-link to="/studentslist" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
-      </nav>
-    </div>
-
-    <!-- Subject Page Content -->
-    <div class="subject-page">
-      <div class="container-fluid">
-        <h5>Dashboard</h5>
-      </div>
-
-      <!-- Error Handling -->
-      <div v-if="error" class="alert alert-danger">
-        {{ error }}
+  <div class="container-fluid">
+    <nav class="nav nav-pills nav-fill">
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-4"></i></span>
+      </router-link>
+      <router-link to="/subject" class="nav-link" aria-current="page"> Dashboard</router-link>
+      <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i>Exams</router-link>
+      <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i>Feedback</router-link>
+      <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i>Item Analysis</router-link>
+      <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i>Performance tracking</router-link>
+      <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> List of Students</router-link>
+      <router-link to="/pendingstudentslist" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+    </nav>
+  </div>
+  <div class="container-fluid">
+    <h4 class="text-center">Manage Students</h4><br>
+    <div class="row mb-4">
+      <div class="col-md-8 offset-md-2">
+        <table class="table table-bordered table-hover">
+          <thead class="table-info">
+            <tr>
+              <th scope="col" class="text-center">Email</th>
+              <th scope="col" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(student) in students" :key="student.id">
+              <td class="text-center">{{ student.email }}</td>
+              <td class="text-center">
+                <button class="btn btn-danger" @click="kickStudent(student.id)">Kick</button>
+                <button class="btn btn-primary" @click="inviteStudent(student.id)">Invite</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -39,64 +43,82 @@
 import axios from 'axios';
 
 export default {
-  name: 'SubjectPages',
+  name: 'ManageStudentEmails',
   data() {
     return {
-      subject: {
-        subjectName: '' // Initialize subjectName
-      },
-      error: '' // To store error messages
+      students: []
     };
   },
-  created() {
-    this.fetchSubject(); // Fetch subject details when the component is created
-  },
   methods: {
-    async fetchSubject() {
+    async fetchStudents() {
       try {
-        const classId = this.$route.params.class_id; // Get class_id from route params
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-          this.error = 'Authorization token is missing. Please log in again.';
-          return;
-        }
-
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+        const response = await axios.get('http://localhost:8000/api/viewAllStudents', {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-
-        // Check if the response data structure is correct
-        if (!response.data.class || !response.data.class.subject.subjectname) {
-          this.error = 'Class not found or you are not authorized to view this class.';
-          return;
-        }
-
-        // Update subject name from the API response
-        this.subject.subjectName = response.data.class.subject.subjectname;
+        this.students = response.data.students;
       } catch (error) {
-        console.error('Error fetching subject:', error); // Log error to the console for debugging
-        // Handle specific error cases
-        if (error.response) {
-          if (error.response.status === 404) {
-            this.error = 'Class not found or you are not authorized to view this class.';
-          } else if (error.response.status === 403) {
-            this.error = 'You are not authorized to view this class.';
-          } else {
-            this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
-          }
-        } else {
-          this.error = 'Failed to fetch subject data. Please try again later.';
+        alert('Error fetching students: ' + error.message);
+      }
+    },
+    async kickStudent(studentId) {
+      if (confirm('Are you sure you want to remove this student from the class?')) {
+        try {
+          await axios.delete(`http://localhost:8000/api/students/${studentId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          alert('Student removed successfully');
+          this.fetchStudents();
+        } catch (error) {
+          alert('Error removing student: ' + error.message);
         }
       }
+    },
+    async inviteStudent(studentId) {
+      try {
+        const response = await axios.post(`http://localhost:8000/api/inviteStudent`, {
+          student_id: studentId
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        alert(response.data.message || 'Invitation sent successfully');
+      } catch (error) {
+        alert('Error inviting student: ' + error.message);
+      }
     }
+  },
+  mounted() {
+    this.fetchStudents();
   }
 };
 </script>
 
 <style scoped>
+.container-fluid {
+  margin-top: 10px;
+}
+h4 {
+  
+  color: #060000;
+  padding: 10px;
+  border-radius: 8px 8px 0 0;
+  font-family: 'Georgia', serif;
+  margin-bottom: 20px;
+}
+.table {
+  font-size: 15px;
+}
+.table-info {
+  background-color: #e0ffff;
+}
+.btn-danger {
+  margin-right: 10px;
+}
 .container-fluid {
   margin: auto;
 }
@@ -122,14 +144,5 @@ export default {
 
 .nav-link i {
   margin-right: 5px;
-}
-
-.subject-name {
-  margin: 20px 0;
-  text-align: center;
-}
-
-.alert {
-  margin-top: 20px;
 }
 </style>
