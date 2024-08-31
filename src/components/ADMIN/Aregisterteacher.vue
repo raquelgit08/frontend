@@ -290,7 +290,7 @@ h4 {
 
 .form-control, .form-select {
   border-radius: 5px;
-  height: 40px;
+  height: 50px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   margin-bottom: 20px;
@@ -346,6 +346,6 @@ h4 {
   display: none;
 }
 span{
-  height: 40px;
+  height: 50px;
 }
 </style>

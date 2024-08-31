@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="container-fluid">
-      <h4 class="text-center">Student Users </h4><br>
+      <h4 class="">Student Users </h4>
       <div class="row mb-4 justify-content-end align-items-center">
         <div class="col-md-4 d-flex align-items-center">
           <label for="userType" class="form-label me-2">SELECT GENDER:</label>
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <table class="table table-bordered table-hover">
+      <table class="table table-hover">
         <thead class="table-info">
           <tr>
             <th scope="col" class="text-center">No.</th>
@@ -460,12 +460,10 @@ tbody{
 }
 
 h4 {
-  background-color: #87CEFA; /* Sky blue background */
   color: rgb(6, 0, 0);
   padding: 10px;
-  border-radius: 8px 8px 0 0;
   font-family: 'Georgia', serif;
-  margin-bottom: 20px;
+ 
 }
 
 .custom-icon {
@@ -498,11 +496,6 @@ h4 {
 }
 .edit-box {
   background-color: #0f64dc; 
-  color: white; /* White icon color */
-}
-
-.delete-box {
-  background-color: #e50c0c; /* Red background */
   color: white; /* White icon color */
 }
 

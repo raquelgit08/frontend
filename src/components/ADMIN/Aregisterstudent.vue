@@ -1,8 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h4 >
-      <center>Register New User</center>
-    </h4>
+    <h4 >Register New Student </h4>
     <div class="register-form">
       <div class="row mb-3">
         <div class="col-md-3">
@@ -34,7 +32,7 @@
         </div> -->
 
 
-        <div class="col-md-2">
+        <div class="col-md-3">
           <label class="form-label d-block">Gender:</label>
           <div class="form-check form-check-inline">
             <input v-model="formData.sex" class="form-check-input" type="radio" name="sex" id="male" value="male" required>
@@ -51,7 +49,7 @@
           <input v-model="formData.email" type="email" id="email" class="form-control" required>
         </div>
        
-        <div class="col-md-4">
+        <div class="col-md-5">
           <label for="password" class="form-label">Password:</label>
           <div class="input-group">
             <input v-model="formData.password" :type="passwordFieldType" id="password" class="form-control" required>
@@ -64,7 +62,7 @@
       </div>
 
       <div class="row mb-3">
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label for="strand" class="form-label">Strand:</label>
           <select v-model="formData.strand_id" id="strand" class="form-select" required>
             <option value="">Select Strand</option>
@@ -74,7 +72,7 @@
           </select>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-4">
           <label for="section" class="form-label">Section:</label>
           <select v-model="formData.section_id" id="section" class="form-select" required>
             <option value="">Select Section</option>
@@ -84,7 +82,7 @@
           </select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-5">
           <label for="Mobile_no" class="form-label">Mobile Number:</label>
           <input v-model="formData.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
         </div>
@@ -275,21 +273,10 @@ export default {
    
 
 <style scoped>
-.register-container {
-  padding: 20px;
-  background-color: #f8f9fa94;
-  border: 1px solid #0b355e;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 900px;
-  margin: 20px auto;
-}
 
 h4 {
-  background-color: #87CEFA; /* Sky blue background */
   color: rgb(6, 0, 0);
   padding: 10px;
-  border-radius: 8px 8px 0 0;
   font-family: 'Georgia', serif;
   margin-bottom: 20px;
 }
@@ -368,4 +355,8 @@ h4 {
 .modal-backdrop {
   display: none;
 }
+span{
+  height: 50px;
+}
+
 </style>
