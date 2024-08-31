@@ -1,38 +1,51 @@
 <template>
   <div>
+    <!-- Conditional rendering based on user type -->
     <HomePageAdmin v-if="isAdmin" @logout="handleLogout" />
     <Teacher_homepage v-else-if="isTeacher" @logout="handleLogout" />
     <Student_homepage v-else-if="isStudent" @logout="handleLogout" />
-    <div v-else class="d-flex vh-100">
-      <div class="left-side d-flex align-items-center justify-content-center">
-        <img src="./assets/i12.png" class="img-fluid logo" alt="Your Image">
+
+    <!-- Login page layout -->
+    <div v-else class="login-page">
+      <!-- Left side with image and curve -->
+      <div class="login-left">
+        <img src="./assets/i12.png" alt="Illustration" class="illustration">
       </div>
-      <div class="right-side d-flex align-items-center justify-content-center">
-        <form class="login-form d-flex flex-column justify-content-center" @submit.prevent="handleSubmit">
-          <h3 class="form-title text-center">WISE-SHS</h3>
-          <p class="welcome-message text-center">Welcome! Please login to your account.</p>
 
-          <div class="form-group position-relative">
-            <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" placeholder="Enter email" v-model="email" required>
-          </div>
+      <!-- Right side with login form -->
+      <div class="login-right">
+        <div class="login-form-container">
+          <h1 class="greeting">Hello Again!</h1>
+          <p class="welcome-message">Welcome back, you've been missed!</p>
 
-          <div class="form-group position-relative">
-            <label for="password">Password:</label>
-            <input :type="showPassword ? 'text' : 'password'" class="form-control" id="password" placeholder="Enter password" v-model="password" required>
-            <i :class="passwordFieldIcon" class="password-toggle position-absolute" @click="togglePassword"></i>
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="rememberMe">
-              <label class="form-check-label" for="rememberMe">Remember Me</label>
+          <form @submit.prevent="handleSubmit" class="login-form">
+            <input
+              type="text"
+              v-model="email"
+              placeholder="Enter username"
+              class="form-control"
+              required
+            />
+            <div class="password-group">
+              <input
+                :type="showPassword ? 'text' : 'password'"
+                v-model="password"
+                placeholder="Password"
+                class="form-control"
+                required
+              />
+              <i :class="passwordFieldIcon" class="password-toggle" @click="togglePassword"></i>
             </div>
-            <a href="#" class="forgot-password">Forgot Password?</a>
-          </div>
 
-          <button type="submit" class="btn btn-primary btn-block btn-custom-width">Log In</button>
-        </form>
+            <div class="form-options">
+              <a href="#" class="recovery-password">Recovery Password</a>
+            </div>
+
+            <button type="submit" class="btn-signin">Sign In</button>
+          </form>
+
+          <p class="register-link">Not a member? <router-link to="/register">Register now</router-link></p>
+        </div>
       </div>
     </div>
 
@@ -92,14 +105,14 @@ export default {
           password: this.password
         });
         console.log(response.data);
-  
+
         // Save the token and user type to local storage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('usertype', response.data.usertype);
 
         // Save the current route to local storage
         localStorage.setItem('savedRoute', this.$route.fullPath);
-        
+
         // Set state based on user type
         this.updateUserType(response.data.usertype);
 
@@ -166,101 +179,137 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto:wght@300;400;700&display=swap');
+
 html, body {
   height: 100%;
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f0f2f5;
 }
 
-.d-flex {
+.login-page {
   display: flex;
+  height: 100vh;
 }
 
-.left-side {
-  width: 50%;
-  background-image: url('./assets/back1.jpg');
-  background-size: cover;
-  background-position: center;
-  position: relative;
+.login-left {
+  width: 45%;
+  background-color: #e0e0f8; /* A similar color to match the image's background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border-top-right-radius: 50px; /* Curve effect */
+  border-bottom-right-radius: 50px; /* Curve effect */
 }
 
-.right-side {
-  width: 50%;
+.illustration {
+  max-width: 80%;
+  height: auto;
+}
+
+.login-right {
+  width: 55%;
   background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
 }
 
-.logo {
-  max-width: 500px; /* Adjusted size of the logo */
+.login-form-container {
+  max-width: 500px; /* Increased width */
+  width: 100%;
+  text-align: center;
+  padding: 30px; /* Added padding for better look */
+  border-radius: 10px; /* Added border radius for softer edges */
+  background-color: #fff; /* Ensure background is white for contrast */
 }
 
-.login-form {
-  width: 90%;
-  max-width: 600px;
-  padding: 50px;
-}
-
-.form-title {
-  font-family: fantasy;
-  font-size: 36px;
-  font-weight: 300;
+.greeting {
+  font-size: 38px; /* Increased font size */
+  font-weight: 700; /* Make font bolder */
   margin-bottom: 20px;
+  color: #333;
 }
 
 .welcome-message {
-  font-family: 'Nunito', sans-serif;
-  font-size: 18px;
-  font-weight: 300;
-  margin-bottom: 30px;
+  font-size: 20px; /* Increased font size */
+  font-weight: 500; /* Make font bolder */
+  margin-bottom: 40px;
+  color: #666;
 }
 
-.form-group {
+.login-form .form-control {
+  font-size: 18px; /* Increased font size */
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  padding: 20px; /* Increased padding */
   margin-bottom: 20px;
+  width: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Added shadow effect */
 }
 
-.form-control {
-  border-radius: 0.25rem;
-  border-color: #ced4da;
-  padding: 0.75rem 1.25rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.form-control:focus {
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+.password-group {
+  position: relative;
 }
 
 .password-toggle {
-  cursor: pointer;
   position: absolute;
   right: 10px;
-  top: 68%;
+  top: 50%;
   transform: translateY(-50%);
+  cursor: pointer;
 }
 
-.forgot-password {
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.recovery-password {
   color: #007bff;
+  font-size: 16px; /* Increased font size */
+  font-weight: 500; /* Make font bolder */
   text-decoration: none;
 }
 
-.forgot-password:hover {
+.recovery-password:hover {
   text-decoration: underline;
-  color: #0056b3;
 }
 
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-  border-radius: 0.25rem;
-  padding: 0.75rem 1.25rem;
-  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #004085;
-}
-
-.btn-custom-width {
+.btn-signin {
+  background-color: #ff5252;
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  padding: 15px;
   width: 100%;
+  font-size: 18px; /* Increased font size */
+  font-weight: 600; /* Make font bolder */
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Added shadow effect */
+}
+
+.btn-signin:hover {
+  background-color: #e04848;
+}
+
+.register-link {
+  margin-top: 30px;
+  font-size: 16px; /* Increased font size */
+  font-weight: 500; /* Make font bolder */
+}
+
+.register-link a {
+  color: #007bff; /* Add color to the link */
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
 }
 </style>

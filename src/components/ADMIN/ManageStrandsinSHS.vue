@@ -227,7 +227,7 @@
   
       resetForm() {
         this.newStrand = '';
-        this.newGradeLevel = '';
+        this.newGradeLevel = ''; 
         this.isEdit = false;
         this.editItemId = null;
       },
@@ -238,46 +238,124 @@
     }
   };
   </script>
-  
-  <style scoped>
-  .container {
-    max-width: 10000px;
+<style scoped>
+.container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h5 {
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 20px;
+  font-family: "Arial", sans-serif;
+  text-align: center;
+}
+
+.search-bar .input-group-text {
+  background-color: #fff;
+  border-left: none;
+}
+
+.input-group {
+  max-width: 100%;
+  flex-grow: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
+.btn-gradient {
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  border: none;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0056b3, #0080ff);
+}
+
+.table {
+  margin-top: 20px;
+  width: 100%; /* Ensure the table fits within its container */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  table-layout: fixed; /* Prevents columns from stretching excessively */
+}
+
+.table th,
+.table td {
+  text-align: center;
+  vertical-align: middle;
+  overflow-wrap: break-word; /* Ensure long words break appropriately */
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+}
+
+.btn-close {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.btn-close:hover {
+  color: #000;
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+.modal-content {
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.modal-title {
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .d-flex {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .title-container {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 0.375rem;
+
+  .input-group,
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
   }
-  
-  .search-container {
-    margin-bottom: 1rem;
-  }
-  
-  .table-container {
-    margin-bottom: 1rem;
-  }
-  
+
   .table {
-    background-color: #ffffff;
+    font-size: 14px;
+    width: 100%; /* Ensure the table adapts to smaller screens */
   }
-  
-  .table th, .table td {
-    text-align: center;
-    vertical-align: middle;
-  }
-  
+
+  .table th,
   .table td {
-    color: #000;
+    padding: 10px 5px; /* Adjust padding for smaller screens */
   }
-  
-  .modal-backdrop.show {
-    opacity: 0.5;
-  }
-  
-  .modal-content {
-    background-color: #fff;
-    color: #000;
-  }
-  </style>
-  
+}
+</style>
