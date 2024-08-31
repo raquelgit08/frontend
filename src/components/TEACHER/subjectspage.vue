@@ -11,7 +11,7 @@
         <router-link to="/teacheraddsubject" class="nav-link">
           <span><i class="bi bi-arrow-left fs-4"></i></span>
         </router-link>
-        <router-link to="/subject" class="nav-link" aria-current="page">Dashboard</router-link>
+        <router-link to="/subject/:class_id" class="nav-link" aria-current="page">Dashboard</router-link>
         <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
         <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
         <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
