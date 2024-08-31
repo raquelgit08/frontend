@@ -84,7 +84,7 @@ export default {
     async fetchSubjects() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get('http://localhost:8000/api/index4', {
+        const response = await axios.get('http://localhost:8000/api/getStudentClassrooms', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

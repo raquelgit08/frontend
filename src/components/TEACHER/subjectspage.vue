@@ -49,48 +49,28 @@ export default {
     };
   },
   created() {
-    this.fetchSubject();
+    this.fetchClassData();
   },
   methods: {
-    async fetchSubject() {
+    async fetchClassData() {
       try {
-        const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
-
-        if (!token) {
-          this.error = 'Authorization token is missing. Please log in again.';
-          return;
-        }
-
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+        
+        const response = await axios.get('http://127.0.0.1:8000/api/showClass2', {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
         });
 
-        // Check if the response data structure is correct
-        if (!response.data.class || !response.data.class.subjectName) {
-          this.error = 'Class not found or you are not authorized to view this class.';
-          return;
-        }
+        const classData = response.data.class;
 
-        this.subject = response.data.class; // Adjust according to actual response
+        this.subject.subjectName = classData.subject.subjectname;
       } catch (error) {
-        console.error('Error fetching subject:', error); // Logs error to the console for debugging
-        // Handling specific error cases
-        if (error.response) {
-          if (error.response.status === 404) {
-            this.error = 'Class not found or you are not authorized to view this class.';
-          } else if (error.response.status === 403) {
-            this.error = 'You are not authorized to view this class.';
-          } else {
-            this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
-          }
-        } else {
-          this.error = 'Failed to fetch subject data. Please try again later.';
-        }
+        console.error('Error fetching class data:', error);
+        this.error = 'Failed to load class data. Please try again later.';
       }
-    }
+    },
+
   }
 };
 </script>
@@ -124,8 +104,8 @@ export default {
 }
 
 .subject-name {
-  margin: 20px 0;
-  text-align: center;
+  padding: 5px;
+  /* text-align: center; */
 }
 
 .alert {
