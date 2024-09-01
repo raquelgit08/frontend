@@ -1,34 +1,36 @@
 <template>
   <div>
-    <!-- Subject Name Display -->
-    <div v-if="subject.subjectName" class="subject-name">
-      <h2>{{ subject.subjectName }}</h2>
-    </div>
+    <!-- Main Container -->
+    <div class="main-container">
+      <!-- Subject Information Display on the Left -->
+      <div class="subject-info-container">
+        <div v-if="subject.subjectName" class="subject-info">
+          <h2>{{ subject.subjectName }}</h2>
+          <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+        </div>
+      </div>
 
-    <!-- Navigation Bar -->
-    <div class="container-fluid">
+      <!-- Navigation Bar Positioned Next to Subject Info -->
       <nav class="nav nav-pills nav-fill">
         <router-link to="/teacheraddsubject" class="nav-link">
           <span><i class="bi bi-arrow-left fs-4"></i></span>
         </router-link>
-        <router-link to="/subject/:class_id" class="nav-link" aria-current="page">Dashboard</router-link>
-        <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-        <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-        <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
-        <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-        <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> List of Students</router-link>
-        <router-link to="/studentslist" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+        <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+        <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i>Exams</router-link>
+        <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i>Feedback</router-link>
+        <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i>Item Analysis</router-link>
+        <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i>Performance Tracking</router-link>
+        <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i>Students</router-link>
+        <router-link to="/pendingstudentslist" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i>Pending</router-link>
       </nav>
     </div>
 
     <!-- Subject Page Content -->
-    <div class="subject-page">
-      <div class="container-fluid">
-        <h5>Dashboard</h5>
-      </div>
+    <div class="subject-page container mt-5">
+      <h5 class="text-center">Dashboard</h5>
 
       <!-- Error Handling -->
-      <div v-if="error" class="alert alert-danger">
+      <div v-if="error" class="alert alert-danger text-center">
         {{ error }}
       </div>
     </div>
@@ -43,18 +45,20 @@ export default {
   data() {
     return {
       subject: {
-        subjectName: '' // Initialize subjectName
+        subjectName: '',
+        semester: '',
+        schoolYear: ''
       },
-      error: '' // To store error messages
+      error: ''
     };
   },
   created() {
-    this.fetchSubject(); // Fetch subject details when the component is created
+    this.fetchSubject();
   },
   methods: {
     async fetchSubject() {
       try {
-        const classId = this.$route.params.class_id; // Get class_id from route params
+        const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
 
         if (!token) {
@@ -68,17 +72,15 @@ export default {
           }
         });
 
-        // Check if the response data structure is correct
         if (!response.data.class || !response.data.class.subject.subjectname) {
           this.error = 'Class not found or you are not authorized to view this class.';
           return;
         }
 
-        // Update subject name from the API response
         this.subject.subjectName = response.data.class.subject.subjectname;
+        this.subject.semester = response.data.class.semester;
+        this.subject.schoolYear = response.data.class.year.addyear;
       } catch (error) {
-        console.error('Error fetching subject:', error); // Log error to the console for debugging
-        // Handle specific error cases
         if (error.response) {
           if (error.response.status === 404) {
             this.error = 'Class not found or you are not authorized to view this class.';
@@ -97,12 +99,47 @@ export default {
 </script>
 
 <style scoped>
-.container-fluid {
-  margin: auto;
+/* Main Container */
+.main-container {
+  display: flex;
+  align-items: center; /* Align items to the center vertically */
+  justify-content: space-between; /* Space out the subject info and nav bar */
+  padding: 20px;
 }
 
+/* Subject Info Container */
+.subject-info-container {
+  flex: 1;
+  margin-right: 20px; /* Space between subject info and nav bar */
+}
+
+/* Subject Info Styling */
+.subject-info {
+  max-width: 300px; /* Adjust as needed */
+  text-align: left; /* Align text to the left */
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.subject-info h2 {
+  font-size: 1.5rem;
+  color: #343a40;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.subject-info p {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+/* Navigation Bar */
 .nav {
+  flex: 2; /* Adjust as needed for spacing */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
 }
 
 .nav-link {
@@ -124,12 +161,19 @@ export default {
   margin-right: 5px;
 }
 
-.subject-name {
-  margin: 20px 0;
-  text-align: center;
+/* Dashboard Title */
+.subject-page h5 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #343a40;
+  letter-spacing: 1px;
+  margin-bottom: 40px;
 }
 
+/* Alert Styling */
 .alert {
-  margin-top: 20px;
+  border-radius: 15px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 </style>
