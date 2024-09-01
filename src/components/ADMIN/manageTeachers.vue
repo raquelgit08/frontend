@@ -36,13 +36,10 @@
           <tr>
             <th scope="col" class="text-center">No.</th>
             <th scope="col" class="text-center">LRN</th>
-            <th scope="col" class="text-center">Name</th>
+            <th scope="col" class="text-center">Teachers Profile</th>
             <th scope="col" class="text-center">Sex</th>
-            <th scope="col" class="text-center">Email</th>
-            <th scope="col" class="text-center">POsition </th>
-   
-            <th scope="col" class="text-center">Date Registered</th>
-            <th scope="col" class="text-center">Date Modified</th>
+            <th scope="col" class="text-center">Status</th>
+            <th scope="col" class="text-center">Date</th>
             <th scope="col" class="text-center">Actions</th>
           </tr>
         </thead>
@@ -50,13 +47,25 @@
           <tr v-for="(teachers, index) in paginatedItems" :key="teachers.idnumber">
             <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
             <td>{{ teachers.user.idnumber }}</td>
-            <td class="text-center">{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }}</td>
+            <td class="text-center">
+              {{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} <br>
+              {{ teachers.user.email }}<br>
+              {{ teachers.position.teacher_postion }} 
+            </td>
             <td class="text-center">{{ teachers.user.sex }}</td>
-            <td class="text-center">{{ teachers.user.email }}</td>
-            <td class="text-center">{{ teachers.position.teacher_postion }} </td>
-         
-            <td class="text-center">{{ formatDate(teachers.created_at) }}</td>
-            <td class="text-center">{{ formatDate(teachers.updated_at) }}</td>
+            <td class="text-center">
+              <b>Registered :</b>{{ formatDate(teachers.created_at) }}<br>
+              <b>Modified :</b>{{ formatDate(teachers.updated_at) }}
+            </td>
+            <td class="text-center">
+              <div class="btn-group" role="group" aria-label="Active and Inactive">
+                <input  type="radio"  class="btn-check" name="options" id="activeRadio"  autocomplete="off" v-model="selectedOption"  value="active"/>
+                <label class="btn" :class="{'btn-success': selectedOption === 'active', 'btn-secondary': selectedOption !== 'active'}" for="activeRadio" >Active</label>
+
+                <input type="radio" class="btn-check" name="options" id="inactiveRadio" autocomplete="off" v-model="selectedOption" value="inactive"/>
+                <label class="btn" :class="{'btn-danger': selectedOption === 'inactive', 'btn-secondary': selectedOption !== 'inactive'}"  for="inactiveRadio"> Inactive</label>
+              </div>
+            </td>
             <td class="text-center">
               <div class="icon-container">
                 <span class="icon-box reset-box">
@@ -65,9 +74,7 @@
                 <span class="icon-box edit-box">
                   <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
                 </span>
-                <span class="icon-box delete-box">
-                  <i class="bi bi-person-x-fill custom-icon" @click="removeUser(item)"></i>
-                </span>
+                
               </div>
             </td>
           </tr>
@@ -135,11 +142,11 @@ export default {
       showModal: false,
       showPassword: false,
       selectedGender: 'all', // Default to 'all'
-  
       gender: ['all', 'male', 'female'],
       itemsPerPage: 10,
       currentPage: 1,
       serverItems: [],
+       selectedOption: '',
       students: [],
       position_id: '', // Ensure this is defined
       positions: [],   // Initialize positions as an empty array
@@ -207,21 +214,7 @@ export default {
         alert('Error saving changes:', error.response ? error.response.data : error.message);
       }
     },
-    async removeUser(user) {
-      if (confirm('Are you sure you want to delete this user?')) {
-        try {
-          const response = await axios.delete(`http://localhost:8000/api/users/${user.idnumber}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          alert(response.data.message);
-          this.fetchTeachers();
-        } catch (error) {
-          alert('Error deleting user:', error.response ? error.response.data : error.message);
-        }
-      }
-    },
+   
     async fetchTeachers() {
       try {
         const response = await axios.get('http://localhost:8000/api/viewAllTeachers', {
@@ -256,9 +249,6 @@ export default {
   }
 };
 </script>
-
-
-
 
 <style scoped>
 .container-fluid {
@@ -381,4 +371,10 @@ h4 {
 .btn-primary:hover {
   background-color: #1E90FF; /* Dodger blue on hover */
 }
+.btn {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  height: 30px;
+}
+
+
 </style>
