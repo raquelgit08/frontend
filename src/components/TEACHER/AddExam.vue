@@ -42,36 +42,41 @@
       </center>
 
       <!-- Form Modal -->
-      <div v-if="showForm" class="form-modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <div class="quarter-filter">
-              <label for="quarter">Quarter:</label>
-              <select id="quarter" v-model="selectedQuarter">
+      <div v-if="showForm" class="form-modal d-flex align-items-center justify-content-center">
+        <div class="modal-content shadow-lg p-4 rounded position-relative">
+          <center><h3>Exam Schedule</h3></center>
+          <div class="modal-header mb-3 d-flex justify-content-between align-items-center">
+            <div class="quarter-filter w-100">
+              <label for="quarter" class="form-label">Quarter:</label>
+              <select id="quarter" v-model="selectedQuarter" class="form-select">
                 <option value="1st Quarter">1st Quarter</option>
                 <option value="2nd Quarter">2nd Quarter</option>
                 <option value="3rd Quarter">3rd Quarter</option>
                 <option value="4th Quarter">4th Quarter</option>
               </select>
             </div>
+            <button type="button" class="close-btn" @click="showForm = false" aria-label="Close">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
           <div class="modal-body">
-            <div class="date-time-group">
-              <div class="form-group">
-                <label for="date">Date:</label>
-                <input type="date" id="date" v-model="selectedDate" />
+            <div class="date-time-group d-flex justify-content-between mb-3">
+              <div class="form-group w-50 me-2">
+                <label for="date" class="form-label">Date:</label>
+                <input type="date" id="date" v-model="selectedDate" class="form-control" />
               </div>
-              <div class="form-group">
-                <label for="time">Time:</label>
-                <input type="time" id="time" v-model="selectedTime" />
+              <div class="form-group w-50 ms-2">
+                <label for="time" class="form-label">Time:</label>
+                <input type="time" id="time" v-model="selectedTime" class="form-control" />
               </div>
             </div>
-            <div class="centered-button">
-              <button class="create-exam-btn" @click="redirectToExamCreation">Create Exam</button>
+            <div class="centered-button text-center">
+              <button class="create-exam-btn btn btn-primary btn-lg" @click="redirectToExamCreation">Create Exam</button>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -164,7 +169,6 @@ export default {
 </script>
 
 <style scoped>
-/* Unified Layout and Styling */
 
 /* Main Container */
 .main-container {
@@ -182,7 +186,6 @@ export default {
   display: flex;
   align-items: center;
 }
-
 /* Subject Info Styling */
 .subject-info {
   width: 100%;
@@ -273,71 +276,64 @@ export default {
   margin-top: 10px;
   margin-bottom: 20px;
 }
-
-.add-quiz-btn {
-  background-color: #e5e9e6;
-  color: rgb(30, 143, 75);
-  font-family: 'Lucida Sans Unicode', sans-serif;
-  font-size: 17px;
-  font-weight: bold;
-  padding: 10px 350px;
-  border-style: double;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.add-quiz-btn:hover {
-  background-color: #e9f2ed;
-}
-
 .form-modal {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  z-index: 1000;
-  padding: 20px;
-  width: 600px;
-  border: 2px solid #0b355e;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Dark transparent background */
+  z-index: 1050; /* High z-index to appear above other elements */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem; /* Padding for smaller screens */
 }
 
 .modal-content {
-  padding: 20px;
+  background: #fff; /* White background for the modal */
+  width: 40%; /* Expanded width to nearly full screen */
+  height: 50vh; /* Height set to 80% of viewport */
+  border-radius: 12px; /* Rounded corners for a softer look */
+  position: relative;
+  padding: 2rem; /* Additional padding for spacious feel */
+  overflow-y: auto; /* Enable scrolling if content overflows */
 }
 
-.modal-header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 20px;
+.create-exam-btn {
+  background: linear-gradient(45deg, #4CAF50, #81C784); /* Example gradient */
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1.1rem;
+  transition: background 0.3s ease;
 }
 
-.quarter-filter {
-  margin-left: auto;
+.create-exam-btn:hover {
+  background: linear-gradient(45deg, #388E3C, #66BB6A); /* Darker on hover */
 }
 
-.modal-body {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.form-label {
+  font-weight: bold;
 }
 
-.date-time-group {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex: 1;
+.form-select, .form-control {
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
 }
 
-.form-group {
-  margin-bottom: 15px;
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
 }
 
-.form-group label {
-  font-family: 'Lucida Sans Unicode', sans-serif;
-  font-size: 16px;
+.close-btn:hover {
+  color: #ff4d4d; /* Hover color for the close icon */
 }
 </style>
