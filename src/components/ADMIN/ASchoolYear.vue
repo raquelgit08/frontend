@@ -37,7 +37,7 @@
             <td>{{ index + 1 }}</td>
             <td>{{ year.addyear }}</td>
             <td>
-              <button class="btn btn-md btn-primary me-2" @click="openEditModal(year)">
+              <button class="btn btn-md btn-warning me-2" @click="openEditModal(year)">
                 <i class="bi bi-pencil"></i> Edit
               </button>
               <button class="btn btn-md btn-danger" @click="deleteYear(year.id)">

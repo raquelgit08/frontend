@@ -6,7 +6,7 @@
         <div class="col-md-8">
           <div class="search-bar-container">
             <div class="input-group search-bar">
-              <input type="text" v-model="searchQuery" class="form-control"   placeholder="Search Years..."/>
+              <input type="text" v-model="search" class="form-control" placeholder="Search" />
               <span class="input-group-text">
                 <i class="bi bi-search"></i>
               </span>
@@ -30,7 +30,6 @@
               <th>Id Number</th>
               <th>Name</th>
               <th>Sex</th>
-              <th>Email</th>
               <th>User Type</th>
               <th>Date Registered</th>
               <th>Date Modified</th>
@@ -40,9 +39,11 @@
           <tr v-for="(item, index) in paginatedItems" :key="item.idnumber">
             <td class="text-center">{{ index + 1 }}</td>
             <td class="text-center">{{ item.idnumber }}</td>
-            <td class="text-center">{{ item.lname }}, {{ item.fname }} {{ item.mname }}</td>
+            <td class="text-center">
+              <b>{{ item.lname }}, {{ item.fname }} {{ item.mname }}</b><br>
+              <i>{{ item.email }}</i>
+            </td>
             <td class="text-center">{{ item.sex }}</td>
-            <td class="text-center">{{ item.email }}</td>
             <td class="text-center">{{ item.usertype }}</td>
             <td class="text-center">{{ formatDate(item.created_at) }}</td>
             <td class="text-center">{{ formatDate(item.updated_at) }}</td>
@@ -247,14 +248,12 @@ export default {
 
 <style scoped>
 .container-fluid {
- 
   background-color: #ffffff;
   border-radius: 10px;
- 
 }
 
 tbody{
-  font-size: 14px;
+  font-size: 15px;
 }
 
 h4 {
@@ -294,21 +293,22 @@ h4 {
   padding: 0 15px;
   max-width: 100%;
   overflow-x: auto;
+  
 }
 
 /* Table Styles */
 .table-custom {
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #d0d0d0;
+  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  border: 1px solid #200909;
   overflow: hidden;
 }
 
 .table-custom th {
-  background-color: #edf4fad7;
-  color: #333;
-  font-weight: 600;
+  background-color: #0d8eead7;
+  color: #000000;
+  font-weight: 700;
 }
 .table th, .table td {
   text-align: center;
