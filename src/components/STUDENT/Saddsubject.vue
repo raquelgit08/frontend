@@ -54,7 +54,7 @@ export default {
       genCode: '',
       message: '',
       success: false,
-      subjects: [] // Ensure subjects is always an array
+      subjects: []
     };
   },
   methods: {
@@ -69,12 +69,17 @@ export default {
             }
           }
         );
-        console.log(response.data); // Log response to check if the subject was added
-        this.message = response.data.success;
+        console.log(response.data);
+        this.message = "Pending Subject, waiting for the teacher's approval";
         this.success = true;
         this.genCode = '';
-        this.showModal = false;
-        this.fetchSubjects(); // Refresh subjects list
+        
+        // Keep the modal open for a few seconds to show the message, then close it
+        setTimeout(() => {
+          this.showModal = false;
+        }, 3000);
+        
+        this.fetchSubjects();
       } catch (error) {
         console.error('Error adding subject:', error);
         this.message = error.response ? error.response.data.error : 'An error occurred';
@@ -89,8 +94,8 @@ export default {
             'Authorization': `Bearer ${token}`
           }
         });
-        console.log(response.data); // Check the actual data structure
-        this.subjects = response.data; // Adjust if necessary
+        console.log(response.data);
+        this.subjects = response.data;
       } catch (error) {
         console.error('Error fetching subjects:', error);
         this.subjects = [];
@@ -98,11 +103,10 @@ export default {
     }
   },
   created() {
-    this.fetchSubjects(); // Fetch subjects when component is created
+    this.fetchSubjects();
   }
 };
 </script>
-
 
 <style scoped>
 .container {

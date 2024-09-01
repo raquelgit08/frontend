@@ -1,66 +1,73 @@
 <template>
-  <div class="container-fluid">
-    <nav class="nav nav-pills nav-fill">
+  <div class="main-container">
+    <!-- Subject Information Display on the Left -->
+    <div class="subject-info-container">
+      <div v-if="subject.subjectName" class="subject-info">
+        <h2>{{ subject.subjectName }}</h2>
+        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+      </div>
+    </div>
+
+    <!-- Unified Navigation Bar -->
+    <nav class="nav nav-pills">
       <router-link to="/teacheraddsubject" class="nav-link">
         <span><i class="bi bi-arrow-left fs-4"></i></span>
       </router-link>
-      <router-link to="/subject" class="nav-link" aria-current="page"> Dashboard</router-link>
-      <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i>Exams</router-link>
-      <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i>Feedback</router-link>
-      <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i>Item Analysis</router-link>
-      <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i>Performance tracking</router-link>
-      <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> List of Students</router-link>
+      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+      <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+      <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
+      <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
+      <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+      <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
       <router-link to="/pendingstudentslist" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
     </nav>
   </div>
 
-  <div class="exam-page-layout">
-    <div class="container-fluid">
-      <div class="row">
-        
+  <!-- Subject Page Content -->
+  <div class="subject-page container mt-5">
 
-        <!-- Main Content Section -->
-        <div class="col-md-10 right-column">
-          <router-view></router-view>
-          <div class="exam-page">
-            <center>
-              <h1>Exam Creation and Management</h1>
-            </center>
-            <div class="nothing-follows">----Nothing follows----</div>
-            <center>
-              <button class="add-quiz-btn" @click="showForm = true">Add Quiz or Exam</button>
-            </center>
+    <!-- Error Handling -->
+    <div v-if="error" class="alert alert-danger text-center">
+      {{ error }}
+    </div>
 
-            <!-- Form Modal -->
-            <div v-if="showForm" class="form-modal">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <div class="quarter-filter">
-                    <label for="quarter">Quarter:</label>
-                    <select id="quarter" v-model="selectedQuarter">
-                      <option value="1st Quarter">1st Quarter</option>
-                      <option value="2nd Quarter">2nd Quarter</option>
-                      <option value="3rd Quarter">3rd Quarter</option>
-                      <option value="4th Quarter">4th Quarter</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="modal-body">
-                  <div class="date-time-group">
-                    <div class="form-group">
-                      <label for="date">Date:</label>
-                      <input type="date" id="date" v-model="selectedDate" />
-                    </div>
-                    <div class="form-group">
-                      <label for="time">Time:</label>
-                      <input type="time" id="time" v-model="selectedTime" />
-                    </div>
-                  </div>
-                  <div class="centered-button">
-                    <button class="create-exam-btn" @click="redirectToExamCreation">Create Exam</button>
-                  </div>
-                </div>
+    <!-- Exam Management Content -->
+    <div class="exam-page">
+      <center>
+        <h1>Exam Creation and Management</h1>
+      </center>
+      <div class="nothing-follows">----Nothing follows----</div>
+      <center>
+        <button class="add-quiz-btn" @click="showForm = true">Add Quiz or Exam</button>
+      </center>
+
+      <!-- Form Modal -->
+      <div v-if="showForm" class="form-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="quarter-filter">
+              <label for="quarter">Quarter:</label>
+              <select id="quarter" v-model="selectedQuarter">
+                <option value="1st Quarter">1st Quarter</option>
+                <option value="2nd Quarter">2nd Quarter</option>
+                <option value="3rd Quarter">3rd Quarter</option>
+                <option value="4th Quarter">4th Quarter</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-body">
+            <div class="date-time-group">
+              <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" v-model="selectedDate" />
               </div>
+              <div class="form-group">
+                <label for="time">Time:</label>
+                <input type="time" id="time" v-model="selectedTime" />
+              </div>
+            </div>
+            <div class="centered-button">
+              <button class="create-exam-btn" @click="redirectToExamCreation">Create Exam</button>
             </div>
           </div>
         </div>
@@ -70,19 +77,70 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-  name: 'AddExaminations',
+  name: 'SubjectPages',
   data() {
     return {
+      subject: {
+        subjectName: '',
+        semester: '',
+        schoolYear: ''
+      },
+      error: '',
       showForm: false,
       selectedQuarter: '',
       selectedDate: this.getCurrentDate(),
       selectedTime: this.getCurrentTime(),
-      selectedItem: '',
-      
     };
   },
+  created() {
+    this.fetchSubject();
+  },
   methods: {
+    async fetchSubject() {
+  try {
+    const classId = this.$route.params.class_id;
+    
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      this.error = 'Authorization token is missing. Please log in again.';
+      return;
+    }
+
+    const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!response.data.class || !response.data.class.subject.subjectname) {
+      this.error = 'Class not found. Please check the class ID.';
+      return;
+    }
+
+    this.subject.subjectName = response.data.class.subject.subjectname;
+    this.subject.semester = response.data.class.semester;
+    this.subject.schoolYear = response.data.class.year.addyear;
+    
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 404) {
+        this.error = 'Class not found. Please check the class ID.';
+      } else if (error.response.status === 403) {
+        this.error = 'You are not authorized to view this class. Please contact your administrator.';
+      } else if (error.response.status === 401) {
+        this.error = 'Session expired. Please log in again.';
+      } else {
+        this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
+      }
+    } else {
+      this.error = 'Network error: Failed to fetch subject data. Please check your connection.';
+    }
+  }
+},
     getCurrentDate() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -99,83 +157,93 @@ export default {
     },
     redirectToExamCreation() {
       this.$router.push({ path: '/CreatingExam' });
-    },
-    handleItemClick(path) {
-      this.selectedItem = path;
-    },
-    handleLogoutClick() {
-      console.log('Logging out...');
-      this.$router.push('/login');
     }
   }
 };
+
 </script>
 
 <style scoped>
-.exam-page-layout {
+/* Unified Layout and Styling */
+
+/* Main Container */
+.main-container {
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.container-fluid {
-  flex: 1;
-}
-
-.left-column {
-  background-color: white;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-  height: 100vh;
-  width: 250px;
-}
-
-.right-column {
+  align-items: stretch;
+  justify-content: space-between;
   padding: 20px;
-  background-color: white;
+}
+
+/* Subject Info Container */
+.subject-info-container {
   flex: 1;
-}
-
-.list-group-container {
-  height: 100%;
-}
-
-.list-group {
-  color: #333;
-  text-decoration: none;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin: 10px 0;
-  padding: 10px;
-  font-family: 'Arial', sans-serif;
-  font-size: 16px;
-  font-weight: bold;
+  max-width: 300px;
+  margin-right: 20px;
   display: flex;
   align-items: center;
 }
 
-.list-group.active,
-.list-group:hover,
-.logOut:hover {
-  background-color: #50C878;
-  color: white;
-}
-
-.icon-label {
-  display: flex;
-  align-items: center;
+/* Subject Info Styling */
+.subject-info {
   width: 100%;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-.icon-label i {
-  margin-right: 10px;
+.subject-info h2 {
+  font-size: 1.5rem;
+  color: #343a40;
+  font-weight: 700;
+  margin-bottom: 8px;
 }
 
-.icon-label .label {
-  flex: 1;
+.subject-info p {
+  font-size: 1rem;
+  color: #6c757d;
 }
 
+/* Navigation Bar */
+.nav {
+  flex: 2;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.nav-link {
+  color: #343a40 !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: #007bff !important;
+}
+
+.router-link-active {
+  color: #007bff !important;
+  border-bottom: 2px solid #007bff;
+}
+
+/* Subject Page Content */
+.subject-page {
+  margin-top: 40px;
+}
+
+.subject-page h5 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #343a40;
+  letter-spacing: 1px;
+  margin-bottom: 40px;
+}
+
+/* Exam Page Styling */
 .exam-page {
   padding: 20px;
   background-color: #f8f9fa94;
@@ -242,13 +310,13 @@ export default {
 
 .modal-header {
   display: flex;
-  justify-content: flex-end; /* Align items to the upper right */
+  justify-content: flex-end;
   align-items: center;
   margin-bottom: 20px;
 }
 
 .quarter-filter {
-  margin-left: auto; /* Pushes the quarter filter to the upper right */
+  margin-left: auto;
 }
 
 .modal-body {
@@ -258,7 +326,7 @@ export default {
 }
 
 .date-time-group {
-  display: flex; /* Ensures date and time are horizontal */
+  display: flex;
   justify-content: space-between;
   align-items: center;
   flex: 1;
@@ -272,31 +340,4 @@ export default {
   font-family: 'Lucida Sans Unicode', sans-serif;
   font-size: 16px;
 }
-.container-fluid {
-  margin: auto;
-}
-
-
-.nav {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .nav-link {
-    color: black !important;
-    text-decoration: none;
-    padding: 10px 15px;
-  }
-  
-  .nav-link:hover {
-    color: #333;
-  }
-  
-  .router-link-active {
-    border-bottom: 3px solid #007bff; /* Blue bottom border for active link */
-    color: #007bff !important; /* Change text color for active link */
-  }
-  
-  .nav-link i {
-    margin-right: 5px;
-  }
 </style>

@@ -1,35 +1,38 @@
 <template>
-    <div class="analysis-page">
-      <div class="container-fluid">
-        <div class="row">
-          <!-- Drawer Section -->
-          <div class="col-md-2 left-column">
-            <div class="list-group-container">
-              <router-link to="/teacherlistofsubject" class="list-group">
-                <span class="icon-label">
-                  <i class="bi bi-arrow-left fs-4"></i> Back to List of Subjects
-                </span>
-              </router-link>
-              <router-link v-for="(item, index) in items" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
-                <span class="icon-label">
-                  <i :class="item.icon"></i> {{ item.label }}
-                </span>
-              </router-link>
-              <div class="list-group logOut" @click="handleLogoutClick" style="margin-top: auto;">
-                <span class="icon-label">
-                  <i class="bi bi-box-arrow-left fs-4"></i> LOG OUT
-                </span>
-              </div>
-            </div>
-          </div>
-  
-          <!-- Main Content Section -->
-          <div class="col-md-10 right-column">
-            <h1>List of Students</h1>
-          </div>
-        </div>
+    <<div class="main-container">
+    <!-- Subject Information Display on the Left -->
+    <div class="subject-info-container">
+      <div v-if="subject.subjectName" class="subject-info">
+        <h2>{{ subject.subjectName }}</h2>
+        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
       </div>
     </div>
+
+    <!-- Navigation Bar Positioned Next to Subject Info -->
+    <nav class="nav nav-pills">
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-4"></i></span>
+      </router-link>
+  <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+  <router-link :to="`/AddExam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+  <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
+  <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
+  <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+  <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
+  <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+    </nav>
+  </div>
+
+          <!-- Subject Page Content -->
+  <div class="subject-page container mt-5">
+    <h5 class="text-center">List of Student</h5>
+
+    <!-- Error Handling -->
+    <div v-if="error" class="alert alert-danger text-center">
+      {{ error }}
+    </div>
+  </div>
+   
   </template>
   
   <script>
