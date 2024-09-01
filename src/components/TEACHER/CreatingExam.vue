@@ -5,10 +5,7 @@
           <div class="col-md-10 right-column">
             <router-view></router-view>
             <div class="exam-creation-page-content">
-              <center>
-                <h1>Exam Creation</h1>
-              </center>
-  
+              <center><h1>Exam Creation</h1></center>
               <!-- Section for displaying added questions -->
               <div class="added-questions">
                 <h2>Added Questions</h2>
