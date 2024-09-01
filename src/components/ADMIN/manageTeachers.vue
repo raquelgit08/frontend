@@ -1,8 +1,21 @@
 <template>
   <div> 
     <div class="container-fluid">
-      <h4 class="text-center">Teachers Accounts </h4><br>
+      <div class="d-flex align-items-center justify-content-between">
+        <h4>List of Teachers Accounts</h4>
+        <router-link to="/aregisterteacher" title="Add Record" class="btn-gradient d-flex align-items-center">
+          <i class="bi bi-clipboard2-plus-fill register me-2"></i> Add Record
+        </router-link>
+      </div><br>
       <div class="row mb-4 justify-content-end align-items-center">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" v-model="search" class="form-control" placeholder="Search" />
+          </div>
+        </div>
         <div class="col-md-4 d-flex align-items-center">
           <label for="userType" class="form-label me-2">SELECT GENDER:</label>
           <select v-model="selectedGender" class="form-select" id="gender">
@@ -18,68 +31,60 @@
           </option>
         </select>
         </div>
-        <div class="col-md-4">
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="bi bi-search"></i>
-            </span>
-            <input type="text" v-model="search" class="form-control" placeholder="Search" />
-            <router-link to="/aregisterteacher" title="Add Record">
-              <i class="bi bi-clipboard2-plus-fill register"></i>
-            </router-link>
-          </div>
-        </div>
+        
       </div>
 
-      <table class="table table-bordered table-hover">
-        <thead class="table-info">
-          <tr>
-            <th scope="col" class="text-center">No.</th>
-            <th scope="col" class="text-center">LRN</th>
-            <th scope="col" class="text-center">Teachers Profile</th>
-            <th scope="col" class="text-center">Sex</th>
-            <th scope="col" class="text-center">Status</th>
-            <th scope="col" class="text-center">Date</th>
-            <th scope="col" class="text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(teachers, index) in paginatedItems" :key="teachers.idnumber">
-            <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-            <td>{{ teachers.user.idnumber }}</td>
-            <td class="text-center">
-              {{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} <br>
-              {{ teachers.user.email }}<br>
-              {{ teachers.position.teacher_postion }} 
-            </td>
-            <td class="text-center">{{ teachers.user.sex }}</td>
-            <td class="text-center">
-              <b>Registered :</b>{{ formatDate(teachers.created_at) }}<br>
-              <b>Modified :</b>{{ formatDate(teachers.updated_at) }}
-            </td>
-            <td class="text-center">
-              <div class="btn-group" role="group" aria-label="Active and Inactive">
-                <input  type="radio"  class="btn-check" name="options" id="activeRadio"  autocomplete="off" v-model="selectedOption"  value="active"/>
-                <label class="btn" :class="{'btn-success': selectedOption === 'active', 'btn-secondary': selectedOption !== 'active'}" for="activeRadio" >Active</label>
+      <div class="table-wrapper">
+        <table class="table table-hover table-custom">
+          <thead class="table-info">
+            <tr>
+              <th scope="col" class="text-center">No.</th>
+              <th scope="col" class="text-center">LRN</th>
+              <th scope="col" class="text-center">Teachers Profile</th>
+              <th scope="col" class="text-center">Sex</th>
+              <th scope="col" class="text-center">Date</th>
+              <th scope="col" class="text-center">Status</th>
+              <th scope="col" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(teachers, index) in paginatedItems" :key="teachers.idnumber">
+              <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+              <td>{{ teachers.user.idnumber }}</td>
+              <td class="text-center">
+                <b>{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </b><br>
+                <i>{{ teachers.user.email }}</i><br>
+                {{ teachers.position.teacher_postion }} 
+              </td>
+              <td class="text-center">{{ teachers.user.sex }}</td>
+              <td class="text-center">
+                <b>Registered :</b>{{ formatDate(teachers.created_at) }}<br>
+                <b>Modified :</b>{{ formatDate(teachers.updated_at) }}
+              </td>
+              <td class="text-center">
+                <div class="btn-group" role="group" aria-label="Active and Inactive">
+                  <input  type="radio"  class="btn-check" name="options" id="activeRadio"  autocomplete="off" v-model="selectedOption"  value="active"/>
+                  <label class="btn" :class="{'btn-success': selectedOption === 'active', 'btn-secondary': selectedOption !== 'active'}" for="activeRadio" >Active</label>
 
-                <input type="radio" class="btn-check" name="options" id="inactiveRadio" autocomplete="off" v-model="selectedOption" value="inactive"/>
-                <label class="btn" :class="{'btn-danger': selectedOption === 'inactive', 'btn-secondary': selectedOption !== 'inactive'}"  for="inactiveRadio"> Inactive</label>
-              </div>
-            </td>
-            <td class="text-center">
-              <div class="icon-container">
-                <span class="icon-box reset-box">
-                  <i class="bi bi-key-fill custom-icon" @click="openModal(item)"></i>
-                </span>
-                <span class="icon-box edit-box">
-                  <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
-                </span>
-                
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                  <input type="radio" class="btn-check" name="options" id="inactiveRadio" autocomplete="off" v-model="selectedOption" value="inactive"/>
+                  <label class="btn" :class="{'btn-danger': selectedOption === 'inactive', 'btn-secondary': selectedOption !== 'inactive'}"  for="inactiveRadio"> Inactive</label>
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="icon-container">
+                  <span class="icon-box reset-box">
+                    <i class="bi bi-key-fill custom-icon" @click="openModal(item)"></i>
+                  </span>
+                  <span class="icon-box edit-box">
+                    <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
+                  </span>
+                  
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <div class="row mb-4">
         <div class="col-md-2">
@@ -252,27 +257,86 @@ export default {
 
 <style scoped>
 .container-fluid {
-  margin-top: 10px;
- 
+  background-color: #ffffff;
+  border-radius: 10px;
 }
+
 tbody{
   font-size: 15px;
-
 }
 
 h4 {
-  background-color: #87CEFA; /* Sky blue background */
   color: rgb(6, 0, 0);
   padding: 10px;
-  border-radius: 8px 8px 0 0;
-  font-family: 'Georgia', serif;
-  margin-bottom: 20px;
+  padding-top: 20px;
+
+}
+.lalaki, .babae{
+  font-size: 20px;
+  padding-left: 50px;
+  padding-right: 12px;
+}
+.lalaki {
+  color: blue;
+}
+.babae {
+  color: red;
+}
+.icon-container {
+  display: flex;
+  gap: 10px; /* Space between the boxes */
+}
+
+.icon-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+/* Table Wrapper */
+.table-wrapper {
+  margin: 0 auto;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
+  
+}
+
+/* Table Styles */
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  border: 1px solid #200909;
+  overflow: hidden;
+}
+
+.table-custom th {
+  background-color: #0d8eead7;
+  color: #000000;
+  font-weight: 700;
+}
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
 }
 
 .custom-icon {
   cursor: pointer;
   color: rgb(255, 255, 255);
-  font-size: 18px;
+  font-size: 22px;
+  
 }
 
 .icon-container {
@@ -280,8 +344,9 @@ h4 {
   gap: 10px; /* Space between the boxes */
 }
 .register{
-  font-size: 30px; padding-left: 20px;
-  color: #495057;
+  font-size: 20px;
+  color: #ffffff;
+
 
 }
 .icon-box {
@@ -296,18 +361,13 @@ h4 {
 .reset-box {
   background-color: #efd305; 
   color: white; /* White icon color */
+  width: 40px;
 }
 .edit-box {
   background-color: #0f64dc; 
   color: white; /* White icon color */
+  width: 40px;
 }
-
-.delete-box {
-  background-color: #e50c0c; /* Red background */
-  color: white; /* White icon color */
-}
-
-
 
 .form-select {
   width: 200px;
@@ -374,6 +434,22 @@ h4 {
 .btn {
   transition: background-color 0.3s ease, color 0.3s ease;
   height: 30px;
+}
+/* Button Styles */
+.btn-gradient {
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  color: #120808;
+  font-size: 17px;
+  transition: background 0.3s ease;
+  border-radius: 5px ;
+  margin: 20px;
+  padding: 5px;
+  width: 170px;
+  text-align: center;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0056b3, #0080ff);
 }
 
 
