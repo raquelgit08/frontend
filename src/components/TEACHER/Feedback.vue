@@ -1,33 +1,32 @@
 <template>
-  <div>
-    <!-- Subject Information Display -->
-    <div v-if="subject.subjectName" class="subject-info">
-      <h2>{{ subject.subjectName }}</h2>
-      <h4>Semester: {{ subject.semester }}</h4>
-      <h4>School Year: {{ subject.schoolYear }}</h4>
-    </div>
-
-    <!-- Navigation Bar -->
-    <div class="container-fluid">
-      <nav class="nav nav-pills nav-fill">
-        <router-link to="/teacheraddsubject" class="nav-link">
-          <span><i class="bi bi-arrow-left fs-4"></i></span>
-        </router-link>
-        <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link" aria-current="page">Dashboard</router-link>
-        <router-link to="/AddExam" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-        <router-link to="/Feedback" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-        <router-link to="/ItemAnalysis" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
-        <router-link to="/PerformanceTracking" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-        <router-link to="/studentslist" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> List of Students</router-link>
-        <router-link to="/studentslist" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
-      </nav>
-    </div>
-
-    <!-- Feedback Page Content -->
-    <div class="feedback-page">
-      <div class="container-fluid">
-        <h5>Feedbacks</h5>
+  <div class="main-container">
+    <!-- Subject Information Display on the Left -->
+    <div class="subject-info-container">
+      <div v-if="subject.subjectName" class="subject-info">
+        <h2>{{ subject.subjectName }}</h2>
+        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
       </div>
+    </div>
+
+    <!-- Navigation Bar Positioned Next to Subject Info -->
+    <nav class="nav nav-pills">
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-4"></i></span>
+      </router-link>
+      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+      <router-link :to="`/AddExam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
+      <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
+      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
+      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+    </nav>
+  </div>
+
+  <!-- Feedback Page Content -->
+  <div class="feedback-page">
+    <div class="container-fluid">
+      <h5>Feedbacks</h5>
     </div>
   </div>
 </template>
@@ -104,114 +103,75 @@ export default {
 </script>
 
 <style scoped>
+/* Main Container */
+.main-container {
+  display: flex;
+  align-items: stretch; /* Ensure both containers stretch to the same height */
+  justify-content: space-between; /* Space out the subject info and nav bar */
+  padding: 20px;
+}
+
+/* Subject Info Container */
+.subject-info-container {
+  flex: 1; /* Flex value of 1 to take equal height as the nav */
+  max-width: 300px;
+  margin-right: 20px;
+  display: flex;
+  align-items: center; /* Center the content vertically */
+}
+
 /* Subject Info Styling */
 .subject-info {
-  display: flex;
-  justify-content: space-around; /* Space out the items evenly */
-  align-items: center;
-  margin: 20px 0;
-  padding: 10px 0;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-}
-
-.subject-info h2, .subject-info h4 {
-  margin: 0;
-  padding: 0 15px; /* Add padding to separate the items */
-}
-
-.feedback-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.container-fluid {
-  flex: 1;
-}
-
-.left-column {
-  background-color: white;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-  height: 100vh;
-  width: 250px;
-}
-
-.right-column {
-  padding: 20px;
-  background-color: white;
-  flex: 1;
-}
-
-.list-group-container {
-  height: 100%;
-}
-
-.list-group {
-  color: #333;
-  text-decoration: none;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin: 10px 0;
-  padding: 10px;
-  font-family: 'Arial', sans-serif;
-  font-size: 16px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.list-group.active,
-.list-group:hover,
-.logOut:hover {
-  background-color: #50C878;
-  color: white;
-}
-
-.icon-label {
-  display: flex;
-  align-items: center;
   width: 100%;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-.icon-label i {
-  margin-right: 10px;
+.subject-info h2 {
+  font-size: 1.5rem;
+  color: #343a40;
+  font-weight: 700;
+  margin-bottom: 8px;
 }
 
-.icon-label .label {
-  flex: 1;
+.subject-info p {
+  font-size: 1rem;
+  color: #6c757d;
 }
 
-.feedback-page h1 {
-  font-family: 'Arial', sans-serif;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
+/* Navigation Bar */
 .nav {
+  flex: 2; /* Flex value of 2 to balance the nav width */
+  display: flex;
+  justify-content: space-around;
+  align-items: center; /* Ensure nav items are centered vertically */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .nav-link {
-  color: black !important;
+  color: #343a40 !important;
   text-decoration: none;
-  padding: 10px 15px;
+  font-weight: 500;
 }
 
 .nav-link:hover {
-  color: #333;
+  color: #007bff !important;
 }
 
 .router-link-active {
-  border-bottom: 3px solid #007bff; /* Blue bottom border for active link */
-  color: #007bff !important; /* Change text color for active link */
+  color: #007bff !important;
+  border-bottom: 2px solid #007bff;
 }
 
-.nav-link i {
-  margin-right: 5px;
+/* Feedback Page Title */
+.feedback-page h5 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #343a40;
+  margin-bottom: 20px;
 }
 </style>
