@@ -24,30 +24,24 @@
   </div>
 
   <!-- Subject Page Content -->
-  <div class="subject-page container mt-5">
-
+  <div class="subject-page container-fluid mt-5">
     <!-- Error Handling -->
     <div v-if="error" class="alert alert-danger text-center">
       {{ error }}
     </div>
 
     <!-- Exam Management Content -->
-    <div class="exam-page">
-      <center>
-        <h1>Exam Creation and Management</h1>
-      </center>
-      <div class="nothing-follows">----Nothing follows----</div>
-      <center>
-        <button class="add-quiz-btn" @click="showForm = true">Add Quiz or Exam</button>
-      </center>
+    <button class="add-quiz-btn" @click="showForm = !showForm">Add Quiz or Exam</button>
 
-      <!-- Form Modal -->
-      <div v-if="showForm" class="form-modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <div class="quarter-filter">
-              <label for="quarter">Quarter:</label>
-              <select id="quarter" v-model="selectedQuarter">
+    <div class="row mt-4">
+      <!-- Column for the Exam Form -->
+      <div class="col-md-3 col-sm-12">
+        <div v-if="showForm" class="form-container p-4 shadow rounded">
+          <center><h3>Exam Schedule</h3></center>
+          <div class="modal-header mb-3 d-flex justify-content-between align-items-center">
+            <div class="quarter-filter w-100">
+              <label for="quarter" class="form-label">Quarter:</label>
+              <select id="quarter" v-model="selectedQuarter" class="form-select">
                 <option value="1st Quarter">1st Quarter</option>
                 <option value="2nd Quarter">2nd Quarter</option>
                 <option value="3rd Quarter">3rd Quarter</option>
@@ -55,25 +49,191 @@
               </select>
             </div>
           </div>
-          <div class="modal-body">
-            <div class="date-time-group">
-              <div class="form-group">
-                <label for="date">Date:</label>
-                <input type="date" id="date" v-model="selectedDate" />
+          <div class="form-body">
+            <div class="date-time-group d-flex justify-content-between mb-3">
+              <div class="form-group me-2 flex-grow-1">
+                <label for="date" class="form-label">Date:</label>
+                <input type="date" id="date" v-model="selectedDate" class="form-control" />
               </div>
-              <div class="form-group">
-                <label for="time">Time:</label>
-                <input type="time" id="time" v-model="selectedTime" />
+              <div class="form-group ms-2 flex-grow-1">
+                <label for="time" class="form-label">Time:</label>
+                <input type="time" id="time" v-model="selectedTime" class="form-control" />
               </div>
             </div>
-            <div class="centered-button">
-              <button class="create-exam-btn" @click="redirectToExamCreation">Create Exam</button>
+            <div class="centered-button text-center">
+              <button class="create-exam-btn btn btn-primary btn-lg" @click="redirectToExamCreation">Create Exam</button>
             </div>
           </div>
         </div>
       </div>
+      
+      <div class="col-md-9 col-sm-12">
+        <div v-if="showForm" class="container-fluid p-4 shadow rounded bg-light">
+          <h3 class="text-center mb-4">Exam Creation</h3>
+
+          <!-- Section for displaying added questions -->
+          <div class="mb-4">
+            <div class="form-group">
+              <label for="title" class="form-label">Exam Title</label>
+              <input type="text" class="form-control" id="title" v-model="examTitle" />
+            </div>
+
+            <div class="added-questions">
+              <h4 class="mb-3">Added Questions</h4>
+              <div v-for="(item, index) in questions" :key="index" class="mb-3 p-3 border rounded bg-white shadow-sm position-relative">
+                <!-- Numbering -->
+                <span class="badge bg-primary position-absolute top-0 start-0 mt-2 ms-2">{{ index + 1 }}</span>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="mb-0">{{ item.type.charAt(0).toUpperCase() + item.type.slice(1) }} Question</h5>
+                  <div>
+                    <button @click="duplicateItem(index)" class="btn btn-outline-primary btn-sm me-2">
+                      <i class="fas fa-copy"></i> Duplicate
+                    </button>
+                    <button @click="deleteItem(index)" class="btn btn-outline-danger btn-sm">
+                      <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                  </div>
+                </div>
+
+                <div class="mb-2">
+                  <label for="question" class="form-label">Question</label>
+                  <input type="text" id="question" v-model="item.question" :disabled="item.disabled" class="form-control" />
+                </div>
+
+                <div v-if="item.type === 'multiple-choice'">
+                  <div class="mb-2">
+                    <label class="form-label">Options</label>
+                    <div class="row">
+                      <div v-for="(option, idx) in item.options" :key="idx" class="col-md-6 mb-2">
+                        <label :for="'option' + idx" class="form-label">Option {{ String.fromCharCode(65 + idx) }}</label>
+                        <input type="text" :id="'option' + idx" v-model="item.options[idx]" :disabled="item.disabled" class="form-control" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="item.type === 'true-false'">
+                  <div class="mb-2">
+                    <label for="correct-answer" class="form-label">Correct Answer</label>
+                    <select id="correct-answer" v-model="item.correctAnswer" :disabled="item.disabled" class="form-select">
+                      <option value="true">True</option>
+                      <option value="false">False</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div v-if="item.type === 'identification'">
+                  <div class="mb-2">
+                    <label for="correct-answer" class="form-label">Correct Answer</label>
+                    <input type="text" id="correct-answer" v-model="item.correctAnswer" :disabled="item.disabled" class="form-control" />
+                  </div>
+                </div>
+
+                <div class="mb-2">
+                  <label for="points" class="form-label">Points</label>
+                  <input type="number" id="points" v-model="item.points" :disabled="item.disabled" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Section for creating new questions -->
+            <div>
+              <h4 class="mb-3">Create New Question</h4>
+              <div class="mb-3">
+                <label for="question-type" class="form-label">Select Question Type</label>
+                <select id="question-type" v-model="selectedQuestionType" class="form-select">
+                  <option value="multiple-choice">Multiple Choice</option>
+                  <option value="true-false">True or False</option>
+                  <option value="identification">Identification</option>
+                </select>
+              </div>
+
+              <!-- Multiple Choice Question Form -->
+              <div v-if="selectedQuestionType === 'multiple-choice'">
+                <div v-for="(item, index) in newMultipleChoiceQuestions" :key="index" class="question-form mb-3">
+                  <div class="mb-2">
+                    <label for="question" class="form-label">Question</label>
+                    <input type="text" v-model="item.question" class="form-control" />
+                  </div>
+
+                  <div class="mb-2">
+                    <label class="form-label">Options</label>
+                    <div class="row">
+                      <div v-for="(option, idx) in item.options" :key="idx" class="col-md-6 mb-2">
+                        <label :for="'option' + idx" class="form-label">Option {{ String.fromCharCode(65 + idx) }}</label>
+                        <input type="text" v-model="item.options[idx]" class="form-control" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-2">
+                    <label for="correct-answer" class="form-label">Correct Answer</label>
+                    <select v-model="item.correctAnswer" class="form-select">
+                      <option v-for="(option, idx) in item.options" :value="idx" :key="idx">
+                        {{ String.fromCharCode(65 + idx) }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="mb-2">
+                    <label for="points" class="form-label">Points</label>
+                    <input type="number" v-model="item.points" class="form-control" />
+                  </div>
+
+                  <button @click="addNewQuestion" class="btn btn-success">Add Question</button>
+                </div>
+              </div>
+
+              <!-- True or False Question Form -->
+              <div v-if="selectedQuestionType === 'true-false'">
+                <div class="mb-3">
+                  <label for="question" class="form-label">Question</label>
+                  <input type="text" v-model="trueFalseQuestion.question" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                  <label for="correct-answer" class="form-label">Correct Answer</label>
+                  <select v-model="trueFalseQuestion.correctAnswer" class="form-select">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="points" class="form-label">Points</label>
+                  <input type="number" v-model="trueFalseQuestion.points" class="form-control" />
+                </div>
+
+                <button @click="addTrueFalseQuestion" class="btn btn-success">Add Question</button>
+              </div>
+
+              <!-- Identification Question Form -->
+              <div v-if="selectedQuestionType === 'identification'">
+                <div class="mb-3">
+                  <label for="question" class="form-label">Question</label>
+                  <input type="text" v-model="identificationQuestion.question" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                  <label for="correct-answer" class="form-label">Correct Answer</label>
+                  <input type="text" v-model="identificationQuestion.correctAnswer" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                  <label for="points" class="form-label">Points</label>
+                  <input type="number" v-model="identificationQuestion.points" class="form-control" />
+                </div>
+
+                <button @click="addIdentificationQuestion" class="btn btn-success">Add Question</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </div>
+</div>
 </template>
 
 <script>
@@ -88,11 +248,17 @@ export default {
         semester: '',
         schoolYear: ''
       },
-      error: '',
+      selectedQuarter: '1st Quarter',
+      selectedDate: '',
+      selectedTime: '',
       showForm: false,
-      selectedQuarter: '',
-      selectedDate: this.getCurrentDate(),
-      selectedTime: this.getCurrentTime(),
+      error: '',
+      examTitle: '',
+      questions: [],
+      selectedQuestionType: '',
+      newMultipleChoiceQuestions: [{ question: '', options: ['', '', '', ''], correctAnswer: '', points: 0 }],
+      trueFalseQuestion: { question: '', correctAnswer: 'true', points: 0 },
+      identificationQuestion: { question: '', correctAnswer: '', points: 0 }
     };
   },
   created() {
@@ -141,6 +307,9 @@ export default {
     }
   }
 },
+    toggleForm() {
+      this.showForm = !this.showForm;
+    },
     getCurrentDate() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -156,15 +325,68 @@ export default {
       return `${hh}:${mm}:${ss}`;
     },
     redirectToExamCreation() {
-      this.$router.push({ path: '/CreatingExam' });
-    }
-  }
+      // this.$router.push({ path: '/AddExam' });
+    },
+    addNewQuestion() {
+      this.questions.push({
+        type: 'multiple-choice',
+        question: this.newMultipleChoiceQuestions[0].question,
+        options: [...this.newMultipleChoiceQuestions[0].options],
+        correctAnswer: this.newMultipleChoiceQuestions[0].correctAnswer,
+        points: this.newMultipleChoiceQuestions[0].points
+      });
+      // Reset form
+      this.newMultipleChoiceQuestions = [{ question: '', options: ['', '', '', ''], correctAnswer: '', points: 0 }];
+    },
+    addTrueFalseQuestion() {
+      this.questions.push({
+        type: 'true-false',
+        question: this.trueFalseQuestion.question,
+        correctAnswer: this.trueFalseQuestion.correctAnswer,
+        points: this.trueFalseQuestion.points
+      });
+      // Reset form
+      this.trueFalseQuestion = { question: '', correctAnswer: 'true', points: 0 };
+    },
+    addIdentificationQuestion() {
+      this.questions.push({
+        type: 'identification',
+        question: this.identificationQuestion.question,
+        correctAnswer: this.identificationQuestion.correctAnswer,
+        points: this.identificationQuestion.points
+      });
+      // Reset form
+      this.identificationQuestion = { question: '', correctAnswer: '', points: 0 };
+    },
+    duplicateItem(index) {
+      const item = this.questions[index];
+      this.questions.splice(index + 1, 0, { ...item });
+    },
+    deleteItem(index) {
+      this.questions.splice(index, 1);
+    },
+    // submitForm() {
+    //   // Send the form data to the backend
+    //   axios.post('/api/exams', this.exam)
+    //     .then(response => {
+    //       alert('Exam created successfully');
+    //       this.resetForm();
+    //     })
+    //     .catch(error => {
+    //       console.error('Error creating exam:', error);
+    //       alert('Failed to create exam');
+    //     });
+    // },
+  
+  },
+ 
+ 
+
 };
 
 </script>
 
 <style scoped>
-/* Unified Layout and Styling */
 
 /* Main Container */
 .main-container {
@@ -182,7 +404,6 @@ export default {
   display: flex;
   align-items: center;
 }
-
 /* Subject Info Styling */
 .subject-info {
   width: 100%;
@@ -202,6 +423,10 @@ export default {
 .subject-info p {
   font-size: 1rem;
   color: #6c757d;
+}
+.question-form{
+  font-size: 20px;
+ 
 }
 
 /* Navigation Bar */
@@ -273,71 +498,61 @@ export default {
   margin-top: 10px;
   margin-bottom: 20px;
 }
-
-.add-quiz-btn {
-  background-color: #e5e9e6;
-  color: rgb(30, 143, 75);
-  font-family: 'Lucida Sans Unicode', sans-serif;
-  font-size: 17px;
-  font-weight: bold;
-  padding: 10px 350px;
-  border-style: double;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.add-quiz-btn:hover {
-  background-color: #e9f2ed;
-}
-
 .form-modal {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  z-index: 1000;
-  padding: 20px;
-  width: 600px;
-  border: 2px solid #0b355e;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Dark transparent background */
+  z-index: 1050; /* High z-index to appear above other elements */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem; /* Padding for smaller screens */
 }
 
 .modal-content {
-  padding: 20px;
+  background: #fff; /* White background for the modal */
+  width: 95%; /* Expanded width to nearly full screen */
+  height: 80vh; /* Height set to 80% of viewport */
+  border-radius: 12px; /* Rounded corners for a softer look */
+  position: relative;
+  padding: 2rem; /* Additional padding for spacious feel */
+  overflow-y: auto; /* Enable scrolling if content overflows */
 }
 
-.modal-header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 20px;
+.create-exam-btn {
+  background: linear-gradient(45deg, #4CAF50, #81C784); /* Example gradient */
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1.1rem;
+  transition: background 0.3s ease;
 }
 
-.quarter-filter {
-  margin-left: auto;
+.create-exam-btn:hover {
+  background: linear-gradient(45deg, #388E3C, #66BB6A); /* Darker on hover */
 }
 
-.modal-body {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+
+.form-select, .form-control {
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
 }
 
-.date-time-group {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex: 1;
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
 }
 
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  font-family: 'Lucida Sans Unicode', sans-serif;
-  font-size: 16px;
+.close-btn:hover {
+  color: #ff4d4d; /* Hover color for the close icon */
 }
 </style>

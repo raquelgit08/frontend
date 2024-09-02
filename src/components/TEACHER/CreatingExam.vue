@@ -1,36 +1,11 @@
 <template>
     <div class="exam-creation-page">
       <div class="container-fluid">
-        <div class="row">
-          <!-- Drawer Section -->
-          <div class="col-md-2 left-column">
-            <div class="list-group-container">
-              <router-link to="/teacherlistofsubject" class="list-group">
-                <span class="icon-label">
-                  <i class="bi bi-arrow-left fs-4"></i> Back to List of Subjects
-                </span>
-              </router-link>
-              <router-link v-for="(item, index) in items" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
-                <span class="icon-label">
-                  <i :class="item.icon"></i> {{ item.label }}
-                </span>
-              </router-link>
-              <div class="list-group logOut" @click="handleLogoutClick" style="margin-top: auto;">
-                <span class="icon-label">
-                  <i class="bi bi-box-arrow-left fs-4"></i> LOG OUT
-                </span>
-              </div>
-            </div>
-          </div>
-  
           <!-- Main Content Section -->
           <div class="col-md-10 right-column">
             <router-view></router-view>
             <div class="exam-creation-page-content">
-              <center>
-                <h1>Exam Creation</h1>
-              </center>
-  
+              <center><h1>Exam Creation</h1></center>
               <!-- Section for displaying added questions -->
               <div class="added-questions">
                 <h2>Added Questions</h2>
@@ -183,7 +158,7 @@
           </div>
         </div>
       </div>
-    </div>
+    
   </template>
   
   <script>
@@ -196,14 +171,7 @@
         selectedDate: this.getCurrentDate(),
         selectedTime: this.getCurrentTime(),
         selectedItem: '',
-        items: [
-        { path: '/studentslist', label: 'List of Students', icon: 'bi bi-speedometer2 fs-4' },
-          { path: '/AddExam', label: 'Add Exam', icon: 'bi bi-file-earmark-text fs-4' },
-          { path: '/Feedback', label: 'Feedback', icon: 'bi bi-chat-square-text fs-4' },
-          { path: '/ItemAnalysis', label: 'Item Analysis', icon: 'bi bi-graph-up-arrow fs-4' },
-          { path: '/PerformanceTracking', label: 'Performance Tracking', icon: 'bi bi-speedometer2 fs-4' },
-          { path: '/GenerateReport', label: 'Report Generating', icon: 'bi bi-speedometer2 fs-4' }
-        ],
+        
         selectedQuestionType: 'multiple-choice',
         question: '',
         options: ['', '', '', ''], // Assuming 4 options for multiple-choice
