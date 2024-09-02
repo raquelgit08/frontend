@@ -1,199 +1,225 @@
 <template>
-  <div>
-    <h3>DASHBOARD</h3>
-    <div class="row mb-3">
-      <!-- Chart Section -->
-      <div class="col-lg-8 col-md-12 mb-3">
-        <div class="graph">
-          <h5>TOTAL NUMBER OF SENIOR HIGH SCHOOL STUDENTS: {{ totalStudents }}</h5>
-          <b-card class="graph-card">
-            <div class="chart-container">
-              <BarChart :data="chartData" :options="chartOptions" />
-            </div>
-          </b-card>
+  <div class="container-fluid">
+    <!-- Statistics Section -->
+    <div class="row">
+      <div class="col-12 col-sm-6 col-md-3 mb-3">
+        <div class="boxes box1 d-flex align-items-center p-3" @click="navigateTo('/manage_teachers')">
+          <i class="bi bi-person-lines-fill icon icon1"></i>
+          <div class="content">
+            <h4>{{ counts.teacher_count }}</h4>
+            <span class="label">Total Number Of Teachers</span>
+          </div>
         </div>
       </div>
-      <!-- Statistics Section -->
-      <div class="col-lg-4 col-md-12">
-        <div class="row">
-          <div class="col-6 mb-3" v-for="(stat, label) in stats" :key="label">
-            <div class="boxes">
-              <center>
-                <h4>{{ stat }}</h4>
-                <span class="label">TOTAL NUMBER OF <br /><b>{{ label }}</b></span>
-              </center>
-            </div>
+      <div class="col-12 col-sm-6 col-md-3 mb-3">
+        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/manage_students')">
+           <i class="bi bi-person-fill icon icon2"></i>
+          <div class="content">
+            <h4>{{ counts.student_count }}</h4>
+            <span class="label">Total Number Of Students</span>
           </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-3 mb-3">
+        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/ManageStrandsinSHS')">
+           <i class="bi bi-book-half icon icon3"></i>
+          <div class="content">
+            <h4>{{ counts.strand_count }}</h4>
+            <span class="label">Total Number Of Strands</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-3 mb-3">
+        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/AManageSubject')">
+           <i class="bi bi-file-earmark-text-fill icon icon4"></i>
+          <div class="content">
+            <h4>{{ counts.subject_count }}</h4>
+            <span class="label">Total Number Of Subjects</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="row">
+      <div class="col-9"></div>
+      <div class="col-3">
+        <div class="table-wrapper">
+          <table class="table table-hover table-custom">
+            <thead>
+              <tr>
+                <th>Strand</th>
+                <th><i class="bi bi-person-standing tcon"></i></th>
+                <th><i class="bi bi-person-standing-dress tcon"></i></th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(strand, index) in studentsGrouped" :key="index">
+                <td class="text-center">{{ strand.strand_name }} {{ strand.grade_level }}</td>
+                <td class="text-center">{{ strand.male_count }}</td>
+                <td class="text-center">{{ strand.female_count }}</td>
+                <td class="text-center">{{ strand.total_count }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
-import BarChart from './adminbarchart.vue';
 import axios from 'axios';
 
 export default {
   name: 'AdminDashboard',
-  components: {
-    BarChart,
-  },
   data() {
     return {
-      stats: {
-        STEM: 0,
-        ABM: 0,
-        HUMMS: 0,
-        'TVL-ICT': 0,
-        'FEMALE USERS': 0,
-        'MALE USERS': 0,
-        TEACHERS: 0,
-        STUDENTS: 0,
+      counts: {
+        teacher_count: 0,
+        student_count: 0,
+        strand_count: 0,
+        subject_count: 0,
       },
-      chartData: {
-        labels: ['STEM', 'ABM', 'HUMMS', 'TVL ICT'],
-        datasets: [
-          {
-            label: 'Number of Students',
-            data: [0, 0, 0, 0],
-            backgroundColor: ['#28a045', '#007bff', '#ffc107', '#dc3545'],
-          },
-        ],
-      },
-      chartOptions: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-          tooltip: {
-            callbacks: {
-              label: function (tooltipItem) {
-                return `${tooltipItem.label}: ${tooltipItem.raw}`;
-              },
-            },
-          },
-        },
-      },
+      studentsGrouped: [],
     };
   },
-  computed: {
-    totalStudents() {
-      return (
-        this.stats.STEM +
-        this.stats.ABM +
-        this.stats.HUMMS +
-        this.stats['TVL-ICT']
-      );
-    },
-  },
   mounted() {
-    this.fetchUsersCounts();
-    this.fetchDataStrand();
+    this.fetchCounts();
   },
   methods: {
-    async fetchUsersCounts() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/user-counts');
-        this.stats['FEMALE USERS'] = response.data.femaleUsers;
-        this.stats['MALE USERS'] = response.data.maleUsers;
-        this.stats.TEACHERS = response.data.teacher;
-        this.stats.STUDENTS = response.data.student;
-      } catch (error) {
-        console.error('Failed to fetch Users counts:', error);
-      }
+    fetchCounts() {
+      axios.get('http://localhost:8000/api/counts', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      .then(response => {
+        // Set the counts data from the response
+        this.counts = response.data.data.counts;
+        
+        // Extract grouped student data
+        let groupedData = [];
+        let grouped = response.data.data.students_grouped;
+        
+        // Loop through the grouped data to extract male and female counts per strand and grade level
+        for (let strandName in grouped) {
+          for (let gradeLevel in grouped[strandName]) {
+            let group = grouped[strandName][gradeLevel];
+            
+            // Count male and female students manually from the students array
+            let maleCount = group.students.filter(student => student.sex === 'male').length;
+            let femaleCount = group.students.filter(student => student.sex === 'female').length;
+
+            // Add the parsed data to the array
+            groupedData.push({
+              strand_name: strandName,
+              grade_level: gradeLevel,
+              male_count: maleCount,
+              female_count: femaleCount,
+              total_count: maleCount + femaleCount
+            });
+          }
+        }
+
+        this.studentsGrouped = groupedData;
+      })
+      .catch(error => {
+        alert('Error fetching data: ' + error.message);
+      });
     },
-    async fetchDataStrand() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/countstrand', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
-
-        const { total_stem, total_abm, total_humms, total_tvl } = response.data;
-
-        this.stats.STEM = total_stem;
-        this.stats.ABM = total_abm;
-        this.stats.HUMMS = total_humms;
-        this.stats['TVL-ICT'] = total_tvl;
-
-        this.chartData.datasets[0].data = [
-          total_stem,
-          total_abm,
-          total_humms,
-          total_tvl,
-        ];
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+  
+    navigateTo(path) {
+      this.$router.push(path);
     },
   },
 };
 </script>
 
-<style>
-h3 {
-  color: #060000;
-  padding: 10px;
-  border-radius: 8px 8px 0 0;
-  font-family: 'Georgia', serif;
-  margin: 20px;
-  text-align: center;
-  background-color: #f7f7f7;
-}
-
-.graph {
-  border: 2px solid whitesmoke;
-  padding: 20px;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
-
-.chart-container {
-  position: relative;
-  height: 300px;
-}
-
+<style scoped>
 .boxes {
-  border: 1px solid #ccc;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  width: 100%; /* Full width to fit within the column */
+  height: 130px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer; /* Indicates clickable area */
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  font-size: 60px;
+  padding: 20px;
+}
+
+.icon1{
+  color: #007BFF;
+}
+.icon2{
+  color: #28a745;
+}
+.icon3{
+  color: #fd7e14;
+}
+.icon4{
+  color: #6f42c1;
+}
+
+.content {
+  flex: 1;
+}
+.tcon{
+  font-size: 30px;
+  color:white;
+}
+.content h4 {
+  margin: 0;
+  font-size: 32px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 600;
+}
+/* Table Wrapper */
+.table-wrapper {
+  margin-top: 12px;
+  margin-right: 5px;
+}
+
+/* Table Styles */
+.table-custom {
   background-color: #ffffff;
   border-radius: 8px;
-  height: 100px;
-  padding: 10px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  overflow: hidden;
 }
 
-.boxes:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+.table-custom th {
+  background-color: #0d8aeadf;
+  color: #000000;
+  font-weight: 500;
+  font-size: 20px;
 }
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+}
+.table td {
+  font-size: 20px;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+
 
 .label {
-  font-family: 'Verdana', Geneva, Tahoma, sans-serif;
-  font-size: 14px;
-  margin-top: 5px;
-}
-
-@media (max-width: 768px) {
-  .chart-container {
-    height: 200px;
-  }
-  .boxes {
-    height: 80px;
-  }
-  .label {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 576px) {
-  h3 {
-    font-size: 18px;
-  }
-  .boxes {
-    height: 70px;
-  }
-  .label {
-    font-size: 10px;
-  }
+  font-size: 16px;
+  color: #000000;
 }
 </style>

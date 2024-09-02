@@ -2,35 +2,36 @@
   <div> 
     <div class="container-fluid">
       <div class="d-flex align-items-center justify-content-between">
-        <h4>List of Teachers Accounts</h4>
+        <h4><i class="bi bi-person-bounding-box"></i> List of Teachers Accounts</h4>
         <router-link to="/aregisterteacher" title="Add Record" class="btn-gradient d-flex align-items-center">
           <i class="bi bi-clipboard2-plus-fill register me-2"></i> Add Record
         </router-link>
       </div><br>
       <div class="row mb-4 justify-content-end align-items-center">
-        <div class="col-md-4">
+        <div class="col-md-8">
           <div class="input-group">
             <span class="input-group-text">
               <i class="bi bi-search"></i>
             </span>
-            <input type="text" v-model="search" class="form-control" placeholder="Search" />
+            <input type="text" v-model="search" class="form-control custom-select" placeholder="Search" />
           </div>
         </div>
-        <div class="col-md-4 d-flex align-items-center">
-          <label for="userType" class="form-label me-2">SELECT GENDER:</label>
-          <select v-model="selectedGender" class="form-select" id="gender">
-            <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
+        <div class="col-md-2 d-flex align-items-center">
+          <!-- <label for="userType" class="form-label me-2">SELECT GENDER:</label> -->
+          <select v-model="selectedGender" class="form-select custom-select" id="gender">
+       
+            <option v-for="type in gender" :key="type" :value="type">{{ type }} </option>
           </select>
         </div>
-        <div class="col-md-4 d-flex align-items-center">
-          <label for="userStrand" class="form-label me-2">SELECT  POSITION:</label>
-          <select v-model="position_id" id="position" class="form-select" required>
-          <option value="">Select Position</option>
-          <option v-for="position in positions" :key="position.id" :value="position.id">
-            {{ position.teacher_postion }}
-          </option>
-        </select>
+        <div class="col-md-2 d-flex align-items-center">
+          <select v-model="position_id" id="position" class="form-select custom-select" required>
+            <option value="">Filter by Position</option>
+            <option v-for="position in positions" :key="position.id" :value="position.id">
+              {{ position.teacher_postion }}
+            </option>
+          </select>
         </div>
+
         
       </div>
 
@@ -146,8 +147,8 @@ export default {
       search: '',
       showModal: false,
       showPassword: false,
-      selectedGender: 'all', // Default to 'all'
-      gender: ['all', 'male', 'female'],
+      selectedGender: 'Filter By Gender', // Default to 'all'
+      gender: ['Filter By Gender', 'male', 'female'],
       itemsPerPage: 10,
       currentPage: 1,
       serverItems: [],
@@ -167,7 +168,7 @@ export default {
         const fname = item.user.fname ? item.user.fname.toLowerCase() : '';
         const mname = item.user.mname ? item.user.mname.toLowerCase() : '';
         const positionMatches = !this.position_id || item.position.id === this.position_id;
-        const genderMatches = this.selectedGender === 'all' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
+        const genderMatches = this.selectedGender === 'Filter By Gender' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
 
         return (
           positionMatches &&
@@ -451,6 +452,31 @@ h4 {
 .btn-gradient:hover {
   background: linear-gradient(45deg, #0056b3, #0080ff);
 }
+.custom-select {
+  width: 100%; /* Make select full width of its container */
+  padding: 10px 12px; /* Adjust padding for better spacing */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ced4da; /* Light border color */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-size: 16px; /* Font size for better readability */
+  font-family: Arial, sans-serif; /* Font family */
+  color: #495057; /* Text color */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus */
+}
 
+.custom-select:focus {
+  border-color: #007bff; /* Border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Shadow on focus */
+  outline: none; /* Remove default outline */
+}
+
+.custom-select option {
+  padding: 10px; /* Padding inside options */
+}
+
+.custom-select::placeholder {
+  color: #6c757d; /* Placeholder text color */
+}
 
 </style>
