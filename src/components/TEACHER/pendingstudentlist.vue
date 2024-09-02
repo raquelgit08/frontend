@@ -25,30 +25,33 @@
 
   <div class="container-fluid">
     <h4 class="text-center">Students to be accepted</h4><br>
-    <div v-if="students.length">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>ID Number</th>
-            <th>First Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="student in students" :key="student.id">
-            <td>{{ student.idnumber }}</td>
-            <td>{{ student.fname }}</td>
-            <td>{{ student.email }}</td>
-            <td>
-              <button class="btn btn-success" @click="approveStudent(student.id)">Approve</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div v-else>
-      <p>No pending student requests found.</p>
+
+    <!-- Display students in a table format -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID Number</th>
+          <th>First Name</th>
+          <th>Email</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="student in students" :key="student.id">
+          <td>{{ student.idnumber }}</td>
+          <td>{{ student.fname }}</td>
+          <td>{{ student.email }}</td>
+          <td>
+            <button class="btn btn-success" @click="updateStudentStatus(student.id, 1)">Approve</button>
+            <button class="btn btn-danger" @click="updateStudentStatus(student.id, 0)">Decline</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Error message display -->
+    <div v-if="error" class="alert alert-danger">
+      {{ error }}
     </div>
   </div>
 </template>
@@ -71,20 +74,20 @@ export default {
   },
   methods: {
     async fetchStudents() {
-      try {
-        const classId = this.$route.params.class_id;
-        const response = await axios.get(`http://localhost:8000/api/classes/${classId}/students`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        this.students = response.data;
-      } catch (error) {
-        console.error('Error fetching students:', error.response);
-        this.error = error.response?.data?.message || 'Failed to fetch students.';
-        alert(this.error);
+  try {
+    const classId = this.$route.params.class_id; // Ensure class_id is correct
+    const response = await axios.get(`http://localhost:8000/api/classes/${classId}/students/pending`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
-    },
+    });
+    this.students = response.data;
+  } catch (error) {
+    this.error = 'Error fetching students: ' + (error.response ? error.response.data.error : error.message);
+  }
+},
+
+
     async fetchSubject() {
       try {
         const classId = this.$route.params.class_id;
@@ -110,37 +113,34 @@ export default {
         this.subject.semester = response.data.class.semester;
         this.subject.schoolYear = response.data.class.year.addyear;
       } catch (error) {
-        console.error('Error fetching subject:', error);
-        this.error = error.response?.data?.message || 'Failed to fetch subject data. Please try again later.';
-        alert(this.error);
+        this.error = error.response ? error.response.data.message : 'Failed to fetch subject data. Please try again later.';
       }
     },
-    async approveStudent(studentId) {
+    async updateStudentStatus(studentId, status) {
       try {
         const classId = this.$route.params.class_id;
-        await axios.post('http://localhost:8000/api/approveStudentJoinRequest', 
-        {
+        const response = await axios.post('http://localhost:8000/api/approveStudentJoinRequest', {
           class_id: classId,
-          user_id: studentId
+          user_id: studentId,
+          status: status
         }, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        alert('Student approved successfully.');
-        this.fetchStudents(); // Refresh the list after approval
+        alert(response.data.message); // Show success message
+        this.fetchStudents(); // Refresh the student list after action
       } catch (error) {
-        alert('Error approving student: ' + error.message);
+        this.error = 'Error updating student status: ' + (error.response ? error.response.data.error : error.message);
       }
     }
   },
   mounted() {
-    this.fetchStudents();
-    this.fetchSubject();
+    this.fetchStudents(); // Fetch students first when component is mounted
+    this.fetchSubject();  // Fetch subject details as well
   }
 };
 </script>
-
 
 <style scoped>
 /* Main Container */

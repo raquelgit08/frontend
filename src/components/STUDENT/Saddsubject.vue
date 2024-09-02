@@ -3,6 +3,7 @@
     <h3 style="margin-top: 20px;">Enrolled Subjects</h3>
     <button class="bi bi-plus-circle add-button" @click="showModal = true"></button>
 
+    <!-- Modal for Adding Subject -->
     <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-md" role="document">
         <div class="modal-content">
@@ -26,13 +27,14 @@
       </div>
     </div>
 
+    <!-- Displaying Approved Subjects -->
     <div v-if="subjects.length" class="mt-4" style="margin: 20px; align-items: center;">
       <div class="card-container">
-        <div v-for="subject in subjects" :key="subject.id" class="card">
+        <div v-for="subject in subjects" :key="subject.class_id" class="card">
           <img :src="subject.imageUrl || require('@/assets/newlogo.png')" class="card-img" alt="Subject Image" />
           <div class="card-body">
             <h5 class="card-title">{{ subject.subject_name }}</h5>
-            <p class="card-text">{{ subject.teacher_fname }} {{ subject.teacher_lname }}</p>
+            <p class="card-text">{{ subject.class_description }}</p>
           </div>
         </div>
       </div>
@@ -54,7 +56,7 @@ export default {
       genCode: '',
       message: '',
       success: false,
-      subjects: []
+      subjects: [] // Ensure subjects is always an array
     };
   },
   methods: {
@@ -69,19 +71,12 @@ export default {
             }
           }
         );
-        console.log(response.data);
-        this.message = "Pending Subject, waiting for the teacher's approval";
+        this.message = response.data.message;
         this.success = true;
         this.genCode = '';
-        
-        // Keep the modal open for a few seconds to show the message, then close it
-        setTimeout(() => {
-          this.showModal = false;
-        }, 3000);
-        
-        this.fetchSubjects();
+        this.showModal = false;
+        this.fetchSubjects(); // Refresh subjects list after adding a new subject
       } catch (error) {
-        console.error('Error adding subject:', error);
         this.message = error.response ? error.response.data.error : 'An error occurred';
         this.success = false;
       }
@@ -89,21 +84,19 @@ export default {
     async fetchSubjects() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get('http://localhost:8000/api/getStudentClassrooms', {
+        const response = await axios.get('http://localhost:8000/api/getStudentClassroomDetails', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        console.log(response.data);
-        this.subjects = response.data;
+        this.subjects = response.data; // Assuming this returns approved subjects
       } catch (error) {
-        console.error('Error fetching subjects:', error);
         this.subjects = [];
       }
     }
   },
   created() {
-    this.fetchSubjects();
+    this.fetchSubjects(); // Fetch subjects when the component is created
   }
 };
 </script>
