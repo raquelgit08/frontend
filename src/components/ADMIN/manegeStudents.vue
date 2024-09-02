@@ -1,38 +1,39 @@
 <template>
   <div>
     <div class="container-fluid">
-      <h4 class="">Student Users </h4>
+        <div class="d-flex align-items-center justify-content-between">
+        <h4><i class="bi bi-person-fill"></i> List of Students Accounts</h4>
+        <router-link to="/aregisterstudent" title="Add Record" class="btn-gradient d-flex align-items-center">
+          <i class="bi bi-clipboard2-plus-fill register me-2"></i> Add Record
+        </router-link>
+      </div><br>
       <div class="row mb-4 justify-content-end align-items-center">
-        <div class="col-md-4 d-flex align-items-center">
-          <label for="userType" class="form-label me-2">SELECT GENDER:</label>
-          <select v-model="selectedGender" class="form-select" id="gender">
-            <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
-          </select>
-        </div>
-        <div class="col-md-4 d-flex align-items-center">
-          <label for="userStrand" class="form-label me-2">SELECT STRAND:</label>
-          <select v-model="selectedStrand" class="form-select" id="userStrand">
-          <option value="">All Strands</option>
-          <option v-for="strand in strands" :key="strand.id" :value="strand.id">
-            {{ strand.label }}
-
-          </option>
-        </select>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-7">
           <div class="input-group">
             <span class="input-group-text">
               <i class="bi bi-search"></i>
             </span>
-            <input type="text" v-model="search" class="form-control" placeholder="Search" />
-            <router-link to="/aregisterstudent" title="Add Record">
-              <i class="bi bi-clipboard2-plus-fill register"></i>
-            </router-link>
+            <input type="text" v-model="search"  class="form-control custom-select"  placeholder="Search" />
           </div>
         </div>
+        <div class="col-md-2 d-flex align-items-center">
+          <select v-model="selectedGender"  class="form-control custom-select"  id="gender">
+            <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+          <select v-model="selectedStrand"  class="form-control custom-select"  id="userStrand">
+          <option value="">All Strands</option>
+          <option v-for="strand in strands" :key="strand.id" :value="strand.id">
+            {{ strand.label }}
+          </option>
+        </select>
+        </div>
+        
       </div>
 
-      <table class="table table-hover">
+      <div class="table-wrapper">
+        <table class="table table-hover table-custom">
         <thead class="table-info">
           <tr>
             <th scope="col" class="text-center">No.</th>
@@ -46,7 +47,7 @@
         <tbody>
           <tr v-for="(students, index) in paginatedItems" :key="students.idnumber">
             <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-            <td>{{ students.user.idnumber }}</td>
+            <td><b>{{ students.user.idnumber }}</b></td>
             <td class="text-center">
               <b>{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</b> <br>
               <i>{{ students.user.email }}</i><br>
@@ -64,7 +65,7 @@
 
                 </span>
                 <span class="icon-box edit-box">
-                  <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
+                  <i class="bi bi-pencil-square custom-icon" @click="openModal(students)"></i>
                 </span>
                
               </div>
@@ -72,15 +73,20 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <div class="row mb-4">
-        <div class="col-md-2">
-          <h6 class="text-center">Male : {{ maleCountPerPage }}</h6>
+        <div class="col-md-2 d-flex align-items-center">
+          <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
+           <h6 >Male : {{ maleCountPerPage }}</h6>
         </div>
-        <div class="col-md-2">
-          <h6 class="text-center">Female : {{ femaleCountPerPage }}</h6>
+
+        <div class="col-md-3 d-flex align-items-center">
+          <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
+          <h6>Female : {{ femaleCountPerPage }}</h6>
         </div>
-        <div class="col-md-8">
+
+        <div class="col-md-7">
           <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
               <li class="page-item" :class="{ disabled: currentPage === 1 }">
@@ -148,37 +154,37 @@
               <div class="row mb-3">
               <div class="col-md-6">
                 <label for="idnumber" class="form-label">ID NUMBER:</label>
-                <input type="idnumber" id="idnumber" v-model="currentUser.idnumber" class="form-control" >
+                <input type="idnumber" id="idnumber" v-model="formData.idnumber" class="form-control" >
               </div>
               <div class="col-md-6">
                 <label for="email" class="form-label">Email Address:</label>
-                <input type="email" id="email" v-model="currentUser.email" class="form-control" >
+                <input type="email" id="email" v-model="formData.email" class="form-control" >
               </div>
             </div>
 
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="lname" class="form-label">Last Name:</label>
-                  <input type="text" id="lname" v-model="currentUser.lname" class="form-control" >
+                  <input type="text" id="lname" v-model="formData.lname" class="form-control" >
                 </div>
                 <div class="col-md-4">
                   <label for="fname" class="form-label">First Name:</label>
-                  <input type="text" id="fname" v-model="currentUser.fname" class="form-control" >
+                  <input type="text" id="fname" v-model="formData.fname" class="form-control" >
                 </div>
                 <div class="col-md-4">
                   <label for="mname" class="form-label">Middle Name:</label>
-                  <input type="text" id="mname" v-model="currentUser.mname" class="form-control" >
+                <input type="text" id="mname" v-model="formData.mname" class="form-control" >
                 </div>
             </div>
             <div class="row mb-3">
               <div class="col-md-4">
                 <label class="form-label d-block">Gender:</label>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="currentUser.sex">
+                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="formData.sex">
                   <label class="form-check-label" for="male">Male</label>
                 </div>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="currentUser.sex">
+                <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="formData.sex">
                   <label class="form-check-label" for="female">Female</label>
                 </div>
               </div>
@@ -200,6 +206,10 @@
                   </option>
                 </select>
               </div>
+              <div class="col-md-5">
+          <label for="Mobile_no" class="form-label">Mobile Number:</label>
+          <input v-model="formData.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
+        </div>
             </div>    
           </form>
 
@@ -227,8 +237,8 @@ export default {
       selectedStrand: '',
   
       selectedUserId: null, // ID of the user to update
-      selectedGender: 'all',
-      gender: ['all', 'male', 'female'],
+      selectedGender: 'Filter By Gender',
+      gender: ['Filter By Gender', 'male', 'female'],
       showModal: false,
       showResetModal: false,
       form: {
@@ -238,9 +248,7 @@ export default {
       itemsPerPage: 10,
       currentPage: 1,
       serverItems: [],
-      currentUser: {
-        idnumber:''
-      }, 
+      currentUser: {}, 
       // Holds the user data being edited
       formData: {
         idnumber: '',
@@ -269,7 +277,7 @@ export default {
         const fname = item.user.fname ? item.user.fname.toLowerCase() : '';
         const mname = item.user.mname ? item.user.mname.toLowerCase() : '';
         const strandMatches = !this.selectedStrand || item.strands.id === this.selectedStrand;
-        const genderMatches = this.selectedGender === 'all' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
+        const genderMatches = this.selectedGender === 'Filter By Gender' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
         return (
           strandMatches &&
           genderMatches &&
@@ -320,23 +328,25 @@ export default {
         console.error('User object is undefined or missing the id property.');
       }
     },
-
     async saveChanges() {
-      try {
-        await axios.put(`http://localhost:8000/api/users/${this.currentUser.id}`, this.currentUser, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        alert('Changes saved successfully');
-        this.showModal = false;
-        this.fetchStudents();
-      } catch (error) {
-        alert('Error saving changes: ' + (error.response ? error.response.data : error.message));
+   // Example Axios PUT request
+    axios.put(`http://localhost:8000/api/updateStudent/${this.currentUser.id}`, this.currentUser, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
       }
-    },
-    
+    })
+    .then(response => {
+      console.log(response.data.message);
+    })
+    .catch(error => {
+      console.error('Error saving changes:', error.response ? error.response.data : error.message);
+    });
+
+  },
+
+
+
     async fetchStudents() {
       try {
         const response = await axios.get('http://localhost:8000/api/viewAllStudents2', {
@@ -345,6 +355,8 @@ export default {
           }
         });
         this.serverItems = response.data.students;
+        this.strands = response.data.strands; // Assuming strands are also fetched here
+        this.sections = response.data.sections; 
       } catch (error) {
         alert('Error fetching students: ' + error.message);
       }
@@ -450,25 +462,86 @@ export default {
 
 <style scoped>
 .container-fluid {
-  margin-top: 10px;
- 
+  background-color: #ffffff;
+  border-radius: 10px;
 }
+
 tbody{
   font-size: 15px;
-
 }
 
 h4 {
   color: rgb(6, 0, 0);
   padding: 10px;
-  font-family: 'Georgia', serif;
- 
+  padding-top: 20px;
+
+}
+.lalaki, .babae{
+  font-size: 20px;
+  padding-left: 50px;
+  padding-right: 12px;
+}
+.lalaki {
+  color: blue;
+}
+.babae {
+  color: red;
+}
+.icon-container {
+  display: flex;
+  gap: 10px; /* Space between the boxes */
+}
+
+.icon-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+/* Table Wrapper */
+.table-wrapper {
+  margin: 0 auto;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
+  
+}
+
+/* Table Styles */
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  border: 1px solid #200909;
+  overflow: hidden;
+}
+
+.table-custom th {
+  background-color: #0d8eead7;
+  color: #000000;
+  font-weight: 700;
+}
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
 }
 
 .custom-icon {
   cursor: pointer;
   color: rgb(255, 255, 255);
-  font-size: 18px;
+  font-size: 22px;
+  
 }
 
 .icon-container {
@@ -476,8 +549,9 @@ h4 {
   gap: 10px; /* Space between the boxes */
 }
 .register{
-  font-size: 30px; padding-left: 20px;
-  color: #495057;
+  font-size: 20px;
+  color: #ffffff;
+
 
 }
 .icon-box {
@@ -490,15 +564,15 @@ h4 {
   cursor: pointer;
 }
 .reset-box {
-  background-color: #a8d908; 
+  background-color: #efd305; 
   color: white; /* White icon color */
+  width: 40px;
 }
 .edit-box {
   background-color: #0f64dc; 
   color: white; /* White icon color */
+  width: 40px;
 }
-
-
 
 .form-select {
   width: 200px;
@@ -562,4 +636,51 @@ h4 {
 .btn-primary:hover {
   background-color: #1E90FF; /* Dodger blue on hover */
 }
+.btn {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  height: 30px;
+}
+/* Button Styles */
+.btn-gradient {
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  color: #120808;
+  font-size: 17px;
+  transition: background 0.3s ease;
+  border-radius: 5px ;
+  margin: 20px;
+  padding: 5px;
+  width: 170px;
+  text-align: center;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0056b3, #0080ff);
+}
+.custom-select {
+  width: 100%; /* Make select full width of its container */
+  padding: 10px 12px; /* Adjust padding for better spacing */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ced4da; /* Light border color */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-size: 16px; /* Font size for better readability */
+  font-family: Arial, sans-serif; /* Font family */
+  color: #495057; /* Text color */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus */
+}
+
+.custom-select:focus {
+  border-color: #007bff; /* Border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Shadow on focus */
+  outline: none; /* Remove default outline */
+}
+
+.custom-select option {
+  padding: 10px; /* Padding inside options */
+}
+
+.custom-select::placeholder {
+  color: #6c757d; /* Placeholder text color */
+}
+
 </style>
