@@ -37,13 +37,9 @@
           <tr>
             <th scope="col" class="text-center">No.</th>
             <th scope="col" class="text-center">LRN</th>
-            <th scope="col" class="text-center">Name</th>
+            <th scope="col" class="text-center">Students Profile</th>
             <th scope="col" class="text-center">Sex</th>
-            <th scope="col" class="text-center">Email</th>
-            <th scope="col" class="text-center">Strand </th>
-            <th scope="col" class="text-center">Section</th>
-            <th scope="col" class="text-center">Date Registered</th>
-            <th scope="col" class="text-center">Date Modified</th>
+            <th scope="col" class="text-center">Date </th>
             <th scope="col" class="text-center">Actions</th>
           </tr>
         </thead>
@@ -51,13 +47,16 @@
           <tr v-for="(students, index) in paginatedItems" :key="students.idnumber">
             <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
             <td>{{ students.user.idnumber }}</td>
-            <td class="text-center">{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</td>
+            <td class="text-center">
+              <b>{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</b> <br>
+              <i>{{ students.user.email }}</i><br>
+              {{ students.strands.addstrand }} {{ students.strands.grade_level }} - {{ students.section.section }}
+            </td>
             <td class="text-center">{{ students.user.sex }}</td>
-            <td class="text-center">{{ students.user.email }}</td>
-            <td class="text-center">{{ students.strands.addstrand }} {{ students.strands.grade_level }}</td>
-            <td class="text-center">{{ students.section.section }}</td>
-            <td class="text-center">{{ formatDate(students.created_at) }}</td>
-            <td class="text-center">{{ formatDate(students.updated_at) }}</td>
+            <td class="text-center">
+              <b>Registered :</b>{{ formatDate(students.created_at) }}<br>
+              <b>Modified :</b>{{ formatDate(students.updated_at) }}
+            </td>
             <td class="text-center">
               <div class="icon-container">
                 <span class="icon-box reset-box">
@@ -340,7 +339,7 @@ export default {
     
     async fetchStudents() {
       try {
-        const response = await axios.get('http://localhost:8000/api/viewAllStudents', {
+        const response = await axios.get('http://localhost:8000/api/viewAllStudents2', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }

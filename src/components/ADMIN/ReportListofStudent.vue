@@ -107,7 +107,7 @@ export default {
   methods: {
     async fetchStudents() {
       try {
-        const response = await axios.get('http://localhost:8000/api/viewAllStudents', {
+        const response = await axios.get('http://localhost:8000/api/viewAllStudents2', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
