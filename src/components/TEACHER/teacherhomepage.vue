@@ -108,6 +108,7 @@ export default {
       items: [
         { path: '/teacherdashboard', label: 'Dashboard', icon: 'bi bi-bar-chart-fill fs-4' },
         { path: '/teacheraddsubject', label: 'Class Creation', icon: 'bi bi-file-earmark-plus-fill fs-4' },
+        { path: '/displayExam', label: 'Display Exam',icon: 'bi bi-file-earmark-plus-fill fs-4' },
     //    { path: '/teacherlistofsubject', label: 'List of Subjects', icon: 'bi bi-file-earmark-fill fs-4' },
     //    { path: '/managesubject', label: 'Manage Subject Details', icon: 'bi bi-gear-fill fs-4' },
      //   { path: '/subjectspage', label: 'Subject Page', icon: 'bi bi-gear-fill fs-4' },
