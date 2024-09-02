@@ -315,7 +315,7 @@ export default {
       }
     },
     async addClass() {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token'); 
       const formData = new FormData();
       formData.append('curiculum_id', this.newClass.curiculum_id);
       formData.append('strand_id', this.newClass.strand_id);

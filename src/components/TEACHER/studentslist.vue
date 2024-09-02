@@ -68,9 +68,13 @@ export default {
   methods: {
     async fetchStudents() {
       try {
-        const response = await axios.get('http://localhost:8000/api/viewAllStudents', {
+        const classId = this.$route.params.class_id; // Get class_id from route params
+        const response = await axios.get(`http://localhost:8000/api/viewAllStudents`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
+          },
+          params: {
+            class_id: classId
           }
         });
         this.students = response.data.students;
@@ -121,9 +125,13 @@ export default {
     async kickStudent(studentId) {
       if (confirm('Are you sure you want to remove this student from the class?')) {
         try {
+          const classId = this.$route.params.class_id; // Get class_id from route params
           await axios.delete(`http://localhost:8000/api/students/${studentId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
+            },
+            params: {
+              class_id: classId
             }
           });
           alert('Student removed successfully');
