@@ -263,6 +263,7 @@ export default {
         strand_id: '',
         Mobile_no: '',
       },
+      
       sections: [],
       strands: [],
       filteredSections: [],
@@ -344,8 +345,6 @@ export default {
     });
 
   },
-
-
 
     async fetchStudents() {
       try {
