@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <h1>My Classes</h1>
+  <div class="container-fluid">
+    <div class="header-container">
+      <h3><i class="bi bi-easel-fill"></i> My Classes</h3>
+    </div>
     <div class="row">
       <!-- Display classes fetched from the backend -->
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
@@ -409,6 +411,17 @@ export default {
 
 
 <style scoped>
+  .container-fluid {
+    background-color: #ffffff;
+    border-radius: 10px;
+  }
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+    padding-top: 20px;
+  }
 .add-class-card {
   cursor: pointer;
   border: 2px dashed #ccc;
