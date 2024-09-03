@@ -14,11 +14,15 @@
             <div class="popover-arrow"></div>
             <div v-if="isLoggedIn">
               <div v-if="userProfile">
-                <div class="popover-body">
-                  <p>ID number: {{ userProfile.idnumber }}</p>
-                  <p>NAME: {{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }}</p>
+                <div class="popover-body"><center>
+                  <a>OFFICIAL ADMINISTRATOR</a><br>
+                  <a>ID number: {{ userProfile.idnumber }}</a><br>
+                  <a><b>{{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }} </b></a><br>
+                  <a><i>{{ userProfile.email }} </i></a> <br>
+                  <a><b>ENHS - SHS</b></a><br>
+                  <a>San Fabian, Echague, Isabela</a></center>
                 </div>
-                <button class="btn btn-danger btn-sm mt-2" @click="handleLogout">Log Out</button>
+                <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button>
               </div>
               <div v-else>
                 <p>Loading user profile...</p>
@@ -40,14 +44,7 @@
 
         <!-- Dashboard Section -->
         <h5 class="sidebar-section-label">Dashboard</h5>
-        <router-link
-          v-for="(item, index) in items.filter(i => i.section === 'dashboard')"
-          :key="index"
-          :to="item.path"
-          class="list-group"
-          :class="{ active: selectedItem === item.path }"
-          @click="handleItemClick(item.path)"
-        >
+        <router-link v-for="(item, index) in items.filter(i => i.section === 'dashboard')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }"  @click="handleItemClick(item.path)">
           <span class="icon-label">
             <i :class="item.icon"></i>
             <span class="label">{{ item.label }}</span>
@@ -127,19 +124,19 @@ export default {
       selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
       items: [
         // Dashboard Section
-        { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-house-door-fill', section: 'dashboard' },
+        { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-speedometer2', section: 'dashboard' },
 
         // Manage Section
         { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-calendar-month-fill', section: 'manage' },
-        { path: '/ManageStrandsinSHS', label: 'Manage Strand', icon: 'bi bi-calendar-month-fill', section: 'manage' },
-        { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder-symlink-fill', section: 'manage' },
-        { path: '/AManageSubject', label: 'Manage Subjects', icon: 'bi bi-house-door-fill', section: 'manage' },
-        { path: '/AManagePosition', label: 'Manage Position', icon: 'bi bi-house-door-fill', section: 'manage' },
-        { path: '/ManageCuricculuminSHS', label: 'Manage Curriculum', icon: 'bi bi-house-door-fill', section: 'manage' },
+        { path: '/ManageStrandsinSHS', label: 'Manage Strand', icon: 'bi-book-half', section: 'manage' },
+        { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder2-open', section: 'manage' },
+        { path: '/AManageSubject', label: 'Manage Subjects', icon: 'bi bi-file-earmark-text-fill', section: 'manage' },
+        { path: '/AManagePosition', label: 'Manage Position', icon: 'bi bi-file-person', section: 'manage' },
+        { path: '/ManageCuricculuminSHS', label: 'Manage Curriculum', icon: 'bi bi-grid-fill', section: 'manage' },
 
         // Report Section
-        { path: '/ReportListofStudent', label: 'List of Student', icon: 'bi bi-house-door-fill', section: 'report' },
-        { path: '/ReportListofTeacher', label: 'List of Teacher', icon: 'bi bi-house-door-fill', section: 'report' },
+        { path: '/ReportListofStudent', label: 'List of Student', icon: 'bi bi-person-fill', section: 'report' },
+        { path: '/ReportListofTeacher', label: 'List of Teacher', icon: 'bi bi-person-lines-fill', section: 'report' },
       ],
     };
   },
@@ -326,7 +323,7 @@ h2 {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 250px;
   top: 50px;
-  left: -170px;
+  left: -200px;
   opacity: 0;
   font-size: 16px;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -370,9 +367,10 @@ h2 {
 
 .logOut {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 500;
-  margin-top: 10px;
+  width: 220px;
+  margin: 10px;
   cursor: pointer;
 }
 

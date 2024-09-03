@@ -60,32 +60,32 @@
         </div>
 
         <div class="row mb-4">
-        <div class="col-md-2 d-flex align-items-center">
-          <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
-           <h6 >Male : {{ maleCountPerPage }}</h6>
-        </div>
+          <div class="col-md-2 d-flex align-items-center">
+            <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
+            <h6 >Male : {{ maleCountPerPage }}</h6>
+          </div>
 
-        <div class="col-md-3 d-flex align-items-center">
-          <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
-          <h6>Female : {{ femaleCountPerPage }}</h6>
-        </div>
+          <div class="col-md-3 d-flex align-items-center">
+            <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
+            <h6>Female : {{ femaleCountPerPage }}</h6>
+          </div>
 
-        <div class="col-md-7">
-          <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-              <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
-              </li>
-              <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
-                <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-              </li>
-              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
-              </li>
-            </ul>
-          </nav>
+          <div class="col-md-7">
+            <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                  <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+                </li>
+                <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
+                  <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                  <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
-      </div>
 
         <!-- Add a button to generate the report -->
         <div class="row ">
@@ -265,7 +265,7 @@ export default {
 };
 </script>
 
-  <style scoped>
+<style scoped>
   .container-fluid {
     background-color: #ffffff;
     border-radius: 10px;
@@ -274,28 +274,28 @@ export default {
     font-size: 15px;
   }
   .header-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 30px;
-  margin-bottom: 10px;
-}
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px;
+    margin-bottom: 10px;
+  }
 
-.text-center {
-  margin: 0;
-  text-align: center;
-  flex: 1;
-}
-.enhslogo{
-  margin-left: 120px;
-}
-.depedlogo{
-  margin-right: 90px;
-}
-.enhslogo , .depedlogo {
-  width: 100px; /* Adjust size as needed */
-  height: auto;
-}
+  .text-center {
+    margin: 0;
+    text-align: center;
+    flex: 1;
+  }
+  .enhslogo{
+    margin-left: 120px;
+  }
+  .depedlogo{
+    margin-right: 90px;
+  }
+  .enhslogo , .depedlogo {
+    width: 100px; /* Adjust size as needed */
+    height: auto;
+  }
   .form-select {
     width: 200px;
   }
