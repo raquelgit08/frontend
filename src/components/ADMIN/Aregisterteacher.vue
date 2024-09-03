@@ -1,8 +1,9 @@
 <template>
   <div class="container-fluid">
-    <h4 >
-      Register New Teacher
-    </h4>
+    <div class="header-container">
+      <h3><i class="bi bi-person-lines-fill"></i>
+        Register New Teacher's Account </h3>
+    </div>
     <div class="register-form">
       <div class="row mb-3 Row">
         <div class="col-md-3">
@@ -82,7 +83,7 @@
       
 
       <div class="text-center mt-4">
-        <button type="button" class="btn" @click="addUser">
+        <button type="button" class="btn-gradient" @click="addUser">
           <i class="bi bi-person-plus-fill"></i>
           <span class="ms-2"><b>Add User</b></span>
         </button>
@@ -108,8 +109,8 @@
               <p ><strong>Position:</strong>{{ formData.position_id}}</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" @click="closeModal">Cancel</button>
-            <button type="button" class="btn-primary" @click="saveUser">Register Now</button>
+            <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
+            <button type="button" class="btn btn-primary" @click="saveUser">Register Now</button>
           </div>
         </div>
       </div>
@@ -256,6 +257,12 @@ export default {
    
 
 <style scoped>
+.container-fluid {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 .register-container {
   padding: 20px;
   background-color: #f8f9fab1;
@@ -263,21 +270,23 @@ export default {
   margin: 20px auto;
 }
 
-h4 {
-  color: rgb(6, 0, 0);
-  padding: 10px;
-  font-family: 'Georgia', serif;
-  margin-bottom: 20px;
-}
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+    padding-top: 20px;
 
+  }
 
 .register-form {
   padding: 20px;
 }
 
 .form-label {
-  font-family: 'Georgia', serif;
-  color: #343a40;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #05080b;
+  font-weight: 500;
 }
 .modal-content{
   padding: 20px;
@@ -295,43 +304,21 @@ h4 {
   border-radius: 4px;
   margin-bottom: 20px;
 }
-.btn-secondary{
-  background-color: #7a7f7c;
-  border: 2px solid #030503;
-  color: rgb(27, 12, 12);
-  font-family: 'Georgia', serif;
-  padding: 5px ;
-  font-size: 18px;
-  border-radius: 5px;
-  width: 90px;
+.btn-gradient {
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  color: #120808;
+  transition: background 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px ;
+  margin: 20px;
+  padding: 5px;
+  width: 300px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
 }
-.btn-primary{
-  background-color: #031495;
-  border: 2px solid #030503;
-  color: rgb(255, 255, 255);
-  font-family: 'Georgia', serif;
-  padding: 5px ;
-  font-size: 18px;
-  border-radius: 5px;
-  width: 180px;
-}
-
-
-.btn {
-  background-color: #1d3ca1;
-  border: 2px solid #035c72;
-  color: rgb(5, 1, 1);
-  font-family: 'Georgia', serif;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
-  width: 30%;
-}
-
-.btn:hover {
-  background-color: #3b53be;
-  border-color: #02070c;
-  color: white;
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0056b3, #0080ff);
 }
 
 .text-center {
