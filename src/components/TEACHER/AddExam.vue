@@ -181,8 +181,10 @@
         <p><strong>End:</strong> {{ examDetails.end }}</p>
         <p><strong>Total Questions:</strong> {{ examDetails.total_questions }}</p>
         <p><strong>Total Points:</strong> {{ examDetails.total_points }}</p>
-        <button @click="publishExam" class="btn btn-success">Publish Exam</button>
-        <router-link :to="`/viewexam/${exam_id}`" class="btn btn-primary">View Exam</router-link>
+
+        <!-- View Exam Button -->
+        <button @click="goToViewExam" class="btn btn-primary">View Exam</button>
+
       </div>
     </div>
   </div>
@@ -357,10 +359,21 @@ export default {
         this.error = 'Failed to publish exam. Please try again.';
       }
     },
+    methods: {
+      goToViewExam() {
+    this.$router.push({
+      name: 'ViewExam',
+      params: {
+        class_id: this.$route.params.class_id,
+        exam_id: this.examId,
+      },
+    });
+  },
+}
+
   },
 };
 </script>
-
 
 <style scoped>
 /* Main Container */
