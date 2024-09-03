@@ -22,157 +22,167 @@
         <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
         <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
         <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
-        <router-link :to="`/displayExam/${$route.params.exam_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
       </nav>
     </div>
 
-    <!-- Error Message -->
-    <div v-if="error" class="alert alert-danger">
-      {{ error }}
-    </div>
+    <!-- Add Exam Button -->
+    <button @click="openExamModal" class="btn btn-primary mb-3">Add Exam</button>
 
-    <!-- Exam Creation Form -->
-    <form @submit.prevent="submitExam">
-      <!-- Exam Title -->
-      <div class="mb-3">
-        <label for="exam-title" class="form-label">Exam Title</label>
-        <input
-          type="text"
-          id="exam-title"
-          v-model="examTitle"
-          class="form-control"
-          required
-        />
-      </div>
-
-      <!-- Quarter Selection -->
-      <div class="mb-3">
-        <label for="quarter" class="form-label">Quarter</label>
-        <select id="quarter" v-model="selectedQuarter" class="form-select">
-          <option value="1st Quarter">1st Quarter</option>
-          <option value="2nd Quarter">2nd Quarter</option>
-          <option value="3rd Quarter">3rd Quarter</option>
-          <option value="4th Quarter">4th Quarter</option>
-        </select>
-      </div>
-
-      <!-- Start and End Time -->
-      <div class="mb-3 d-flex">
-        <div class="me-3 flex-grow-1">
-          <label for="start-date" class="form-label">Start Date & Time</label>
-          <input
-            type="datetime-local"
-            id="start-date"
-            v-model="startDateTime"
-            class="form-control"
-            required
-          />
-        </div>
-        <div class="flex-grow-1">
-          <label for="end-date" class="form-label">End Date & Time</label>
-          <input
-            type="datetime-local"
-            id="end-date"
-            v-model="endDateTime"
-            class="form-control"
-            required
-          />
-        </div>
-      </div>
-
-      <!-- Questions Section -->
-      <div v-for="(question, index) in questions" :key="index" class="mb-3">
-        <h5>Question {{ index + 1 }}</h5>
-        <div class="mb-3">
-          <label class="form-label">Question Type</label>
-          <select v-model="question.type" class="form-select" @change="changeQuestionType(index, question.type)">
-            <option value="multiple-choice">Multiple Choice</option>
-            <option value="true-false">True or False</option>
-            <option value="identification">Identification</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Question</label>
-          <input
-            type="text"
-            v-model="question.question"
-            class="form-control"
-            required
-          />
-        </div>
-
-        <!-- Options for Multiple Choice -->
-        <div v-if="question.type === 'multiple-choice'" class="mb-3">
-          <label class="form-label">Options</label>
-          <div v-for="(option, idx) in question.options" :key="idx" class="d-flex mb-2">
-            <input
-              type="text"
-              v-model="question.options[idx]"
-              class="form-control me-2"
-              placeholder="Option"
-              required
-            />
-            <button @click="removeOption(index, idx)" class="btn btn-danger">X</button>
-          </div>
-          <button @click="addOption(index)" class="btn btn-secondary">Add Option</button>
-        </div>
-
-        <!-- Correct Answer -->
-        <div class="mb-3">
-          <label class="form-label">Correct Answer</label>
-          <input
-            v-if="question.type !== 'multiple-choice'"
-            type="text"
-            v-model="question.correctAnswer"
-            class="form-control"
-            required
-          />
-          <select v-else v-model="question.correctAnswer" class="form-select">
-            <option v-for="(option, idx) in question.options" :key="idx" :value="option">
-              {{ option }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Points -->
-        <div class="mb-3">
-          <label class="form-label">Points</label>
-          <input
-            type="number"
-            v-model="question.points"
-            class="form-control"
-            min="1"
-            required
-          />
-        </div>
-
-        <!-- Remove Question -->
-        <button @click="removeQuestion(index)" class="btn btn-danger">Remove Question</button>
-      </div>
-
-      <!-- Add New Question Button -->
-      <button @click="addQuestion" class="btn btn-secondary">Add New Question</button>
-
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-primary mt-4">Create Exam</button>
-    </form>
-
-    <!-- Modal for Success Message -->
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+    <!-- Modal for Exam Creation -->
+    <div class="modal fade" id="examModal" tabindex="-1" aria-labelledby="examModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="successModalLabel">Exam Created Successfully</h5>
+            <h5 class="modal-title" id="examModalLabel">Create Exam</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            Your exam has been created successfully!
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" @click="redirectToExams">View Exams</button>
+            <form @submit.prevent="submitExam">
+              <!-- Exam Title -->
+              <div class="mb-3">
+                <label for="exam-title" class="form-label">Exam Title</label>
+                <input
+                  type="text"
+                  id="exam-title"
+                  v-model="examTitle"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <!-- Quarter Selection -->
+              <div class="mb-3">
+                <label for="quarter" class="form-label">Quarter</label>
+                <select id="quarter" v-model="selectedQuarter" class="form-select">
+                  <option value="1st Quarter">1st Quarter</option>
+                  <option value="2nd Quarter">2nd Quarter</option>
+                  <option value="3rd Quarter">3rd Quarter</option>
+                  <option value="4th Quarter">4th Quarter</option>
+                </select>
+              </div>
+
+              <!-- Start and End Time -->
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="start-date" class="form-label">Start Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    id="start-date"
+                    v-model="startDateTime"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col">
+                  <label for="end-date" class="form-label">End Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    id="end-date"
+                    v-model="endDateTime"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Questions Section -->
+              <div v-for="(question, index) in questions" :key="index" class="question-card mb-4">
+                <h5 class="question-title">Question {{ index + 1 }}</h5>
+
+                <div class="mb-3">
+                  <label class="form-label">Question Type</label>
+                  <select v-model="question.type" class="form-select" @change="changeQuestionType(index, question.type)">
+                    <option value="multiple-choice">Multiple Choice</option>
+                    <option value="true-false">True or False</option>
+                    <option value="identification">Identification</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Question</label>
+                  <input
+                    type="text"
+                    v-model="question.question"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <!-- Options for Multiple Choice -->
+                <div v-if="question.type === 'multiple-choice'" class="mb-3">
+                  <label class="form-label">Options</label>
+                  <div v-for="(option, idx) in question.options" :key="idx" class="d-flex align-items-center mb-2">
+                    <input
+                      type="text"
+                      v-model="question.options[idx]"
+                      class="form-control me-2"
+                      placeholder="Option"
+                      required
+                    />
+                    <button @click="removeOption(index, idx)" type="button" class="btn btn-danger btn-sm">X</button>
+                  </div>
+                  <button @click="addOption(index)" type="button" class="btn btn-secondary btn-sm">Add Option</button>
+                </div>
+
+                <!-- Correct Answer -->
+                <div class="mb-3">
+                  <label class="form-label">Correct Answer</label>
+                  <input
+                    v-if="question.type !== 'multiple-choice'"
+                    type="text"
+                    v-model="question.correctAnswer"
+                    class="form-control"
+                    required
+                  />
+                  <select v-else v-model="question.correctAnswer" class="form-select">
+                    <option v-for="(option, idx) in question.options" :key="idx" :value="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Points -->
+                <div class="mb-3">
+                  <label class="form-label">Points</label>
+                  <input
+                    type="number"
+                    v-model="question.points"
+                    class="form-control"
+                    min="1"
+                    required
+                  />
+                </div>
+
+                <!-- Button Alignment for Options and Remove Question -->
+                <div class="d-flex justify-content-between mt-3">
+                  <button @click="removeQuestion(index)" type="button" class="btn btn-danger btn-sm">Remove Question</button>
+                </div>
+              </div>
+
+              <!-- Buttons Alignment: Add New Question Left, Submit Right -->
+              <div class="d-flex justify-content-between mt-4">
+                <button @click="addQuestion" type="button" class="btn btn-secondary">Add New Question</button>
+                <button type="submit" class="btn btn-primary">Create Exam</button>
+              </div>
+            </form>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Display Exam Card After Creation -->
+    <div v-if="examDetails" class="card mt-4">
+      <div class="card-header">
+        <h4>{{ examDetails.title }}</h4>
+      </div>
+      <div class="card-body">
+        <p><strong>Quarter:</strong> {{ examDetails.quarter }}</p>
+        <p><strong>Start:</strong> {{ examDetails.start }}</p>
+        <p><strong>End:</strong> {{ examDetails.end }}</p>
+        <p><strong>Total Questions:</strong> {{ examDetails.total_questions }}</p>
+        <p><strong>Total Points:</strong> {{ examDetails.total_points }}</p>
+        <button @click="publishExam" class="btn btn-success">Publish Exam</button>
+        <router-link :to="`/viewexam/${exam_id}`" class="btn btn-primary">View Exam</router-link>
       </div>
     </div>
   </div>
@@ -191,11 +201,14 @@ export default {
       endDateTime: '',
       questions: [],
       error: '',
-      subject: {}, // Subject data
+      subject: {},
+      examId: null,
+      examDetails: null,
     };
   },
   created() {
     this.fetchSubjectInfo();
+    this.loadExamFromLocalStorage(); // Load exam data from local storage on component creation
   },
   methods: {
     async fetchSubjectInfo() {
@@ -210,14 +223,9 @@ export default {
 
         const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
-
-        if (!response.data.class || !response.data.class.subject.subjectname) {
-          this.error = 'Class not found or you are not authorized to view this class.';
-          return;
-        }
 
         this.subject.subjectName = response.data.class.subject.subjectname;
         this.subject.semester = response.data.class.semester;
@@ -226,33 +234,31 @@ export default {
         this.error = error.response ? error.response.data.message : 'Failed to fetch subject data. Please try again later.';
       }
     },
+    openExamModal() {
+      const modalElement = document.getElementById('examModal');
+      const examModal = new Modal(modalElement);
+      examModal.show();
+    },
     addQuestion() {
       const newQuestion = {
-        type: 'multiple-choice', // Default type is multiple-choice
+        type: 'multiple-choice',
         question: '',
         correctAnswer: '',
         points: 1,
+        options: ['', '', '', ''],
       };
 
-      // Initialize options only if the question type is multiple-choice
-      if (newQuestion.type === 'multiple-choice') {
-        newQuestion.options = ['', '', '', '']; // Default options for multiple-choice
-      }
-
-      // Push the new question to the questions array
       this.questions.push(newQuestion);
     },
     changeQuestionType(index, type) {
-      // Change the type of the question
       this.questions[index].type = type;
 
-      // Reset question data based on type
       if (type === 'multiple-choice') {
-        this.questions[index].options = ['', '', '', '']; // Initialize with 4 empty options
-        this.questions[index].correctAnswer = ''; // Reset correct answer
+        this.questions[index].options = ['', '', '', ''];
+        this.questions[index].correctAnswer = '';
       } else {
-        delete this.questions[index].options; // Remove options for non-multiple-choice types
-        this.questions[index].correctAnswer = ''; // Reset correct answer
+        delete this.questions[index].options;
+        this.questions[index].correctAnswer = '';
       }
     },
     removeQuestion(index) {
@@ -266,7 +272,22 @@ export default {
     },
     formatDateTime(dateTime) {
       const [date, time] = dateTime.split('T');
-      return `${date} ${time}:00`; // Adds ":00" for seconds
+      return `${date} ${time}:00`;
+    },
+    saveExamToLocalStorage() {
+      const examData = {
+        examId: this.examId,
+        examDetails: this.examDetails,
+      };
+      localStorage.setItem('examData', JSON.stringify(examData));
+    },
+    loadExamFromLocalStorage() {
+      const examData = localStorage.getItem('examData');
+      if (examData) {
+        const parsedData = JSON.parse(examData);
+        this.examId = parsedData.examId;
+        this.examDetails = parsedData.examDetails;
+      }
     },
     async submitExam() {
       try {
@@ -281,16 +302,15 @@ export default {
             if (q.type === 'multiple-choice') {
               choices = q.options;
             } else if (q.type === 'true-false') {
-              choices = ['True', 'False'];  // Predefined choices for true/false questions
+              choices = ['True', 'False'];
             }
 
             return {
               question_type: q.type,
               question: q.question,
-              choices: choices,  // Include choices only for relevant types
+              choices: choices,
               correct_answers: [
                 {
-                  choice_id: null,
                   correct_answer: q.correctAnswer,
                   points: q.points,
                 },
@@ -299,33 +319,48 @@ export default {
           }),
         };
 
-        console.log('Payload:', payload);  // Log payload to check for issues
-
-        await axios.post('http://localhost:8000/api/addExam', payload, {
+        const response = await axios.post('http://localhost:8000/api/addExam2', payload, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
 
-        // Show success modal
-        const modalElement = document.getElementById('successModal');
-        const successModal = new Modal(modalElement);
-        successModal.show();
+        this.examId = response.data.exam.id;
+        this.examDetails = {
+          ...response.data.exam,
+          total_points: response.data.total_points,
+          total_questions: response.data.total_questions,
+        };
 
+        this.saveExamToLocalStorage(); // Save exam data to local storage
+
+        const modalElement = document.getElementById('examModal');
+        const examModal = Modal.getInstance(modalElement);
+        examModal.hide();
       } catch (error) {
         if (error.response && error.response.data) {
-          console.error('Server Error:', error.response.data);  // Check server error details
+          console.error('Server Error:', error.response.data);
         }
         this.error = 'Failed to create exam. Please try again.';
-        console.error(error);
       }
     },
-    redirectToExams() {
-      this.$router.push(`/DisplayExams/${this.$route.params.class_id}`);
+    async publishExam() {
+      try {
+        await axios.post(`http://localhost:8000/api/publishExam/${this.examId}`, {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        alert('Exam published successfully!');
+      } catch (error) {
+        console.error('Failed to publish exam:', error);
+        this.error = 'Failed to publish exam. Please try again.';
+      }
     },
   },
 };
 </script>
+
 
 <style scoped>
 /* Main Container */
@@ -395,11 +430,51 @@ export default {
 /* Exam Page Styling */
 .exam-page {
   padding: 20px;
-  background-color: #f8f9fa94;
+  background-color: #f8f9fa;
   border: 1px solid #0b355e;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   max-width: 900px;
   margin: 20px auto;
+}
+
+/* Question Card Styling */
+.question-card {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.question-title {
+  font-weight: 600;
+  color: #0b355e;
+  margin-bottom: 15px;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary, .btn-danger {
+  border-radius: 5px;
+  font-weight: 600;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-sm {
+  font-size: 0.85rem;
+  padding: 5px 10px;
+}
+
+.btn-danger.btn-sm {
+  padding: 4px 8px;
+  font-size: 0.8rem;
 }
 </style>
