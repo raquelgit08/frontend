@@ -170,8 +170,29 @@
       </div>
     </div>
 
-    <!-- Display Exam Card After Creation -->
-    <div v-for="exam in exams" :key="exam.id" class="card mt-4">
+    <!-- Modal for Success Notification -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="successModalLabel">Success</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Exam created successfully!
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Display Exam Cards in a Grid -->
+  
+<div class="row">
+  <div v-for="exam in exams" :key="exam.id" class="col-md-4 mb-4">
+    <div class="card h-100">
       <div class="card-header">
         <h4>{{ exam.title }}</h4>
       </div>
@@ -181,11 +202,15 @@
         <p><strong>End:</strong> {{ exam.end }}</p>
         <p><strong>Total Questions:</strong> {{ exam.total_questions }}</p>
         <p><strong>Total Points:</strong> {{ exam.total_points }}</p>
-
-        <!-- View Exam Button -->
-        <button @click="viewExam(exam.id)" class="btn btn-primary">View Exam</button>
+      </div>
+      <div class="card-footer d-flex justify-content-between">
+        <button @click="viewExam(exam.id)" class="btn btn-primary btn-sm">View Exam</button>
+        <button @click="archiveExam(exam.id)" class="btn btn-warning btn-sm">Archive Exam</button>
+        <button @click="updateExam(exam.id)" class="btn btn-secondary btn-sm">Update Exam</button>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- Modal for Viewing Exam Details -->
     <div class="modal fade" id="viewExamModal" tabindex="-1" aria-labelledby="viewExamModalLabel" aria-hidden="true">
@@ -209,11 +234,11 @@
                 <p><strong>Question:</strong> {{ question.question }}</p>
 
                 <div v-if="question.choices && question.choices.length">
-  <p><strong>Choices:</strong></p>
-  <ul>
-    <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choice }}</li>
-  </ul>
-</div>
+                  <p><strong>Choices:</strong></p>
+                  <ul>
+                    <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choice }}</li>
+                  </ul>
+                </div>
 
                 <p><strong>Correct Answer:</strong> {{ question.correct_answers.map(a => a.correct_answer).join(', ') }}</p>
                 <p><strong>Points:</strong> {{ question.correct_answers.reduce((sum, a) => sum + a.points, 0) }}</p>
@@ -275,19 +300,24 @@ export default {
       }
     },
     async fetchExams() {
-      try {
-        const classId = this.$route.params.class_id;
-        const response = await axios.get(`http://localhost:8000/api/tblclass/${classId}/exams`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
+  try {
+    const classId = this.$route.params.class_id;
+    const response = await axios.get(`http://localhost:8000/api/tblclass/${classId}/exams`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
 
-        this.exams = response.data.exams;
-      } catch (error) {
-        console.error('Failed to fetch exams:', error.message);
-      }
-    },
+    this.exams = response.data.exams.map(exam => ({
+      ...exam,
+      total_questions: exam.total_questions , // Ensure default value if undefined
+      total_points: exam.total_points        // Ensure default value if undefined
+    }));
+  } catch (error) {
+    console.error('Failed to fetch exams:', error.message);
+  }
+},
+
     openExamModal() {
       const modalElement = document.getElementById('examModal');
       const examModal = new Modal(modalElement);
@@ -373,39 +403,53 @@ export default {
         const modalElement = document.getElementById('examModal');
         const examModal = Modal.getInstance(modalElement);
         examModal.hide();
+
+        // Show success notification modal
+        const successModalElement = document.getElementById('successModal');
+        const successModal = new Modal(successModalElement);
+        successModal.show();
       } catch (error) {
         console.error('Failed to create exam:', error.message);
       }
     },
     async viewExam(examId) {
-  try {
-    const response = await axios.get(`http://localhost:8000/api/exam/${examId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+      try {
+        const response = await axios.get(`http://localhost:8000/api/exam/${examId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
-    this.examDetails = response.data.exam;
-
-    const modalElement = document.getElementById('viewExamModal');
-    const viewExamModal = new Modal(modalElement);
-    viewExamModal.show();
-  } catch (error) {
-    console.error('Failed to fetch exam details:', error.message);
-    alert('An error occurred while fetching the exam details. Please try again later.');
-  }
-},
-
-    async fetchExamDetails() {
-    try {
-        const response = await axios.get(`http://localhost:8000/api/exam/${this.examId}`);
         this.examDetails = response.data.exam;
-    } catch (error) {
+
+        const modalElement = document.getElementById('viewExamModal');
+        const viewExamModal = new Modal(modalElement);
+        viewExamModal.show();
+      } catch (error) {
         console.error('Failed to fetch exam details:', error.message);
         alert('An error occurred while fetching the exam details. Please try again later.');
-    }
-}
+      }
+    },
+    async archiveExam(examId) {
+      try {
+        await axios.delete(`http://localhost:8000/api/exam/${examId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
+        this.exams = this.exams.filter(exam => exam.id !== examId);
+        alert('Exam archived successfully.');
+      } catch (error) {
+        console.error('Failed to archive exam:', error.message);
+        alert('Failed to archive exam. Please try again later.');
+      }
+    },
+    async updateExam(examId) {
+  // Example usage of examId
+  console.log('Exam ID to update:', examId);
+  alert('Update exam feature is under development.');
+}
   },
 };
 </script>
@@ -501,7 +545,7 @@ export default {
 }
 
 /* Buttons */
-.btn-primary, .btn-secondary, .btn-danger {
+.btn-primary, .btn-secondary, .btn-danger, .btn-warning {
   border-radius: 5px;
   font-weight: 600;
 }
@@ -516,6 +560,11 @@ export default {
   border-color: #dc3545;
 }
 
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+}
+
 .btn-sm {
   font-size: 0.85rem;
   padding: 5px 10px;
@@ -524,5 +573,20 @@ export default {
 .btn-danger.btn-sm {
   padding: 4px 8px;
   font-size: 0.8rem;
+}
+
+/* Grid and Card Adjustments */
+.card {
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.card-footer {
+  background-color: #f8f9fa;
 }
 </style>

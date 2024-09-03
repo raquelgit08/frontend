@@ -176,6 +176,7 @@ export default {
         { path: '/spending', label: 'Pending Exams', icon: 'bi bi-hourglass-split fs-4' },
         { path: '/sfinished', label: 'Finished Exams', icon: 'bi bi-check-circle-fill fs-4' },
         { path: '/sperformance', label: 'My Performance', icon: 'bi bi-bar-chart-line-fill fs-4' },
+        { path: '/takeExam', label: 'Take Exam', icon: 'bi bi-bar-chart-line-fill fs-4' },
       ],
     };
   },
