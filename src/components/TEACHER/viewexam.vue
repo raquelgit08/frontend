@@ -10,14 +10,20 @@
           <p><strong>End:</strong> {{ examDetails.end }}</p>
           <p><strong>Total Questions:</strong> {{ examDetails.questions.length }}</p>
           <p><strong>Total Points:</strong> {{ examDetails.total_points }}</p>
-          
-          <!-- Display the list of questions -->
+  
+          <!-- Display Questions -->
           <div v-for="(question, index) in examDetails.questions" :key="index">
             <h5>Question {{ index + 1 }}</h5>
             <p>{{ question.question }}</p>
-            <ul v-if="question.choices.length">
-              <li v-for="choice in question.choices" :key="choice.id">{{ choice.choices }}</li>
+            <ul v-if="question.choices && question.choices.length">
+              <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice }}</li>
             </ul>
+            <p v-if="question.correct_answers && question.correct_answers.length">
+              <strong>Correct Answer:</strong> {{ question.correct_answers[0].correct_answer }}
+            </p>
+            <p v-if="question.correct_answers && question.correct_answers.length">
+              <strong>Points:</strong> {{ question.correct_answers[0].points }}
+            </p>
           </div>
         </div>
       </div>
@@ -32,6 +38,16 @@
   
   export default {
     name: 'ViewExam',
+    props: {
+      class_id: {
+        type: String,
+        required: true,
+      },
+      exam_id: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
         examDetails: null,
@@ -43,17 +59,15 @@
     methods: {
       async fetchExamDetails() {
         try {
-          const examId = this.$route.params.exam_id; 
-          const response = await axios.get(`http://localhost:8000/api/view-exam/${examId}`, {
+          const response = await axios.get(`http://localhost:8000/api/tblclass/${this.class_id}/exam/${this.exam_id}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
           });
-  
           this.examDetails = response.data.exam;
         } catch (error) {
           console.error('Failed to fetch exam details:', error);
-          // You can also add some error handling logic here, like showing a user-friendly message
+          this.examDetails = null;
         }
       },
     },
@@ -82,6 +96,16 @@
   .card-body p {
     font-size: 18px;
     margin-bottom: 8px;
+  }
+  
+  .card-body ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .card-body li {
+    font-size: 16px;
+    margin-bottom: 4px;
   }
   </style>
   
