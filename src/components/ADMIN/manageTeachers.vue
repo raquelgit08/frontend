@@ -88,13 +88,17 @@
       </div>
 
       <div class="row mb-4">
-        <div class="col-md-2">
-          <h6 class="text-center">Male : {{ maleCountPerPage }}</h6>
+        <div class="col-md-2 d-flex align-items-center">
+          <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
+           <h6 >Male : {{ maleCountPerPage }}</h6>
         </div>
-        <div class="col-md-2">
-          <h6 class="text-center">Female : {{ femaleCountPerPage }}</h6>
+
+        <div class="col-md-3 d-flex align-items-center">
+          <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
+          <h6>Female : {{ femaleCountPerPage }}</h6>
         </div>
-        <div class="col-md-8">
+
+        <div class="col-md-7">
           <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
               <li class="page-item" :class="{ disabled: currentPage === 1 }">

@@ -54,14 +54,14 @@
       </div>
       <div class="row mb-4">
         <div class="col-md-2 d-flex align-items-center">
-        <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
-        <h6 >Male : {{ maleCountPerPage }}</h6>
-      </div>
+          <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
+           <h6 >Male : {{ maleCountPerPage }}</h6>
+        </div>
 
-      <div class="col-md-3 d-flex align-items-center">
-        <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
-        <h6>Female : {{ femaleCountPerPage }}</h6>
-      </div>
+        <div class="col-md-3 d-flex align-items-center">
+          <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
+          <h6>Female : {{ femaleCountPerPage }}</h6>
+        </div>
 
         <div class="col-md-7">
           <nav aria-label="Page navigation">
@@ -83,70 +83,7 @@
       
     </div>
 
-    <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
-      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Edit User</h5>
-            <button type="button" class="btn-close" @click="showModal = false" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="row mb-3">
-                <div class="col-md-4">
-                  <label for="lname" class="form-label">Last Name:</label>
-                  <input type="text" id="lname" v-model="currentUser.lname" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                  <label for="fname" class="form-label">First Name:</label>
-                  <input type="text" id="fname" v-model="currentUser.fname" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                  <label for="mname" class="form-label">Middle Name:</label>
-                  <input type="text" id="mname" v-model="currentUser.mname" class="form-control" required>
-                </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-8">
-                  <label for="id" class="form-label">ID / LRN Number:</label>
-                  <input type="text" id="id" v-model="currentUser.idnumber" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label d-block">Gender:</label>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="currentUser.sex">
-                    <label class="form-check-label" for="male">Male</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="currentUser.sex">
-                    <label class="form-check-label" for="female">Female</label>
-                  </div>
-                </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="email" class="form-label">Email Address:</label>
-                  <input type="email" id="email" v-model="currentUser.email" class="form-control" required>
-                </div>
-                <div class="col-md-6 position-relative">
-                  <label for="password" class="form-label">Password:</label>
-                  <div class="input-group">
-                    <input :type="showPassword ? 'text' : 'password'" id="password" v-model="currentUser.password" class="form-control" required>
-                    <button type="button" class="btn btn-outline-secondary" @click="togglePasswordVisibility">
-                      <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
-            <button type="button" class="btn btn-primary" @click="saveChanges">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
+      
   </div>
 </template>
 

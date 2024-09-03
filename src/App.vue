@@ -19,21 +19,9 @@
           <p class="welcome-message">Welcome back, you've been missed!</p>
 
           <form @submit.prevent="handleSubmit" class="login-form">
-            <input
-              type="text"
-              v-model="email"
-              placeholder="Enter username"
-              class="form-control"
-              required
-            />
+            <input type="text" v-model="email" placeholder="Enter username" class="form-control" required />
             <div class="password-group">
-              <input
-                :type="showPassword ? 'text' : 'password'"
-                v-model="password"
-                placeholder="Password"
-                class="form-control"
-                required
-              />
+              <input :type="showPassword ? 'text' : 'password'"  v-model="password" placeholder="Password"  class="form-control" required/>
               <i :class="passwordFieldIcon" class="password-toggle" @click="togglePassword"></i>
             </div>
 
