@@ -1,78 +1,93 @@
 <template>
     <div>
       <div class="container-fluid">
-        <h4 class="text-center">Teachers Accounts</h4><br>
-        <div class="row mb-4 justify-content-end align-items-center">
-        
-          
-         
-  
-       
+        <div class="header-container">
+          <img src="@/assets/enhs logo.jpg" alt="Left Logo" class="enhslogo">
+          <h3 class="text-center">Report Generation for List of Teachers</h3>
+          <img src="@/assets/Deped-Logo.png" alt="Right Logo" class="depedlogo">
         </div>
+        <div class="row mb-4 justify-content-end align-items-center">
+          <div class="col-md-2 d-flex align-items-center">
+            <select v-model="selectedGender"  class="form-control custom-select"  id="gender">
+              <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
+            </select>
+          </div>
+      
+        <div class="col-md-3 d-flex align-items-center">
+          <select v-model="position_id" id="position" class="form-select custom-select" style="margin-right: 30px;"  required>
+            <option value="">Filter by Position</option>
+            <option v-for="position in positions" :key="position.id" :value="position.id">
+              {{ position.teacher_postion }}
+            </option>
+          </select>
+        </div>
+        
+      </div>
+
   
         <!-- Teachers Table -->
-        <table class="table table-bordered table-hover">
-          <thead class="table-info">
-            <tr>
-              <th scope="col" class="text-center">No.</th>
-              <th scope="col" class="text-center">Employee Number</th>
-              <th scope="col" class="text-center">Name</th>
-              <th scope="col" class="text-center">Sex</th>
-              <th scope="col" class="text-center">Email</th>
-              <th scope="col" class="text-center">Position</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(teacher, index) in paginatedItems" :key="teacher.user.idnumber">
-              <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-              <td>{{ teacher.user.idnumber }}</td>
-              <td class="text-center">{{ teacher.user.lname }}, {{ teacher.user.fname }} {{ teacher.user.mname }}</td>
-              <td class="text-center">{{ teacher.user.sex }}</td>
-              <td class="text-center">{{ teacher.user.email }}</td>
-              <td class="text-center">{{ teacher.position.teacher_postion }} </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-wrapper">
+          <table class="table table-bordered table-hover table-custom">
+            <thead class="table-info">
+              <tr>
+                <th scope="col" class="text-center">No.</th>
+                <th scope="col" class="text-center">Employee Number</th>
+                <th scope="col" class="text-center">Name</th>
+                <th scope="col" class="text-center">Sex</th>
+                <th scope="col" class="text-center">Email</th>
+                <th scope="col" class="text-center">Position</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(teacher, index) in paginatedItems" :key="teacher.user.idnumber">
+                <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                <td>{{ teacher.user.idnumber }}</td>
+                <td class="text-center">{{ teacher.user.lname }}, {{ teacher.user.fname }} {{ teacher.user.mname }}</td>
+                <td class="text-center">{{ teacher.user.sex }}</td>
+                <td class="text-center">{{ teacher.user.email }}</td>
+                <td class="text-center">{{ teacher.position.teacher_postion }} </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
   
         <!-- Pagination -->
-       
+        <div class="row mb-4">
+          <div class="col-md-2 d-flex align-items-center">
+            <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
+            <h6 >Male : {{ maleCountPerPage }}</h6>
+          </div>
+
+          <div class="col-md-3 d-flex align-items-center">
+            <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
+            <h6>Female : {{ femaleCountPerPage }}</h6>
+          </div>
+
+          <div class="col-md-7">
+            <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                  <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+                </li>
+                <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
+                  <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                  <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
   
         <!-- Generate Report Button -->
         <div class="row mb-4">
           <div class="col-md-12 text-end">
-            <button @click="generateReport" class="btn btn-primary">Generate Report</button>
+            <button @click="generateReport" class="btn btn-gradient">Generate Report</button>
           </div>
         </div>
   
         <!-- Modal for Editing User -->
-        <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
-          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Edit User</h5>
-                <button type="button" class="btn-close" @click="showModal = false" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <form>
-                  <!-- Form Fields for editing user details -->
-                  <div class="mb-3">
-                    <label for="editName" class="form-label">Name</label>
-                    <input type="text" id="editName" v-model="currentUser.user.lname" class="form-control" placeholder="Last Name">
-                  </div>
-                  <div class="mb-3">
-                    <label for="editEmail" class="form-label">Email</label>
-                    <input type="email" id="editEmail" v-model="currentUser.user.email" class="form-control" placeholder="Email">
-                  </div>
-                  <!-- Add more form fields as needed -->
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
-                <button type="button" class="btn btn-primary" @click="saveChanges">Save changes</button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </template>
@@ -209,9 +224,130 @@
       this.fetchPositions();
     }
   };
-  </script>
-  
-  <style scoped>
-  /* Add your styles here */
+</script>
+
+<style scoped>
+  .container-fluid {
+    background-color: #ffffff;
+    border-radius: 10px;
+  }
+  tbody {
+    font-size: 15px;
+  }
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px;
+    margin-bottom: 10px;
+  }
+
+  .text-center {
+    margin: 0;
+    text-align: center;
+    flex: 1;
+  }
+  .enhslogo{
+    margin-left: 120px;
+  }
+  .depedlogo{
+    margin-right: 90px;
+  }
+  .enhslogo , .depedlogo {
+    width: 100px; /* Adjust size as needed */
+    height: auto;
+  }
+  .form-select {
+    width: 200px;
+  }
+  /* Table Wrapper */
+  .table-wrapper {
+    margin: 10px;
+    padding: 0 15px;
+    max-width: 100%;
+    overflow-x: auto;
+    
+  }
+
+  /* Table Styles */
+  .table-custom {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+    border: 1px solid #200909;
+    overflow: hidden;
+  }
+
+  .table-custom th {
+    background-color: #0d8eead7;
+    color: #000000;
+    font-weight: 700;
+  }
+  .table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .table-custom tbody tr:hover {
+    background-color: #f1f3f5;
+  }
+
+  .table-custom tbody tr {
+    transition: background-color 0.3s ease;
+  }
+  .lalaki {
+  color: blue;
+  }
+  .babae {
+    color: red;
+  }
+  .lalaki, .babae{
+    font-size: 20px;
+    padding-left: 50px;
+    padding-right: 12px;
+  }
+  .btn-gradient {
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  color: #120808;
+  transition: background 0.3s ease;
+  border-radius: 5px ;
+  margin: 20px;
+  padding: 5px;
+  width: 300px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0056b3, #0080ff);
+}
+.custom-select {
+  width: 100%; /* Make select full width of its container */
+  padding: 10px 12px; /* Adjust padding for better spacing */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ced4da; /* Light border color */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-size: 16px; /* Font size for better readability */
+  font-family: Arial, sans-serif; /* Font family */
+  color: #495057; /* Text color */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus */
+}
+
+.custom-select:focus {
+  border-color: #007bff; /* Border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Shadow on focus */
+  outline: none; /* Remove default outline */
+}
+
+.custom-select option {
+  padding: 10px; /* Padding inside options */
+}
+
+.custom-select::placeholder {
+  color: #6c757d; /* Placeholder text color */
+}
+
   </style>
   

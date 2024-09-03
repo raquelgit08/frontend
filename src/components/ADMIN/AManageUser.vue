@@ -6,7 +6,7 @@
         <div class="col-md-8">
           <div class="search-bar-container">
             <div class="input-group search-bar">
-              <input type="text" v-model="search" class="form-control" placeholder="Search" />
+              <input type="text" v-model="search" class="form-control custom-select" placeholder="Search" />
               <span class="input-group-text">
                 <i class="bi bi-search"></i>
               </span>
@@ -15,7 +15,7 @@
         </div>
         <div class="col-md-4 d-flex align-items-center">
           <label for="userType" class="form-label me-2">SELECT USER TYPE:</label>
-          <select v-model="selectedUserType" class="form-select" id="userType">
+          <select v-model="selectedUserType" class="form-select custom-select" id="userType">
             <option v-for="type in userTypes" :key="type" :value="type">{{ type }}</option>
           </select>
         </div>
@@ -325,5 +325,26 @@ h4 {
 
 .btn-primary:hover {
   background-color: #1E90FF; /* Dodger blue on hover */
+}
+.custom-select {
+  height: 45px;
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ced4da; /* Light border color */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-size: 16px; /* Font size for better readability */
+  font-family: Arial, sans-serif; /* Font family */
+  color: #495057; /* Text color */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus */
+}
+
+.custom-select:focus {
+  border-color: #007bff; /* Border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Shadow on focus */
+  outline: none; /* Remove default outline */
+}
+
+.custom-select::placeholder {
+  color: #6c757d; /* Placeholder text color */
 }
 </style>

@@ -1,21 +1,27 @@
 <template>
-  <div class="container">
-    <h5 class="text-center mb-4">Manage Position</h5>
+  <div class="container-fluid">
+    <div class="header-container">
+      <h3><i class="bi bi-file-person"></i> Manage Positions</h3>
+    </div>
 
     <!-- Search and Add Button -->
-    <div class="d-flex justify-content-between mb-4">
-      <div class="search-bar-container">
-        <div class="input-group search-bar">
-          <input type="text" v-model="searchQuery" class="form-control" placeholder="Search Positions...">
-          <span class="input-group-text">
-            <i class="bi bi-search"></i>
-          </span>
+    <div class="row mb-4 justify-content-end align-items-center">
+        <div class="col-md-9">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" v-model="searchQuery" class="form-control custom-select" placeholder="Search Positions...">
+          </div>
+        </div>
+       
+        <div class="col-md-3 d-flex align-items-center">
+          <button class="btn  btn-gradient" @click="openAddModal">
+            <i class="bi bi-plus"></i> Add Position
+          </button>
         </div>
       </div>
-      <button class="btn btn-primary btn-gradient" @click="openAddModal">
-        <i class="bi bi-plus"></i> Add Position
-      </button>
-    </div>
+    
 
     <!-- Loading Indicator -->
     <div v-if="loading" class="text-center mb-3">
@@ -37,7 +43,7 @@
             <td>{{ index + 1 }}</td>
             <td>{{ position.teacher_postion }}</td>
             <td>
-              <button class="btn btn-warning btn-md me-1" @click="openEditModal(position)">
+              <button class="btn edit btn-md me-2" @click="openEditModal(position)">
                 <i class="bi bi-pencil"></i> Edit
               </button>
               <button class="btn btn-danger btn-md" @click="deletePosition(position.id)">
@@ -53,16 +59,17 @@
    <div class="modal fade" id="positionModal" tabindex="-1" ref="positionModal">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title text-center w-100">{{ isEdit ? 'Edit Position' : 'Add Position' }}</h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
-          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="modal-title"><i class="bi bi-file-person" style="padding-right: 10px;"></i>{{ isEdit ? 'Edit Position' : 'Add Position' }}</h5>
+              <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
+          </div><br>
+         
           <div class="modal-body">
             <div class="mb-3">
-              <input type="text" v-model="newPosition" class="form-control" placeholder="Position Name">
+              <input type="text" v-model="newPosition" class="form-control custom-select" placeholder="Position Name">
             </div>
           </div>
-          <div class="modal-footer d-flex justify-content-between">
+          <div class="d-flex justify-content-end gap-2 mt-3">
             <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
             <button type="button" class="btn btn-primary" @click="savePosition">{{ isEdit ? 'Update' : 'Save' }}</button>
           </div>
@@ -196,36 +203,30 @@ export default {
       this.newPosition = position.teacher_postion;
       this.showModal();
     },
-
     showModal() {
       const modal = new Modal(this.$refs.positionModal);
       modal.show();
     },
-
     closeModal() {
       const modal = Modal.getInstance(this.$refs.positionModal);
       if (modal) modal.hide();
       this.resetForm();
     },
-
     showDuplicateModal() {
       const modal = new Modal(this.$refs.duplicateModal);
       modal.show();
     },
-
     closeDuplicateModal() {
       const modal = Modal.getInstance(this.$refs.duplicateModal);
       if (modal) modal.hide();
       this.resetForm();
     },
-
     resetForm() {
       this.newPosition = '';
       this.isEdit = false;
       this.editPositionId = null;
     }
   },
-
   mounted() {
     this.fetchPositions();
   }
@@ -234,94 +235,124 @@ export default {
 
 <style scoped>
 /* Container */
-.container {
-  padding: 20px;
-  max-width: 1600px;
-  margin: 0 auto;
-  background-color: #eaeaea; /* Gray background */
-  min-height: 100vh; /* Ensure container spans full viewport height */
-}
+.container-fluid {
+    background-color: #ffffff;
+    border-radius: 10px;
+  }
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+    padding-top: 20px;
 
-/* Search Bar Container */
-.search-bar-container {
-  flex-grow: 1;
-  margin-right: 15px; /* Space between search bar and add button */
-}
+  }
+  .form-select {
+    width: 200px;
+  }
+  /* Table Wrapper */
+  .table-wrapper {
+    margin: 10px;
+    padding: 0 15px;
+    max-width: 100%;
+    overflow-x: auto;
+  }
 
-/* Search Bar Styles */
-.search-bar .form-control {
-  border-radius: 5px;
-  border: 1px solid #ced4da;
-}
+  /* Table Styles */
+  .table-custom {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+    border: 1px solid #200909;
+    overflow: hidden;
+    margin-bottom: 120px;
+  }
 
-.search-bar .input-group-text {
-  background-color: #ffffff;
-  border-left: none;
-  border-radius: 5px;
-}
+  .table-custom th {
+    background-color: #0d8eead7;
+    color: #000000;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  
+  .table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .td{
+    font-size: 18px;
+  }
 
-/* Button Styles */
-.btn-gradient {
+  .table-custom tbody tr:hover {
+    background-color: #f1f3f5;
+  }
+
+  .table-custom tbody tr {
+    transition: background-color 0.3s ease;
+  }
+  .edit{
+    background-color: rgb(12, 170, 12);
+    color: #ffffff;
+    width: 90px;
+  }
+  .btn-danger, .edit{
+    font-size: 17px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .btn-gradient {
   background: linear-gradient(45deg, #007bff, #00bfff);
-  border: none;
-  color: #fff;
+  color: #120808;
   transition: background 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px ;
+  margin: 20px;
+  padding: 5px;
+  width: 300px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
+}
+.edit:hover{
+  background-color: green;
 }
 
 .btn-gradient:hover {
   background: linear-gradient(45deg, #0056b3, #0080ff);
 }
 
-
-/* Table Wrapper */
-.table-wrapper {
-  margin: 0 auto;
-  padding: 0 15px;
-  max-width: 100%;
-  overflow-x: auto;
+.custom-select {
+  height: 45px;
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ced4da; /* Light border color */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-size: 16px; /* Font size for better readability */
+  font-family: Arial, sans-serif; /* Font family */
+  color: #495057; /* Text color */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus */
 }
 
-/* Table Styles */
-.table-custom {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #d0d0d0;
-  overflow: hidden;
+.custom-select:focus {
+  border-color: #007bff; /* Border color on focus */
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Shadow on focus */
+  outline: none; /* Remove default outline */
 }
 
-.table-custom th {
-  background-color: #f8f9fa;
-  color: #333;
-  text-align: left;
-  padding: 12px;
-  padding-left: 50px;
-  font-weight: 600;
+.custom-select::placeholder {
+  color: #6c757d; /* Placeholder text color */
 }
-
-.table-custom td {
-  padding: 12px;
-  padding-left: 50px;
-  vertical-align: middle;
-  color: #555;
+/* Search Bar Styles */
+.input-group{
+  padding-left: 32px;
 }
-
-.table-custom tbody tr:hover {
-  background-color: #f1f3f5;
+.modal-dialog {
+  width: 40%;
 }
-
-.table-custom tbody tr {
-  transition: background-color 0.3s ease;
-}
-
 /* Modal Styles */
 .modal-content {
   border-radius: 8px;
+  padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.table th, .table td {
-  text-align: center;
-  vertical-align: middle;
 }
 </style>

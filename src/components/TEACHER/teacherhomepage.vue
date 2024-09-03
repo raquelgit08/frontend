@@ -8,18 +8,22 @@
       </div>
       <div class="d-flex align-items-center ms-auto">
         <h4 class="mb-0 me-3">WELCOME {{userProfile.fname}}</h4>
-        <div @click="togglePopover" style="cursor: pointer; position: relative;">
-          <i class="bi bi-person-lock" style="font-size: 40px; margin-right: 20px;"></i>
+        <div @click="togglePopover" class="profile-icon-container">
+          <i class="bi bi-person-lock profile-icon"></i>
           <div v-if="isPopoverVisible" class="popover show" role="tooltip">
             <div class="popover-arrow"></div>
             <div v-if="isLoggedIn">
               <div v-if="userProfile">
-                <div class="popover-body">
-                  ID number: {{ userProfile.idnumber }}
-                  NAME : {{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }}
-                  <br />
+                <div class="popover-body"><center>
+                 
+                  <a>ID number: {{ userProfile.idnumber }}</a><br>
+                  <a><b>{{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }} </b></a><br>
+                  <a><i>{{ userProfile.email }} </i></a> <br>
+                  <a>{{ userProfile.teacher_postion }}</a>
+                  <a><b>ENHS - SHS</b></a><br>
+                  <a>San Fabian, Echague, Isabela</a></center>
                 </div>
-                <button class="btn btn-danger btn-sm mt-2" @click="handleLogout">Log Out</button>
+                <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button>
               </div>
               <div v-else>
                 <p>Loading user profile...</p>
@@ -38,8 +42,29 @@
     <div class="d-flex">
       <div :class="['sidebar', isSidebarCollapsed ? 'collapsed' : '']">
         <img :src="require('@/assets/i12.png')" class="img-fluid logo" alt="Your Image">
+
+        <!-- Dashboard Section -->
+        <h5 class="sidebar-section-label">Dashboard</h5>
+        <router-link v-for="(item, index) in items.filter(i => i.section === 'dashboard')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }"  @click="handleItemClick(item.path)">
+          <span class="icon-label">
+            <i :class="item.icon"></i>
+            <span class="label">{{ item.label }}</span>
+          </span>
+        </router-link>
+
+        <!-- Manage Section -->
+        <h5 class="sidebar-section-label">Instructional Authority</h5>
         <router-link
-          v-for="(item, index) in items"
+          v-for="(item, index) in items.filter(i => i.section === 'manage')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
+          <span class="icon-label">
+            <i :class="item.icon"></i>
+            <span class="label">{{ item.label }}</span>
+          </span>
+        </router-link>
+        <!-- Report Section -->
+        <h5 class="sidebar-section-label">Report</h5>
+        <router-link
+          v-for="(item, index) in items.filter(i => i.section === 'report')"
           :key="index"
           :to="item.path"
           class="list-group"
@@ -51,16 +76,6 @@
             <span class="label">{{ item.label }}</span>
           </span>
         </router-link>
-
-        
-        <div class="list-group logOut" @click="handleLogoutClick" style="margin-top: 200px;">
-          <span class="icon-label">
-            <i class="bi bi-box-arrow-left fs-4"></i> LOG OUT
-          </span>
-        </div>
-
-        <!-- Strand Dropdown -->
-       
 
         <!-- Chevron Icon to Collapse/Expand Sidebar -->
         <i @click="toggleSidebar" class="bi" :class="isSidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
@@ -91,28 +106,29 @@ export default {
         lname: '',
         fname: '',
         mname: '',
-        teacher_Position: '',
+        teacher_postion: '',
         sex: '',
         email: '',
         password: ''
       },
-      
+      position_id:'',
       drawerVisible: true,
       isPopoverVisible: false,
-      isDropdownVisible: {
-        manageUser: false,
-        strand: false,
-      },
-      isSidebarCollapsed: false, // New data property for sidebar state
-      selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
+ 
+      isSidebarCollapsed: false,
+      selectedItem: localStorage.getItem('selectedItem') || '/teacherdashboard',
       items: [
-        { path: '/teacherdashboard', label: 'Dashboard', icon: 'bi bi-bar-chart-fill fs-4' },
-        { path: '/teacheraddsubject', label: 'Class Creation', icon: 'bi bi-file-earmark-plus-fill fs-4' },
-        { path: '/displayExam', label: 'Display Exam',icon: 'bi bi-file-earmark-plus-fill fs-4' },
-    //    { path: '/teacherlistofsubject', label: 'List of Subjects', icon: 'bi bi-file-earmark-fill fs-4' },
-    //    { path: '/managesubject', label: 'Manage Subject Details', icon: 'bi bi-gear-fill fs-4' },
-     //   { path: '/subjectspage', label: 'Subject Page', icon: 'bi bi-gear-fill fs-4' },
-    //    { path: '/studentslist', label: 'List of the Students', icon: 'bi bi-gear-fill fs-4'},
+        // Dashboard Section
+        { path: '/teacherdashboard', label: 'Dashboard', icon: 'bi bi-speedometer2', section: 'dashboard' },
+
+        // Manage Section
+        { path: '/teacheraddsubject', label: 'Class Creation', icon: 'bi bi-collection fs-4', section: 'manage' },
+        { path: '/displayExam', label: 'Display Exam',icon: 'bi bi-file-earmark-text fs-4', section: 'manage' },
+       
+
+        // Report Section
+        { path: '/ReportListofStudent', label: 'List of Student', icon: 'bi bi-person-fill', section: 'report' },
+        { path: '/ReportListofTeacher', label: 'List of Teacher', icon: 'bi bi-person-lines-fill', section: 'report' },
       ],
     };
   },
@@ -185,13 +201,38 @@ export default {
 
 <style scoped>
 h2 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: rgb(14, 1, 1);
   margin-left: 270px;
+  transition: margin-left 0.3s ease;
 }
 
 .navbar {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-text {
+  margin-right: 20px;
+  font-size: 1.25rem;
+  color: white;
+}
+
+.profile-icon-container {
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-icon {
+  font-size: 40px;
+  margin-right: 10px;
+  color: white;
+  transition: color 0.3s;
+}
+
+.profile-icon-container:hover .profile-icon {
+  color: #0056b3;
 }
 
 .modal-content {
@@ -214,20 +255,30 @@ h2 {
 }
 
 .list-group {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
-  font-weight: 500;
-  padding: 10px;
-  border: #130404;
+  font-family: 'Roboto', sans-serif;
+  font-size: 25px;
+  font-weight: normal; /* Make text bold */
+  padding: 5px; /* Reduce padding for less space */
   color: white;
-  border-bottom: 2px solid #ccc;
+  background-color: transparent;
+  text-decoration: none; /* Ensure no underline */
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.list-group.active {
+  background-color: #007bff;
+}
+
+.list-group:hover {
+  background-color: #0056b3;
 }
 
 .dropdown {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 10px;
+  font-weight: bold; /* Make text bold */
+  margin-bottom: 5px; /* Reduce margin to lessen space */
+  text-decoration: none; /* Ensure no underline */
 }
 
 .icon-label {
@@ -238,18 +289,15 @@ h2 {
 
 .label {
   margin-left: 10px;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .content {
   margin-left: 250px;
+  background-color: #eaeaea; /* Gray background */
   padding: 20px;
   width: calc(100% - 250px);
   transition: margin-left 0.3s ease, width 0.3s ease;
-}
-
-.title-container {
-  transition: margin-left 0.3s ease;
 }
 
 .title-container.collapsed h2 {
@@ -260,16 +308,15 @@ h2 {
   position: absolute;
   z-index: 1050;
   display: block;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 250px;
   top: 50px;
-  left: -170px;
+  left: -200px;
   opacity: 0;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   font-size: 16px;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -303,6 +350,7 @@ h2 {
 .dropdown-item {
   font-size: 18px;
   padding: 5px 10px;
+  text-decoration: none; /* Ensure no underline */
 }
 
 .dropdown-item:hover {
@@ -311,38 +359,39 @@ h2 {
 
 .logOut {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 500;
-  margin-top: 10px;
+  width: 220px;
+  margin: 10px;
   cursor: pointer;
 }
 
 .sidebar {
-  width: 250px;
+  width: 270px;
   background-color: #0e68bc;
-  height: 100vh; /* Full viewport height */
+  height: 100vh;
   padding: 20px;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
   transition: width 0.3s ease;
-  overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: hidden; /* Hide horizontal overflow if necessary */
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: #fff;
 }
 
 .sidebar.collapsed {
-  width: 80px; /* Width of collapsed sidebar */
+  width: 80px;
 }
 
-/* Sidebar Content */
 .sidebar .logo {
   width: 100%;
   transition: opacity 0.3s ease;
 }
 
 .sidebar .list-group {
-  margin-top: 20px;
+  margin-top: 10px; /* Reduce space between items */
 }
 
 .sidebar .list-group .icon-label {
@@ -353,14 +402,13 @@ h2 {
 }
 
 .sidebar.collapsed .icon-label .label {
-  display: none; /* Hide text when collapsed */
+  display: none;
 }
 
 .sidebar.collapsed .icon-label i {
-  font-size: 1.5rem; /* Adjust icon size if needed */
+  font-size: 1.5rem;
 }
 
-/* Chevron Icon for Toggling Sidebar */
 .bi-chevron-left, .bi-chevron-right {
   position: absolute;
   bottom: 20px;
@@ -368,9 +416,13 @@ h2 {
   font-size: 1.5rem;
   cursor: pointer;
   color: wheat;
+  transition: color 0.3s;
 }
 
-/* Content Area Styling */
+.bi-chevron-left:hover, .bi-chevron-right:hover {
+  color: #0056b3;
+}
+
 .content.collapsed {
   margin-left: 80px;
   width: calc(100% - 80px);
