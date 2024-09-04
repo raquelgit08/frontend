@@ -37,6 +37,7 @@
         <thead class="table-info">
           <tr>
             <th scope="col" class="text-center">No.</th>
+            <th scope="col" class="text-center">user.id</th>
             <th scope="col" class="text-center">LRN</th>
             <th scope="col" class="text-center">Students Profile</th>
             <th scope="col" class="text-center">Sex</th>
@@ -47,6 +48,7 @@
         <tbody>
           <tr v-for="(students, index) in paginatedItems" :key="students.idnumber">
             <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+            <td><b>{{ students.user.id }}</b></td>
             <td><b>{{ students.user.idnumber }}</b></td>
             <td class="text-center">
               <b>{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</b> <br>
@@ -154,37 +156,37 @@
               <div class="row mb-3">
               <div class="col-md-6">
                 <label for="idnumber" class="form-label">ID NUMBER:</label>
-                <input type="idnumber" id="idnumber" v-model="formData.idnumber" class="form-control" >
+                <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
               </div>
               <div class="col-md-6">
                 <label for="email" class="form-label">Email Address:</label>
-                <input type="email" id="email" v-model="formData.email" class="form-control" >
+                <input type="email" id="email" v-model="currentUser.user.email" class="form-control" >
               </div>
             </div>
 
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="lname" class="form-label">Last Name:</label>
-                  <input type="text" id="lname" v-model="formData.lname" class="form-control" >
+                  <input type="text" id="lname" v-model="currentUser.user.lname" class="form-control" >
                 </div>
                 <div class="col-md-4">
                   <label for="fname" class="form-label">First Name:</label>
-                  <input type="text" id="fname" v-model="formData.fname" class="form-control" >
+                  <input type="text" id="fname" v-model="currentUser.user.fname" class="form-control" >
                 </div>
                 <div class="col-md-4">
                   <label for="mname" class="form-label">Middle Name:</label>
-                <input type="text" id="mname" v-model="formData.mname" class="form-control" >
+                <input type="text" id="mname" v-model="currentUser.user.mname" class="form-control" >
                 </div>
             </div>
             <div class="row mb-3">
               <div class="col-md-4">
                 <label class="form-label d-block">Gender:</label>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="formData.sex">
+                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="currentUser.user.sex">
                   <label class="form-check-label" for="male">Male</label>
                 </div>
                 <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="formData.sex">
+                <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="currentUser.user.sex">
                   <label class="form-check-label" for="female">Female</label>
                 </div>
               </div>
@@ -208,7 +210,7 @@
               </div>
               <div class="col-md-5">
           <label for="Mobile_no" class="form-label">Mobile Number:</label>
-          <input v-model="formData.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
+          <input v-model="currentUser.user.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
         </div>
             </div>    
           </form>
@@ -330,8 +332,9 @@ export default {
       }
     },
     async saveChanges() {
+      const userId = this.currentUser.user.id;
    // Example Axios PUT request
-    axios.put(`http://localhost:8000/api/updateStudent/${this.currentUser.id}`, this.currentUser, {
+    axios.put(`http://localhost:8000/api/updateStudentDetails/${userId}`, this.currentUser, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json'
@@ -413,46 +416,66 @@ export default {
       }
     },
     generatePassword() {
-      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
-      let password = "";
-      for (let i = 0; i < 12; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        password += charset[randomIndex];
-      }
-      this.form.newPassword = password;
-      this.form.confirmPassword = password; // Set confirm password to the generated password
-    },
+  const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+  const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const digits = "0123456789";
+  const specialChars = "!@#$%^&*()";
+
+  let password = "";
+
+  // Ensure at least one character from each category
+  password += lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)];
+  password += uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)];
+  password += digits[Math.floor(Math.random() * digits.length)];
+  password += specialChars[Math.floor(Math.random() * specialChars.length)];
+
+  // Fill the rest of the password with random characters
+  const charset = lowercaseChars + uppercaseChars + digits + specialChars;
+  for (let i = 0; i < 4; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+
+  // Shuffle the password to ensure randomness
+  password = password.split('').sort(function() {
+    return 0.5 - Math.random();
+  }).join('');
+
+  this.form.newPassword = password;
+  this.form.confirmPassword = password; // Set confirm password to the generated password
+},
     async resetPassword() {
-      const newPassword = this.form.newPassword;
-      const confirmPassword = this.form.confirmPassword;
+  const userId = this.currentUser.user.id;
+  const newPassword = this.form.newPassword;
+  const confirmPassword = this.form.confirmPassword;
 
-      if (newPassword !== confirmPassword) {
-        this.errorMessage = 'Passwords do not match.';
-        return;
+  if (newPassword !== confirmPassword) {
+    this.errorMessage = 'Passwords do not match.';
+    return;
+  }
+
+  if (!this.currentUser.id) {
+    this.errorMessage = 'Please select a user.';
+    return;
+  }
+
+  try {
+    const response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
+      new_password: newPassword,
+      new_password_confirmation: confirmPassword,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
+    });
 
-      if (!this.currentUser.id) {
-        this.errorMessage = 'Please select a user.';
-        return;
-      }
-
-      try {
-        const response = await axios.put(`http://localhost:8000/api/user/${this.currentUser.id}/update-password`, {
-          new_password: newPassword,
-          new_password_confirmation: confirmPassword,
-        }, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-
-        alert(response.data.message);
-        this.showResetModal = false;
-        this.fetchStudents();
-      } catch (error) {
-        this.errorMessage = error.response ? error.response.data.message : 'An error occurred while updating the password.';
-      }
-    }
+    alert(response.data.message);
+    this.showResetModal = false;
+    this.fetchStudents();
+  } catch (error) {
+    this.errorMessage = error.response ? error.response.data.message : 'An error occurred while updating the password.';
+  }
+}
   },
   
 };
