@@ -50,6 +50,7 @@ import ReportGenerating from './components/TEACHER/GenerateReport.vue';
 
 
 import Student_homepage from './components/STUDENT/studenthomepage.vue';
+import TakingExam from './components/STUDENT/takeExam.vue';
 import StudentDashboard from './components/STUDENT/Sdashboard.vue';
 import AddSubject from './components/STUDENT/Saddsubject.vue';
 import PendingExam from './components/STUDENT/Spendingexam.vue';
@@ -114,6 +115,7 @@ const routes = [
   { path: '/spending', component: PendingExam },
   { path: '/sfinished', component: FinishedExam },
   { path: '/sperformance', component: StudentPerformance },
+  { path: '/takeExam', component: TakingExam},
   // Add routes for other user types if needed
 ];
 
