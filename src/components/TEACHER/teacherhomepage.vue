@@ -19,7 +19,7 @@
                   <a>ID number: {{ userProfile.idnumber }}</a><br>
                   <a><b>{{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }} </b></a><br>
                   <a><i>{{ userProfile.email }} </i></a> <br>
-                  <a>{{ userProfile.teacher_postion }}</a>
+                  <a>{{ userProfile.teacher.teacher_postion}}</a><br>
                   <a><b>ENHS - SHS</b></a><br>
                   <a>San Fabian, Echague, Isabela</a></center>
                 </div>
@@ -147,17 +147,22 @@ export default {
       this.isLoggedIn = !!token;
     },
     async fetchUserProfile() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/userprofile', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        this.userProfile = response.data.data;
-      } catch (error) {
-        this.error = error.response && error.response.data.message ? error.response.data.message : 'Failed to fetch user profile';
+  try {
+    const response = await axios.get('http://localhost:8000/api/userprofile', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
-    },
+    });
+    this.userProfile = response.data.data;
+    if (this.userProfile.teacher) {
+      this.userProfile.teacher_postion = this.userProfile.teacher.teacher_postion;
+    } else {
+      this.userProfile.teacher_postion = ''; // set default value
+    }
+  } catch (error) {
+    this.error = error.response && error.response.data.message ? error.response.data.message : 'Failed to fetch user profile';
+  }
+},
     async handleLogout() {
       try {
         const token = localStorage.getItem('token');

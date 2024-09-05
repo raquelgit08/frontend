@@ -15,6 +15,7 @@
             <div v-if="isLoggedIn">
               <div v-if="userProfile">
                 <div class="popover-body"><center>
+                  <img :src="profileImage || require('@/assets/enhs logo.jpg')" class="profile-icon" style="width: 80px; height: 80px; border-radius: 50%; margin: 10px;" alt="Profile Image"><br>
                   <a>OFFICIAL ADMINISTRATOR</a><br>
                   <a>ID number: {{ userProfile.idnumber }}</a><br>
                   <a><b>{{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }} </b></a><br>
@@ -43,7 +44,6 @@
         <img :src="require('@/assets/i12.png')" class="img-fluid logo" alt="Your Image">
 
         <!-- Dashboard Section -->
-        <h5 class="sidebar-section-label">Dashboard</h5>
         <router-link v-for="(item, index) in items.filter(i => i.section === 'dashboard')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }"  @click="handleItemClick(item.path)">
           <span class="icon-label">
             <i :class="item.icon"></i>
