@@ -51,7 +51,7 @@
           <tbody>
             <tr v-for="(teachers, index) in paginatedItems" :key="teachers.idnumber">
               <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-              <td>{{ teachers.idnumber }}</td>
+              <td>{{ teachers.user.idnumber }}</td>
               <td class="text-center">
                 <b>{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </b><br>
                 <i>{{ teachers.user.email }}</i><br>
@@ -64,12 +64,12 @@
               </td>
               <td class="text-center">
                 <div class="btn-group" role="group" aria-label="Active and Inactive">
-                  <input  type="radio"  class="btn-check" name="options" id="activeRadio"  autocomplete="off" v-model="selectedOption"  value="active"/>
-                  <label class="btn" :class="{'btn-success': selectedOption === 'active', 'btn-secondary': selectedOption !== 'active'}" for="activeRadio" >Active</label>
+  <input type="radio" class="btn-check" name="options" id="activeRadio" autocomplete="off" v-model="selectedOption" value="active" :checked="isActive" />
+  <label class="btn" :class="{'btn-success': selectedOption === 'active', 'btn-secondary': selectedOption !== 'active'}" for="activeRadio">Active</label>
 
-                  <input type="radio" class="btn-check" name="options" id="inactiveRadio" autocomplete="off" v-model="selectedOption" value="inactive"/>
-                  <label class="btn" :class="{'btn-danger': selectedOption === 'inactive', 'btn-secondary': selectedOption !== 'inactive'}"  for="inactiveRadio"> Inactive</label>
-                </div>
+  <input type="radio" class="btn-check" name="options" id="inactiveRadio" autocomplete="off" v-model="selectedOption" value="inactive" :checked="!isActive" />
+  <label class="btn" :class="{'btn-danger': selectedOption === 'inactive', 'btn-secondary': selectedOption !== 'inactive'}" for="inactiveRadio">Inactive</label>
+</div>
               </td>
               <td class="text-center">
                 <div class="icon-container">
@@ -296,7 +296,10 @@ export default {
     },
     femaleCountPerPage() {
       return this.paginatedItems.filter(item => item.user.sex === 'female').length;
-    }
+    },
+    isActive() {
+    return this.currentUser.status === 'active';
+  }
   },
   methods: {
     formatDate(date) {
@@ -375,6 +378,10 @@ export default {
         this.errorMessage = error.response ? error.response.data.message : 'An error occurred while updating the password.';
       }
     },
+    updateStatus() {
+        // Call API or update database to change user's status
+        // ...
+      },
     async saveChanges() {
       const userId = this.currentUser.user.id;
       const formData = {
