@@ -34,7 +34,9 @@
           <img :src="subject.imageUrl || require('@/assets/newlogo.png')" class="card-img" alt="Subject Image" />
           <div class="card-body">
             <h5 class="card-title">{{ subject.subject_name }}</h5>
-            <p class="card-text">{{ subject.class_description }}</p>
+            <p class="card-text"> Class Code :{{ subject. class_gen_code}}</p>
+            <p class="card-text">Subject Descriptions :{{ subject.class_description }}</p>
+            <center><router-link :to="`/mysubject`" class="btn btn-primary"> Go to Room</router-link></center>
           </div>
         </div>
       </div>

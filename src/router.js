@@ -19,14 +19,6 @@ import ManageCurricuminENHS from './components/ADMIN/ManageCuricculuminSHS.vue';
 import ReportGenerateStudents from './components/ADMIN/ReportListofStudent.vue';
 import ReportGenerateTeachers from './components/ADMIN/ReportListofTeacher.vue';
 
-import Humms11Page from './components/ADMIN/STRAND/humms11.vue';
-import Humms12Page from './components/ADMIN/STRAND/humms12.vue';
-import Abm11Page from './components/ADMIN/STRAND/abm11.vue';
-import Abm12Page from './components/ADMIN/STRAND/abm12.vue';
-import Stem11Page from './components/ADMIN/STRAND/stem11.vue';
-import Stem12Page from './components/ADMIN/STRAND/stem12.vue';
-import Tvl12Page from './components/ADMIN/STRAND/tvl12.vue';
-import Tvl11Page from './components/ADMIN/STRAND/tvl11.vue';
 import PieChart from './components/ADMIN/STRAND/piechart.vue';
 
 
@@ -58,6 +50,10 @@ import Student_homepage from './components/STUDENT/studenthomepage.vue';
 import TakingExam from './components/STUDENT/takeExam.vue';
 import StudentDashboard from './components/STUDENT/Sdashboard.vue';
 import AddSubject from './components/STUDENT/Saddsubject.vue';
+import MySubjectPages from './components/STUDENT/mysubjecrtpage.vue';
+import MyExams from './components/STUDENT/myexams.vue';
+import MyFeedbacks from './components/STUDENT/myfeedbacks.vue';
+import MySubjectPerformance from './components/STUDENT/mysubjectperformance.vue'
 import PendingExam from './components/STUDENT/Spendingexam.vue';
 import FinishedExam from './components/STUDENT/Sfinishedexam.vue';
 import StudentPerformance from './components/STUDENT/Sperformance.vue';
@@ -85,14 +81,6 @@ const routes = [
   { path: '/ReportListofStudent', component: ReportGenerateStudents },
   { path: '/ReportListofTeacher', component: ReportGenerateTeachers},
 
-  { path: '/strand-section/abm11', component: Abm11Page},
-  { path: '/strand-section/abm12', component: Abm12Page},
-  { path: '/strand-section/humms11', component: Humms11Page},
-  { path: '/strand-section/humms12', component: Humms12Page},
-  { path: '/strand-section/stem11', component: Stem11Page},
-  { path: '/strand-section/stem12', component: Stem12Page},
-  { path: '/strand-section/tvl11', component: Tvl11Page},
-  { path: '/strand-section/tvl12', component: Tvl12Page},
   { path: '/teacher', component: Teacher_homepage },
  
   { path: '/teacher', component: Teacher_homepage },
@@ -122,6 +110,10 @@ const routes = [
   { path: '/student', component: Student_homepage },
   { path: '/sdashboard', component: StudentDashboard },
   { path: '/saddsubject', component: AddSubject },
+  { path: '/mysubject', component: MySubjectPages},
+  {path: '/myExams' , component: MyExams},
+  {path: '/myfeedbacks' , component: MyFeedbacks},
+  {path: '/mysubjectperformances' , component: MySubjectPerformance},
   { path: '/spending', component: PendingExam },
   { path: '/sfinished', component: FinishedExam },
   { path: '/sperformance', component: StudentPerformance },

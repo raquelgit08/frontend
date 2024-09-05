@@ -49,8 +49,8 @@
             <thead>
               <tr>
                 <th>Strand</th>
-                <th><i class="bi bi-person-standing tcon"></i></th>
-                <th><i class="bi bi-person-standing-dress tcon"></i></th>
+                <th><i class="fa fa-mars mr-2 tcon"></i></th>
+                <th><i class="fa fa-venus mr-2 tcon"></i></th>
                 <th>Total</th>
               </tr>
             </thead>

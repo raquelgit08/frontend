@@ -154,37 +154,37 @@
               <div class="row mb-3">
               <div class="col-md-6">
                 <label for="idnumber" class="form-label">ID NUMBER:</label>
-                <input type="idnumber" id="idnumber" v-model="formData.idnumber" class="form-control" >
+                <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
               </div>
               <div class="col-md-6">
                 <label for="email" class="form-label">Email Address:</label>
-                <input type="email" id="email" v-model="formData.email" class="form-control" >
+                <input type="email" id="email" v-model="currentUser.user.email" class="form-control" >
               </div>
             </div>
 
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label for="lname" class="form-label">Last Name:</label>
-                  <input type="text" id="lname" v-model="formData.lname" class="form-control" >
+                  <input type="text" id="lname" v-model="currentUser.user.lname" class="form-control" >
                 </div>
                 <div class="col-md-4">
                   <label for="fname" class="form-label">First Name:</label>
-                  <input type="text" id="fname" v-model="formData.fname" class="form-control" >
+                  <input type="text" id="fname" v-model="currentUser.user.fname" class="form-control" >
                 </div>
                 <div class="col-md-4">
                   <label for="mname" class="form-label">Middle Name:</label>
-                <input type="text" id="mname" v-model="formData.mname" class="form-control" >
+                <input type="text" id="mname" v-model="currentUser.user.mname" class="form-control" >
                 </div>
             </div>
             <div class="row mb-3">
               <div class="col-md-4">
                 <label class="form-label d-block">Gender:</label>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="formData.sex">
+                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="currentUser.user.sex">
                   <label class="form-check-label" for="male">Male</label>
                 </div>
                 <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="formData.sex">
+                <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="currentUser.user.sex">
                   <label class="form-check-label" for="female">Female</label>
                 </div>
               </div>
@@ -208,7 +208,7 @@
               </div>
               <div class="col-md-5">
           <label for="Mobile_no" class="form-label">Mobile Number:</label>
-          <input v-model="formData.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
+          <input v-model="currentUser.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
         </div>
             </div>    
           </form>
@@ -330,22 +330,40 @@ export default {
       }
     },
     async saveChanges() {
-   // Example Axios PUT request
-    axios.put(`http://localhost:8000/api/updateStudent/${this.currentUser.id}`, this.currentUser, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
+      const userId = this.currentUser.user.id;
+      const formData = {
+        lname: this.currentUser.user.lname,
+        fname: this.currentUser.user.fname,
+        mname: this.currentUser.user.mname,
+        sex: this.currentUser.user.sex,
+        email: this.currentUser.user.email,
+        strand_id: this.formData.strand_id,
+        section_id: this.formData.section_id,
+        Mobile_no: this.currentUser.Mobile_no,
+      };
+
+      if (this.formData.password) {
+        formData.password = this.formData.password;
       }
-    })
-    .then(response => {
-      console.log(response.data.message);
-    })
-    .catch(error => {
-      console.error('Error saving changes:', error.response ? error.response.data : error.message);
-    });
 
-  },
-
+      axios.put(`http://localhost:8000/api/updateStudentDetails/${userId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        console.log(response.data.message);
+        this.showModal = false;
+        this.fetchStrands;
+        this.fetchSections;
+        this.fetchStudents;
+        
+      })
+      .catch(error => {
+        console.error('Error saving changes:', error.response ? error.response.data : error.message);
+      });
+    },
     async fetchStudents() {
       try {
         const response = await axios.get('http://localhost:8000/api/viewAllStudents2', {
@@ -413,16 +431,36 @@ export default {
       }
     },
     generatePassword() {
-      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+      const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+      const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const digits = "0123456789";
+      const specialChars = "!@#$%^&*()";
+
       let password = "";
-      for (let i = 0; i < 12; i++) {
+
+      // Ensure at least one character from each category
+      password += lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)];
+      password += uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)];
+      password += digits[Math.floor(Math.random() * digits.length)];
+      password += specialChars[Math.floor(Math.random() * specialChars.length)];
+
+      // Fill the rest of the password with random characters
+      const charset = lowercaseChars + uppercaseChars + digits + specialChars;
+      for (let i = 0; i < 4; i++) {
         const randomIndex = Math.floor(Math.random() * charset.length);
         password += charset[randomIndex];
       }
+
+      // Shuffle the password to ensure randomness
+      password = password.split('').sort(function() {
+        return 0.5 - Math.random();
+      }).join('');
+
       this.form.newPassword = password;
       this.form.confirmPassword = password; // Set confirm password to the generated password
     },
-    async resetPassword() {
+   async resetPassword() {
+      const userId = this.currentUser.user.id;
       const newPassword = this.form.newPassword;
       const confirmPassword = this.form.confirmPassword;
 
@@ -437,7 +475,7 @@ export default {
       }
 
       try {
-        const response = await axios.put(`http://localhost:8000/api/user/${this.currentUser.id}/update-password`, {
+        const response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
           new_password: newPassword,
           new_password_confirmation: confirmPassword,
         }, {
