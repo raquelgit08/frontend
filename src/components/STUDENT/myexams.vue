@@ -140,6 +140,7 @@ export default {
 };
 </script>
 
+
 <style scoped>
 /* Main Container */
 .main-container {
