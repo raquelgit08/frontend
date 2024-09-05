@@ -568,7 +568,7 @@ export default {
 .btn-sm {
   font-size: 0.85rem;
   padding: 5px 10px;
-}
+} 
 
 .btn-danger.btn-sm {
   padding: 4px 8px;

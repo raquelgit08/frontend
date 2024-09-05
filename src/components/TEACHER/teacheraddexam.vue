@@ -10,6 +10,7 @@
           id="exam-title"
           v-model="examTitle"
           class="form-control"
+          placeholder="Enter the exam title"
           required
         />
       </div>
@@ -50,12 +51,20 @@
       </div>
 
       <!-- Questions Section -->
-      <div v-for="(question, index) in questions" :key="index" class="question-card mb-4">
+      <div
+        v-for="(question, index) in questions"
+        :key="index"
+        class="question-card mb-4 p-3 border rounded"
+      >
         <h5 class="question-title">Question {{ index + 1 }}</h5>
 
         <div class="mb-3">
           <label class="form-label">Question Type</label>
-          <select v-model="question.type" class="form-select" @change="changeQuestionType(index, question.type)">
+          <select
+            v-model="question.type"
+            class="form-select"
+            @change="changeQuestionType(index, question.type)"
+          >
             <option value="multiple-choice">Multiple Choice</option>
             <option value="true-false">True or False</option>
             <option value="identification">Identification</option>
@@ -68,6 +77,7 @@
             type="text"
             v-model="question.question"
             class="form-control"
+            placeholder="Enter the question text"
             required
           />
         </div>
@@ -75,7 +85,11 @@
         <!-- Options for Multiple Choice -->
         <div v-if="question.type === 'multiple-choice'" class="mb-3">
           <label class="form-label">Options</label>
-          <div v-for="(option, idx) in question.options" :key="idx" class="d-flex align-items-center mb-2">
+          <div
+            v-for="(option, idx) in question.options"
+            :key="idx"
+            class="d-flex align-items-center mb-2"
+          >
             <input
               type="text"
               v-model="question.options[idx]"
@@ -83,9 +97,21 @@
               placeholder="Option"
               required
             />
-            <button @click="removeOption(index, idx)" type="button" class="btn btn-danger btn-sm">X</button>
+            <button
+              @click="removeOption(index, idx)"
+              type="button"
+              class="btn btn-danger btn-sm"
+            >
+              X
+            </button>
           </div>
-          <button @click="addOption(index)" type="button" class="btn btn-secondary btn-sm">Add Option</button>
+          <button
+            @click="addOption(index)"
+            type="button"
+            class="btn btn-secondary btn-sm"
+          >
+            Add Option
+          </button>
         </div>
 
         <!-- Correct Answer -->
@@ -96,6 +122,7 @@
             type="text"
             v-model="question.correctAnswer"
             class="form-control"
+            placeholder="Enter the correct answer"
             required
           />
           <select v-else v-model="question.correctAnswer" class="form-select">
@@ -113,19 +140,28 @@
             v-model="question.points"
             class="form-control"
             min="1"
+            placeholder="Enter the points for this question"
             required
           />
         </div>
 
         <!-- Button Alignment for Options and Remove Question -->
         <div class="d-flex justify-content-between mt-3">
-          <button @click="removeQuestion(index)" type="button" class="btn btn-danger btn-sm">Remove Question</button>
+          <button
+            @click="removeQuestion(index)"
+            type="button"
+            class="btn btn-danger btn-sm"
+          >
+            Remove Question
+          </button>
         </div>
       </div>
 
       <!-- Buttons Alignment: Add New Question Left, Submit Right -->
       <div class="d-flex justify-content-between mt-4">
-        <button @click="addQuestion" type="button" class="btn btn-secondary">Add New Question</button>
+        <button @click="addQuestion" type="button" class="btn btn-secondary">
+          Add New Question
+        </button>
         <button type="submit" class="btn btn-primary">Create Exam</button>
       </div>
     </form>
@@ -137,6 +173,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 export default {
+  name: 'TeacherAddExams',
   data() {
     return {
       examTitle: '',
@@ -155,12 +192,10 @@ export default {
         points: 1,
         options: ['', '', '', ''],
       };
-
       this.questions.push(newQuestion);
     },
     changeQuestionType(index, type) {
       this.questions[index].type = type;
-
       if (type === 'multiple-choice') {
         this.questions[index].options = ['', '', '', ''];
         this.questions[index].correctAnswer = '';
@@ -219,7 +254,7 @@ export default {
         });
 
         Swal.fire('Success', 'Exam created successfully!', 'success').then(() => {
-          this.$router.push(`/AddExam/${this.$route.params.class_id}`);
+          this.$router.push(`/teachercreateexam/${this.$route.params.class_id}`);
         });
       } catch (error) {
         console.error('Failed to create exam:', error.message);
@@ -229,101 +264,49 @@ export default {
 };
 </script>
 
-
 <style scoped>
-/* Main Container */
-.main-container {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  padding: 20px;
-}
-
-/* Subject Info Container */
-.subject-info-container {
-  flex: 1;
-  max-width: 300px;
-  margin-right: 20px;
-  display: flex;
-  align-items: center;
-}
-
-/* Subject Info Styling */
-.subject-info {
-  width: 100%;
-  padding: 15px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-}
-
-.subject-info h2 {
-  font-size: 1.5rem;
-  color: #343a40;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.subject-info p {
-  font-size: 1rem;
-  color: #6c757d;
-}
-
-/* Navigation Bar */
-.nav {
-  flex: 2;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.nav-link {
-  color: #343a40 !important;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.nav-link:hover {
-  color: #007bff !important;
-}
-
-.router-link-active {
-  color: #007bff !important;
-  border-bottom: 2px solid #007bff;
-}
-
 /* Exam Page Styling */
 .exam-page {
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
   background-color: #f8f9fa;
-  border: 1px solid #0b355e;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 900px;
-  margin: 20px auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Exam Title */
+.exam-page h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+/* Form Labels */
+.form-label {
+  font-weight: 500;
+  color: #495057;
 }
 
 /* Question Card Styling */
 .question-card {
   background-color: #ffffff;
-  padding: 20px;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.question-title {
-  font-weight: 600;
-  color: #0b355e;
-  margin-bottom: 15px;
+.question-card h5 {
+  font-weight: 500;
+  color: #343a40;
 }
 
 /* Buttons */
-.btn-primary, .btn-secondary, .btn-danger, .btn-warning {
-  border-radius: 5px;
-  font-weight: 600;
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
 }
 
 .btn-secondary {
@@ -336,34 +319,23 @@ export default {
   border-color: #dc3545;
 }
 
-.btn-warning {
-  background-color: #ffc107;
-  border-color: #ffc107;
-}
-
 .btn-sm {
-  font-size: 0.85rem;
-  padding: 5px 10px;
+  font-size: 0.875rem;
 }
 
-.btn-danger.btn-sm {
-  padding: 4px 8px;
-  font-size: 0.8rem;
+.btn-secondary.btn-sm {
+  background-color: #6c757d;
+  border-color: #6c757d;
 }
 
-/* Grid and Card Adjustments */
-.card {
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .exam-page {
+    padding: 15px;
+  }
 
-.card-header {
-  background-color: #f8f9fa;
-  font-weight: bold;
-}
-
-.card-footer {
-  background-color: #f8f9fa;
+  .question-card {
+    padding: 10px;
+  }
 }
 </style>
-
