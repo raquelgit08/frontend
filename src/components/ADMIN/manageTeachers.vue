@@ -51,7 +51,7 @@
           <tbody>
             <tr v-for="(teachers, index) in paginatedItems" :key="teachers.idnumber">
               <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-              <td>{{ teachers.user.idnumber }}</td>
+              <td>{{ teachers.idnumber }}</td>
               <td class="text-center">
                 <b>{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </b><br>
                 <i>{{ teachers.user.email }}</i><br>
@@ -74,10 +74,10 @@
               <td class="text-center">
                 <div class="icon-container">
                   <span class="icon-box reset-box">
-                    <i class="bi bi-key-fill custom-icon" @click="openModal(item)"></i>
+                    <i class="bi bi-key-fill custom-icon" @click="openResetModal(teachers)"></i>
                   </span>
                   <span class="icon-box edit-box">
-                    <i class="bi bi-pencil-square custom-icon" @click="openModal(item)"></i>
+                    <i class="bi bi-pencil-square custom-icon" @click="openModal(teachers)"></i>
                   </span>
                   
                 </div>
@@ -116,6 +116,40 @@
       </div>
 
     </div>
+    <!-- Reset Password Modal -->
+    <div v-if="showResetModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Reset Password</h5>
+            <button type="button" class="btn-close" @click="showResetModal = false" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            
+            <form @submit.prevent="resetPassword">
+              
+              <div class="row">
+                <div class="mb-3 col-12 col-md-8">
+                  <label for="newPassword" class="form-label">New Password</label>
+                  <input type="text" class="form-control" id="newPassword" v-model="form.newPassword" required>
+                </div>
+                <div class="mb-3 col-12 col-md-4">
+                  <button type="button" class="btn btn-secondary" @click="generatePassword">Generate New Password</button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                <input type="text" class="form-control" id="confirmPassword" v-model="form.confirmPassword" required>
+              </div>
+              <div v-if="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+              </div>
+              <button type="submit" class="btn btn-primary">Reset Password</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Modal for Editing User -->
     <div v-if="showModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
@@ -127,8 +161,56 @@
           </div>
           <div class="modal-body">
             <form>
-              <!-- Form Fields -->
-            </form>
+              <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="idnumber" class="form-label">ID NUMBER:</label>
+                <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email Address:</label>
+                <input type="email" id="email" v-model="currentUser.user.email" class="form-control" >
+              </div>
+            </div>
+
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <label for="lname" class="form-label">Last Name:</label>
+                  <input type="text" id="lname" v-model="currentUser.user.lname" class="form-control" >
+                </div>
+                <div class="col-md-4">
+                  <label for="fname" class="form-label">First Name:</label>
+                  <input type="text" id="fname" v-model="currentUser.user.fname" class="form-control" >
+                </div>
+                <div class="col-md-4">
+                  <label for="mname" class="form-label">Middle Name:</label>
+                <input type="text" id="mname" v-model="currentUser.user.mname" class="form-control" >
+                </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label d-block">Gender:</label>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="currentUser.user.sex">
+                  <label class="form-check-label" for="male">Male</label>
+                </div>
+                <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="gender" id="female" value="female" v-model="currentUser.user.sex">
+                  <label class="form-check-label" for="female">Female</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="strand" class="form-label">Strand:</label>
+                <select v-model="currentUser.user.position_id" id="strand" class="form-select" required>
+                  <option value="">Select position</option>
+                  <option v-for="position in positions" :key="position.id" :value="position.id">
+                    {{ position.teacher_postion }}
+                  </option>
+                </select>
+              </div>
+             
+            
+            </div>    
+          </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
@@ -150,11 +232,26 @@ export default {
     return {
       search: '',
       showModal: false,
+      showResetModal: false,
       showPassword: false,
       selectedGender: 'Filter By Gender', // Default to 'all'
       gender: ['Filter By Gender', 'male', 'female'],
       itemsPerPage: 10,
       currentPage: 1,
+      form: {
+        newPassword: '',
+        confirmPassword: ''
+      },
+      formData: {
+        idnumber: '',
+        lname: '',
+        fname: '',
+        mname: '',
+        sex: '',
+        email: '',
+        position_id: '',
+       
+      },
       serverItems: [],
        selectedOption: '',
       students: [],
@@ -209,20 +306,106 @@ export default {
       this.currentUser = { ...user };
       this.showModal = true;
     },
-    async saveChanges() {
+    openResetModal(user) {
+      if (user && user.id) {
+         this.currentUser = user;
+        this.showResetModal = true;
+      } else {
+        console.error('User object is undefined or missing the id property.');
+      }
+    },
+    generatePassword() {
+      const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+      const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const digits = "0123456789";
+      const specialChars = "!@#$%^&*()";
+
+      let password = "";
+
+      // Ensure at least one character from each category
+      password += lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)];
+      password += uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)];
+      password += digits[Math.floor(Math.random() * digits.length)];
+      password += specialChars[Math.floor(Math.random() * specialChars.length)];
+
+      // Fill the rest of the password with random characters
+      const charset = lowercaseChars + uppercaseChars + digits + specialChars;
+      for (let i = 0; i < 4; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+      }
+
+      // Shuffle the password to ensure randomness
+      password = password.split('').sort(function() {
+        return 0.5 - Math.random();
+      }).join('');
+
+      this.form.newPassword = password;
+      this.form.confirmPassword = password; // Set confirm password to the generated password
+    },
+   async resetPassword() {
+      const userId = this.currentUser.user.id;
+      const newPassword = this.form.newPassword;
+      const confirmPassword = this.form.confirmPassword;
+
+      if (newPassword !== confirmPassword) {
+        this.errorMessage = 'Passwords do not match.';
+        return;
+      }
+
+      if (!this.currentUser.id) {
+        this.errorMessage = 'Please select a user.';
+        return;
+      }
+
       try {
-        const response = await axios.put(`http://localhost:8000/api/users/${this.currentUser.id}`, this.currentUser, {
+        const response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
+          new_password: newPassword,
+          new_password_confirmation: confirmPassword,
+        }, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
+
         alert(response.data.message);
-        this.showModal = false;
-        this.fetchStudents();
+        this.showResetModal = false;
+        this.fetchTeachers();
       } catch (error) {
-        alert('Error saving changes:', error.response ? error.response.data : error.message);
+        this.errorMessage = error.response ? error.response.data.message : 'An error occurred while updating the password.';
       }
+    },
+    async saveChanges() {
+      const userId = this.currentUser.user.id;
+      const formData = {
+        lname: this.currentUser.user.lname,
+        fname: this.currentUser.user.fname,
+        mname: this.currentUser.user.mname,
+        sex: this.currentUser.user.sex,
+        email: this.currentUser.user.email,
+        position_id: this.currentUser.user.position_id,
+      };
+
+      if (this.formData.password) {
+        formData.password = this.formData.password;
+      }
+
+      axios.put(`http://localhost:8000/api/updateTeacher/${userId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        console.log(response.data.message);
+        this.showModal = false;
+        this.fetchTeachers;
+        this.fetchPositions;
+        
+      })
+      .catch(error => {
+        console.error('Error saving changes:', error.response ? error.response.data : error.message);
+      });
     },
    
     async fetchTeachers() {

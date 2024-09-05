@@ -37,7 +37,6 @@
         <thead class="table-info">
           <tr>
             <th scope="col" class="text-center">No.</th>
-            <th scope="col" class="text-center">user.id</th>
             <th scope="col" class="text-center">LRN</th>
             <th scope="col" class="text-center">Students Profile</th>
             <th scope="col" class="text-center">Sex</th>
@@ -48,7 +47,6 @@
         <tbody>
           <tr v-for="(students, index) in paginatedItems" :key="students.idnumber">
             <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-            <td><b>{{ students.user.id }}</b></td>
             <td><b>{{ students.user.idnumber }}</b></td>
             <td class="text-center">
               <b>{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</b> <br>
@@ -210,7 +208,7 @@
               </div>
               <div class="col-md-5">
           <label for="Mobile_no" class="form-label">Mobile Number:</label>
-          <input v-model="currentUser.user.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
+          <input v-model="currentUser.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
         </div>
             </div>    
           </form>
@@ -333,22 +331,39 @@ export default {
     },
     async saveChanges() {
       const userId = this.currentUser.user.id;
-   // Example Axios PUT request
-    axios.put(`http://localhost:8000/api/updateStudentDetails/${userId}`, this.currentUser, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
+      const formData = {
+        lname: this.currentUser.user.lname,
+        fname: this.currentUser.user.fname,
+        mname: this.currentUser.user.mname,
+        sex: this.currentUser.user.sex,
+        email: this.currentUser.user.email,
+        strand_id: this.formData.strand_id,
+        section_id: this.formData.section_id,
+        Mobile_no: this.currentUser.Mobile_no,
+      };
+
+      if (this.formData.password) {
+        formData.password = this.formData.password;
       }
-    })
-    .then(response => {
-      console.log(response.data.message);
-    })
-    .catch(error => {
-      console.error('Error saving changes:', error.response ? error.response.data : error.message);
-    });
 
-  },
-
+      axios.put(`http://localhost:8000/api/updateStudentDetails/${userId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        console.log(response.data.message);
+        this.showModal = false;
+        this.fetchStrands;
+        this.fetchSections;
+        this.fetchStudents;
+        
+      })
+      .catch(error => {
+        console.error('Error saving changes:', error.response ? error.response.data : error.message);
+      });
+    },
     async fetchStudents() {
       try {
         const response = await axios.get('http://localhost:8000/api/viewAllStudents2', {
@@ -416,66 +431,66 @@ export default {
       }
     },
     generatePassword() {
-  const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
-  const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const digits = "0123456789";
-  const specialChars = "!@#$%^&*()";
+      const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+      const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const digits = "0123456789";
+      const specialChars = "!@#$%^&*()";
 
-  let password = "";
+      let password = "";
 
-  // Ensure at least one character from each category
-  password += lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)];
-  password += uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)];
-  password += digits[Math.floor(Math.random() * digits.length)];
-  password += specialChars[Math.floor(Math.random() * specialChars.length)];
+      // Ensure at least one character from each category
+      password += lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)];
+      password += uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)];
+      password += digits[Math.floor(Math.random() * digits.length)];
+      password += specialChars[Math.floor(Math.random() * specialChars.length)];
 
-  // Fill the rest of the password with random characters
-  const charset = lowercaseChars + uppercaseChars + digits + specialChars;
-  for (let i = 0; i < 4; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    password += charset[randomIndex];
-  }
-
-  // Shuffle the password to ensure randomness
-  password = password.split('').sort(function() {
-    return 0.5 - Math.random();
-  }).join('');
-
-  this.form.newPassword = password;
-  this.form.confirmPassword = password; // Set confirm password to the generated password
-},
-    async resetPassword() {
-  const userId = this.currentUser.user.id;
-  const newPassword = this.form.newPassword;
-  const confirmPassword = this.form.confirmPassword;
-
-  if (newPassword !== confirmPassword) {
-    this.errorMessage = 'Passwords do not match.';
-    return;
-  }
-
-  if (!this.currentUser.id) {
-    this.errorMessage = 'Please select a user.';
-    return;
-  }
-
-  try {
-    const response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
-      new_password: newPassword,
-      new_password_confirmation: confirmPassword,
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
+      // Fill the rest of the password with random characters
+      const charset = lowercaseChars + uppercaseChars + digits + specialChars;
+      for (let i = 0; i < 4; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
       }
-    });
 
-    alert(response.data.message);
-    this.showResetModal = false;
-    this.fetchStudents();
-  } catch (error) {
-    this.errorMessage = error.response ? error.response.data.message : 'An error occurred while updating the password.';
-  }
-}
+      // Shuffle the password to ensure randomness
+      password = password.split('').sort(function() {
+        return 0.5 - Math.random();
+      }).join('');
+
+      this.form.newPassword = password;
+      this.form.confirmPassword = password; // Set confirm password to the generated password
+    },
+   async resetPassword() {
+      const userId = this.currentUser.user.id;
+      const newPassword = this.form.newPassword;
+      const confirmPassword = this.form.confirmPassword;
+
+      if (newPassword !== confirmPassword) {
+        this.errorMessage = 'Passwords do not match.';
+        return;
+      }
+
+      if (!this.currentUser.id) {
+        this.errorMessage = 'Please select a user.';
+        return;
+      }
+
+      try {
+        const response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
+          new_password: newPassword,
+          new_password_confirmation: confirmPassword,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        alert(response.data.message);
+        this.showResetModal = false;
+        this.fetchStudents();
+      } catch (error) {
+        this.errorMessage = error.response ? error.response.data.message : 'An error occurred while updating the password.';
+      }
+    }
   },
   
 };
