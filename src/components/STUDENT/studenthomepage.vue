@@ -160,7 +160,7 @@ import axios from 'axios';
 export default {
   name: 'Student_homepage',
   props: {
-    isVisible: {
+    isVisible: { 
       type: Boolean,
       default: true,
     },
