@@ -40,7 +40,12 @@ import PendingStudent from './components/TEACHER/pendingstudentlist.vue'
 import PerformancesTracking from './components/TEACHER/PerformanceTracking.vue';
 import ReportGenerating from './components/TEACHER/GenerateReport.vue';
 
+import TeacherCreateExams from './components/TEACHER/teachercreateexam.vue';
+import TeacherAddExams from './components/TEACHER/teacheraddexam.vue';
 
+
+import StudentTakingExams from './components/STUDENT/studenttakeexam.vue';
+import ExamTakingPages from './components/STUDENT/examtakingpage.vue';
 import Student_homepage from './components/STUDENT/studenthomepage.vue';
 import TakingExam from './components/STUDENT/takeExam.vue';
 import StudentDashboard from './components/STUDENT/Sdashboard.vue';
@@ -85,7 +90,6 @@ const routes = [
   { path: '/managesubject', component: ManagingSubjects},
 
   { path: '/viewexam/:class_id/:exam_id', component: ViewExam},
-
   { path: '/subject/:class_id', component: SubjectPages, name: 'SubjectPage' },
   { path: '/studentslist/:class_id', component: StudentsListSubject},
   { path: '/pendingstudentslist/:class_id', component: PendingStudent},
@@ -97,6 +101,12 @@ const routes = [
   { path: '/PerformanceTracking/:class_id', component: PerformancesTracking },
   { path: '/GenerateReport/:class_id', component: ReportGenerating},
 
+  { path: '/teacheraddexam/:class_id', component: TeacherAddExams},
+  { path: '/teachercreateexam/:class_id', component: TeacherCreateExams},
+
+
+  { path: '/examtakingpage', component: ExamTakingPages},
+  { path: '/studenttakeexam', component: StudentTakingExams},
   { path: '/student', component: Student_homepage },
   { path: '/sdashboard', component: StudentDashboard },
   { path: '/saddsubject', component: AddSubject },

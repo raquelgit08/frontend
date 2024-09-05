@@ -23,7 +23,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'StudentExams',
+  name: 'StudentTakingExams',
   data() {
     return {
       exams: [],
