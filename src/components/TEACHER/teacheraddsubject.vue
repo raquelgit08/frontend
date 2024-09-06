@@ -453,6 +453,7 @@ export default {
   border-radius: 8px;
   width: 100%; /* Card width set to fill container */
   max-width: 350px; /* Maximum width of the card */
+  height: 400px;
   background-color: #abd5f767;
   margin-bottom: 20px; /* Space between cards */
   
