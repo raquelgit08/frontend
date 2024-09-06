@@ -6,20 +6,16 @@
     <div class="row">
       <!-- Display classes fetched from the backend -->
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
-        <div class="card">
-          
+        <div class="card" @click="$router.push(`/subject/${classItem.id}`)">
           <img :src="require('@/assets/back1.jpg')" class="card-img" alt="Class Image">
           <div class="card-container">
-            <p class="card-text"><strong>Subject:</strong> {{ classItem.subject.subjectname }}</p>
-            <p class="card-text">{{ classItem.class_desc }}</p>
-            <p class="card-text"><strong>Strand:</strong> {{ classItem.strand.addstrand }} {{ classItem.strand.grade_level }}</p>
-            <p class="card-text"><strong>Section:</strong> {{ classItem.section.section }}</p>
-            <p class="card-text"><strong>Year:</strong> {{ classItem.year.addyear }}</p>
+            <p class="card-text"><b> {{ classItem.subject.subjectname }}</b></p>
+            <!-- <p class="card-text">{{ classItem.class_desc }}</p> -->
+            <hr> <!-- Add this to display a horizontal line -->
+            <p class="card-text"> {{ classItem.strand.addstrand }} {{ classItem.strand.grade_level }} {{ classItem.section.section }}</p>
             <p class="card-text"><strong>CODE:</strong> {{ classItem.gen_code }}</p>
-            <p class="card-text"> {{ classItem.semester }} <a>semester</a></p>
+            <p class="card-text"> {{ classItem.semester }} <a>semester S.Y. {{ classItem.year.addyear }}</a></p>
             <p class="card-text"><strong>Curriculum:</strong> {{ classItem.curriculum.Namecuriculum }}</p>
-            <center><router-link :to="`/subject/${classItem.id}`" class="btn btn-primary"> Go to Room</router-link></center>
-
           </div>
         </div>
       </div>
@@ -421,6 +417,9 @@ export default {
     padding: 5px;
     padding-top: 20px;
   }
+  .row {
+    padding: 40px;
+  }
 .add-class-card {
   cursor: pointer;
   border: 2px dashed #ccc;
@@ -449,12 +448,12 @@ export default {
 .card {
   display: flex;
   flex-direction: column;
-  border: 2px solid #2c71c1;
+  border: 2px solid #ebedf0;
   border-radius: 8px;
   width: 100%; /* Card width set to fill container */
   max-width: 350px; /* Maximum width of the card */
   height: 400px;
-  background-color: #abd5f767;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   margin-bottom: 20px; /* Space between cards */
   
 }
@@ -472,12 +471,10 @@ export default {
 
 .card-title {
   font-size: 1.2rem; /* Increased title font size */
-  margin-bottom: 0.5rem;
 }
 
 .card-text {
-  font-size: 0.9rem; /* Slightly smaller text size */
-  margin-bottom: 0.5rem; /* Space between text items */
+  margin: 5px 0; /* Add this to add a small margin between paragraphs */
 }
 .card-container{
   padding: 20px;
