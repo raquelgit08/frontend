@@ -1,182 +1,243 @@
+
 <template>
-    <div class="main-container">
-      <!-- Subject Information Display on the Left -->
-      <div class="subject-info-container">
-        <div v-if="subject.subjectName" class="subject-info">
-          <h2>{{ subject.subjectName }}</h2>
-          <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
-        </div>
+  <div class="main-container">
+    <!-- Subject Information Display on the Left -->
+    <div class="subject-info-container">
+      <div v-if="subject.subjectName" class="subject-info">
+        <h2>{{ subject.subjectName }}</h2>
+        <p>Description: {{ subject.classDescription }}</p>
+        <p>Class Code: {{ subject.classGenCode }}</p>
       </div>
-  
-      <!-- Navigation Bar Positioned Next to Subject Info -->
-      <nav class="nav nav-pills">
-        <router-link to="/teacheraddsubject" class="nav-link">
-          <span><i class="bi bi-arrow-left fs-4"></i></span>
-        </router-link>
-    <router-link :to="`/mysubject`" class="nav-link">Dashboard</router-link>
-    <router-link :to="`/myExams`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-    <router-link :to="`/myfeedbacks`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i>My Feedbacks</router-link>
-    <router-link :to="`/mysubjectperformances`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-      </nav>
     </div>
-  
+
+    <!-- Navigation Bar Positioned Next to Subject Info -->
+    <nav class="nav nav-pills">
+      <router-link to="/Saddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-4"></i></span>
+      </router-link>
+      <router-link :to="`/mysubject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+      <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
+        <i class="bi bi-file-earmark-plus fs-4"></i> Exams
+      </router-link>
+      <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
+        <i class="bi bi-chat-dots fs-4"></i> Feedback
+      </router-link>
+      <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
+        <i class="bi bi-activity fs-4"></i> Subject Performance 
+      </router-link>
+    </nav>
+
     <!-- Subject Page Content -->
     <div class="subject-page container mt-5">
-      <h5 class="text-center">examssss performance</h5>
-  
+      <h5 class="text-center">Subject Performance</h5>
+
       <!-- Error Handling -->
       <div v-if="error" class="alert alert-danger text-center">
         {{ error }}
       </div>
-    </div>
-  </template>
-  
 
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    name: 'MySubjectPerformance',
-    data() {
-      return {
-        subject: {
-          subjectName: '',
-          semester: '',
-          schoolYear: ''
-        },
-        error: ''
-      };
-    },
-    created() {
-      this.fetchSubject();
-    },
-    methods: {
-      async fetchSubject() {
-        try {
-          const classId = this.$route.params.class_id;
-          const token = localStorage.getItem('token');
-  
-          if (!token) {
-            this.error = 'Authorization token is missing. Please log in again.';
-            return;
-          }
-  
-          const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+      <!-- Performance Table -->
+      <table class="table table-hover" v-if="performances.length">
+        <thead>
+          <tr>
+            <th>Subject Name</th>
+            <th>Average Grade</th>
+            <th>Attendance</th>
+            <th>Performance Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="performance in performances" :key="performance.id">
+            <td>{{ performance.subjectName }}</td>
+            <td>{{ performance.averageGrade }}</td>
+            <td>{{ performance.attendance }}%</td>
+            <td>{{ performance.performanceStatus }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p v-else class="text-center">No performance data available</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'MySubjectPerformance',
+  data() {
+    return {
+      subject: {
+        subjectName: '',         // Maps to 'subject_name' from backend
+        classDescription: '',    // Maps to 'class_description' from backend
+        classGenCode: ''         // Maps to 'class_gen_code' from backend
+      },
+      performances: [],           // To store the performance list
+      error: ''                   // To store any error messages
+    };
+  },
+  methods: {
+    async fetchSubjectAndPerformances() {
+      const classId = this.$route.params.class_id;
+      const token = localStorage.getItem('token');
+
+      try {
+        const subjectResponse = await axios.get(`http://localhost:8000/api/classroom/${classId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (subjectResponse.data) {
+          this.subject.subjectName = subjectResponse.data.subject_name;
+          this.subject.classDescription = subjectResponse.data.class_description;
+          this.subject.classGenCode = subjectResponse.data.class_gen_code;
+
+          // Fetch performance data
+          const performancesResponse = await axios.get(`http://localhost:8000/api/class/${classId}/performances`, {
             headers: {
-              Authorization: `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
-  
-          if (!response.data.class || !response.data.class.subject.subjectname) {
-            this.error = 'Class not found or you are not authorized to view this class.';
-            return;
-          }
-  
-          this.subject.subjectName = response.data.class.subject.subjectname;
-          this.subject.semester = response.data.class.semester;
-          this.subject.schoolYear = response.data.class.year.addyear;
-        } catch (error) {
-          if (error.response) {
-            if (error.response.status === 404) {
-              this.error = 'Class not found or you are not authorized to view this class.';
-            } else if (error.response.status === 403) {
-              this.error = 'You are not authorized to view this class.';
-            } else {
-              this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
-            }
+
+          if (performancesResponse.data) {
+            this.performances = performancesResponse.data.performances;
           } else {
-            this.error = 'Failed to fetch subject data. Please try again later.';
+            this.error = 'No performance data found';
           }
+        } else {
+          this.error = 'Class details not found';
         }
+
+      } catch (error) {
+        this.error = error.response ? error.response.data.error : 'Error fetching subject and performance details';
       }
     }
-  };
-  </script>
-  
-  <style scoped>
-  /* Main Container */
+  },
+  created() {
+    this.fetchSubjectAndPerformances(); // Fetch data when component is created
+  }
+};
+</script>
+
+<style scoped>
+/* Main Container */
+.main-container {
+  display: flex;
+  align-items: flex-start; /* Align items at the start for better structure */
+  justify-content: space-between;
+  flex-wrap: wrap; /* Ensure responsiveness on smaller screens */
+  padding: 20px; /* Add padding to the main container */
+  gap: 20px; /* Add spacing between the subject info and navigation */
+}
+
+/* Subject Info Container */
+.subject-info-container {
+  flex: 1;
+  min-width: 250px; /* Ensure a minimum width for smaller screens */
+  max-width: 350px; /* Limit the maximum width */
+  margin-right: 20px; /* Add more space to the right */
+}
+
+.subject-info {
+  padding: 20px;
+  background-color: #f8f9fa; /* Lighter background color */
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Increase shadow depth for better distinction */
+  transition: box-shadow 0.3s ease;
+}
+
+.subject-info:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Hover effect for better interactivity */
+}
+
+.subject-info h2 {
+  font-size: 1.75rem;
+  color: #212529; /* Slightly darker color for better readability */
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subject-info p {
+  font-size: 1.1rem;
+  color: #495057; /* Softer gray for better readability */
+}
+
+/* Navigation Bar */
+.nav {
+  flex: 2;
+  display: flex;
+  flex-wrap: wrap; /* Ensure items wrap on smaller screens */
+  background-color: #ffffff;
+  justify-content: center; /* Center nav items for balance */
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Increase shadow depth */
+  padding: 15px;
+  border-radius: 10px;
+  gap: 10px; /* Add spacing between the nav items */
+}
+
+.nav-link {
+  color: #343a40 !important;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 15px; /* Add padding for better spacing */
+  border-radius: 5px; /* Add rounded corners */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: #007bff;
+  color: white !important; /* Change text color to white on hover */
+}
+
+.router-link-active {
+  color: #007bff !important;
+  border-bottom: none; /* Remove the border-bottom and rely on color change */
+  background-color: #e9f5ff; /* Subtle background change for active links */
+  padding: 10px 15px; /* Keep padding consistent */
+  border-radius: 5px;
+}
+
+/* Performance Table */
+.table {
+  margin-top: 20px;
+}
+
+.table th, .table td {
+  text-align: center;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Error Alert */
+.alert {
+  margin-top: 20px;
+  border-radius: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .main-container {
-    display: flex;
-    align-items: stretch; /* Ensure both containers stretch to the same height */
-    justify-content: space-between; /* Space out the subject info and nav bar */
-    padding: 20px;
+    flex-direction: column; /* Stack the containers vertically */
+    gap: 10px; /* Reduce the gap for smaller screens */
   }
-  
-  /* Subject Info Container */
-  .subject-info-container {
-    flex: 1; /* Flex value of 1 to take equal height as the nav */
-    max-width: 300px;
-    margin-right: 20px;
-    display: flex;
-    align-items: center; /* Center the content vertically */
-  }
-  
-  /* Subject Info Styling */
-  .subject-info {
-    width: 100%;
-    padding: 15px;
-    background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .subject-info h2 {
-    font-size: 1.5rem;
-    color: #343a40;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  
-  .subject-info p {
-    font-size: 1rem;
-    color: #6c757d;
-  }
-  
-  /* Navigation Bar */
+
   .nav {
-    flex: 2; /* Flex value of 2 to balance the nav width */
-    display: flex;
-    justify-content: space-around;
-    align-items: center; /* Ensure nav items are centered vertically */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    border-radius: 10px;
+    flex-direction: row;
+    justify-content: space-between; /* Align the links across the container */
   }
-  
+
   .nav-link {
-    color: #343a40 !important;
-    text-decoration: none;
-    font-weight: 500;
+    padding: 8px 10px; /* Adjust padding for smaller screens */
   }
-  
-  .nav-link:hover {
-    color: #007bff !important;
-  }
-  
-  .router-link-active {
-    color: #007bff !important;
-    border-bottom: 2px solid #007bff;
-  }
-  
-  /* Dashboard Title */
-  .subject-page h5 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #343a40;
-    letter-spacing: 1px;
-    margin-bottom: 40px;
-  }
-  
-  /* Alert Styling */
-  .alert {
-    border-radius: 15px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  </style>
-  
-  
-  <style scoped>
-  /* Add scoped styles if necessary */
-  </style>
-  
+}
+</style>
