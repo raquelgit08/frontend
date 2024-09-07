@@ -180,7 +180,8 @@ export default {
         section =>
           section.section.toLowerCase() === this.newSection.toLowerCase() &&
           section.strand.id === this.selectedStrand &&
-          section.strand.grade_level === this.selectedGradeLevel
+          section.strand.grade_level === this.selectedGradeLevel &&
+          (!this.isEdit || section.id !== this.editSectionId)  // Ignore the current section if editing
       );
 
       if (duplicate) {
@@ -190,7 +191,7 @@ export default {
         this.saveSection();
       }
     },
-
+       
     async saveSection() {
       try {
         const token = localStorage.getItem('token');
@@ -225,7 +226,6 @@ export default {
         this.error = 'Failed to save section.';
       }
     },
-
     async deleteSection(id) {
       try {
         const token = localStorage.getItem('token');

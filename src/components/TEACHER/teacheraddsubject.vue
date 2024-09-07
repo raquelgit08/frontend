@@ -9,7 +9,9 @@
         <div class="card" @click="$router.push(`/subject/${classItem.id}`)">
           <img :src="require('@/assets/back1.jpg')" class="card-img" alt="Class Image">
           <div class="card-container">
-            <p class="card-text"><b> {{ classItem.subject.subjectname }}</b></p>
+            <p class="card-subject-name" >
+              <b>{{ classItem.subject.subjectname }}</b>
+            </p>
             <!-- <p class="card-text">{{ classItem.class_desc }}</p> -->
             <hr> <!-- Add this to display a horizontal line -->
             <p class="card-text"> {{ classItem.strand.addstrand }} {{ classItem.strand.grade_level }} {{ classItem.section.section }}</p>
@@ -101,7 +103,7 @@
                     </option>
               </select>
             </div>
- 
+
             <div class="form-group">
               <label for="description">Class Description</label>
               <textarea class="form-control" id="description" v-model="newClass.class_desc"></textarea>
@@ -469,12 +471,22 @@ export default {
   background-color: #f8f9fa;
 }
 
-.card-title {
-  font-size: 1.2rem; /* Increased title font size */
+
+.card-subject-name {
+  font-size: 18px;
+  margin-bottom: 5px;
+  white-space: nowrap; /* Keep text in a single line */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Show ellipsis (...) if the text is too long */
 }
+.card-subject-name.long-text {
+  font-size: 1rem; /* Reduce font size if the text is too long */
+}
+
 
 .card-text {
   margin: 5px 0; /* Add this to add a small margin between paragraphs */
+  font-size: 15px;
 }
 .card-container{
   padding: 20px;

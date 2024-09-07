@@ -1,26 +1,27 @@
 <template>
-  <div class="container">
-    <div class="main-container">
-      <div class="subject-info-container">
-        <div v-if="subject.subjectName" class="subject-info">
-          <h2>{{ subject.subjectName }}</h2>
-          <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
-        </div>
+  <div class="main-container">
+    <!-- Subject Information Display on the Left -->
+    <div class="subject-info-container">
+      <div v-if="subject.subjectName" class="subject-info">
+        <h2>{{ subject.subjectName }}</h2>
+        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
       </div>
-
-      <nav class="nav nav-pills">
-        <router-link to="/teacheraddsubject" class="nav-link">
-          <span><i class="bi bi-arrow-left fs-4"></i></span>
-        </router-link>
-        <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-        <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">Exams</router-link>
-        <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-        <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
-        <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-        <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
-        <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
-      </nav>
     </div>
+
+    <!-- Navigation Bar Positioned Next to Subject Info -->
+    <nav class="nav nav-pills">
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-4"></i></span>
+      </router-link>
+      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
+      <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
+      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
+      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+    </nav>
+  </div>
 
     <div class="exam-list mt-4">
       <h2 class="text-center">Examinations</h2>
@@ -55,7 +56,7 @@
       </table>
       <button @click="navigateToAddExam" class="btn btn-primary mt-3 w-100">Add Exam</button>
     </div>
-  </div>
+
 </template>
 
 <script>
@@ -188,22 +189,71 @@ export default {
 </script>
 
 <style scoped>
-/* Style for the exam list */
 .main-container {
   display: flex;
-  justify-content: space-between;
+  align-items: stretch; /* Ensure both containers stretch to the same height */
+  justify-content: space-between; /* Space out the subject info and nav bar */
+
 }
 
+/* Subject Info Container */
 .subject-info-container {
-  flex: 1;
+  flex: 1; /* Flex value of 1 to take equal height as the nav */
   max-width: 300px;
+  margin-right: 10px;
+  margin-left: 10px;
+  display: flex;
+  align-items: center; /* Center the content vertically */
 }
 
+/* Subject Info Styling */
+.subject-info {
+  width: 100%;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.subject-info h2 {
+  font-size: 1.5rem;
+  color: #343a40;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.subject-info p {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+/* Navigation Bar */
 .nav {
+  flex: 2; /* Flex value of 2 to balance the nav width */
   display: flex;
   justify-content: space-around;
-  align-items: center;
+  background-color: #ffffff;
+  align-items: center; /* Ensure nav items are centered vertically */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 10px;
 }
+
+.nav-link {
+  color: #343a40 !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: #007bff !important;
+}
+
+.router-link-active {
+  color: #007bff !important;
+  border-bottom: 2px solid #007bff;
+}
+
 
 .exam-list {
   margin-top: 20px;

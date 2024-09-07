@@ -14,7 +14,7 @@
         <span><i class="bi bi-arrow-left fs-4"></i></span>
       </router-link>
       <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-      <router-link :to="`/AddExam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
       <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
@@ -169,14 +169,15 @@ export default {
   display: flex;
   align-items: stretch; /* Ensure both containers stretch to the same height */
   justify-content: space-between; /* Space out the subject info and nav bar */
-  padding: 20px;
 }
 
+/* Subject Info Container */
 /* Subject Info Container */
 .subject-info-container {
   flex: 1; /* Flex value of 1 to take equal height as the nav */
   max-width: 300px;
-  margin-right: 20px;
+  margin-right: 10px;
+  margin-left: 10px;
   display: flex;
   align-items: center; /* Center the content vertically */
 }
@@ -207,6 +208,7 @@ export default {
   flex: 2; /* Flex value of 2 to balance the nav width */
   display: flex;
   justify-content: space-around;
+  background-color: #ffffff;
   align-items: center; /* Ensure nav items are centered vertically */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 10px;
