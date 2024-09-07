@@ -102,14 +102,15 @@ export default {
   display: flex;
   align-items: stretch; /* Ensure both containers stretch to the same height */
   justify-content: space-between; /* Space out the subject info and nav bar */
-  padding: 20px;
+  
 }
 
 /* Subject Info Container */
 .subject-info-container {
   flex: 1; /* Flex value of 1 to take equal height as the nav */
   max-width: 300px;
-  margin-right: 20px;
+  margin-right: 10px;
+  margin-left: 10px;
   display: flex;
   align-items: center; /* Center the content vertically */
 }
@@ -139,6 +140,7 @@ export default {
 .nav {
   flex: 2; /* Flex value of 2 to balance the nav width */
   display: flex;
+  background-color: #ffffff;
   justify-content: space-around;
   align-items: center; /* Ensure nav items are centered vertically */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
