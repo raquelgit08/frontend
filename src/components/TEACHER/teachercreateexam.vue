@@ -23,37 +23,39 @@
     </nav>
   </div>
 
-    <div class="exam-list mt-4">
+    <div class="container-fluid">
       <h2 class="text-center">Examinations</h2>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Quarter</th>
-            <th>Start Date & Time</th>
-            <th>End Date & Time</th>
-            <th>Total Questions</th>
-            <th>Total Points</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="exam in exams" :key="exam.id">
-            <td>{{ exam.title }}</td>
-            <td>{{ exam.quarter }}</td>
-            <td>{{ exam.start }}</td>
-            <td>{{ exam.end }}</td>
-            <td>{{ exam.total_questions }}</td>
-            <td>{{ exam.total_points }}</td>
-            <td>
-              <button @click="viewExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
-              <button @click="editExam(exam.id)" class="btn btn-warning btn-sm me-2">Edit</button>
-              <button @click="archiveExam(exam.id)" class="btn btn-danger btn-sm me-2">Archive</button>
-              <button @click="publishExam(exam.id)" class="btn btn-success btn-sm">Publish</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-wrapper">
+        <table class="table table-hover table-custom">
+          <thead class="table-info">
+            <tr>
+              <th>Title</th>
+              <th>Quarter</th>
+              <th>Start Date & Time</th>
+              <th>End Date & Time</th>
+              <th>Total Questions</th>
+              <th>Total Points</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="exam in exams" :key="exam.id">
+              <td>{{ exam.title }}</td>
+              <td>{{ exam.quarter }}</td>
+              <td>{{ exam.start }}</td>
+              <td>{{ exam.end }}</td>
+              <td>{{ exam.total_questions }}</td>
+              <td>{{ exam.total_points }}</td>
+              <td>
+                <button @click="viewExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
+                <button @click="editExam(exam.id)" class="btn btn-warning btn-sm me-2">Edit</button>
+                <button @click="archiveExam(exam.id)" class="btn btn-danger btn-sm me-2">Archive</button>
+                <button @click="publishExam(exam.id)" class="btn btn-success btn-sm">Publish</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
       <button @click="navigateToAddExam" class="btn btn-primary mt-3 w-100">Add Exam</button>
     </div>
 
@@ -199,10 +201,10 @@ export default {
   flex: 1; /* Flex value of 1 to take equal height as the nav */
   max-width: 300px;
   margin-right: 10px;
-  margin-left: 10px;
   display: flex;
   align-items: center; /* Center the content vertically */
 }
+
 
 /* Subject Info Styling */
 .subject-info {
@@ -223,6 +225,13 @@ export default {
 .subject-info p {
   font-size: 1rem;
   color: #6c757d;
+}
+.container-fluid{
+  margin-top: 10px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Navigation Bar */
@@ -251,13 +260,40 @@ export default {
   color: #007bff !important;
   border-bottom: 2px solid #007bff;
 }
-
-
-.exam-list {
-  margin-top: 20px;
+/* Table Wrapper */
+.table-wrapper {
+  margin: 0 auto;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
+  
 }
 
-.table-hover {
-  width: 100%;
+/* Table Styles */
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  border: 1px solid #200909;
+  overflow: hidden;
 }
+
+.table-custom th {
+  background-color: #0d8eead7;
+  color: #000000;
+  font-weight: 700;
+}
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
+}
+
 </style>

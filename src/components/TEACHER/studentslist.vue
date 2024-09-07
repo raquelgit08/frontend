@@ -31,12 +31,14 @@
           <thead class="table-info">
             <tr>
               <th scope="col" class="text-center">Email</th>
+              <th scope="col" class="text-center">Name</th>
               <th scope="col" class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(student) in students" :key="student.id">
               <td class="text-center">{{ student.email }}</td>
+              <td class="text-center">{{ student.users?.lname }}</td>
               <td class="text-center">
                 <!-- <button class="btn btn-danger" @click="kickStudent(student.id)">Kick</button> -->
                 <button class="btn btn-primary" @click="inviteStudent(student.id)">Invite</button>
@@ -77,6 +79,7 @@ export default {
             class_id: classId
           }
         });
+        console.log(response.data);
         this.students = response.data.students;
       } catch (error) {
         alert('Error fetching students: ' + error.message);
