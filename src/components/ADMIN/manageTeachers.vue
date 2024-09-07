@@ -40,6 +40,7 @@
           <thead class="table-info">
             <tr>
               <th scope="col" class="text-center">No.</th>
+              <th scope="col" class="text-center">user.id</th>
               <th scope="col" class="text-center">LRN</th>
               <th scope="col" class="text-center">Teachers Profile</th>
               <th scope="col" class="text-center">Sex</th>
@@ -51,6 +52,7 @@
           <tbody>
             <tr v-for="(teachers, index) in paginatedItems" :key="teachers.idnumber">
               <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+              <td>{{ teachers.user.id }}</td>
               <td>{{ teachers.user.idnumber }}</td>
               <td class="text-center">
                 <b>{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </b><br>
@@ -64,12 +66,12 @@
               </td>
               <td class="text-center">
                 <div class="btn-group" role="group" aria-label="Active and Inactive">
-  <input type="radio" class="btn-check" name="options" id="activeRadio" autocomplete="off" v-model="selectedOption" value="active" :checked="isActive" />
-  <label class="btn" :class="{'btn-success': selectedOption === 'active', 'btn-secondary': selectedOption !== 'active'}" for="activeRadio">Active</label>
+                  <input type="radio" class="btn-check" name="options" id="activeRadio" autocomplete="off" v-model="selectedOption" value="active" :checked="isActive" />
+                  <label class="btn" :class="{'btn-success': selectedOption === 'active', 'btn-secondary': selectedOption !== 'active'}" for="activeRadio">Active</label>
 
-  <input type="radio" class="btn-check" name="options" id="inactiveRadio" autocomplete="off" v-model="selectedOption" value="inactive" :checked="!isActive" />
-  <label class="btn" :class="{'btn-danger': selectedOption === 'inactive', 'btn-secondary': selectedOption !== 'inactive'}" for="inactiveRadio">Inactive</label>
-</div>
+                  <input type="radio" class="btn-check" name="options" id="inactiveRadio" autocomplete="off" v-model="selectedOption" value="inactive" :checked="!isActive" />
+                  <label class="btn" :class="{'btn-danger': selectedOption === 'inactive', 'btn-secondary': selectedOption !== 'inactive'}" for="inactiveRadio">Inactive</label>
+                </div>
               </td>
               <td class="text-center">
                 <div class="icon-container">

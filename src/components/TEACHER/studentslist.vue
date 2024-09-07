@@ -38,7 +38,7 @@
             <tr v-for="(student) in students" :key="student.id">
               <td class="text-center">{{ student.email }}</td>
               <td class="text-center">
-                <button class="btn btn-danger" @click="kickStudent(student.id)">Kick</button>
+                <!-- <button class="btn btn-danger" @click="kickStudent(student.id)">Kick</button> -->
                 <button class="btn btn-primary" @click="inviteStudent(student.id)">Invite</button>
               </td>
             </tr>
@@ -122,25 +122,25 @@ export default {
         }
       }
     },
-    async kickStudent(studentId) {
-      if (confirm('Are you sure you want to remove this student from the class?')) {
-        try {
-          const classId = this.$route.params.class_id; // Get class_id from route params
-          await axios.delete(`http://localhost:8000/api/students/${studentId}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            },
-            params: {
-              class_id: classId
-            }
-          });
-          alert('Student removed successfully');
-          this.fetchStudents();
-        } catch (error) {
-          alert('Error removing student: ' + error.message);
-        }
-      }
-    },
+    // async kickStudent(studentId) {
+    //   if (confirm('Are you sure you want to remove this student from the class?')) {
+    //     try {
+    //       const classId = this.$route.params.class_id; // Get class_id from route params
+    //       await axios.delete(`http://localhost:8000/api/students/${studentId}`, {
+    //         headers: {
+    //           Authorization: `Bearer ${localStorage.getItem('token')}`
+    //         },
+    //         params: {
+    //           class_id: classId
+    //         }
+    //       });
+    //       alert('Student removed successfully');
+    //       this.fetchStudents();
+    //     } catch (error) {
+    //       alert('Error removing student: ' + error.message);
+    //     }
+    //   }
+    // },
     async inviteStudent(studentId) {
       try {
         const response = await axios.post(`http://localhost:8000/api/inviteStudent`, {
@@ -164,6 +164,11 @@ export default {
 </script>
 
 <style scoped>
+.container-fluid {
+  background-color: #ffffff;
+  border-radius: 10px;
+
+}
 /* Main Container */
 .main-container {
   display: flex;
