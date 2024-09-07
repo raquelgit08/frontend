@@ -54,43 +54,45 @@ export default {
   },
   methods: {
     async fetchSubject() {
-      try {
-        const classId = this.$route.params.class_id;
-        const token = localStorage.getItem('token');
+  try {
+    const classId = this.$route.params.class_id;
+    const token = localStorage.getItem('token');
 
-        if (!token) {
-          this.error = 'Authorization token is missing. Please log in again.';
-          return;
-        }
-
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!response.data.class || !response.data.class.subject.subjectname) {
-          this.error = 'Class not found or you are not authorized to view this class.';
-          return;
-        }
-
-        this.subject.subjectName = response.data.class.subject.subjectname;
-        this.subject.semester = response.data.class.semester;
-        this.subject.schoolYear = response.data.class.year.addyear;
-      } catch (error) {
-        if (error.response) {
-          if (error.response.status === 404) {
-            this.error = 'Class not found or you are not authorized to view this class.';
-          } else if (error.response.status === 403) {
-            this.error = 'You are not authorized to view this class.';
-          } else {
-            this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
-          }
-        } else {
-          this.error = 'Failed to fetch subject data. Please try again later.';
-        }
-      }
+    if (!token) {
+      this.error = 'Authorization token is missing. Please log in again.';
+      return;
     }
+
+    const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.data.class) {
+      this.error = 'Class not found or you are not authorized to view this class.';
+      return;
+    }
+
+    this.subject.subjectName = response.data.class.subject.subjectname;
+    this.subject.semester = response.data.class.semester;
+    this.subject.schoolYear = response.data.class.year.addyear;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 404) {
+        this.error = 'Class not found or you are not authorized to view this class.';
+      } else if (error.response.status === 403) {
+        this.error = 'You are not authorized to view this class.';
+      } else {
+        this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
+      }
+    } else {
+      this.error = 'Failed to fetch subject data. Please try again later.';
+    }
+    console.error('Error fetching subject:', error);  // Log the error for debugging
+  }
+}
+
   }
 };
 </script>
