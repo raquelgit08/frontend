@@ -176,59 +176,56 @@ export default {
     },
 
     async checkForDuplicate() {
-    // Check for duplicates in the current section list
-    const duplicate = this.sections.find(
-      section =>
-        section.section.toLowerCase() === this.newSection.toLowerCase() &&
-        section.strand.id === this.selectedStrand &&
-        section.strand.grade_level === this.selectedGradeLevel &&
-        (!this.isEdit || section.id !== this.editSectionId)  // Ignore the current section if editing
-    );
+      const duplicate = this.sections.find(
+        section =>
+          section.section.toLowerCase() === this.newSection.toLowerCase() &&
+          section.strand.id === this.selectedStrand &&
+          section.strand.grade_level === this.selectedGradeLevel &&
+          (!this.isEdit || section.id !== this.editSectionId)  // Ignore the current section if editing
+      );
 
-    if (duplicate) {
-      this.closeModal();  // Close the Add/Edit modal before showing the duplicate modal
-      this.showDuplicateModal();
-    } else {
-      this.saveSection();
-    }
-  },
-
-  async saveSection() {
-    try {
-      const token = localStorage.getItem('token');
-      if (this.newSection && this.selectedGradeLevel && this.selectedStrand) {
-        if (this.isEdit) {
-          await axios.put(`http://localhost:8000/api/updatesection/${this.editSectionId}`, {
-            section: this.newSection,
-            grade_level: this.selectedGradeLevel,
-            strand_id: this.selectedStrand
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-        } else {
-          await axios.post('http://localhost:8000/api/addsection', {
-            section: this.newSection,
-            grade_level: this.selectedGradeLevel,
-            strand_id: this.selectedStrand
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-        }
-        await this.fetchSections();
-        this.resetForm();
-        this.closeModal();
+      if (duplicate) {
+        this.closeModal();  // Close the Add/Edit modal before showing the duplicate modal
+        this.showDuplicateModal();
+      } else {
+        this.saveSection();
       }
-    } catch (error) {
-      console.error('Error saving section:', error);
-      this.error = 'Failed to save section.';
-    }
-  },
-
-
+    },
+       
+    async saveSection() {
+      try {
+        const token = localStorage.getItem('token');
+        if (this.newSection && this.selectedGradeLevel && this.selectedStrand) {
+          if (this.isEdit) {
+            await axios.put(`http://localhost:8000/api/updatesection/${this.editSectionId}`, {
+              section: this.newSection,
+              grade_level: this.selectedGradeLevel,
+              strand_id: this.selectedStrand
+            }, {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+          } else {
+            await axios.post('http://localhost:8000/api/addsection', {
+              section: this.newSection,
+              grade_level: this.selectedGradeLevel,
+              strand_id: this.selectedStrand
+            }, {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+          }
+          await this.fetchSections();
+          this.resetForm();
+          this.closeModal();
+        }
+      } catch (error) {
+        console.error('Error saving section:', error);
+        this.error = 'Failed to save section.';
+      }
+    },
     async deleteSection(id) {
       try {
         const token = localStorage.getItem('token');
