@@ -206,10 +206,10 @@
                   </option>
                 </select>
               </div>
-              <div class="col-md-5">
+              <!-- <div class="col-md-5">
           <label for="Mobile_no" class="form-label">Mobile Number:</label>
           <input v-model="currentUser.Mobile_no" type="tel" id="Mobile_no" class="form-control" required>
-        </div>
+        </div> -->
             </div>    
           </form>
 
@@ -227,7 +227,7 @@
 <script>
 import axios from 'axios';
 import moment from 'moment';
-
+import Swal from 'sweetalert2';
 export default {
   name: 'ManageUserStudents',
   data() {
@@ -339,7 +339,7 @@ export default {
         email: this.currentUser.user.email,
         strand_id: this.formData.strand_id,
         section_id: this.formData.section_id,
-        Mobile_no: this.currentUser.Mobile_no,
+        // Mobile_no: this.currentUser.user.Mobile_no,
       };
 
       if (this.formData.password) {
@@ -352,14 +352,18 @@ export default {
           'Content-Type': 'application/json'
         }
       })
-      .then(response => {
-        console.log(response.data.message);
+      .then(() => {
+        Swal.fire({
+          title: 'Success!',
+          text: 'Student details updated successfully.',
+          icon: 'success',
+          confirmButtonText: 'OK'
+      }).then(() => {
+        // Refresh the data here
+        this.fetchStudents(); // Assuming you have a fetchData method to refresh the data
         this.showModal = false;
-        this.fetchStrands;
-        this.fetchSections;
-        this.fetchStudents;
-        
-      })
+      });
+    })
       .catch(error => {
         console.error('Error saving changes:', error.response ? error.response.data : error.message);
       });
@@ -459,7 +463,7 @@ export default {
       this.form.newPassword = password;
       this.form.confirmPassword = password; // Set confirm password to the generated password
     },
-   async resetPassword() {
+    async resetPassword() {
       const userId = this.currentUser.user.id;
       const newPassword = this.form.newPassword;
       const confirmPassword = this.form.confirmPassword;
@@ -475,7 +479,7 @@ export default {
       }
 
       try {
-        const response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
+        let response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
           new_password: newPassword,
           new_password_confirmation: confirmPassword,
         }, {
@@ -484,9 +488,17 @@ export default {
           }
         });
 
-        alert(response.data.message);
-        this.showResetModal = false;
-        this.fetchStudents();
+        Swal.fire({
+          title: 'Success!',
+          text: response.data.message , // Use the response message as the text
+          icon: 'success',
+          confirmButtonText: 'OK'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.fetchStudents(); // Assuming you have a fetchData method to refresh the data
+            this.showResetModal = false;
+          }
+        });
       } catch (error) {
         this.errorMessage = error.response ? error.response.data.message : 'An error occurred while updating the password.';
       }
