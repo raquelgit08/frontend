@@ -1,182 +1,217 @@
 <template>
-    <div class="main-container">
-      <!-- Subject Information Display on the Left -->
-      <div class="subject-info-container">
-        <div v-if="subject.subjectName" class="subject-info">
-          <h2>{{ subject.subjectName }}</h2>
-          <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
-        </div>
+  <div class="main-container">
+    <!-- Subject Information Display on the Left -->
+    <div class="subject-info-container">
+      <div v-if="subject.subjectName" class="subject-info">
+        <h2>{{ subject.subjectName }}</h2>
+        <p>Description: {{ subject.classDescription }}</p>
+        <p>Class Code: {{ subject.classGenCode }}</p>
       </div>
-  
-      <!-- Navigation Bar Positioned Next to Subject Info -->
-      <nav class="nav nav-pills">
-        <router-link to="/teacheraddsubject" class="nav-link">
-          <span><i class="bi bi-arrow-left fs-4"></i></span>
-        </router-link>
-    <router-link :to="`/mysubject`" class="nav-link">Dashboard</router-link>
-    <router-link :to="`/myExams`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-    <router-link :to="`/myfeedbacks`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i>My Feedbacks</router-link>
-    <router-link :to="`/mysubjectperformances`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-      </nav>
     </div>
-  
+
+
+    <!-- Navigation Bar Positioned Next to Subject Info -->
+    <nav class="nav nav-pills">
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-4"></i></span>
+      </router-link>
+      <router-link :to="`/mysubject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+      <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+      <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> My Feedbacks</router-link>
+      <router-link :to="`/mysubjectperformances/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+    </nav>
+
     <!-- Subject Page Content -->
     <div class="subject-page container mt-5">
-      <h5 class="text-center">examssss fedbaccks</h5>
-  
+      <h5 class="text-center">Feedback</h5>
+
       <!-- Error Handling -->
       <div v-if="error" class="alert alert-danger text-center">
         {{ error }}
       </div>
-    </div>
-  </template>
-  
 
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    name: 'MyFeedbacks',
-    data() {
-      return {
-        subject: {
-          subjectName: '',
-          semester: '',
-          schoolYear: ''
-        },
-        error: ''
-      };
-    },
-    created() {
-      this.fetchSubject();
-    },
-    methods: {
-      async fetchSubject() {
-        try {
-          const classId = this.$route.params.class_id;
-          const token = localStorage.getItem('token');
-  
-          if (!token) {
-            this.error = 'Authorization token is missing. Please log in again.';
-            return;
-          }
-  
-          const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-  
-          if (!response.data.class || !response.data.class.subject.subjectname) {
-            this.error = 'Class not found or you are not authorized to view this class.';
-            return;
-          }
-  
-          this.subject.subjectName = response.data.class.subject.subjectname;
-          this.subject.semester = response.data.class.semester;
-          this.subject.schoolYear = response.data.class.year.addyear;
-        } catch (error) {
-          if (error.response) {
-            if (error.response.status === 404) {
-              this.error = 'Class not found or you are not authorized to view this class.';
-            } else if (error.response.status === 403) {
-              this.error = 'You are not authorized to view this class.';
-            } else {
-              this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
-            }
-          } else {
-            this.error = 'Failed to fetch subject data. Please try again later.';
-          }
-        }
+      <!-- Feedback List -->
+      <table class="table table-hover" v-if="feedbacks.length">
+        <thead>
+          <tr>
+            <th>Feedback Title</th>
+            <th>Comment</th>
+            <th>Date Submitted</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="feedback in feedbacks" :key="feedback.id">
+            <td>{{ feedback.title }}</td>
+            <td>{{ feedback.comment }}</td>
+            <td>{{ formatDateTime(feedback.date_submitted) }}</td>
+            <td>
+              <span v-if="feedback.status === 'resolved'">Resolved</span>
+              <span v-else>Pending</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p v-else class="text-center">No feedbacks available</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'MyFeedbacks',
+  data() {
+    return {
+      subject: {
+        subjectName: '',
+        semester: '',
+        schoolYear: ''
+      },
+      feedbacks: [],
+      error: ''
+    };
+  },
+  methods: {
+    // Fetch subject info and feedbacks from the server
+    async fetchSubjectAndFeedbacks() {
+      const classId = this.$route.params.class_id;
+      const token = localStorage.getItem('token');
+
+      try {
+        // Fetch subject details
+        const subjectResponse = await axios.get(`http://localhost:8000/api/classroom/${classId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.subject.subjectName = subjectResponse.data.subject_name;
+        this.subject.semester = subjectResponse.data.semester;
+        this.subject.schoolYear = subjectResponse.data.school_year;
+
+        // Fetch feedbacks for the class
+        const feedbacksResponse = await axios.get(`http://localhost:8000/api/class/${classId}/feedbacks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.feedbacks = feedbacksResponse.data.feedbacks;
+
+      } catch (error) {
+        this.error = error.response ? error.response.data.error : 'Error fetching subject and feedbacks';
       }
+    },
+
+    // Format date and time
+    formatDateTime(dateTime) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return new Date(dateTime).toLocaleString(undefined, options);
     }
-  };
-  </script>
-  
-  <style scoped>
-  /* Main Container */
-  .main-container {
-    display: flex;
-    align-items: stretch; /* Ensure both containers stretch to the same height */
-    justify-content: space-between; /* Space out the subject info and nav bar */
-    padding: 20px;
+  },
+
+  created() {
+    this.fetchSubjectAndFeedbacks(); // Fetch subject info and feedbacks when the component is created
   }
-  
-  /* Subject Info Container */
-  .subject-info-container {
-    flex: 1; /* Flex value of 1 to take equal height as the nav */
-    max-width: 300px;
-    margin-right: 20px;
-    display: flex;
-    align-items: center; /* Center the content vertically */
-  }
-  
-  /* Subject Info Styling */
-  .subject-info {
-    width: 100%;
-    padding: 15px;
-    background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .subject-info h2 {
-    font-size: 1.5rem;
-    color: #343a40;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  
-  .subject-info p {
-    font-size: 1rem;
-    color: #6c757d;
-  }
-  
-  /* Navigation Bar */
-  .nav {
-    flex: 2; /* Flex value of 2 to balance the nav width */
-    display: flex;
-    justify-content: space-around;
-    align-items: center; /* Ensure nav items are centered vertically */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    border-radius: 10px;
-  }
-  
-  .nav-link {
-    color: #343a40 !important;
-    text-decoration: none;
-    font-weight: 500;
-  }
-  
-  .nav-link:hover {
-    color: #007bff !important;
-  }
-  
-  .router-link-active {
-    color: #007bff !important;
-    border-bottom: 2px solid #007bff;
-  }
-  
-  /* Dashboard Title */
-  .subject-page h5 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #343a40;
-    letter-spacing: 1px;
-    margin-bottom: 40px;
-  }
-  
-  /* Alert Styling */
-  .alert {
-    border-radius: 15px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  </style>
-  
-  
-  <style scoped>
-  /* Add scoped styles if necessary */
-  </style>
-  
+};
+</script>
+
+<style scoped>
+/* Main Container */
+.main-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 20px;
+  gap: 20px;
+}
+
+/* Subject Info Container */
+.subject-info-container {
+  flex: 1;
+  min-width: 250px;
+  max-width: 350px;
+  margin-right: 20px;
+}
+
+.subject-info {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.subject-info h2 {
+  font-size: 1.75rem;
+  color: #212529;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subject-info p {
+  font-size: 1.1rem;
+  color: #495057;
+}
+
+/* Navigation Bar */
+.nav {
+  flex: 2;
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #ffffff;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  gap: 10px;
+}
+
+.nav-link {
+  color: #343a40 !important;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: #007bff;
+  color: white !important;
+}
+
+.router-link-active {
+  color: #007bff !important;
+  background-color: #e9f5ff;
+  padding: 10px 15px;
+  border-radius: 5px;
+}
+
+/* Feedback Table */
+.table {
+  margin-top: 20px;
+}
+
+.table th, .table td {
+  text-align: center;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Error Alert */
+.alert {
+  margin-top: 20px;
+}
+
+.text-center {
+  margin-top: 20px;
+  font-size: 1.25rem;
+}
+</style>

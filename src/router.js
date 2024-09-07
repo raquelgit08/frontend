@@ -113,7 +113,7 @@ const routes = [
   { path: '/mysubject/:class_id', component: MySubjectPages},
   {path: '/myExams/:class_id' , component: MyExams},
   {path: '/myfeedbacks/:class_id' , component: MyFeedbacks},
-  {path: '/mysubjectperformances/:class_id' , component: MySubjectPerformance},
+  {path: '/mysubjectperformance/:class_id' , component: MySubjectPerformance},
   { path: '/spending', component: PendingExam },
   { path: '/sfinished', component: FinishedExam },
   { path: '/sperformance', component: StudentPerformance },
