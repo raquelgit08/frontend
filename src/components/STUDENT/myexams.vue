@@ -21,15 +21,9 @@
       <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-chat-dots fs-4"></i> Feedback
       </router-link>
-      <router-link :to="`/myItemAnalysis/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-bar-chart-line fs-4"></i> Item Analysis
-      </router-link>
-      <router-link :to="`/myPerformanceTracking/${$route.params.class_id}`" class="nav-link">
+      <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-activity fs-4"></i> Subject Performance 
       </router-link>
-     <!-- <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-person-lines-fill fs-4"></i> Students
-      </router-link> -->
     </nav>
 
     <!-- Published Exams List -->
@@ -67,7 +61,9 @@
               <button v-if="isExamAvailable(exam)" @click="takeExam(exam.id)" class="btn btn-primary btn-sm">
                 Take Exam
               </button>
-              <button v-else disabled class="btn btn-secondary btn-sm">Not Available</button>
+              <button @click="viewExam(exam.id)" class="btn btn-info btn-sm">
+                View Exam
+              </button>
             </td>
           </tr>
         </tbody>
@@ -75,14 +71,37 @@
 
       <p v-else class="text-center">No exams available</p>
     </div>
+
+    <!-- Exam Details Modal -->
+    <div class="modal fade" id="examModal" tabindex="-1" aria-labelledby="examModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="examModalLabel">{{ modalExam.title }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Schedule:</strong> {{ formatDateTime(modalExam.start) }} - {{ formatDateTime(modalExam.end) }}</p>
+            <p><strong>Quarter:</strong> {{ modalExam.quarter }}</p>
+            <p><strong>Status:</strong> <span v-if="isExamAvailable(modalExam)">Available</span><span v-else>Unavailable</span></p>
+            <p v-if="modalExam.description"><strong>Description:</strong> {{ modalExam.description }}</p>
+          </div>
+          <div class="modal-footer">
+            <button @click="takeExam(modalExam.id)" class="btn btn-primary">Take Exam</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import { Modal } from 'bootstrap'; // Importing Bootstrap's Modal
 
 export default {
-  name: 'PublishedExams',
+  name: 'MyExams',
   data() {
     return {
       subject: {
@@ -91,6 +110,7 @@ export default {
         classGenCode: ''
       },
       exams: [],
+      modalExam: {}, // Holds the exam details to display in the modal
       error: ''
     };
   },
@@ -101,7 +121,6 @@ export default {
       const token = localStorage.getItem('token');
 
       try {
-        // Fetch subject details
         const subjectResponse = await axios.get(`http://localhost:8000/api/classroom/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -112,8 +131,7 @@ export default {
         this.subject.classDescription = subjectResponse.data.class_description;
         this.subject.classGenCode = subjectResponse.data.class_gen_code;
 
-        // Fetch published exams for the class
-        const examsResponse = await axios.get(`http://localhost:8000/api/class/${classId}/published-exams`, {
+        const examsResponse = await axios.get(`http://localhost:8000/api/tblclass/${classId}/exams2`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -136,10 +154,30 @@ export default {
 
     // Handle taking the exam
     takeExam(examId) {
-      this.$router.push(`/takeExam/${examId}`);
+      this.$router.push(`/examtakingpage/${examId}`);
     },
 
-    // Format date and time
+    // Fetch exam details and display them in the modal
+    async viewExam(examId) {
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await axios.get(`http://localhost:8000/api/viewExam2/${examId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.modalExam = response.data.exam;
+
+        // Show modal
+        const examModal = new Modal(document.getElementById('examModal'));
+        examModal.show();
+      } catch (error) {
+        this.error = error.response ? error.response.data.error : 'Error fetching exam details';
+      }
+    },
+
+    // Format date and time for display
     formatDateTime(dateTime) {
       const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
       return new Date(dateTime).toLocaleString(undefined, options);
@@ -153,52 +191,15 @@ export default {
 </script>
 
 <style scoped>
-/* Main Container */
-.main-container {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  padding: 20px;
-  gap: 20px;
-}
-
-/* Subject Info Container */
-.subject-info-container {
-  flex: 1;
-  min-width: 250px;
-  max-width: 350px;
-  margin-right: 20px;
-}
-
-.subject-info {
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.subject-info h2 {
-  font-size: 1.75rem;
-  color: #212529;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.subject-info p {
-  font-size: 1.1rem;
-  color: #495057;
-}
-
 /* Navigation Bar */
 .nav {
   flex: 2;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap; 
   background-color: #ffffff;
-  justify-content: center;
+  justify-content: center; 
   align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
   padding: 15px;
   border-radius: 10px;
   gap: 10px;
@@ -218,14 +219,30 @@ export default {
   color: white !important;
 }
 
-.router-link-active {
-  color: #007bff !important;
-  background-color: #e9f5ff;
-  padding: 10px 15px;
-  border-radius: 5px;
+/* Main Container */
+.main-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 20px;
+  gap: 20px;
 }
 
-/* Published Exams Table */
+.subject-info-container {
+  flex: 1;
+  min-width: 250px;
+  max-width: 350px;
+  margin-right: 20px;
+}
+
+.subject-info {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
 .table {
   margin-top: 20px;
 }
@@ -238,7 +255,6 @@ export default {
   background-color: #f1f1f1;
 }
 
-/* Error Alert */
 .alert {
   margin-top: 20px;
 }

@@ -147,46 +147,44 @@ export default {
     },
 
     async publishExam(examId) {
-  try {
-    await axios.patch(`http://localhost:8000/api/exam/${examId}/publish`, {}, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+      try {
+        // Send POST request to publish exam
+        await axios.post(`http://localhost:8000/api/exams/publish2/${examId}`, {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
-    // SweetAlert success message
-    Swal.fire({
-      title: 'Exam Published!',
-      text: 'The exam has been successfully published and students have been notified via email.',
-      icon: 'success',
-      confirmButtonText: 'OK',
-    });
+        // SweetAlert success message
+        Swal.fire({
+          title: 'Exam Published!',
+          text: 'The exam has been successfully published and students have been notified via email.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
 
-    // Optionally update the local list to reflect the published status
-    const updatedExam = this.exams.find(exam => exam.id === examId);
-    if (updatedExam) {
-      updatedExam.is_published = true;
-    }
+        // Refresh exam list after publishing
+        this.fetchExams();
 
-  } catch (error) {
-    let errorMessage = 'An error occurred while publishing the exam.';
-    if (error.response && error.response.status === 404) {
-      errorMessage = 'Exam not found.';
-    } else if (error.response && error.response.status === 500) {
-      errorMessage = 'Internal server error. Please try again later.';
-    }
-    Swal.fire({
-      title: 'Error',
-      text: errorMessage,
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-  }
-}
-}
-
+      } catch (error) {
+        let errorMessage = 'An error occurred while publishing the exam.';
+        if (error.response && error.response.status === 404) {
+          errorMessage = 'Exam not found.';
+        } else if (error.response && error.response.status === 500) {
+          errorMessage = 'Internal server error. Please try again later.';
+        }
+        Swal.fire({
+          title: 'Error',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
+    },
+  },
 };
 </script>
+
 
 <style scoped>
 .main-container {
