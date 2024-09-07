@@ -8,13 +8,13 @@
       </div>
     </div>
 
-    <!-- Navigation Bar Positioned Next to Subject Info -->
+    <!-- Unified Navigation Bar -->
     <nav class="nav nav-pills">
       <router-link to="/teacheraddsubject" class="nav-link">
         <span><i class="bi bi-arrow-left fs-4"></i></span>
       </router-link>
       <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-      <router-link :to="`/AddExam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
       <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
@@ -165,10 +165,30 @@ export default {
   border-bottom: 2px solid #007bff;
 }
 
-.nav-link i {
-  margin-right: 5px;
+/* Page Title */
+.container-fluid h4 {
+  color: #060000;
+  padding: 10px;
+  border-radius: 8px 8px 0 0;
+  font-family: 'Georgia', serif;
+  margin-bottom: 20px;
 }
 
+.table {
+  font-size: 15px;
+}
+
+.table-info {
+  background-color: #e0ffff;
+}
+
+.btn-danger {
+  margin-right: 10px;
+}
+
+.container-fluid {
+  margin: auto;
+}
 /* Page Title */
 .itemanalysis-page h5 {
   font-size: 1.75rem;
