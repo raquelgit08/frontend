@@ -34,9 +34,10 @@
           <img :src="subject.imageUrl || require('@/assets/newlogo.png')" class="card-img" alt="Subject Image" />
           <div class="card-body">
             <h5 class="card-title">{{ subject.subject_name }}</h5>
-            <p class="card-text"> Class Code :{{ subject. class_gen_code}}</p>
-            <p class="card-text">Subject Descriptions :{{ subject.class_description }}</p>
-            <center><router-link :to="`/mysubject`" class="btn btn-primary"> Go to Room</router-link></center>
+            <p class="card-text"> Class Code: {{ subject.class_gen_code }}</p>
+            <p class="card-text">Subject Descriptions: {{ subject.class_description }}</p>
+            <router-link :to="`/mysubject/${subject.class_id}`" class="btn btn-primary">Go to Room</router-link>
+
           </div>
         </div>
       </div>
@@ -58,48 +59,50 @@ export default {
       genCode: '',
       message: '',
       success: false,
-      subjects: [] // Ensure subjects is always an array
+      subjects: [], // Ensure subjects is initialized as an array
     };
   },
   methods: {
+    async fetchSubjects() {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get('http://localhost:8000/api/getStudentClassroomDetails', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.subjects = response.data;
+      } catch (error) {
+        this.subjects = [];
+      }
+    },
     async addSubject() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.post('http://localhost:8000/api/jcstudent2', 
+        const response = await axios.post(
+          'http://localhost:8000/api/jcstudent2',
           { gen_code: this.genCode },
-          { headers: { 
-              'Authorization': `Bearer ${token}`, 
-              'Content-Type': 'application/json'
-            }
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
           }
         );
         this.message = response.data.message;
         this.success = true;
         this.genCode = '';
         this.showModal = false;
-        this.fetchSubjects(); // Refresh subjects list after adding a new subject
+        this.fetchSubjects(); // Refresh the subjects list after adding a new subject
       } catch (error) {
         this.message = error.response ? error.response.data.error : 'An error occurred';
         this.success = false;
       }
     },
-    async fetchSubjects() {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await axios.get('http://localhost:8000/api/getStudentClassroomDetails', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        this.subjects = response.data; // Assuming this returns approved subjects
-      } catch (error) {
-        this.subjects = [];
-      }
-    }
   },
   created() {
     this.fetchSubjects(); // Fetch subjects when the component is created
-  }
+  },
 };
 </script>
 
@@ -119,52 +122,52 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 50px;
-  background-color: #87ceeb; /* Sky blue background */
+  background-color: #87ceeb;
   border: none;
   color: #fff;
   cursor: pointer;
 }
 
 .add-button:hover {
-  background-color: #00bfff; /* Deep sky blue on hover */
+  background-color: #00bfff;
 }
 
 .modal-header {
-  background-color: #87ceeb; /* Sky blue header background */
+  background-color: #87ceeb;
   color: #fff;
-  border-bottom: 1px solid #ddd; /* Light border below header */
+  border-bottom: 1px solid #ddd;
 }
 
 .modal-title {
-  font-size: 1.25rem; /* Larger font size for the title */
+  font-size: 1.25rem;
   font-weight: bold;
 }
 
 .btn-close {
-  filter: invert(1); /* White close button icon */
+  filter: invert(1);
 }
 
 .modal-body {
-  background-color: #f0f8ff; /* Alice blue background for form */
+  background-color: #f0f8ff;
 }
 
 .form-control {
-  border-radius: 5px; /* Rounded corners for input fields */
-  border: 2px solid #87ceeb; /* Sky blue border around input fields */
+  border-radius: 5px;
+  border: 2px solid #87ceeb;
 }
 
 .form-control:focus {
-  border-color: #00bfff; /* Deep sky blue border on focus */
-  box-shadow: 0 0 0 0.2rem rgba(0, 191, 255, 0.25); /* Deep sky blue shadow on focus */
+  border-color: #00bfff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 191, 255, 0.25);
 }
 
 .btn-primary {
-  background-color: #87ceeb; /* Sky blue background for primary button */
+  background-color: #87ceeb;
   border: none;
 }
 
 .btn-primary:hover {
-  background-color: #00bfff; /* Deep sky blue on hover */
+  background-color: #00bfff;
 }
 
 .alert {
@@ -174,8 +177,7 @@ export default {
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; /* Space between cards */
-
+  gap: 20px;
 }
 
 .card {
@@ -183,7 +185,6 @@ export default {
   flex-direction: column;
   border: 3px solid #2c71c190;
   border-radius: 8px;
-  width: 20%; /* Responsive card width */
   width: 250px;
   background-color: #fff;
 }
@@ -208,5 +209,3 @@ export default {
   font-size: 1rem;
 }
 </style>
-
-

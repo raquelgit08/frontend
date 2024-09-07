@@ -15,11 +15,10 @@
         <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
         <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">Exams</router-link>
         <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
-      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
-      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
-        <!-- Other links here -->
+        <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
+        <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+        <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
+        <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
       </nav>
     </div>
 
@@ -64,7 +63,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 export default {
-  name: 'ExamList',
+  name: 'TeacherCreateExams',
   data() {
     return {
       exams: [],
@@ -81,23 +80,23 @@ export default {
   },
   methods: {
     async fetchExams() {
-  try {
-    const classId = this.$route.params.class_id;
-    const response = await axios.get(`http://localhost:8000/api/tblclass/${classId}/exams`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+      try {
+        const classId = this.$route.params.class_id;
+        const response = await axios.get(`http://localhost:8000/api/tblclass/${classId}/exams`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
 
-    this.exams = response.data.exams.map(exam => ({
-      ...exam, // Directly map total_questions and total_points from the response
-      total_questions: exam.total_questions || 0,
-      total_points: exam.total_points || 0,
-    }));
-  } catch (error) {
-    console.error('Failed to fetch exams:', error.message);
-  }
-},
+        this.exams = response.data.exams.map(exam => ({
+          ...exam,
+          total_questions: exam.total_questions || 0,
+          total_points: exam.total_points || 0,
+        }));
+      } catch (error) {
+        console.error('Failed to fetch exams:', error.message);
+      }
+    },
     async fetchSubject() {
       try {
         const classId = this.$route.params.class_id;
@@ -145,107 +144,72 @@ export default {
         alert('Failed to archive exam. Please try again later.');
       }
     },
-    
+
     async publishExam(examId) {
   try {
-    const response = await axios.patch(`http://localhost:8000/api/exam/${examId}/publish`, {}, {
+    await axios.patch(`http://localhost:8000/api/exam/${examId}/publish`, {}, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
     });
 
+    // SweetAlert success message
     Swal.fire({
-      title: 'Success',
-      text: response.data.message,
+      title: 'Exam Published!',
+      text: 'The exam has been successfully published and students have been notified via email.',
       icon: 'success',
       confirmButtonText: 'OK',
     });
-  } catch (error) {
-    if (error.response && error.response.status === 500) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Internal server error. Please try again later.',
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
+
+    // Optionally update the local list to reflect the published status
+    const updatedExam = this.exams.find(exam => exam.id === examId);
+    if (updatedExam) {
+      updatedExam.is_published = true;
     }
+
+  } catch (error) {
+    let errorMessage = 'An error occurred while publishing the exam.';
+    if (error.response && error.response.status === 404) {
+      errorMessage = 'Exam not found.';
+    } else if (error.response && error.response.status === 500) {
+      errorMessage = 'Internal server error. Please try again later.';
+    }
+    Swal.fire({
+      title: 'Error',
+      text: errorMessage,
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
   }
 }
+}
 
-  },
 };
 </script>
 
 <style scoped>
-/* Main Container */
+/* Style for the exam list */
 .main-container {
   display: flex;
-  align-items: stretch; /* Ensure both containers stretch to the same height */
-  justify-content: space-between; /* Space out the subject info and nav bar */
-  padding: 20px;
+  justify-content: space-between;
 }
 
-/* Subject Info Container */
 .subject-info-container {
-  flex: 1; /* Flex value of 1 to take equal height as the nav */
+  flex: 1;
   max-width: 300px;
-  margin-right: 20px;
-  display: flex;
-  align-items: center; /* Center the content vertically */
 }
 
-/* Subject Info Styling */
-.subject-info {
-  width: 100%;
-  padding: 15px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-}
-
-.subject-info h2 {
-  font-size: 1.5rem;
-  color: #343a40;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.subject-info p {
-  font-size: 1rem;
-  color: #6c757d;
-}
-
-/* Navigation Bar */
 .nav {
-  flex: 2; /* Flex value of 2 to balance the nav width */
   display: flex;
   justify-content: space-around;
-  align-items: center; /* Ensure nav items are centered vertically */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  border-radius: 10px;
+  align-items: center;
 }
 
-.nav-link {
-  color: #343a40 !important;
-  text-decoration: none;
-  font-weight: 500;
+.exam-list {
+  margin-top: 20px;
 }
 
-.nav-link:hover {
-  color: #007bff !important;
-}
-
-.router-link-active {
-  color: #007bff !important;
-  border-bottom: 2px solid #007bff;
-}
-
-/* Feedback Page Title */
-.feedback-page h5 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #343a40;
-  margin-bottom: 20px;
+.table-hover {
+  width: 100%;
 }
 </style>

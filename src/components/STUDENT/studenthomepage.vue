@@ -193,7 +193,7 @@ export default {
         { path: '/spending', label: 'Pending Exam',icon: 'bi bi-hourglass-split fs-4', section: 'manage' },
         { path: '/sfinished', label: 'Finished Exams', icon: 'bi bi-check-circle-fill fs-4', section: 'manage' },
         { path: '/sperformance', label: 'My Performance', icon: 'bi bi-bar-chart-line-fill fs-4', section: 'manage' },
-        { path: '/takeExam', label: 'Take Exam', icon: 'bi bi-bar-chart-line-fill fs-4', section: 'manage' },
+        { path: '/studenttakeexam', label: 'Take Exam', icon: 'bi bi-bar-chart-line-fill fs-4', section: 'manage' },
        
 
       ],
