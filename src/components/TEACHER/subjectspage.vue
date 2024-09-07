@@ -13,25 +13,13 @@
       <router-link to="/teacheraddsubject" class="nav-link">
         <span><i class="bi bi-arrow-left fs-4"></i></span>
       </router-link>
-      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-file-earmark-plus fs-4"></i> Exams
-      </router-link>
-      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-chat-dots fs-4"></i> Feedback
-      </router-link>
-      <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-bar-chart-line fs-4"></i> Item Analysis
-      </router-link>
-      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-activity fs-4"></i> Performance Tracking
-      </router-link>
-      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-person-lines-fill fs-4"></i> Students
-      </router-link>
-      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-hourglass-split fs-4"></i> Pending
-      </router-link>
+  <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+  <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+  <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
+  <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
+  <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+  <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
+  <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
     </nav>
   </div>
 
@@ -61,60 +49,68 @@ export default {
       error: ''
     };
   },
-  async fetchSubject() {
-    try {
-      const classId = this.$route.params.class_id; // Get class_id from URL params
-      const token = localStorage.getItem('token'); // Get the token from localStorage
+  created() {
+    this.fetchSubject();
+  },
+  methods: {
+    async fetchSubject() {
+      try {
+        const classId = this.$route.params.class_id;
+        const token = localStorage.getItem('token');
 
-      if (!token) {
-        this.error = 'Authorization token is missing. Please log in again.';
-        return;
-      }
-
-      // Fetch the class details using the Laravel API
-      const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+        if (!token) {
+          this.error = 'Authorization token is missing. Please log in again.';
+          return;
         }
-      });
 
-      console.log('API Response:', response.data); // Log the response to check the structure
+        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
 
-      // Handle the API response and map data to Vue component's state
-      if (response.data.class) {
-        this.subject.subjectName = response.data.class.subject.subjectname || 'Unknown Subject';
-        this.subject.semester = response.data.class.semester || 'Unknown Semester';
-        this.subject.schoolYear = response.data.class.year.addyear || 'Unknown School Year';
-      } else {
-        this.error = 'Class details not found or incomplete.';
-        console.error('Class data structure issue:', response.data);
+        if (!response.data.class || !response.data.class.subject.subjectname) {
+          this.error = 'Class not found or you are not authorized to view this class.';
+          return;
+        }
+
+        this.subject.subjectName = response.data.class.subject.subjectname;
+        this.subject.semester = response.data.class.semester;
+        this.subject.schoolYear = response.data.class.year.addyear;
+      } catch (error) {
+        if (error.response) {
+          if (error.response.status === 404) {
+            this.error = 'Class not found or you are not authorized to view this class.';
+          } else if (error.response.status === 403) {
+            this.error = 'You are not authorized to view this class.';
+          } else {
+            this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
+          }
+        } else {
+          this.error = 'Failed to fetch subject data. Please try again later.';
+        }
       }
-    } catch (error) {
-      this.error = error.response ? error.response.data.message : 'Failed to fetch subject data. Please try again later.';
-      console.error('Fetch error:', error);
     }
   }
-  
 };
 </script>
-
 
 <style scoped>
 /* Main Container */
 .main-container {
   display: flex;
-  align-items: stretch;
-  justify-content: space-between;
+  align-items: stretch; /* Ensure both containers stretch to the same height */
+  justify-content: space-between; /* Space out the subject info and nav bar */
   padding: 20px;
 }
 
 /* Subject Info Container */
 .subject-info-container {
-  flex: 1;
+  flex: 1; /* Flex value of 1 to take equal height as the nav */
   max-width: 300px;
   margin-right: 20px;
   display: flex;
-  align-items: center;
+  align-items: center; /* Center the content vertically */
 }
 
 /* Subject Info Styling */
@@ -140,10 +136,10 @@ export default {
 
 /* Navigation Bar */
 .nav {
-  flex: 2;
+  flex: 2; /* Flex value of 2 to balance the nav width */
   display: flex;
   justify-content: space-around;
-  align-items: center;
+  align-items: center; /* Ensure nav items are centered vertically */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 10px;

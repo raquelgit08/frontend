@@ -101,7 +101,7 @@
                     </option>
               </select>
             </div>
-
+ 
             <div class="form-group">
               <label for="description">Class Description</label>
               <textarea class="form-control" id="description" v-model="newClass.class_desc"></textarea>
