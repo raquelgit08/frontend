@@ -16,7 +16,7 @@
             <select v-model="formData.strand_id" class="form-control custom-select" id="userStrand">
             <option value="">All Strands</option>
             <option v-for="strand in strands" :key="strand.id" :value="strand.id">
-              {{ strand.label }}
+              {{ strand.label }} 
             </option>
           </select>
         </div>

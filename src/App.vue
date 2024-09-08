@@ -26,13 +26,13 @@
             </div>
 
             <div class="form-options">
-              <a href="#" class="recovery-password">Recovery Password</a>
+              <a href="#" class="recovery-password" :style="{color: recoveryPasswordColor}" @click="handleRecoveryPassword">Recovery Password</a>
             </div>
 
-            <button type="submit" class="btn-signin">Sign In</button>
+            <button type="submit" class="btn-signin" :style="{ backgroundColor: signInButtonColor }">Sign In</button>
           </form>
 
-          <p class="register-link">Not a member? <router-link to="/register">Register now</router-link></p>
+        <!--<p class="register-link">Not a member? <router-link to="/register">Register now</router-link></p> -->  
         </div>
       </div>
     </div>
@@ -57,6 +57,7 @@
 import axios from 'axios';
 import router from '@/router';
 import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2'; // Import SweetAlert
 
 import HomePageAdmin from './components/ADMIN/homepageadmin.vue';
 import Teacher_homepage from './components/TEACHER/teacherhomepage.vue';
@@ -72,7 +73,9 @@ export default {
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
-      errorMessage: ''
+      errorMessage: '',
+      recoveryPasswordColor: '#007bff', // Initial color for recovery password link
+      signInButtonColor: '#ff5252' // Initial color for the sign in button
     };
   },
   computed: {
@@ -83,6 +86,9 @@ export default {
   methods: {
     async handleSubmit() {
       try {
+        // Change the Sign In button color to blue on form submission
+        this.signInButtonColor = 'blue';
+
         // Show loading modal
         const modalElement = document.getElementById('loadingModal');
         const modal = new Modal(modalElement);
@@ -143,6 +149,17 @@ export default {
       this.password = '';
       this.$router.push('/');
     },
+    handleRecoveryPassword() {
+      // Change the color of the "Recovery Password" link to blue
+      this.recoveryPasswordColor = 'blue';
+
+      // Display SweetAlert message
+      Swal.fire({
+        icon: 'info',
+        title: 'Inform your teacher',
+        text: 'Inform your teacher about the recover password',
+      });
+    }
   },
   components: {
     HomePageAdmin,
@@ -167,7 +184,44 @@ export default {
 </script>
 
 <style scoped>
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto:wght@300;400;700&display=swap');
+/* The rest of your CSS remains the same */
+
+.recovery-password {
+  color: #007bff; /* Initial color is blue */
+}
+
+.recovery-password:hover {
+  text-decoration: underline;
+}
+
+.btn-signin {
+  background-color: #ff5252; /* Initial color */
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  padding: 15px;
+  width: 100%;
+  font-size: 18px; /* Increased font size */
+  font-weight: 600; /* Make font bolder */
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Added shadow effect */
+}
+
+.btn-signin:hover {
+  background-color: #e04848; /* Hover effect */
+}
+
+
+.recovery-password {
+  color: #007bff; /* Initial color is blue */
+}
+
+.recovery-password:hover {
+  text-decoration: underline;
+}
 
 html, body {
   height: 100%;
