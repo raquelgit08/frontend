@@ -1,15 +1,18 @@
 <template>
-  <div class="container">
-    <h2 class="text-center">{{ exam.title }}</h2>
+  <div class="exam-container">
+    <h2 class="text-center exam-title">{{ exam.title }}</h2>
 
     <!-- Exam Form -->
-    <form v-if="!examSubmitted" @submit.prevent="submitExam">
+    <form v-if="!examSubmitted" @submit.prevent="submitExam" class="exam-form">
       <div v-if="exam.questions && exam.questions.length">
-        <div v-for="(question, index) in exam.questions" :key="question.id" class="mb-4">
-          <h5>Question {{ index + 1 }}: {{ question.question }}</h5>
-          <ul>
-            <li v-for="choice in question.choices" :key="choice.id">
-              <label>
+        <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="question-container">
+          <h5 class="question-header">
+            Question {{ index + 1 + (currentPage - 1) * questionsPerPage }}:
+          </h5>
+          <p class="question-text">{{ question.question }}</p>
+          <ul class="choices-list">
+            <li v-for="choice in question.choices" :key="choice.id" class="choice-item">
+              <label class="choice-label">
                 <input 
                   type="radio" 
                   :name="'question_' + question.id" 
@@ -20,11 +23,35 @@
               </label>
             </li>
           </ul>
-          <textarea v-if="question.requires_text_input" v-model="studentTextAnswers[question.id]" placeholder="Your answer"></textarea>
+          <textarea 
+            v-if="question.requires_text_input" 
+            v-model="studentTextAnswers[question.id]" 
+            class="text-answer" 
+            placeholder="Your answer">
+          </textarea>
         </div>
       </div>
       <div v-else>
-        <p>No questions available for this exam.</p>
+        <p class="no-questions">No questions available for this exam.</p>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-controls">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          @click="prevPage" 
+          :disabled="currentPage === 1">
+          Previous
+        </button>
+        <span class="pagination-status">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          @click="nextPage" 
+          :disabled="currentPage === totalPages">
+          Next
+        </button>
       </div>
 
       <!-- Display validation errors -->
@@ -32,25 +59,27 @@
         {{ validationError }}
       </div>
 
-      <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
-        <span v-if="isSubmitting">Submitting...</span>
-        <span v-else>Submit Exam</span>
-      </button>
-      <button @click="$router.push('/myExams')" class="btn btn-secondary">Back to Exams</button>
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+          <span v-if="isSubmitting">Submitting...</span>
+          <span v-else>Submit Exam</span>
+        </button>
+        <button @click="$router.push('/myExams')" class="btn btn-secondary">Back to Exams</button>
+      </div>
     </form>
 
     <!-- Results Display -->
-    <div v-if="examSubmitted">
-      <h3>Your Results</h3>
-      <ul>
-        <li v-for="result in results" :key="result.question_number">
+    <div v-if="examSubmitted" class="results-container">
+      <h3 class="results-title">Your Results</h3>
+      <ul class="results-list">
+        <li v-for="result in results" :key="result.question_number" class="result-item">
           <p><strong>Question {{ result.question_number }}:</strong></p>
-          <p>Your Answer: {{ result.student_answer }}</p>
-          <p>Correct Answer: {{ result.correct_answer }}</p>
-          <p>Points: {{ result.points }}</p>
+          <p>Your Answer: <span class="user-answer">{{ result.student_answer }}</span></p>
+          <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p>
+          <p>Points: <span class="points">{{ result.points }}</span></p>
         </li>
       </ul>
-      <p><strong>Total Score: {{ totalScore }}</strong></p>
+      <p class="total-score"><strong>Total Score: {{ totalScore }}</strong></p>
     </div>
   </div>
 </template>
@@ -63,16 +92,29 @@ export default {
   name: 'ExamTakingPages',
   data() {
     return {
-      exam: {}, // Holds the exam details
-      selectedAnswers: {}, // Holds the user's selected answers (multiple-choice)
-      studentTextAnswers: {}, // Holds the user's text answers for questions requiring written input
-      isSubmitting: false, // Prevent multiple submissions
-      validationError: '', // To store validation errors
-      examSubmitted: false, // Flag to indicate if the exam is submitted
-      results: [], // To hold the results after submission
-      totalScore: 0, // Total score after result calculation
+      exam: {}, 
+      selectedAnswers: {}, 
+      studentTextAnswers: {}, 
+      isSubmitting: false, 
+      validationError: '', 
+      examSubmitted: false, 
+      results: [], 
+      totalScore: 0, 
+      currentPage: 1, 
+      questionsPerPage: 5, 
     };
   },
+  computed: {
+  paginatedQuestions() {
+    const start = (this.currentPage - 1) * this.questionsPerPage;
+    const end = start + this.questionsPerPage;
+    return this.exam.questions ? this.exam.questions.slice(start, end) : [];
+  },
+  totalPages() {
+    // Add a null/undefined check to avoid errors
+    return this.exam.questions ? Math.ceil(this.exam.questions.length / this.questionsPerPage) : 1;
+  },
+},
   created() {
     this.fetchExam();
   },
@@ -87,20 +129,22 @@ export default {
         });
         this.exam = response.data.exam;
       } catch (error) {
-        console.error('Failed to fetch exam:', error.message);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to retrieve exam details. Please try again later.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
         this.$router.push('/myExams');
-        alert('Failed to retrieve exam details. Please try again later.');
       }
     },
 
     validateAnswers() {
-      // Validate that all required questions have been answered
       if (Object.keys(this.selectedAnswers).length !== this.exam.questions.length) {
         this.validationError = 'Please answer all questions before submitting.';
         return false;
       }
 
-      // Additional backend-like validations:
       for (const question of this.exam.questions) {
         if (!this.selectedAnswers[question.id] && !this.studentTextAnswers[question.id]) {
           this.validationError = `Please provide an answer for question ${question.id}`;
@@ -108,58 +152,57 @@ export default {
         }
       }
 
-      this.validationError = ''; // Clear any existing validation errors
+      this.validationError = '';
       return true;
     },
 
     async submitExam() {
-  // Perform validation before submitting
-  if (!this.validateAnswers()) return;
+      if (!this.validateAnswers()) return;
 
-  this.isSubmitting = true;
+      this.isSubmitting = true;
 
-  const examId = this.$route.params.exam_id;
+      const examId = this.$route.params.exam_id;
+      const formattedAnswers = this.exam.questions.map((question) => {
+        const selectedChoice = this.selectedAnswers[question.id]; 
+        const textAnswer = this.studentTextAnswers[question.id] || null; 
 
-  const formattedAnswers = this.exam.questions.map((question) => ({
-    question_id: question.id,
-    addchoices_id: this.selectedAnswers[question.id] || null, // Send selected multiple-choice answer
-    Student_answer: this.studentTextAnswers[question.id] || null, // Send text answer if applicable
-  }));
+        return {
+          question_id: question.id,
+          addchoices_id: selectedChoice || null, 
+          Student_answer: textAnswer, 
+        };
+      });
 
-  try {
-    // Updated to match your route definition
-    await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
-      { answers: formattedAnswers },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        }
+      try {
+        await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
+          { answers: formattedAnswers },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            }
+          }
+        );
+
+        Swal.fire({
+          title: 'Success!',
+          text: 'Exam submitted successfully!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          this.getResults(examId);
+        });
+
+      } catch (error) {
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to submit exam. Please try again later.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      } finally {
+        this.isSubmitting = false;
       }
-    );
-
-    // Success notification
-    Swal.fire({
-      title: 'Success!',
-      text: 'Exam submitted successfully!',
-      icon: 'success',
-      confirmButtonText: 'OK'
-    }).then(() => {
-      this.getResults(examId); // Fetch results after submission
-    });
-
-  } catch (error) {
-    console.error('Failed to submit exam:', error.response ? error.response.data : error.message);
-    Swal.fire({
-      title: 'Error!',
-      text: 'Failed to submit exam. Please try again later.',
-      icon: 'error',
-      confirmButtonText: 'OK'
-    });
-  } finally {
-    this.isSubmitting = false;
-  }
-},
-
+    },
 
     async getResults(examId) {
       try {
@@ -171,9 +214,8 @@ export default {
 
         this.results = response.data.results;
         this.totalScore = response.data.total_score;
-        this.examSubmitted = true; // Set the flag to show results
+        this.examSubmitted = true;
       } catch (error) {
-        console.error('Failed to retrieve results:', error.message);
         Swal.fire({
           title: 'Error!',
           text: 'Failed to retrieve results. Please try again later.',
@@ -181,32 +223,59 @@ export default {
           confirmButtonText: 'OK'
         });
       }
+    },
+
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
+    },
+
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
     }
   }
 };
 </script>
 
-<style scoped>
-.container {
-  margin-top: 50px;
-}
-.text-center {
-  margin-bottom: 20px;
-}
-.mb-4 {
-  margin-bottom: 20px;
-}
-.btn {
-  margin-top: 20px;
-}
-textarea {
-  width: 100%;
-  height: 100px;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 5px;
-}
-.alert {
-  margin-top: 10px;
+<style scoped lang="scss">
+.exam-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .exam-title {
+    color: #007bff;
+    margin-bottom: 20px;
+  }
+  
+  .question-header {
+    font-weight: bold;
+  }
+
+  .pagination-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .button-group {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .results-container {
+    margin-top: 20px;
+    .total-score {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  }
 }
 </style>
