@@ -106,7 +106,7 @@ const routes = [
 
 
   { path: '/studentviewexam/:exam_id', component: StudentViewExams},
-  { path: '/examtakingpage/:exam_id', component: ExamTakingPages},
+  { path: '/examtakingpage/:exam_id', component: ExamTakingPages},//////////
   { path: '/studenttakeexam/:class_id', component: StudentTakingExams},
   { path: '/student', component: Student_homepage },
   { path: '/sdashboard/:class_id', component: StudentDashboard },
