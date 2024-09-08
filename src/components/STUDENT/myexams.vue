@@ -256,33 +256,23 @@ export default {
 
 .exam-card:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.card-title {
-  font-size: 1.2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .status-available {
-  color: #28a745;
+  color: green;
 }
 
 .status-unavailable {
-  color: #dc3545;
+  color: red;
 }
 
-.no-exams-message {
-  font-size: 1.2rem;
-  color: #888;
-}
-
-/* Modal Styling */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -290,68 +280,17 @@ export default {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: white;
   padding: 20px;
   border-radius: 10px;
-  width: 90%;
-  max-width: 600px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  color: #333;
+  max-width: 500px;
+  width: 100%;
 }
 
 .btn-close {
-  background-color: transparent;
+  background: none;
   border: none;
-}
-
-.modal-body {
-  padding: 15px 0;
-  color: #555;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268;
-}
-
-@media screen and (max-width: 768px) {
-  .nav {
-    flex-direction: column;
-  }
-
-  .subject-info-container {
-    width: 100%;
-  }
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 </style>

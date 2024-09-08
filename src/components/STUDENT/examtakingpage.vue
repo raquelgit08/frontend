@@ -6,23 +6,19 @@
     <form v-if="!examSubmitted" @submit.prevent="submitExam" class="exam-form">
       <div v-if="exam.questions && exam.questions.length">
         <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="question-container">
-          <h5 class="question-header">
-            Question {{ index + 1 + (currentPage - 1) * questionsPerPage }}:
-          </h5>
+          <h5 class="question-header">Question {{ index + 1 + (currentPage - 1) * questionsPerPage }}:</h5>
           <p class="question-text">{{ question.question }}</p>
-          <ul class="choices-list">
-            <li v-for="choice in question.choices" :key="choice.id" class="choice-item">
-              <label class="choice-label">
-                <input 
-                  type="radio" 
-                  :name="'question_' + question.id" 
-                  :value="choice.id" 
-                  v-model="selectedAnswers[question.id]" 
-                />
-                {{ choice.choices }}
-              </label>
-            </li>
-          </ul>
+          <div class="choice-container">
+            <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
+              <input 
+                type="radio" 
+                :name="'question_' + question.id" 
+                :value="choice.id" 
+                v-model="selectedAnswers[question.id]" 
+              />
+              {{ choice.choices }}
+            </label>
+          </div>
           <textarea 
             v-if="question.requires_text_input" 
             v-model="studentTextAnswers[question.id]" 
@@ -64,7 +60,7 @@
           <span v-if="isSubmitting">Submitting...</span>
           <span v-else>Submit Exam</span>
         </button>
-        <button @click="$router.push('/myExams')" class="btn btn-secondary">Back to Exams</button>
+        <button type="button" @click="clearForm" class="btn btn-secondary">Clear form</button>
       </div>
     </form>
 
@@ -83,6 +79,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -119,6 +116,14 @@ export default {
     this.fetchExam();
   },
   methods: {
+
+    clearForm() {
+      // Reset the form selections and answers
+      this.selectedAnswers = {};
+      this.studentTextAnswers = {};
+      this.validationError = '';
+    },
+
     async fetchExam() {
       const examId = this.$route.params.exam_id;
       try {
@@ -236,6 +241,8 @@ export default {
         this.currentPage++;
       }
     }
+
+    
   }
 };
 </script>
@@ -252,22 +259,47 @@ export default {
   .exam-title {
     color: #007bff;
     margin-bottom: 20px;
+    text-align: center;
   }
-  
+
+  .question-container {
+    margin-bottom: 20px;
+  }
+
   .question-header {
     font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .choice-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .choice-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    input {
+      margin-right: 10px;
+    }
   }
 
   .pagination-controls {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
+    margin-top: 20px;
   }
 
   .button-group {
     margin-top: 20px;
     display: flex;
     justify-content: space-between;
+
+    button {
+      padding: 10px 20px;
+    }
   }
 
   .results-container {
