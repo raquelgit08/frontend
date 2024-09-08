@@ -10,21 +10,13 @@
           <p class="question-text">{{ question.question }}</p>
           <div class="choice-container">
             <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
-              <input 
-                type="radio" 
-                :name="'question_' + question.id" 
-                :value="choice.id" 
-                v-model="selectedAnswers[question.id]" 
-              />
-              {{ choice.choices }}
-            </label>
-          </div>
-          <textarea 
-            v-if="question.requires_text_input" 
-            v-model="studentTextAnswers[question.id]" 
-            class="text-answer" 
-            placeholder="Your answer">
-          </textarea>
+        <input type="radio" :name="'question_' + question.id" :value="choice.id" @input="updateSelectedAnswer(question.id, choice.choices)" />
+        {{ choice.choices }}
+      </label>
+    </div>
+    <textarea v-if="question.requires_text_input" @input="updateStudentTextAnswer(question.id, $event.target.value)" class="text-answer" 
+      placeholder="Your answer">
+    </textarea>
         </div>
       </div>
       <div v-else>
@@ -69,10 +61,10 @@
       <h3 class="results-title">Your Results</h3>
       <ul class="results-list">
         <li v-for="result in results" :key="result.question_number" class="result-item">
-          <p><strong>Question {{ result.question_number }}:</strong></p>
+          <p><strong>Question {{ result.question }}:</strong></p>
           <p>Your Answer: <span class="user-answer">{{ result.student_answer }}</span></p>
           <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p>
-          <p>Points: <span class="points">{{ result.points }}</span></p>
+          <p>Points: <span class="points">{{ result.points_awarded}}</span></p>
         </li>
       </ul>
       <p class="total-score"><strong>Total Score: {{ totalScore }}</strong></p>
@@ -123,7 +115,13 @@ export default {
       this.studentTextAnswers = {};
       this.validationError = '';
     },
+    updateSelectedAnswer(questionId, answerText) {
+      this.selectedAnswers[questionId] = answerText;
+    },
 
+    updateStudentTextAnswer(questionId, answerText) {
+      this.studentTextAnswers[questionId] = answerText;
+    },
     async fetchExam() {
       const examId = this.$route.params.exam_id;
       try {
@@ -144,6 +142,22 @@ export default {
       }
     },
 
+    // validateAnswers() {
+    //   if (Object.keys(this.selectedAnswers).length !== this.exam.questions.length) {
+    //     this.validationError = 'Please answer all questions before submitting.';
+    //     return false;
+    //   }
+
+    //   for (const question of this.exam.questions) {
+    //     if (!this.selectedAnswers[question.id] && !this.studentTextAnswers[question.id]) {
+    //       this.validationError = `Please provide an answer for question ${question.id}`;
+    //       return false;
+    //     }
+    //   }
+
+    //   this.validationError = '';
+    //   return true;
+    // },
     validateAnswers() {
       if (Object.keys(this.selectedAnswers).length !== this.exam.questions.length) {
         this.validationError = 'Please answer all questions before submitting.';
@@ -160,64 +174,88 @@ export default {
       this.validationError = '';
       return true;
     },
-
     async submitExam() {
       if (!this.validateAnswers()) return;
 
       this.isSubmitting = true;
 
-      const examId = this.$route.params.exam_id;
+      // const examId = this.$route.params.exam_id;
+      // const formattedAnswers = this.exam.questions.map((question) => {
+      //   const selectedChoice = this.selectedAnswers[question.id]; 
+      //   const textAnswer = this.studentTextAnswers[question.id] || null; 
+
       const formattedAnswers = this.exam.questions.map((question) => {
-        const selectedChoice = this.selectedAnswers[question.id]; 
-        const textAnswer = this.studentTextAnswers[question.id] || null; 
+      const selectedChoice = this.selectedAnswers[question.id]; 
+      const textAnswer = this.studentTextAnswers[question.id] || null; 
+      let addchoices_id = null;
+      let Student_answer = null;
+      if (selectedChoice) {
+        const choice = question.choices.find(choice => choice.choices === selectedChoice);
+        addchoices_id = choice.id;
+        Student_answer = choice.choices;
+      } else {
+        Student_answer = textAnswer;
+      }
+      return {
+        question_id: question.id,
+        addchoices_id,
+        Student_answer,
+      };
+    });
 
-        return {
-          question_id: question.id,
-          addchoices_id: selectedChoice || null, 
-          Student_answer: textAnswer, 
-        };
-      });
+    console.log('Formatted answers:', formattedAnswers);
 
-      try {
-        await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
-          { answers: formattedAnswers },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            }
+    try {
+      const examId = this.$route.params.exam_id;
+      await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
+        { answers: formattedAnswers },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           }
-        );
+        }
+      );
 
-        Swal.fire({
-          title: 'Success!',
-          text: 'Exam submitted successfully!',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        }).then(() => {
-          this.getResults(examId);
-        });
+    Swal.fire({
+      title: 'Success!',
+      text: 'Exam submitted successfully!',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      this.getResults(examId);
+    });
 
       } catch (error) {
-        Swal.fire({
-          title: 'Error!',
-          text: 'Failed to submit exam. Please try again later.',
-          icon: 'error',
-          confirmButtonText: 'OK'
-        });
-      } finally {
-        this.isSubmitting = false;
-      }
-    },
+            Swal.fire({
+              title: 'Error!',
+              text: 'Failed to submit exam. Please try again later.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          } finally {
+            this.isSubmitting = false;
+          }
+        },
 
-    async getResults(examId) {
+        async getResults(examId) {
       try {
         const response = await axios.get(`http://localhost:8000/api/getResults/${examId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
+        console.log('Response data:', response.data);
 
-        this.results = response.data.results;
+        this.results = response.data.results.map((result) => {
+          const studentAnswer = this.selectedAnswers[result.question_id] || this.studentTextAnswers[result.question_id];
+          return {
+            ...result,
+            Student_answer: studentAnswer, 
+          };
+        });
+
+        console.log('Updated results:', this.results); // Add this line to inspect the updated results array
+
         this.totalScore = response.data.total_score;
         this.examSubmitted = true;
       } catch (error) {
@@ -229,7 +267,6 @@ export default {
         });
       }
     },
-
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
