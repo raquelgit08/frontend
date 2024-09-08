@@ -42,10 +42,10 @@
 
 <script>
 import axios from 'axios';
-import Swal from 'sweetalert2';  // Import SweetAlert2
+import Swal from 'sweetalert2';
 
 export default {
-  name: 'ExamTakingPage',
+  name: 'ExamTakingPages',
   data() {
     return {
       exam: {},  // Holds the exam details
@@ -94,21 +94,20 @@ export default {
       return true;
     },
 
-    
     async submitExam() {
-    // Perform validation before submitting
-    if (!this.validateAnswers()) return;
+      // Perform validation before submitting
+      if (!this.validateAnswers()) return;
 
-    this.isSubmitting = true;
+      this.isSubmitting = true;
 
-    const examId = this.$route.params.exam_id;
-    const formattedAnswers = this.exam.questions.map((question) => ({
+      const examId = this.$route.params.exam_id;
+      const formattedAnswers = this.exam.questions.map((question) => ({
         question_id: question.id,
         addchoices_id: this.selectedAnswers[question.id] || null,  // Send selected multiple-choice answer
         Student_answer: this.studentTextAnswers[question.id] || null,  // Send text answer if applicable
-    }));
+      }));
 
-    try {
+      try {
         await axios.post(`http://localhost:8000/api/submitExam2/${examId}`, 
           { answers: formattedAnswers },
           {
@@ -128,7 +127,7 @@ export default {
           this.$router.push('/myExams');  // Redirect to exams list
         });
         
-    } catch (error) {
+      } catch (error) {
         console.error('Failed to submit exam:', error.response ? error.response.data : error.message);
         Swal.fire({
           title: 'Error!',
@@ -136,11 +135,10 @@ export default {
           icon: 'error',
           confirmButtonText: 'OK'
         });
-    } finally {
+      } finally {
         this.isSubmitting = false;
+      }
     }
-}
-
   }
 };
 </script>
