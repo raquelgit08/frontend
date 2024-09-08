@@ -2,7 +2,8 @@
   <div class="container">
     <h2 class="text-center">{{ exam.title }}</h2>
 
-    <form @submit.prevent="submitExam">
+    <!-- Exam Form -->
+    <form v-if="!examSubmitted" @submit.prevent="submitExam">
       <div v-if="exam.questions && exam.questions.length">
         <div v-for="(question, index) in exam.questions" :key="question.id" class="mb-4">
           <h5>Question {{ index + 1 }}: {{ question.question }}</h5>
@@ -37,6 +38,20 @@
       </button>
       <button @click="$router.push('/myExams')" class="btn btn-secondary">Back to Exams</button>
     </form>
+
+    <!-- Results Display -->
+    <div v-if="examSubmitted">
+      <h3>Your Results</h3>
+      <ul>
+        <li v-for="result in results" :key="result.question_number">
+          <p><strong>Question {{ result.question_number }}:</strong></p>
+          <p>Your Answer: {{ result.student_answer }}</p>
+          <p>Correct Answer: {{ result.correct_answer }}</p>
+          <p>Points: {{ result.points }}</p>
+        </li>
+      </ul>
+      <p><strong>Total Score: {{ totalScore }}</strong></p>
+    </div>
   </div>
 </template>
 
@@ -48,11 +63,14 @@ export default {
   name: 'ExamTakingPages',
   data() {
     return {
-      exam: {},  // Holds the exam details
-      selectedAnswers: {},  // Holds the user's selected answers (multiple-choice)
-      studentTextAnswers: {},  // Holds the user's text answers for questions requiring written input
-      isSubmitting: false,  // Prevent multiple submissions
-      validationError: '',  // To store validation errors
+      exam: {}, // Holds the exam details
+      selectedAnswers: {}, // Holds the user's selected answers (multiple-choice)
+      studentTextAnswers: {}, // Holds the user's text answers for questions requiring written input
+      isSubmitting: false, // Prevent multiple submissions
+      validationError: '', // To store validation errors
+      examSubmitted: false, // Flag to indicate if the exam is submitted
+      results: [], // To hold the results after submission
+      totalScore: 0, // Total score after result calculation
     };
   },
   created() {
@@ -90,53 +108,78 @@ export default {
         }
       }
 
-      this.validationError = '';  // Clear any existing validation errors
+      this.validationError = ''; // Clear any existing validation errors
       return true;
     },
 
     async submitExam() {
-      // Perform validation before submitting
-      if (!this.validateAnswers()) return;
+  // Perform validation before submitting
+  if (!this.validateAnswers()) return;
 
-      this.isSubmitting = true;
+  this.isSubmitting = true;
 
-      const examId = this.$route.params.exam_id;
-      const formattedAnswers = this.exam.questions.map((question) => ({
-        question_id: question.id,
-        addchoices_id: this.selectedAnswers[question.id] || null,  // Send selected multiple-choice answer
-        Student_answer: this.studentTextAnswers[question.id] || null,  // Send text answer if applicable
-      }));
+  const examId = this.$route.params.exam_id;
 
+  const formattedAnswers = this.exam.questions.map((question) => ({
+    question_id: question.id,
+    addchoices_id: this.selectedAnswers[question.id] || null, // Send selected multiple-choice answer
+    Student_answer: this.studentTextAnswers[question.id] || null, // Send text answer if applicable
+  }));
+
+  try {
+    // Updated to match your route definition
+    await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
+      { answers: formattedAnswers },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        }
+      }
+    );
+
+    // Success notification
+    Swal.fire({
+      title: 'Success!',
+      text: 'Exam submitted successfully!',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      this.getResults(examId); // Fetch results after submission
+    });
+
+  } catch (error) {
+    console.error('Failed to submit exam:', error.response ? error.response.data : error.message);
+    Swal.fire({
+      title: 'Error!',
+      text: 'Failed to submit exam. Please try again later.',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    });
+  } finally {
+    this.isSubmitting = false;
+  }
+},
+
+
+    async getResults(examId) {
       try {
-        await axios.post(`http://localhost:8000/api/submitExam2/${examId}`, 
-          { answers: formattedAnswers },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            }
-          }
-        );
-
-        // Success notification
-        Swal.fire({
-          title: 'Success!',
-          text: 'Exam submitted successfully!',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        }).then(() => {
-          this.$router.push('/myExams');  // Redirect to exams list
+        const response = await axios.get(`http://localhost:8000/api/getResults/${examId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         });
-        
+
+        this.results = response.data.results;
+        this.totalScore = response.data.total_score;
+        this.examSubmitted = true; // Set the flag to show results
       } catch (error) {
-        console.error('Failed to submit exam:', error.response ? error.response.data : error.message);
+        console.error('Failed to retrieve results:', error.message);
         Swal.fire({
           title: 'Error!',
-          text: 'Failed to submit exam. Please try again later.',
+          text: 'Failed to retrieve results. Please try again later.',
           icon: 'error',
           confirmButtonText: 'OK'
         });
-      } finally {
-        this.isSubmitting = false;
       }
     }
   }
