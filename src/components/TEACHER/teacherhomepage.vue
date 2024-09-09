@@ -44,13 +44,13 @@
         <img :src="require('@/assets/i12.png')" class="img-fluid logo" alt="Your Image">
 
         <!-- Dashboard Section -->
-        <h5 class="sidebar-section-label">Dashboard</h5>
+        <!-- <h5 class="sidebar-section-label">Dashboard</h5>
         <router-link v-for="(item, index) in items.filter(i => i.section === 'dashboard')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }"  @click="handleItemClick(item.path)">
           <span class="icon-label">
             <i :class="item.icon"></i>
             <span class="label">{{ item.label }}</span>
           </span>
-        </router-link>
+        </router-link> -->
 
         <!-- Manage Section -->
         <h5 class="sidebar-section-label">Instructional Authority</h5>
@@ -62,20 +62,13 @@
           </span>
         </router-link>
         <!-- Report Section -->
-        <h5 class="sidebar-section-label">Report</h5>
-        <router-link
-          v-for="(item, index) in items.filter(i => i.section === 'report')"
-          :key="index"
-          :to="item.path"
-          class="list-group"
-          :class="{ active: selectedItem === item.path }"
-          @click="handleItemClick(item.path)"
-        >
+        <!-- <h5 class="sidebar-section-label">Report</h5>
+        <router-link v-for="(item, index) in items.filter(i => i.section === 'report')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)" >
           <span class="icon-label">
             <i :class="item.icon"></i>
             <span class="label">{{ item.label }}</span>
           </span>
-        </router-link>
+        </router-link> -->
 
         <!-- Chevron Icon to Collapse/Expand Sidebar -->
         <i @click="toggleSidebar" class="bi" :class="isSidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
@@ -116,19 +109,18 @@ export default {
       isPopoverVisible: false,
  
       isSidebarCollapsed: false,
-      selectedItem: localStorage.getItem('selectedItem') || '/teacherdashboard',
+      selectedItem: localStorage.getItem('selectedItem') || '/teacheraddsubject',
       items: [
         // Dashboard Section
-        { path: '/teacherdashboard', label: 'Dashboard', icon: 'bi bi-speedometer2', section: 'dashboard' },
+        // { path: '/teacherdashboard', label: 'Dashboard', icon: 'bi bi-speedometer2', section: 'dashboard' },
 
         // Manage Section
         { path: '/teacheraddsubject', label: 'Class Creation', icon: 'bi bi-collection fs-4', section: 'manage' },
-        { path: '/displayExam', label: 'Display Exam',icon: 'bi bi-file-earmark-text fs-4', section: 'manage' },
-       
+        // { path: '/displayExam', label: 'Display Exam',icon: 'bi bi-file-earmark-text fs-4', section: 'manage' },
 
         // Report Section
-        { path: '/ReportListofStudent', label: 'List of Student', icon: 'bi bi-person-fill', section: 'report' },
-        { path: '/ReportListofTeacher', label: 'List of Teacher', icon: 'bi bi-person-lines-fill', section: 'report' },
+        // { path: '/ReportListofStudent', label: 'List of Student', icon: 'bi bi-person-fill', section: 'report' },
+        // { path: '/ReportListofTeacher', label: 'List of Teacher', icon: 'bi bi-person-lines-fill', section: 'report' },
       ],
     };
   },
@@ -198,8 +190,8 @@ export default {
     },
   },
   beforeMount() {
-    this.$router.push('/teacherdashboard');
-    this.selectedItem = '/teacherdashboard';
+    this.$router.push('/teacheraddsubject');
+    this.selectedItem = '/teacheraddsubject';
   },
 };
 </script>
@@ -232,13 +224,11 @@ h2 {
 .profile-icon {
   font-size: 40px;
   margin-right: 10px;
-  color: white;
+  color: rgb(10, 1, 1);
   transition: color 0.3s;
 }
 
-.profile-icon-container:hover .profile-icon {
-  color: #0056b3;
-}
+
 
 .modal-content {
   border: 2px solid #add8e6;

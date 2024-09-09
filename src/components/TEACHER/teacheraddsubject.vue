@@ -455,6 +455,7 @@ export default {
   width: 100%; /* Card width set to fill container */
   max-width: 350px; /* Maximum width of the card */
   height: 400px;
+  cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   margin-bottom: 20px; /* Space between cards */
   

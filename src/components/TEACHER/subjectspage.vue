@@ -4,7 +4,7 @@
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2>{{ subject.subjectName }}</h2>
-        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+        <p>{{ subject.semester }} Semester | {{ subject.schoolYear }}</p>
       </div>
     </div>
 

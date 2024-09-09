@@ -4,7 +4,7 @@
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2>{{ subject.subjectName }}</h2>
-        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+        <p>{{ subject.semester }} Semester | {{ subject.schoolYear }}</p>
       </div>
     </div>
 
@@ -27,6 +27,8 @@
       <h2 class="text-center">Examinations</h2>
       
       <div class="table-wrapper">
+        <button @click="navigateToAddExam" class="btn btn-primary mt-3 mr-0">Add Exam</button>
+        <!-- <button @click="navigateToAddExam" class="btn btn-primary mt-3 w-80">Add Exam</button> -->
         <table class="table table-hover table-custom">
           <thead class="table-info">
             <tr>
@@ -57,7 +59,7 @@
           </tbody>
         </table>
         </div>
-      <button @click="navigateToAddExam" class="btn btn-primary mt-3 w-100">Add Exam</button>
+      
     </div>
 
 </template>
