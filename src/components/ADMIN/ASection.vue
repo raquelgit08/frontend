@@ -1,28 +1,28 @@
 <template>
   <div class="container-fluid">
     <div class="header-container">
-      <h3><i class="bi bi-folder2-open"></i>Manage Sections</h3>
+      <h3><i class="bi bi-folder2-open"></i> Manage Sections</h3>
     </div>
 
     <!-- Search and Add Button -->
     <div class="row mb-4 justify-content-end align-items-center">
-        <div class="col-md-9">
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="bi bi-search"></i>
-            </span>
-            <input type="text" v-model="searchQuery" class="form-control custom-select" placeholder="Search Subject...">
-          </div>
-        </div>
-       
-        <div class="col-md-3 d-flex align-items-center">
-          <button class="btn  btn-gradient" @click="openAddModal">
-            <i class="bi bi-plus"></i> Add Section
-          </button>
+      <div class="col-md-9">
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" v-model="searchQuery" class="form-control custom-select" placeholder="Search Subject...">
         </div>
       </div>
+      
+      <div class="col-md-3 d-flex align-items-center">
+        <button class="btn btn-gradient" @click="openAddModal">
+          <i class="bi bi-plus"></i> Add Section
+        </button>
+      </div>
+    </div>
     
-    <!-- Table for School Years -->
+    <!-- Table for Sections -->
     <div class="table-wrapper">
       <table class="table table-hover table-custom">
         <thead>
@@ -42,10 +42,10 @@
             <td>{{ section.section }}</td>
             <td>
               <button class="btn edit btn-md me-2" @click="openEditModal(section)">
-                <i class="bi bi-pencil"></i>Edit
+                <i class="bi bi-pencil"></i> Edit
               </button>
-              <button class="btn btn-danger btn-md" @click="deleteSection(section.id)">
-                <i class="bi bi-trash"></i>Delete
+              <button class="btn btn-danger btn-md" @click="confirmDeleteSection(section.id)">
+                <i class="bi bi-trash"></i> Delete
               </button>
             </td>
           </tr>
@@ -53,13 +53,13 @@
       </table>
     </div>
 
-    <!-- Edit -->
+    <!-- Add/Edit Section Modal -->
     <div class="modal fade" id="sectionModal" tabindex="-1" ref="sectionModal">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="d-flex justify-content-between align-items-center">
             <h5 class="modal-title"><i class="bi bi-folder2-open" style="padding-right: 10px;"></i>{{ isEdit ? 'Edit Section' : 'Add Section' }} </h5>
-              <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
+            <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
           </div><br>
           
           <div class="modal-body">
@@ -87,36 +87,16 @@
             <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
             <button type="button" class="btn btn-primary" @click="checkForDuplicate">{{ isEdit ? 'Update' : 'Save' }}</button>
           </div>
-         
         </div>
       </div>
     </div>
-
-
-    <!-- Duplicate Error Modal -->
-    <div class="modal fade" id="duplicateModal" tabindex="-1" ref="duplicateModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Duplicate Section</h5>
-            <button type="button" class="btn-close" @click="closeDuplicateModal"></button>
-          </div>
-          <div class="modal-body">
-            <p>A section with this name, strand, and grade level already exists.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button"  class="btn btn-danger" @click="closeDuplicateModal">OK</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'SectioninSHS',
@@ -156,6 +136,9 @@ export default {
       } catch (error) {
         console.error('Error fetching sections:', error);
         this.error = 'Failed to fetch sections.';
+        Swal.fire('Error', this.error, 'error');
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -171,8 +154,8 @@ export default {
       } catch (error) {
         console.error('Error fetching strands:', error);
         this.error = 'Failed to fetch strands.';
+        Swal.fire('Error', this.error, 'error');
       }
-      this.loading = false;
     },
 
     async checkForDuplicate() {
@@ -181,17 +164,17 @@ export default {
           section.section.toLowerCase() === this.newSection.toLowerCase() &&
           section.strand.id === this.selectedStrand &&
           section.strand.grade_level === this.selectedGradeLevel &&
-          (!this.isEdit || section.id !== this.editSectionId)  // Ignore the current section if editing
+          (!this.isEdit || section.id !== this.editSectionId)
       );
 
       if (duplicate) {
-        this.closeModal();  // Close the Add/Edit modal before showing the duplicate modal
-        this.showDuplicateModal();
+        this.closeModal();  // Close the Add/Edit modal before showing the SweetAlert
+        Swal.fire('Duplicate Error', 'A section with this name, strand, and grade level already exists.', 'error');
       } else {
         this.saveSection();
       }
     },
-       
+
     async saveSection() {
       try {
         const token = localStorage.getItem('token');
@@ -224,8 +207,27 @@ export default {
       } catch (error) {
         console.error('Error saving section:', error);
         this.error = 'Failed to save section.';
+        Swal.fire('Error', this.error, 'error');
       }
     },
+
+    async confirmDeleteSection(id) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await this.deleteSection(id);
+          Swal.fire('Deleted!', 'Section has been deleted.', 'success');
+        }
+      });
+    },
+
     async deleteSection(id) {
       try {
         const token = localStorage.getItem('token');
@@ -238,6 +240,7 @@ export default {
       } catch (error) {
         console.error('Error deleting section:', error);
         this.error = 'Failed to delete section.';
+        Swal.fire('Error', this.error, 'error');
       }
     },
 
@@ -284,16 +287,6 @@ export default {
       this.selectedStrand = '';
       this.selectedGradeLevel = '';
       this.editSectionId = null;
-    },
-
-    showDuplicateModal() {
-      const modal = new Modal(this.$refs.duplicateModal);
-      modal.show();
-    },
-
-    closeDuplicateModal() {
-      const modal = Modal.getInstance(this.$refs.duplicateModal);
-      modal.hide();
     }
   },
 
@@ -309,121 +302,126 @@ export default {
 .container-fluid {
     background-color: #ffffff;
     border-radius: 10px;
-  }
-  .header-container {
+}
+.header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 5px;
     padding-top: 20px;
+}
 
-  }
-  .form-select {
+.form-select {
     width: 200px;
-  }
-  /* Table Wrapper */
-  .table-wrapper {
+}
+
+/* Table Wrapper */
+.table-wrapper {
     margin: 10px;
     padding: 0 15px;
     max-width: 100%;
     overflow-x: auto;
-  }
+}
 
-  /* Table Styles */
-  .table-custom {
+/* Table Styles */
+.table-custom {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
     border: 1px solid #200909;
     overflow: hidden;
     margin-bottom: 120px;
-  }
+}
 
-  .table-custom th {
+.table-custom th {
     background-color: #0d8eead7;
     color: #000000;
     font-weight: 700;
     font-size: 20px;
-  }
-  
-  .table th, .table td {
+}
+
+.table th, .table td {
     text-align: center;
     vertical-align: middle;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  .td{
-    font-size: 18px;
-  }
+}
 
-  .table-custom tbody tr:hover {
+.table-custom tbody tr:hover {
     background-color: #f1f3f5;
-  }
+}
 
-  .table-custom tbody tr {
+.table-custom tbody tr {
     transition: background-color 0.3s ease;
-  }
-  .edit{
+}
+
+.edit {
     background-color: rgb(12, 170, 12);
     color: #ffffff;
     width: 90px;
-  }
-  .btn-danger, .edit{
+}
+
+.btn-danger, .edit {
     font-size: 17px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .btn-gradient {
-  background: linear-gradient(45deg, #007bff, #00bfff);
-  color: #120808;
-  transition: background 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 5px ;
-  margin: 20px;
-  padding: 5px;
-  width: 300px;
-  text-align: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 20px;
 }
-.edit:hover{
-  background-color: green;
+
+.btn-gradient {
+    background: linear-gradient(45deg, #007bff, #00bfff);
+    color: #120808;
+    transition: background 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    margin: 20px;
+    padding: 5px;
+    width: 300px;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 20px;
+}
+
+.edit:hover {
+    background-color: green;
 }
 
 .btn-gradient:hover {
-  background: linear-gradient(45deg, #0056b3, #0080ff);
+    background: linear-gradient(45deg, #0056b3, #0080ff);
 }
 
 .custom-select {
-  height: 45px;
-  border-radius: 8px; /* Rounded corners */
-  border: 1px solid #ced4da; /* Light border color */
-  background-color: #ffffff; /* White background */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  font-size: 16px; /* Font size for better readability */
-  font-family: Arial, sans-serif; /* Font family */
-  color: #495057; /* Text color */
-  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus */
+    height: 45px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    color: #495057;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .custom-select:focus {
-  border-color: #007bff; /* Border color on focus */
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25); /* Shadow on focus */
-  outline: none; /* Remove default outline */
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+    outline: none;
 }
 
 .custom-select::placeholder {
-  color: #6c757d; /* Placeholder text color */
+    color: #6c757d;
 }
+
 /* Search Bar Styles */
-.input-group{
-  padding-left: 32px;
+.input-group {
+    padding-left: 32px;
 }
+
 .modal-dialog {
-  width: 40%;
+    width: 40%;
 }
+
 /* Modal Styles */
 .modal-content {
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 </style>

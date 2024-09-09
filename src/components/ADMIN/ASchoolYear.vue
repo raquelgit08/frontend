@@ -1,27 +1,26 @@
 <template>
   <div class="container-fluid">
     <div class="header-container">
-      <h3><i class="bi bi-calendar-month-fill"></i>
-        Manage School Year</h3>
+      <h3><i class="bi bi-calendar-month-fill"></i> Manage School Year</h3>
     </div>
 
     <!-- Search and Add Button -->
     <div class="row mb-4 justify-content-end align-items-center">
-        <div class="col-md-9">
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="bi bi-search"></i>
-            </span>
-            <input type="text" v-model="searchQuery" class="form-control custom-select" placeholder="Search...">
-          </div>
-        </div>
-       
-        <div class="col-md-3 d-flex align-items-center">
-          <button class="btn  btn-gradient" @click="openAddModal">
-            <i class="bi bi-plus"></i> Add School Year
-          </button>
+      <div class="col-md-9">
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" v-model="searchQuery" class="form-control custom-select" placeholder="Search...">
         </div>
       </div>
+     
+      <div class="col-md-3 d-flex align-items-center">
+        <button class="btn btn-gradient" @click="openAddModal">
+          <i class="bi bi-plus"></i> Add School Year
+        </button>
+      </div>
+    </div>
     
     <!-- Loading Indicator -->
     <div v-if="loading" class="text-center mb-3">
@@ -46,7 +45,7 @@
               <button class="btn btn-md edit me-2" @click="openEditModal(year)">
                 <i class="bi bi-pencil"></i> Edit
               </button>
-              <button class="btn btn-md btn-danger" @click="deleteYear(year.id)">
+              <button class="btn btn-md btn-danger" @click="confirmDeleteYear(year.id)">
                 <i class="bi bi-trash"></i> Delete
               </button>
             </td>
@@ -60,17 +59,16 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="modal-title" id="yearModalLabel"><i class="bi bi-calendar-month-fill" style="padding-right: 10px;" ></i>{{ isEdit ? 'Edit Year' : 'Add Year' }}</h5>
-              <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
+            <h5 class="modal-title" id="yearModalLabel"><i class="bi bi-calendar-month-fill" style="padding-right: 10px;"></i>{{ isEdit ? 'Edit Year' : 'Add Year' }}</h5>
+            <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
           </div><br>
        
           <div class="modal-body">
             <form @submit.prevent="saveYear">
               <div class="mb-3">
                 <label for="yearInput" class="form-label">School Year</label>
-                <input type="text"  id="yearInput" v-model="newYear" class="form-control custom-select" required/>
+                <input type="text" id="yearInput" v-model="newYear" class="form-control custom-select" required />
                 <div v-if="error" class="text-danger mt-2">{{ error }}</div>
-                <div v-if="duplicateErrorMessage" class="text-danger mt-2">{{ duplicateErrorMessage }}</div>
               </div>
               <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update' : 'Add' }}</button>
             </form>
@@ -78,28 +76,13 @@
         </div>
       </div>
     </div>
-
-    <!-- Duplicate Error Modal -->
-    <div class="modal fade" ref="duplicateModal" tabindex="-1" aria-labelledby="duplicateModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="duplicateModalLabel">Duplicate Error</h5>
-            <button type="button" class="btn-close" @click="closeDuplicateModal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>{{ duplicateErrorMessage }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'SchoolYear',
@@ -111,7 +94,6 @@ export default {
       isEdit: false,
       editYearId: null,
       error: null,
-      duplicateErrorMessage: '',
       loading: false,
     };
   },
@@ -149,13 +131,11 @@ export default {
         
         await axios({ method, url, data: { addyear: this.newYear }, headers: { Authorization: `Bearer ${token}` } });
         await this.fetchYears();
-        this.resetForm();
         this.closeModal();
       } catch (error) {
         if (error.response && error.response.status === 409) {
-          this.duplicateErrorMessage = error.response.data.message;
-          this.closeModal();
-          this.showDuplicateModal();
+          this.closeModal(); // Close modal before showing SweetAlert
+          this.showDuplicateError(error.response.data.message);
         } else {
           this.error = 'Failed to save year.';
         }
@@ -174,6 +154,35 @@ export default {
       } catch (error) {
         this.error = 'Failed to delete year.';
       }
+    },
+
+    confirmDeleteYear(id) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.deleteYear(id);
+          Swal.fire(
+            'Deleted!',
+            'Your data has been deleted.',
+            'success'
+          );
+        }
+      });
+    },
+
+    showDuplicateError(message) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Duplicate Error',
+        text: message,
+      });
     },
 
     openAddModal() {
@@ -200,22 +209,11 @@ export default {
       this.resetForm();
     },
 
-    showDuplicateModal() {
-      const modal = new Modal(this.$refs.duplicateModal);
-      modal.show();
-    },
-
-    closeDuplicateModal() {
-      const modal = Modal.getInstance(this.$refs.duplicateModal);
-      modal.hide();
-    },
-
     resetForm() {
       this.newYear = '';
       this.isEdit = false;
       this.editYearId = null;
       this.error = null;
-      this.duplicateErrorMessage = '';
     },
   },
   mounted() {
