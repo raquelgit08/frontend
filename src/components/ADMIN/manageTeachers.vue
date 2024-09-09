@@ -40,10 +40,11 @@
           <thead class="table-info">
             <tr>
               <th scope="col" class="text-center">No.</th>
-              <th scope="col" class="text-center">user.id</th>
-              <th scope="col" class="text-center">LRN</th>
-              <th scope="col" class="text-center">Teachers Profile</th>
+              <th scope="col" class="text-center">Employee Number</th>
+              <th scope="col" class="text-center">Name</th>
               <th scope="col" class="text-center">Sex</th>
+              <th scope="col" class="text-center">Email</th>
+              <th scope="col" class="text-center">Position</th>
               <th scope="col" class="text-center">Date</th>
               <th scope="col" class="text-center">Status</th>
               <th scope="col" class="text-center">Actions</th>
@@ -52,14 +53,11 @@
           <tbody>
             <tr v-for="(teachers, index) in paginatedItems" :key="teachers.idnumber">
               <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-              <td>{{ teachers.user.id }}</td>
               <td>{{ teachers.user.idnumber }}</td>
-              <td class="text-center">
-                <b>{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </b><br>
-                <i>{{ teachers.user.email }}</i><br>
-                {{ teachers.position.teacher_postion }} 
-              </td>
+              <td class="text-center">{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </td>
               <td class="text-center">{{ teachers.user.sex }}</td>
+              <td>{{ teachers.user.email }}</td>
+              <td>{{ teachers.position.teacher_postion }} </td>
               <td class="text-center">
                 <b>Registered :</b>{{ formatDate(teachers.created_at) }}<br>
                 <b>Modified :</b>{{ formatDate(teachers.updated_at) }}
@@ -76,10 +74,10 @@
               <td class="text-center">
                 <div class="icon-container">
                   <span class="icon-box reset-box">
-                    <i class="bi bi-key-fill custom-icon" @click="openResetModal(teachers)"></i>
+                    <i class="bi bi-key-fill custom-icon" title="Reset Password" @click="openResetModal(teachers)"></i>
                   </span>
                   <span class="icon-box edit-box">
-                    <i class="bi bi-pencil-square custom-icon" @click="openModal(teachers)"></i>
+                    <i class="bi bi-pencil-square custom-icon" title="Edit Record" @click="openModal(teachers)"></i>
                   </span>
                   
                 </div>
@@ -163,16 +161,7 @@
           </div>
           <div class="modal-body">
             <form>
-              <div class="row mb-3">
-              <div class="col-md-6">
-                <label for="idnumber" class="form-label">ID NUMBER:</label>
-                <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
-              </div>
-              <div class="col-md-6">
-                <label for="email" class="form-label">Email Address:</label>
-                <input type="email" id="email" v-model="currentUser.user.email" class="form-control" >
-              </div>
-            </div>
+              
 
               <div class="row mb-3">
                 <div class="col-md-4">
@@ -189,7 +178,7 @@
                 </div>
             </div>
             <div class="row mb-3">
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <label class="form-label d-block">Gender:</label>
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" name="gender" id="male" value="male" v-model="currentUser.user.sex">
@@ -200,14 +189,24 @@
                   <label class="form-check-label" for="female">Female</label>
                 </div>
               </div>
-              <div class="col-md-4">
-                <label for="strand" class="form-label">Strand:</label>
+              <div class="col-md-6">
+                <label for="strand" class="form-label">Position:</label>
                 <select v-model="currentUser.user.position_id" id="strand" class="form-select" required>
                   <option value="">Select position</option>
                   <option v-for="position in positions" :key="position.id" :value="position.id">
                     {{ position.teacher_postion }}
                   </option>
                 </select>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="idnumber" class="form-label">ID NUMBER:</label>
+                  <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
+                </div>
+                <div class="col-md-6">
+                  <label for="email" class="form-label">Email Address:</label>
+                  <input type="email" id="email" v-model="currentUser.user.email" class="form-control" >
+                </div>
               </div>
              
             

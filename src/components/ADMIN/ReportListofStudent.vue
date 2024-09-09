@@ -3,7 +3,8 @@
       <div class="container-fluid">
         <div class="header-container">
           <img src="@/assets/enhs logo.jpg" alt="Left Logo" class="enhslogo">
-          <h3 class="text-center">Report Generation for List of Students</h3>
+          
+          <h2 class="text-center">Masterlist of Students</h2>
           <img src="@/assets/Deped-Logo.png" alt="Right Logo" class="depedlogo">
         </div>
         <div class="row mb-4 justify-content-end align-items-center">

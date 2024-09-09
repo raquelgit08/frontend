@@ -96,7 +96,7 @@
       <div class="text-center mt-4">
         <button type="button" class="btn-gradient" @click="addUser">
           <i class="bi bi-person-plus-fill"></i>
-          <span class="ms-2"><b>Add User</b></span>
+          <span class="ms-2"><b>SAVE RECORD</b></span>
         </button>
       </div>
     </div>
