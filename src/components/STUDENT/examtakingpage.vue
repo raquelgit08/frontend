@@ -10,13 +10,13 @@
           <p class="question-text">{{ question.question }}</p>
           <div class="choice-container">
             <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
-        <input type="radio" :name="'question_' + question.id" :value="choice.id" @input="updateSelectedAnswer(question.id, choice.choices)" />
-        {{ choice.choices }}
-      </label>
-    </div>
-    <textarea v-if="question.requires_text_input" @input="updateStudentTextAnswer(question.id, $event.target.value)" class="text-answer" 
-      placeholder="Your answer">
-    </textarea>
+              <input type="radio" :name="'question_' + question.id" :value="choice.id" @input="updateSelectedAnswer(question.id, choice.choices)" />
+              {{ choice.choices }}
+            </label>
+          </div>
+          <textarea v-if="question.requires_text_input" @input="updateStudentTextAnswer(question.id, $event.target.value)" class="text-answer" 
+            placeholder="Your answer">
+          </textarea>
         </div>
       </div>
       <div v-else>
@@ -25,21 +25,9 @@
 
       <!-- Pagination Controls -->
       <div class="pagination-controls">
-        <button 
-          type="button" 
-          class="btn btn-secondary" 
-          @click="prevPage" 
-          :disabled="currentPage === 1">
-          Previous
-        </button>
+        <button  type="button"  class="btn btn-secondary"  @click="prevPage"  :disabled="currentPage === 1"> Previous</button>
         <span class="pagination-status">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button 
-          type="button" 
-          class="btn btn-secondary" 
-          @click="nextPage" 
-          :disabled="currentPage === totalPages">
-          Next
-        </button>
+        <button  type="button" class="btn btn-secondary"  @click="nextPage"  :disabled="currentPage === totalPages"> Next</button>
       </div>
 
       <!-- Display validation errors -->
@@ -58,16 +46,25 @@
 
     <!-- Results Display -->
     <div v-if="examSubmitted" class="results-container">
-      <h3 class="results-title">Your Results</h3>
-      <ul class="results-list">
-        <li v-for="result in results" :key="result.question_number" class="result-item">
-          <p><strong>Question {{ result.question }}:</strong></p>
-          <p>Your Answer: <span class="user-answer">{{ result.student_answer }}</span></p>
-          <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p>
-          <p>Points: <span class="points">{{ result.points_awarded}}</span></p>
-        </li>
-      </ul>
-      <p class="total-score"><strong>Total Score: {{ totalScore }}</strong></p>
+      <div class="row">
+        <div class="col-8">
+          <h3 class="results-title">Your Results</h3>
+            <ul class="results-list">
+              <li v-for="(result, index) in results" :key="result.question_number" class="result-item">
+                <p><strong>{{ index + 1 }} . Question ({{ result.question_number }}):</strong></p>
+                <p>Your Answer: <span class="user-answer">{{ result.student_answer }}</span></p>
+                <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p>
+                <p>Points: <span class="points">{{ result.points_awarded}}</span></p>
+              </li>
+            </ul>
+            <p class="total-score"><strong>Total Score: {{ totalScore }}</strong></p>
+        </div>
+        <div class="col-4">
+          <h3 class="feedback-title">Your Feedback</h3>
+          <textarea v-model="feedback" class="form-control" rows="10" placeholder="Please provide your feedback about the exam..."></textarea>
+          <button @click="submitFeedback" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

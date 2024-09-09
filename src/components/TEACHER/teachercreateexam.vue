@@ -25,6 +25,7 @@
 
     <div class="container-fluid">
       <h2 class="text-center">Examinations</h2>
+      
       <div class="table-wrapper">
         <table class="table table-hover table-custom">
           <thead class="table-info">

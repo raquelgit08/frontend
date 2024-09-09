@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2>Admin Portal</h2>
+          <h2>E</h2>
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto">
@@ -235,13 +235,11 @@ h2 {
 .profile-icon {
   font-size: 40px;
   margin-right: 10px;
-  color: white;
+  color: rgb(0, 0, 0);
   transition: color 0.3s;
 }
 
-.profile-icon-container:hover .profile-icon {
-  color: #0056b3;
-}
+
 
 .modal-content {
   border: 2px solid #add8e6;
