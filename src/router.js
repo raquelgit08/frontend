@@ -30,7 +30,7 @@ import TeacherListsofSubject from './components/TEACHER/teacherlistofsubject.vue
 import ManagingSubjects from './components/TEACHER/managesubject.vue';
 import SubjectPages from './components/TEACHER/subjectspage.vue';
 import StudentsListSubject from './components/TEACHER/studentslist.vue';
-import Addexaminations from './components/TEACHER/AddExam.vue';
+import AddexaminationsofSHS from './components/TEACHER/AddExam.vue';
 import DisplayExaminations from './components/TEACHER/displayExam.vue';
 import ViewExam from './components/TEACHER/viewexam.vue';
 import CreationOfExaminations from './components/TEACHER/CreatingExam.vue';
@@ -94,7 +94,7 @@ const routes = [
   { path: '/studentslist/:class_id', component: StudentsListSubject},
   { path: '/pendingstudentslist/:class_id', component: PendingStudent},
   { path: '/displayExam/exam_id', component: DisplayExaminations},
-  { path: '/AddExam/:class_id', component: Addexaminations },
+  { path: '/AddExam/:examId', component: AddexaminationsofSHS },
   { path: '/CreatingExam/:class_id', component: CreationOfExaminations},
   { path: '/Feedback/:class_id', component: FeedbacksofStudent },
   { path: '/ItemAnalysis/:class_id', component: ITEManalysis },
