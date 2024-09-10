@@ -7,7 +7,7 @@
     <div class="register-form">
       <div class="row mb-3 Row">
         <div class="col-md-3">
-          <label for="idnumber" class="form-label">ID / LRN Number:</label>
+          <label for="idnumber" class="form-label">Employee Number:</label>
           <input v-model="formData.idnumber" type="text" id="idnumber" class="form-control" required>
         </div>
 
@@ -85,7 +85,7 @@
       <div class="text-center mt-4">
         <button type="button" class="btn-gradient" @click="addUser">
           <i class="bi bi-person-plus-fill"></i>
-          <span class="ms-2"><b>Add User</b></span>
+          <span class="ms-2"><b>SAVE RECORD</b></span>
         </button>
       </div>
     </div>
@@ -99,14 +99,14 @@
             <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p><strong>ID / LRN Number:</strong> {{ formData.idnumber }}</p>
+            <p><strong>Employee Number:</strong> {{ formData.idnumber }}</p>
               <p><strong>User Type:</strong> {{ formData.usertype }}</p>
               <p><strong>Gender:</strong> {{ formData.sex }}</p>
               <p><strong>Last Name:</strong> {{ formData.lname }}</p>
               <p><strong>First Name:</strong> {{ formData.fname }}</p>
               <p><strong>Middle Name:</strong> {{ formData.mname }}</p>
               <p><strong>Email:</strong> {{ formData.email }}</p>
-              <p ><strong>Position:</strong>{{ formData.position_id}}</p>
+              <p ><strong>Position:</strong>{{ formData.teacher_postion}}</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>

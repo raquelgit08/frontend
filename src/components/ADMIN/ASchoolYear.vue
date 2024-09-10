@@ -79,7 +79,7 @@
                 <input type="text" id="yearInput" v-model="newYear" class="form-control custom-select" required />
                 <div v-if="error" class="text-danger mt-2">{{ error }}</div>
               </div>
-              <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update' : 'Add' }}</button>
+              <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update' : 'Save Record' }}</button>
             </form>
           </div>
         </div>

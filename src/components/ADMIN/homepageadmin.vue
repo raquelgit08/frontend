@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2>Admin Portal</h2>
+          <h2>E</h2>
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto">
@@ -41,7 +41,7 @@
     </nav>
     <div class="d-flex">
       <div :class="['sidebar', isSidebarCollapsed ? 'collapsed' : '']">
-        <img :src="require('@/assets/i12.png')" class="img-fluid logo" alt="Your Image">
+        <img :src="require('@/assets/logowise.png')" class="img-fluid logo" alt="Your Image">
 
         <!-- Dashboard Section -->
         <router-link v-for="(item, index) in items.filter(i => i.section === 'dashboard')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }"  @click="handleItemClick(item.path)">
@@ -76,13 +76,7 @@
         <!-- Report Section -->
         <h5 class="sidebar-section-label">Report</h5>
         <router-link
-          v-for="(item, index) in items.filter(i => i.section === 'report')"
-          :key="index"
-          :to="item.path"
-          class="list-group"
-          :class="{ active: selectedItem === item.path }"
-          @click="handleItemClick(item.path)"
-        >
+          v-for="(item, index) in items.filter(i => i.section === 'report')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)" >
           <span class="icon-label">
             <i :class="item.icon"></i>
             <span class="label">{{ item.label }}</span>
@@ -221,8 +215,7 @@ h2 {
 
 .welcome-text {
   margin-right: 20px;
-  font-size: 1.25rem;
-  color: white;
+  font-size: 30px;
 }
 
 .profile-icon-container {
@@ -235,13 +228,11 @@ h2 {
 .profile-icon {
   font-size: 40px;
   margin-right: 10px;
-  color: white;
+  color: rgb(0, 0, 0);
   transition: color 0.3s;
 }
 
-.profile-icon-container:hover .profile-icon {
-  color: #0056b3;
-}
+
 
 .modal-content {
   border: 2px solid #add8e6;
