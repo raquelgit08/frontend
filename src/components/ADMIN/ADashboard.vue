@@ -192,7 +192,7 @@ export default {
 .container{
   border-radius: 10px;
   padding: 10;
-  height: 320px;
+  height: 30px;
   margin-bottom: 10px;
 }
 
