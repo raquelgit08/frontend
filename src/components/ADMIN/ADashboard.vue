@@ -3,7 +3,7 @@
     <!-- Statistics Section -->
     <div class="row">
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes box1 d-flex align-items-center p-3" @click="navigateTo('/manage_teachers')">
+        <div class="boxes box1 d-flex align-items-center p-3" @click="$router.push('/manage_teachers')">
           <i class="bi bi-person-lines-fill icon icon1"></i>
           <div class="content">
             <h4>{{ counts.teacher_count }}</h4>
@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/manage_students')">
+        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/manage_students')">
            <i class="bi bi-person-fill icon icon2"></i>
           <div class="content">
             <h4>{{ counts.student_count }}</h4>
@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/ManageStrandsinSHS')">
+        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/ManageStrandsinSHS')">
            <i class="bi bi-book-half icon icon3"></i>
           <div class="content">
             <h4>{{ counts.strand_count }}</h4>
@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/AManageSubject')">
+        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/AManageSubject')">
            <i class="bi bi-file-earmark-text-fill icon icon4"></i>
           <div class="content">
             <h4>{{ counts.subject_count }}</h4>
@@ -183,7 +183,7 @@ export default {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
   padding: 10;
-  height: 430px;
+  height: 400px;
   width: 380px;
   margin-top: 10px;
   margin: 10px;
@@ -192,7 +192,7 @@ export default {
 .container{
   border-radius: 10px;
   padding: 10;
-  height: 320px;
+  height: 300px;
   margin-bottom: 10px;
 }
 
