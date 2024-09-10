@@ -101,7 +101,7 @@ const routes = [
   { path: '/PerformanceTracking/:class_id', component: PerformancesTracking },
   { path: '/GenerateReport/:class_id', component: ReportGenerating},
 
-  { path: '/teacheraddexam/:class_id', component: TeacherAddExams},
+  { path: '/teacheraddexam/:exam_id', component: TeacherAddExams},
   { path: '/teachercreateexam/:class_id', component: TeacherCreateExams},///
 
 

@@ -40,10 +40,17 @@
       </div>
     </div>
 
-    <!-- Table Section -->
+
+
     <div class="row">
-      <div class="col-9"></div>
-      <div class="col-3">
+      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher"><br>
+        <div class="container">
+          <center><h5>TOTAL NUMBER OF TEACHERS: {{ counts.teacher_count }}</h5></center><br>
+        <canvas id="teacher-gender-chart" ></canvas>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher"></div>
+      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher ">
         <div class="table-wrapper">
           <table class="table table-hover table-custom">
             <thead>
@@ -66,26 +73,46 @@
         </div>
       </div>
     </div>
-  </div>
+    <div class="row">
+      <div class="col">
+        <canvas id="strand-student-chart" ></canvas>
+      </div>
+    </div>
+
+</div>
+
 </template>
 <script>
 import axios from 'axios';
-
+import { Chart } from 'chart.js';
 export default {
   name: 'AdminDashboard',
   data() {
     return {
+      chartInstance: null,
       counts: {
         teacher_count: 0,
         student_count: 0,
         strand_count: 0,
         subject_count: 0,
       },
-      studentsGrouped: [],
+      teacherGrouped: {
+        male: {
+          male_count: 0,
+          female_count: 0,
+          total_count: 0,
+        },
+        female: {
+          male_count: 0,
+          female_count: 0,
+          total_count: 0,
+        },
+      },
     };
   },
   mounted() {
     this.fetchCounts();
+    this.createTeacherGenderChart();
   },
   methods: {
     fetchCounts() {
@@ -95,43 +122,47 @@ export default {
         }
       })
       .then(response => {
-        // Set the counts data from the response
         this.counts = response.data.data.counts;
-        
-        // Extract grouped student data
-        let groupedData = [];
-        let grouped = response.data.data.students_grouped;
-        
-        // Loop through the grouped data to extract male and female counts per strand and grade level
-        for (let strandName in grouped) {
-          for (let gradeLevel in grouped[strandName]) {
-            let group = grouped[strandName][gradeLevel];
-            
-            // Count male and female students manually from the students array
-            let maleCount = group.students.filter(student => student.sex === 'male').length;
-            let femaleCount = group.students.filter(student => student.sex === 'female').length;
-
-            // Add the parsed data to the array
-            groupedData.push({
-              strand_name: strandName,
-              grade_level: gradeLevel,
-              male_count: maleCount,
-              female_count: femaleCount,
-              total_count: maleCount + femaleCount
-            });
-          }
-        }
-
-        this.studentsGrouped = groupedData;
+        this.teacherGrouped = response.data.data.teacher_grouped;
+        this.createTeacherGenderChart();
       })
       .catch(error => {
         alert('Error fetching data: ' + error.message);
       });
     },
-  
-    navigateTo(path) {
-      this.$router.push(path);
+    createTeacherGenderChart() {
+      if (this.chartInstance) {
+        this.chartInstance.destroy(); // Destroy the previous chart instance
+      }
+
+      const ctx = document.getElementById('teacher-gender-chart').getContext('2d');
+      this.chartInstance = new Chart(ctx, { // Create a new chart instance and store it in the reference
+        type: 'pie',
+        data: {
+          labels: [ 
+            
+          `Male (${this.teacherGrouped.male.total_count})`,
+          `Female (${this.teacherGrouped.female.total_count})`,
+          ],
+          datasets: [{
+            label: 'Teacher Gender',
+            data: [this.teacherGrouped.male.total_count, this.teacherGrouped.female.total_count],
+            backgroundColor: ['#3559E0', '#98ABEE'],
+            hoverBackgroundColor: ['#007BFF', '#28a745'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          legend: {
+            display: false
+          },
+        
+        }
+      });
     },
+   
   },
 };
 </script>
@@ -148,24 +179,30 @@ export default {
   display: flex;
   align-items: center;
 }
+.teacher {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 10;
+  height: 430px;
+  width: 380px;
+  margin-top: 10px;
+  margin: 10px;
+  
+}
+.container{
+  border-radius: 10px;
+  padding: 10;
+  height: 320px;
+  margin-bottom: 10px;
+}
+
 
 .icon {
   font-size: 60px;
   padding: 20px;
+  color: #3D56B2;
 }
 
-.icon1{
-  color: #007BFF;
-}
-.icon2{
-  color: #28a745;
-}
-.icon3{
-  color: #fd7e14;
-}
-.icon4{
-  color: #6f42c1;
-}
 
 .content {
   flex: 1;
@@ -183,7 +220,6 @@ export default {
 /* Table Wrapper */
 .table-wrapper {
   margin-top: 12px;
-  margin-right: 5px;
 }
 
 /* Table Styles */
@@ -215,7 +251,6 @@ export default {
 .table-custom tbody tr {
   transition: background-color 0.3s ease;
 }
-
 
 
 .label {

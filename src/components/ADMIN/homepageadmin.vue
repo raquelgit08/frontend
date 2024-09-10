@@ -126,7 +126,7 @@ export default {
         { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder2-open', section: 'manage' },
         { path: '/AManageSubject', label: 'Manage Subjects', icon: 'bi bi-file-earmark-text-fill', section: 'manage' },
         { path: '/AManagePosition', label: 'Manage Position', icon: 'bi bi-file-person', section: 'manage' },
-        { path: '/ManageCuricculuminSHS', label: 'Manage Curriculum', icon: 'bi bi-grid-fill', section: 'manage' },
+        // { path: '/ManageCuricculuminSHS', label: 'Manage Curriculum', icon: 'bi bi-grid-fill', section: 'manage' },
 
         // Report Section
         { path: '/ReportListofStudent', label: 'List of Student', icon: 'bi bi-person-fill', section: 'report' },
@@ -293,7 +293,6 @@ h2 {
 
 .content {
   margin-left: 250px;
-  background-color: #eaeaea; /* Gray background */
   padding: 20px;
   width: calc(100% - 250px);
   transition: margin-left 0.3s ease, width 0.3s ease;

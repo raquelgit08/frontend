@@ -1,53 +1,14 @@
 <template>
-  <div class="exam-page">
+  <div class="container-fluid">
     <h2>Create Exam</h2>
+    <p>Exam Title: {{ examDetails.title }}</p>
+    <p>Quarter: {{ examDetails.quarter }}</p>
+    <p>Start Date & Time: {{ examDetails.start }}</p>
+    <p>End Date & Time: {{ examDetails.end }}</p>
     <form @submit.prevent="submitExam">
-      <!-- Exam Title -->
       <div class="mb-3">
-        <label for="exam-title" class="form-label">Exam Title</label>
-        <input
-          type="text"
-          id="exam-title"
-          v-model="examTitle"
-          class="form-control"
-          placeholder="Enter the exam title"
-          required
-        />
-      </div>
-
-      <!-- Quarter Selection -->
-      <div class="mb-3">
-        <label for="quarter" class="form-label">Quarter</label>
-        <select id="quarter" v-model="selectedQuarter" class="form-select">
-          <option value="1st Quarter">1st Quarter</option>
-          <option value="2nd Quarter">2nd Quarter</option>
-          <option value="3rd Quarter">3rd Quarter</option>
-          <option value="4th Quarter">4th Quarter</option>
-        </select>
-      </div>
-
-      <!-- Start and End Time -->
-      <div class="row mb-3">
-        <div class="col">
-          <label for="start-date" class="form-label">Start Date & Time</label>
-          <input
-            type="datetime-local"
-            id="start-date"
-            v-model="startDateTime"
-            class="form-control"
-            required
-          />
-        </div>
-        <div class="col">
-          <label for="end-date" class="form-label">End Date & Time</label>
-          <input
-            type="datetime-local"
-            id="end-date"
-            v-model="endDateTime"
-            class="form-control"
-            required
-          />
-        </div>
+        <label for="instruction" class="form-label">INSTRUCTION/S :</label>
+        <input type="text"  id="instruction" v-model="instruction" class="form-control" required />
       </div>
 
       <!-- Questions Section -->
@@ -181,6 +142,7 @@ export default {
       startDateTime: '',
       endDateTime: '',
       questions: [],
+      examDetails : {},
     };
   },
   methods: {
@@ -220,11 +182,7 @@ export default {
     async submitExam() {
       try {
         const payload = {
-          classtable_id: this.$route.params.class_id,
-          title: this.examTitle,
-          quarter: this.selectedQuarter,
-          start: this.formatDateTime(this.startDateTime),
-          end: this.formatDateTime(this.endDateTime),
+         
           questions: this.questions.map((q) => {
             let choices = [];
             if (q.type === 'multiple-choice') {
@@ -246,20 +204,42 @@ export default {
             };
           }),
         };
-
-        await axios.post('http://localhost:8000/api/addExam2', payload, {
+  
+        await axios.post(`http://localhost:8000/api/addQuestionsToExam/${this.examId}`, payload, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
 
         Swal.fire('Success', 'Exam created successfully!', 'success').then(() => {
-          this.$router.push(`/teachercreateexam/${this.$route.params.class_id}`);
+          // this.$router.push(`/teachercreateexam/${this.$route.params.class_id}`);
         });
       } catch (error) {
         console.error('Failed to create exam:', error.message);
       }
     },
+    async fetchExamDetails() {
+      try {
+        const examId = this.$route.params.exam_id; // Get the exam ID from the route parameter
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:8000/api/getExam/${examId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.examDetails = {
+          title: response.data.exam.title,
+          quarter: response.data.exam.quarter,
+          start: response.data.exam.start,
+          end: response.data.exam.end,
+        }; // Assign response data to corresponding properties
+      } catch (error) {
+        console.error('Error fetching exam details:', error);
+      }
+    },
+  },
+  created() {
+    this.fetchExamDetails();
   },
 };
 </script>
