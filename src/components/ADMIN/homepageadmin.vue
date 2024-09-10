@@ -366,7 +366,7 @@ h2 {
 
 .sidebar {
   width: 270px;
-  background-color: #0e68bc;
+  background-color: #050C9C;
   height: 100vh;
   padding: 20px;
   position: fixed;

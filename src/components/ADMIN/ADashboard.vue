@@ -3,7 +3,7 @@
     <!-- Statistics Section -->
     <div class="row">
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes box1 d-flex align-items-center p-3" @click="$router.push('/manage_teachers')">
+        <div class="boxes box1 d-flex align-items-center p-3" @click="navigateTo('/manage_teachers')">
           <i class="bi bi-person-lines-fill icon icon1"></i>
           <div class="content">
             <h4>{{ counts.teacher_count }}</h4>
@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/manage_students')">
+        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/manage_students')">
            <i class="bi bi-person-fill icon icon2"></i>
           <div class="content">
             <h4>{{ counts.student_count }}</h4>
@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/ManageStrandsinSHS')">
+        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/ManageStrandsinSHS')">
            <i class="bi bi-book-half icon icon3"></i>
           <div class="content">
             <h4>{{ counts.strand_count }}</h4>
@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/AManageSubject')">
+        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/AManageSubject')">
            <i class="bi bi-file-earmark-text-fill icon icon4"></i>
           <div class="content">
             <h4>{{ counts.subject_count }}</h4>
@@ -40,17 +40,21 @@
       </div>
     </div>
 
-
-
+    <!-- Table Section -->
     <div class="row">
-      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher"><br>
-        <div class="container">
-          <center><h5>TOTAL NUMBER OF TEACHERS: {{ counts.teacher_count }}</h5></center><br>
-        <canvas id="teacher-gender-chart" ></canvas>
-        </div>
+      <div class="col-4">
+        <p>total number of tecahers {{ counts.teacher_count }}</p>
+        <p>Male: {{ counts. male_teacher_count }}</p>
+        <p>Male: {{ counts.female_teacher_count }}</p>
+        <canvas id="teacher-gender-chart" width="400" height="200"></canvas>
       </div>
-      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher"></div>
-      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher ">
+      <div class="col-4">
+        <p>total number of Students {{ counts.student_count }}</p>
+        <p>Male: {{ counts. male_student_count }}</p>
+        <p>Male: {{ counts.female_student_count }}</p>
+        <canvas id="teacher-gender-chart" width="400" height="200"></canvas>
+      </div>
+      <div class="col-4">
         <div class="table-wrapper">
           <table class="table table-hover table-custom">
             <thead>
@@ -73,14 +77,7 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
-        <canvas id="strand-student-chart" ></canvas>
-      </div>
-    </div>
-
-</div>
-
+  </div>
 </template>
 <script>
 import axios from 'axios';
@@ -89,30 +86,18 @@ export default {
   name: 'AdminDashboard',
   data() {
     return {
-      chartInstance: null,
       counts: {
         teacher_count: 0,
         student_count: 0,
         strand_count: 0,
         subject_count: 0,
       },
-      teacherGrouped: {
-        male: {
-          male_count: 0,
-          female_count: 0,
-          total_count: 0,
-        },
-        female: {
-          male_count: 0,
-          female_count: 0,
-          total_count: 0,
-        },
-      },
+      studentsGrouped: [],
     };
   },
   mounted() {
     this.fetchCounts();
-    this.createTeacherGenderChart();
+    this.renderTeacherGenderChart();
   },
   methods: {
     fetchCounts() {
@@ -122,49 +107,72 @@ export default {
         }
       })
       .then(response => {
+        // Set the counts data from the response
         this.counts = response.data.data.counts;
-        this.teacherGrouped = response.data.data.teacher_grouped;
-        this.createTeacherGenderChart();
+        
+        // Extract grouped student data
+        let groupedData = [];
+        let grouped = response.data.data.students_grouped;
+        
+        // Loop through the grouped data to extract male and female counts per strand and grade level
+        for (let strandName in grouped) {
+          for (let gradeLevel in grouped[strandName]) {
+            let group = grouped[strandName][gradeLevel];
+            
+            // Count male and female students manually from the students array
+            let maleCount = group.students.filter(student => student.sex === 'male').length;
+            let femaleCount = group.students.filter(student => student.sex === 'female').length;
+
+            // Add the parsed data to the array
+            groupedData.push({
+              strand_name: strandName,
+              grade_level: gradeLevel,
+              male_count: maleCount,
+              female_count: femaleCount,
+              total_count: maleCount + femaleCount
+            });
+          }
+        }
+
+        this.studentsGrouped = groupedData;
+        
       })
       .catch(error => {
         alert('Error fetching data: ' + error.message);
       });
     },
-    createTeacherGenderChart() {
-      if (this.chartInstance) {
-        this.chartInstance.destroy(); // Destroy the previous chart instance
-      }
-
-      const ctx = document.getElementById('teacher-gender-chart').getContext('2d');
-      this.chartInstance = new Chart(ctx, { // Create a new chart instance and store it in the reference
-        type: 'pie',
-        data: {
-          labels: [ 
-            
-          `Male (${this.teacherGrouped.male.total_count})`,
-          `Female (${this.teacherGrouped.female.total_count})`,
+    renderTeacherGenderChart() {
+  if (this.counts.male_teacher_count && this.counts.female_teacher_count) {
+    const ctx = document.getElementById('teacher-gender-chart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Male', 'Female'],
+        datasets: [{
+          label: 'Teacher Gender',
+          data: [this.counts.male_teacher_count, this.counts.female_teacher_count],
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 99, 132, 0.2)'
           ],
-          datasets: [{
-            label: 'Teacher Gender',
-            data: [this.teacherGrouped.male.total_count, this.teacherGrouped.female.total_count],
-            backgroundColor: ['#3559E0', '#98ABEE'],
-            hoverBackgroundColor: ['#007BFF', '#28a745'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          legend: {
-            display: false
-          },
-        
+          borderColor: [
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 99, 132, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        title: {
+          display: true,
+          text: 'Teacher Gender Distribution'
         }
-      });
-    },
-   
-  },
-};
+      }
+    });
+  }
+}
+  }
+}
 </script>
 
 <style scoped>
@@ -179,30 +187,24 @@ export default {
   display: flex;
   align-items: center;
 }
-.teacher {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 10;
-  height: 400px;
-  width: 380px;
-  margin-top: 10px;
-  margin: 10px;
-  
-}
-.container{
-  border-radius: 10px;
-  padding: 10;
-  height: 300px;
-  margin-bottom: 10px;
-}
-
 
 .icon {
   font-size: 60px;
   padding: 20px;
-  color: #3D56B2;
 }
 
+.icon1{
+  color: #3572EF;
+}
+.icon2{
+  color: #3572EF;
+}
+.icon3{
+  color: #3572EF;
+}
+.icon4{
+  color: #3572EF;
+}
 
 .content {
   flex: 1;
@@ -220,6 +222,7 @@ export default {
 /* Table Wrapper */
 .table-wrapper {
   margin-top: 12px;
+  margin-right: 5px;
 }
 
 /* Table Styles */
@@ -231,7 +234,7 @@ export default {
 }
 
 .table-custom th {
-  background-color: #0d8aeadf;
+  background-color: #3572EF;
   color: #000000;
   font-weight: 500;
   font-size: 20px;
@@ -251,6 +254,7 @@ export default {
 .table-custom tbody tr {
   transition: background-color 0.3s ease;
 }
+
 
 
 .label {

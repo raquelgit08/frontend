@@ -307,6 +307,7 @@ export default {
 .btn-danger, .edit {
     font-size: 17px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #FF0060;
 }
 .btn-gradient {
     background: linear-gradient(45deg, #007bff, #00bfff);
