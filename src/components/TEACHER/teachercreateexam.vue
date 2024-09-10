@@ -195,7 +195,7 @@ export default {
       }
     },
     navigateToAddExam(examId) {
-  this.$router.push(`/teacherAddExam/${examId}`);
+  this.$router.push(`/AddExam/${examId}`);
 },
     showModalHandler() {
       this.isModalVisible = true;

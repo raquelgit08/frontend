@@ -12,8 +12,8 @@
         <ul v-if="question.question_type === 'multiple-choice'">
           <li v-for="(option, idx) in question.choices" :key="idx">{{ option }}</li>
         </ul>
-        <p><strong>Correct Answer:</strong> {{ question.correct_answers[0].correct_answer }}</p>
-        <p><strong>Points:</strong> {{ question.correct_answers[0].points }}</p>
+        <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
+        <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
         <!-- Edit and Delete Buttons for Each Question -->
         <button @click="editQuestion(index)" class="btn btn-warning btn-sm me-2">Edit</button>
@@ -144,7 +144,7 @@ export default {
   methods: {
     async fetchQuestions() {
       try {
-        const response = await axios.get(`http://localhost:8000/api/getExamQuestions/${this.examId}`, {
+        const response = await axios.get(`http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -248,6 +248,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .question-card {
