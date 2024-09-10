@@ -201,33 +201,38 @@ export default {
       this.isModalVisible = true;
     },
     saveChanges() {
-      const startDateTime = moment(this.startDateTime).format('YYYY-MM-DD HH:mm:ss');
-      const endDateTime = moment(this.endDateTime).format('YYYY-MM-DD HH:mm:ss');
+  const startDateTime = moment(this.startDateTime).format('YYYY-MM-DD HH:mm:ss');
+  const endDateTime = moment(this.endDateTime).format('YYYY-MM-DD HH:mm:ss');
 
-      axios.post('http://localhost:8000/api/createExam', {
-        classtable_id: this.classtable_id,
-        title: this.examTitle,
-        quarter: this.selectedQuarter,
-        start: startDateTime,
-        end: endDateTime,
-        points_exam: this.points_exam,
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-      .then(response => {
-        console.log(response.data);
-        this.isModalVisible = false;
-      })
-      .catch(error => {
-        console.error(error);
-      });
+  axios.post('http://localhost:8000/api/createExam', {
+    classtable_id: this.classtable_id,
+    title: this.examTitle,
+    quarter: this.selectedQuarter,
+    start: startDateTime,
+    end: endDateTime,
+    points_exam: this.points_exam,
+  }, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
+  })
+  .then(response => {
+    console.log(response.data);
+    this.isModalVisible = false;
+
+    // Get the exam ID from response and redirect to the add questions page
+    const examId = response.data.exam.id;
+    this.$router.push(`/AddExam/${examId}`);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+},
+
     viewExam(examId) {
       this.$router.push(`/viewExam/${examId}`);
     },
-    editExam(examId) {
+    editExam(examId) { 
       this.$router.push(`/editExam/${examId}`);
     },
     async archiveExam(examId) {
