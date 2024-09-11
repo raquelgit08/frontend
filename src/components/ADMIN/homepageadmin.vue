@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2>E</h2>
+          <h2>ECHAGUE NATIONAL HIGH SCHOOL - SHS </h2>
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto">
@@ -265,7 +265,7 @@ h2 {
 }
 
 .list-group.active {
-  background-color: #007bff;
+  background-color: #050C9C;
 }
 
 .list-group:hover {
@@ -366,7 +366,7 @@ h2 {
 
 .sidebar {
   width: 270px;
-  background-color: #050C9C;
+  background-color: #0047AB;
   height: 100vh;
   padding: 20px;
   position: fixed;

@@ -3,7 +3,7 @@
     <!-- Statistics Section -->
     <div class="row">
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes box1 d-flex align-items-center p-3" @click="navigateTo('/manage_teachers')">
+        <div class="boxes box1 d-flex align-items-center p-3" @click="$router.push('/manage_teachers')">
           <i class="bi bi-person-lines-fill icon icon1"></i>
           <div class="content">
             <h4>{{ counts.teacher_count }}</h4>
@@ -12,8 +12,8 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/manage_students')">
-           <i class="bi bi-person-fill icon icon2"></i>
+        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/manage_students')">
+          <i class="bi bi-person-fill icon icon2"></i>
           <div class="content">
             <h4>{{ counts.student_count }}</h4>
             <span class="label">Total Number Of Students</span>
@@ -21,8 +21,8 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/ManageStrandsinSHS')">
-           <i class="bi bi-book-half icon icon3"></i>
+        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/ManageStrandsinSHS')">
+          <i class="bi bi-book-half icon icon3"></i>
           <div class="content">
             <h4>{{ counts.strand_count }}</h4>
             <span class="label">Total Number Of Strands</span>
@@ -30,8 +30,8 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="navigateTo('/AManageSubject')">
-           <i class="bi bi-file-earmark-text-fill icon icon4"></i>
+        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/AManageSubject')">
+          <i class="bi bi-file-earmark-text-fill icon icon4"></i>
           <div class="content">
             <h4>{{ counts.subject_count }}</h4>
             <span class="label">Total Number Of Subjects</span>
@@ -40,48 +40,54 @@
       </div>
     </div>
 
-    <!-- Table Section -->
+    <!-- Table and Chart Sections -->
     <div class="row">
-      <div class="col-4">
-        <p>total number of tecahers {{ counts.teacher_count }}</p>
-        <p>Male: {{ counts. male_teacher_count }}</p>
-        <p>Male: {{ counts.female_teacher_count }}</p>
-        <canvas id="teacher-gender-chart" width="400" height="200"></canvas>
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-container">
+          <h6 class="mb-2">TEACHERS GENDER DISTRIBUTION</h6>
+          <canvas id="teacher-gender-chart" width="400" height="200"></canvas>
+        </div>
       </div>
-      <div class="col-4">
-        <p>total number of Students {{ counts.student_count }}</p>
-        <p>Male: {{ counts. male_student_count }}</p>
-        <p>Male: {{ counts.female_student_count }}</p>
-        <canvas id="teacher-gender-chart" width="400" height="200"></canvas>
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-container">
+          <h6 class="mb-2">STUDENTS GENDER DISTRIBUTION</h6>
+          <canvas id="student-gender-chart" width="400" height="200"></canvas>
+        </div>
       </div>
-      <div class="col-4">
-        <div class="table-wrapper">
-          <table class="table table-hover table-custom">
-            <thead>
-              <tr>
-                <th>Strand</th>
-                <th><i class="fa fa-mars mr-2 tcon"></i></th>
-                <th><i class="fa fa-venus mr-2 tcon"></i></th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(strand, index) in studentsGrouped" :key="index">
-                <td class="text-center">{{ strand.strand_name }} {{ strand.grade_level }}</td>
-                <td class="text-center">{{ strand.male_count }}</td>
-                <td class="text-center">{{ strand.female_count }}</td>
-                <td class="text-center">{{ strand.total_count }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-table">
+          <div class="table-wrapper">
+            <table class="table table-hover table-custom">
+              <thead>
+                <tr>
+                  <th>Strand</th>
+                  <th><i class="fa fa-mars mr-2 tcon"></i></th>
+                  <th><i class="fa fa-venus mr-2 tcon"></i></th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(strand, index) in studentsGrouped" :key="index">
+                  <td class="text-center">{{ strand.strand_name }} {{ strand.grade_level }}</td>
+                  <td class="text-center">{{ strand.male_count }}</td>
+                  <td class="text-center">{{ strand.female_count }}</td>
+                  <td class="text-center">{{ strand.total_count }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+
 <script>
 import axios from 'axios';
-import { Chart } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
 export default {
   name: 'AdminDashboard',
   data() {
@@ -91,13 +97,16 @@ export default {
         student_count: 0,
         strand_count: 0,
         subject_count: 0,
+        male_teacher_count: 0,
+        female_teacher_count: 0,
       },
       studentsGrouped: [],
+      chartInstanceTeacher: null,
+      chartInstanceStudent: null,
     };
   },
   mounted() {
     this.fetchCounts();
-    this.renderTeacherGenderChart();
   },
   methods: {
     fetchCounts() {
@@ -136,46 +145,171 @@ export default {
 
         this.studentsGrouped = groupedData;
         
+        // Render charts after data is fetched
+        this.renderTeacherGenderChart();
+        this.renderStudentGenderChart();
       })
       .catch(error => {
         alert('Error fetching data: ' + error.message);
       });
     },
+    
     renderTeacherGenderChart() {
-  if (this.counts.male_teacher_count && this.counts.female_teacher_count) {
-    const ctx = document.getElementById('teacher-gender-chart').getContext('2d');
-    new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: ['Male', 'Female'],
-        datasets: [{
-          label: 'Teacher Gender',
-          data: [this.counts.male_teacher_count, this.counts.female_teacher_count],
-          backgroundColor: [
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 99, 132, 0.2)'
-          ],
-          borderColor: [
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 99, 132, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        title: {
-          display: true,
-          text: 'Teacher Gender Distribution'
+      if (this.chartInstanceTeacher) {
+        this.chartInstanceTeacher.destroy();
+      }
+      const ctx = document.getElementById('teacher-gender-chart').getContext('2d');
+      this.chartInstanceTeacher = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: [
+            `Male Teachers: ${this.counts.male_teacher_count}`, 
+            `Female Teachers: ${this.counts.female_teacher_count}`],
+          datasets: [{
+            label: 'Teacher Gender Distribution',
+            data: [this.counts.male_teacher_count, this.counts.female_teacher_count],
+            backgroundColor: [
+              '#3572EF',
+              '#3ABEF9'
+            ],
+            borderColor: [
+              '#F5F5F5',
+              '#F5F5F5'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                family: 'Arial', // Font family for legend labels
+                size: 20,       // Font size for legend labels
+                weight: 'bold'  // Font weight for legend labels
+              }
+            }
+          },
+          tooltip: {
+            // callbacks: {
+            //   label: function(context) {
+            //     return `${context.label}: ${context.raw}`;
+            //   }
+            // },
+            titleFont: {
+              family: 'Arial', // Font family for tooltip title
+              size: 17,       // Font size for tooltip title
+              weight: 'bold',
+            },
+            bodyFont: {
+              family: 'Arial', // Font family for tooltip body
+              size: 12        // Font size for tooltip body
+            }
+          }
         }
       }
-    });
-  }
-}
+      });
+    },
+
+    renderStudentGenderChart() {
+      if (this.chartInstanceStudent) {
+        this.chartInstanceStudent.destroy();
+      }
+      const ctx = document.getElementById('student-gender-chart').getContext('2d');
+      this.chartInstanceStudent = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: [
+            `Male Students: ${this.counts.male_student_count}`, 
+            `Female Students: ${this.counts.female_student_count}`],
+          datasets: [{
+            label: 'Student Gender Distribution',
+            data: [this.counts.male_student_count, this.counts.female_student_count],
+            backgroundColor: [
+              '#3572EF',
+              '#A7E6FF'
+            ],
+            borderColor: [
+              '#F5F5F5',
+              '#F5F5F5'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                family: 'Arial', // Font family for legend labels
+                size: 20,       // Font size for legend labels
+                weight: 'bold'  // Font weight for legend labels
+              }
+            }
+          },
+          tooltip: {
+            // callbacks: {
+            //   label: function(context) {
+            //     return `${context.label}: ${context.raw}`;
+            //   }
+            // },
+            titleFont: {
+              family: 'Arial', // Font family for tooltip title
+              size: 17,       // Font size for tooltip title
+              weight: 'bold'  // Font weight for tooltip title
+            },
+            bodyFont: {
+              family: 'Arial', // Font family for tooltip body
+              size: 12        // Font size for tooltip body
+            }
+          }
+        }
+      }
+
+
+     });
+    }
   }
 }
 </script>
 
 <style scoped>
+.chart-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 10px;
+  padding-top: 5px;
+  margin: 10px;
+  width: 420px;
+  height: 500px;
+  border: 1px solid #dee2e6;
+  border-radius: 15PX;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+.chart-table {
+ margin-top: 10px;
+ 
+  padding: 10px;
+  padding-top: 5px;
+
+  border: 1px solid #dee2e6;
+  border-radius: 15PX;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+h6{
+  padding-top: 30px;
+}
+.chart-wrapper {
+  flex: 1;
+  max-width: 300px; /* Adjust this as needed */
+  text-align: center;
+}
+
 .boxes {
   border: 1px solid #dee2e6;
   border-radius: 10px;
@@ -221,8 +355,7 @@ export default {
 }
 /* Table Wrapper */
 .table-wrapper {
-  margin-top: 12px;
-  margin-right: 5px;
+  padding: 10PX;
 }
 
 /* Table Styles */
