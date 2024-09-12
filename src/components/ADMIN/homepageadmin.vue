@@ -1,114 +1,53 @@
 <template>
-  <div v-if="isVisible">
-    <nav class="navbar navbar-expand-lg">
-      <div class="d-flex align-items-center">
-        <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2>E</h2>
+  
+  <div class="sidebar" :class="{ open: isOpen }">
+    <div class="logo_details">
+      <img :src="profileImage || require('@/assets/logowise.png')" class="icon" style="width: 70px; height: 70px; border-radius: 50%; margin: 10px;" alt="Profile Image">
+      <div class="logo_name">WISE-SHS</div>
+      <i class="bi" :class="isOpen ? 'bi-text-indent-right fs-1' : 'bi bi-list fs-1'" @click="toggleSidebar" id="btn"></i>
+    </div>
+    <ul class="nav-list">
+      <li v-for="(section, sectionIndex) in menuItems" :key="sectionIndex">
+        <div v-if="section.section !== 'Dashboard'">{{ section.section }}</div>
+        <ul>
+          <li v-for="(item, itemIndex) in section.items" :key="itemIndex">
+            <a :href="item.path" @click.prevent="handleItemClick(item.path)">
+              <i :class="item.icon"></i>
+              <span class="link_name">{{ item.name }}</span>
+            </a>
+            <span class="tooltip">{{ item.name }}</span>
+          </li>
+          
+        </ul>
+      </li>
+      
+    </ul>
+    <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button>
+    <div class="profile2" style="display: flex; align-items: center;">
+        <img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%;" alt="Profile Image">
+        <div class="profile_content" style="flex: 1; text-align: center;">
+          <div class="name" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div>
+          <div class="designation" v-if="userProfile && Object.keys(userProfile).length">ADMIN</div>
+          <p v-else>Loading profile...</p>
         </div>
-      </div>
-      <div class="d-flex align-items-center ms-auto">
-        <h4 class="welcome-text">WELCOME ADMIN!</h4>
-        <div @click="togglePopover" class="profile-icon-container">
-          <i class="bi bi-person-lock profile-icon"></i>
-          <div v-if="isPopoverVisible" class="popover show" role="tooltip">
-            <div class="popover-arrow"></div>
-            <div v-if="isLoggedIn">
-              <div v-if="userProfile">
-                <div class="popover-body"><center>
-                  <img :src="profileImage || require('@/assets/enhs logo.jpg')" class="profile-icon" style="width: 80px; height: 80px; border-radius: 50%; margin: 10px;" alt="Profile Image"><br>
-                  <a>OFFICIAL ADMINISTRATOR</a><br>
-                  <a>ID number: {{ userProfile.idnumber }}</a><br>
-                  <a><b>{{ userProfile.lname }}, {{ userProfile.fname }} {{ userProfile.mname }} </b></a><br>
-                  <a><i>{{ userProfile.email }} </i></a> <br>
-                  <a><b>ENHS - SHS</b></a><br>
-                  <a>San Fabian, Echague, Isabela</a></center>
-                </div>
-                <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button>
-              </div>
-              <div v-else>
-                <p>Loading user profile...</p>
-              </div>
-              <div v-if="error">
-                <p>Error fetching user profile: {{ error }}</p>
-              </div>
-            </div>
-            <div v-else>
-              <p>User not logged in.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-    <div class="d-flex">
-      <div :class="['sidebar', isSidebarCollapsed ? 'collapsed' : '']">
-        <img :src="require('@/assets/logowise.png')" class="img-fluid logo" alt="Your Image">
-
-        <!-- Dashboard Section -->
-        <router-link v-for="(item, index) in items.filter(i => i.section === 'dashboard')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }"  @click="handleItemClick(item.path)">
-          <span class="icon-label">
-            <i :class="item.icon"></i>
-            <span class="label">{{ item.label }}</span>
-          </span>
-        </router-link>
-
-        <!-- Manage Section -->
-        <h5 class="sidebar-section-label">Set Up</h5>
-        <router-link
-          v-for="(item, index) in items.filter(i => i.section === 'manage')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
-          <span class="icon-label">
-            <i :class="item.icon"></i>
-            <span class="label">{{ item.label }}</span>
-          </span>
-        </router-link>
-
-        <!-- Manage User Dropdown -->
-        <div class="list-group dropdown" @click="toggleDropdown('manageUser')">
-          <span class="icon-label dropdown-toggle">
-            <i class="bi bi-people-fill fs-4"></i> Manage User
-          </span>
-          <ul v-if="isDropdownVisible.manageUser" class="dropdown-menu show">
-            <li><router-link to="/allusers" class="dropdown-item" @click="handleItemClick('/allusers')">All Users</router-link></li>
-            <li><router-link to="/manage_teachers" class="dropdown-item" @click="handleItemClick('/manage_teachers')">Manage Teachers</router-link></li>
-            <li><router-link to="/manage_students" class="dropdown-item" @click="handleItemClick('/manage_students')">Manage Students</router-link></li>
-          </ul>
-        </div>
-
-        <!-- Report Section -->
-        <h5 class="sidebar-section-label">Report</h5>
-        <router-link
-          v-for="(item, index) in items.filter(i => i.section === 'report')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)" >
-          <span class="icon-label">
-            <i :class="item.icon"></i>
-            <span class="label">{{ item.label }}</span>
-          </span>
-        </router-link>
-
-        <!-- Chevron Icon to Collapse/Expand Sidebar -->
-        <i @click="toggleSidebar" class="bi" :class="isSidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
-      </div>
-      <div :class="['content', isSidebarCollapsed ? 'collapsed' : '']">
-        <router-view></router-view>
+        <i class="bi bi-box-arrow-left fs-2" id="log_out" @click="handleLogout"></i>
       </div>
     </div>
+  <div class="content">
+    
+    <router-view></router-view>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 
 export default {
   name: 'HomePageAdmin',
-  props: {
-    isVisible: {
-      type: Boolean,
-      default: true,
-    },
-  },
   data() {
     return {
+      isOpen: false,
       isLoggedIn: false,
-      userProfile: null,
-      drawerVisible: true,
+      userProfile: {}, // Initialize with empty object
       isPopoverVisible: false,
       isDropdownVisible: {
         manageUser: false,
@@ -116,21 +55,27 @@ export default {
       },
       isSidebarCollapsed: false,
       selectedItem: localStorage.getItem('selectedItem') || '/adashboard',
-      items: [
-        // Dashboard Section
-        { path: '/adashboard', label: 'Dashboard', icon: 'bi bi-speedometer2', section: 'dashboard' },
-
-        // Manage Section
-        { path: '/ASchoolYear', label: 'Manage School Year', icon: 'bi bi-calendar-month-fill', section: 'manage' },
-        { path: '/ManageStrandsinSHS', label: 'Manage Strand', icon: 'bi-book-half', section: 'manage' },
-        { path: '/ASection', label: 'Manage Section', icon: 'bi bi-folder2-open', section: 'manage' },
-        { path: '/AManageSubject', label: 'Manage Subjects', icon: 'bi bi-file-earmark-text-fill', section: 'manage' },
-        { path: '/AManagePosition', label: 'Manage Position', icon: 'bi bi-file-person', section: 'manage' },
-        // { path: '/ManageCuricculuminSHS', label: 'Manage Curriculum', icon: 'bi bi-grid-fill', section: 'manage' },
-
-        // Report Section
-        { path: '/ReportListofStudent', label: 'List of Student', icon: 'bi bi-person-fill', section: 'report' },
-        { path: '/ReportListofTeacher', label: 'List of Teacher', icon: 'bi bi-person-lines-fill', section: 'report' },
+      menuItems: [
+      { items: [
+          { name: 'Dashboard', path: '/adashboard', icon: 'bi bi-speedometer2 fs-3' }
+        ] },
+        { section: 'Set Up', items: [
+          { name: 'Manage School Year', path: '/ASchoolYear', icon: 'bi bi-calendar-month-fill fs-3' },
+          { name: 'Manage Strand', path: '/ManageStrandsinSHS', icon: 'bi bi-bar-chart-fill fs-3' },
+          { name: 'Manage Section', path: '/ASection', icon: 'bi-book-half fs-3' },
+          { name: 'Manage Subjects', path: '/AManageSubject', icon: 'bi bi-file-earmark-text-fill fs-3' },
+          { name: 'Manage Position', path: '/AManagePosition', icon: 'bi bi-file-person fs-3' }
+        ] },
+        { section: 'Manage Users', items: [
+          { name: 'Manage All Users', path: '/allusers', icon: 'bi bi-chat-dots fs-3' },
+          { name: 'Manage Students', path: '/manage_students', icon: 'bi bi-bar-chart-fill fs-3' },
+          { name: 'Manage Teachers', path: '/manage_teachers', icon: 'bi bi-person-bounding-box fs-3' },
+    
+        ] },
+        { section: 'Reports', items: [
+          { name: 'List of Student', path: '/ReportListofStudent', icon: 'bi bi-person-fill fs-3' },
+          { name: 'List of Teacher', path: '/ReportListofTeacher', icon: 'bi bi-person-lines-fill fs-3' }
+        ] },
       ],
     };
   },
@@ -144,6 +89,9 @@ export default {
     }
   },
   methods: {
+    toggleSidebar() {
+      this.isOpen = !this.isOpen;
+    },
     checkLoginStatus() {
       const token = localStorage.getItem('token');
       this.isLoggedIn = !!token;
@@ -155,9 +103,9 @@ export default {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        this.userProfile = response.data.data;
+        this.userProfile = response.data.data || {}; // Ensure data is not null
       } catch (error) {
-        this.error = error.response && error.response.data.message ? error.response.data.message : 'Failed to fetch user profile';
+        this.error = error.response?.data.message || 'Failed to fetch user profile';
       }
     },
     async handleLogout() {
@@ -172,7 +120,7 @@ export default {
         localStorage.removeItem('token');
         localStorage.removeItem('selectedItem');
         this.isLoggedIn = false;
-        this.userProfile = null;
+        this.userProfile = {};
         this.$emit('logout');
         this.$router.push('/login');
       } catch (error) {
@@ -190,9 +138,6 @@ export default {
       localStorage.setItem('selectedItem', path);
       this.$router.push(path);
     },
-    toggleSidebar() {
-      this.isSidebarCollapsed = !this.isSidebarCollapsed;
-    },
   },
   beforeMount() {
     this.$router.push('/adashboard');
@@ -202,227 +147,321 @@ export default {
 </script>
 
 <style scoped>
-h2 {
-  font-family: 'Roboto', sans-serif;
-  color: rgb(14, 1, 1);
-  margin-left: 270px;
-  transition: margin-left 0.3s ease;
+
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
-.navbar {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+body {
+  min-height: 100vh;
 }
-
-.welcome-text {
-  margin-right: 20px;
-  font-size: 30px;
+.logOut{
+  margin: 20px;
 }
-
-.profile-icon-container {
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.profile-icon {
-  font-size: 40px;
-  margin-right: 10px;
-  color: rgb(0, 0, 0);
-  transition: color 0.3s;
-}
-
-
-
-.modal-content {
-  border: 2px solid #add8e6;
-  border-radius: 10px;
-}
-
-.modal-header {
-  background-color: #add8e6;
-  color: #130404;
-  border-bottom: 1px solid #ddd;
-}
-
-.modal-title {
-  font-size: 1.25rem;
-}
-
-.modal-body {
-  background-color: #f7f7f7;
-}
-
-.list-group {
-  font-family: 'Roboto', sans-serif;
-  font-size: 25px;
-  font-weight: normal; /* Make text bold */
-  padding: 5px; /* Reduce padding for less space */
-  color: white;
-  background-color: transparent;
-  text-decoration: none; /* Ensure no underline */
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.list-group.active {
-  background-color: #007bff;
-}
-
-.list-group:hover {
-  background-color: #0056b3;
-}
-
-.dropdown {
-  font-family: 'Roboto', sans-serif;
-  font-size: 18px;
-  font-weight: bold; /* Make text bold */
-  margin-bottom: 5px; /* Reduce margin to lessen space */
-  text-decoration: none; /* Ensure no underline */
-}
-
-.icon-label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.label {
-  margin-left: 10px;
-  font-family: 'Roboto', sans-serif;
-}
-
 .content {
-  margin-left: 250px;
-  padding: 20px;
-  width: calc(100% - 250px);
+  margin-left: 80px;
+  padding: 10px;
+  width: 95%;
   transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
-.title-container.collapsed h2 {
-  margin-left: 100px;
+.sidebar {
+  min-height: 100vh;
+  width: 85px;
+  padding: 6px 14px;
+  z-index: 99;
+  color: rgb(255, 255, 255);
+  transition: all 0.5s ease;
+  position: fixed;
+  background-color: #0047AB;
+  overflow-y: overlay;
+  max-height: 100vh;
+  top: 0;
+  left: 0;
 }
-
-.popover {
-  position: absolute;
-  z-index: 1050;
-  display: block;
-  font-family: 'Roboto', sans-serif;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 250px;
-  top: 50px;
-  left: -200px;
-  opacity: 0;
+.sidebar::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+.sidebar .section-title {
   font-size: 16px;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  font-weight: 600;
+  color: white;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  padding-left: 10px;
 }
 
-.popover.show {
+
+.sidebar.open {
+  width: 320px;
+}
+
+.sidebar .logo_details {
+  height: 90px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.sidebar .logo_details .icon {
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+
+.sidebar .logo_details .logo_name {
+  color: white;
+  font-size: 30px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+
+.sidebar.open .logo_details .icon,
+.sidebar.open .logo_details .logo_name {
   opacity: 1;
-  transform: translateX(0);
 }
 
-.popover-arrow {
+.sidebar .logo_details #btn {
   position: absolute;
-  width: 0;
-  height: 0;
-  border-width: 5px;
-  border-style: solid;
-  border-color: white transparent transparent transparent;
   top: 50%;
-  right: 100%;
+  right: 0;
+  transform: translateY(-50%);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+.sidebar.open .logo_details #btn {
+  text-align: right;
+}
+
+.sidebar i {
+  color: white;
+  height: 60px;
+  line-height: 60px;
+  min-width: 50px;
+  font-size: 25px;
+  text-align: center;
+}
+
+.sidebar .nav-list {
+  margin-top: 20px;
+  height: 100%;
+}
+
+.sidebar li {
+  position: relative;
+  margin: 8px 0;
+  list-style: none;
+}
+
+.sidebar li .tooltip {
+  position: absolute;
+  top: -20px;
+  left: calc(100% + 15px);
+  z-index: 3;
+  background-color: white;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  padding: 6px 14px;
+  font-size: 17px;
+  font-weight: 400;
+  border-radius: 5px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar li:hover .tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transition: all 0.4s ease;
+  top: 50%;
   transform: translateY(-50%);
 }
 
-.dropdown-menu {
-  display: block;
-  position: static;
-  float: none;
-  margin: 5px;
-  background-color: #fff;
-  font-size: 15px;
-}
-
-.dropdown-item {
-  font-size: 18px;
-  padding: 5px 10px;
-  text-decoration: none; /* Ensure no underline */
-}
-
-.dropdown-item:hover {
-  background-color: #f5f5f5;
-}
-
-.logOut {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 15px;
-  font-weight: 500;
-  width: 220px;
-  margin: 10px;
-  cursor: pointer;
-}
-
-.sidebar {
-  width: 270px;
-  background-color: #0e68bc;
-  height: 100vh;
-  padding: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  transition: width 0.3s ease;
-  overflow-y: auto;
-  overflow-x: hidden;
-  color: #fff;
-}
-
-.sidebar.collapsed {
-  width: 80px;
-}
-
-.sidebar .logo {
-  width: 100%;
-  transition: opacity 0.3s ease;
-}
-
-.sidebar .list-group {
-  margin-top: 10px; /* Reduce space between items */
-}
-
-.sidebar .list-group .icon-label {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  transition: opacity 0.3s ease;
-}
-
-.sidebar.collapsed .icon-label .label {
+.sidebar.open li .tooltip {
   display: none;
 }
 
-.sidebar.collapsed .icon-label i {
-  font-size: 1.5rem;
+.sidebar input {
+  font-size: 15px;
+  color: var(--color-white);
+  font-weight: 400;
+  outline: none;
+  height: 35px;
+  width: 35px;
+  border: none;
+  border-radius: 5px;
+  background-color: bisque;
+  transition: all 0.5s ease;
 }
 
-.bi-chevron-left, .bi-chevron-right {
+
+
+
+.sidebar li a {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  text-decoration: none;
+  position: relative;
+  padding-top: 10px;
+  transition: all 0.5s ease;
+  z-index: 12;
+}
+
+.sidebar li a::after {
+  content: '';
   position: absolute;
-  bottom: 20px;
-  right: 20px;
-  font-size: 1.5rem;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  background-color: white;
+  border-radius: 5px;
+  transition: transform 0.3s ease-in-out;
+  transform-origin: left;
+  z-index: -2;
+}
+
+.sidebar li a:hover::after {
+  transform: scaleX(1);
+  color: beige;
+}
+
+.sidebar li a .link_name {
+  color: white;
+  font-size: 17px;
+  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: auto;
+  margin-top: 10px;
+  transition: all 0.4s ease;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.sidebar li a:hover .link_name,
+.sidebar li a:hover i {
+  transition: all 0.5s ease;
+  color: #0071c5;
+}
+
+.sidebar.open li a .link_name {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar li i {
+  height: 35px;
+  line-height: 35px;
+  font-size: 18px;
+  border-radius: 5px;
+}
+
+.sidebar li.profile {
+  position: fixed;
+  height: 90px;
+  width: 78px;
+  left: 0;
+  bottom: -8px;
+  padding: 10px 14px;
+  overflow: hidden;
+  transition: all 0.5s ease;
+}
+
+.sidebar.open li.profile {
+  width: 250px;
+}
+
+.sidebar .profile .profile_details {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  height: 70px;
+  padding: 20px;
+}
+
+.sidebar li img {
+  height: 45px;
+  width: 45px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.sidebar li.profile .name,
+.sidebar li.profile .designation {
+  font-size: 15px;
+  font-weight: 400;
+  color:white;
+  white-space: nowrap;
+}
+
+.sidebar li.profile .designation {
+  font-size: 12px;
+}
+
+.sidebar .profile #log_out {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  background-color: #0071c5;
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+  border-radius: 5px;
+  text-align: center;
+  transition: all 0.5s ease;
+}
+
+.sidebar.open .profile #log_out {
+  width: 50px;
+  background-color: transparent;
+  border-radius: 50%;
+  height: 35px;
+  line-height: 35px;
+}
+.dropdown-icon {
+  margin-left: auto;
+  font-size: 1.2rem;
+}
+
+/* Adjust the dropdown items visibility */
+.nav-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-list ul li {
+  margin: 5px 0;
+}
+
+.nav-list ul li a {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  text-decoration: none;
+  color: white;
+}
+
+.nav-list ul li a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-list .items {
   cursor: pointer;
-  color: wheat;
-  transition: color 0.3s;
+  padding: 10px;
+  color: white;
 }
 
-.bi-chevron-left:hover, .bi-chevron-right:hover {
-  color: #0056b3;
-}
-
-.content.collapsed {
-  margin-left: 80px;
-  width: calc(100% - 80px);
+.nav-list .section-title:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 </style>

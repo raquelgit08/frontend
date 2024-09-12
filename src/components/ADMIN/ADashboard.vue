@@ -13,7 +13,7 @@
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
         <div class="boxes d-flex align-items-center p-3" @click="$router.push('/manage_students')">
-           <i class="bi bi-person-fill icon icon2"></i>
+          <i class="bi bi-person-fill icon icon2"></i>
           <div class="content">
             <h4>{{ counts.student_count }}</h4>
             <span class="label">Total Number Of Students</span>
@@ -22,7 +22,7 @@
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
         <div class="boxes d-flex align-items-center p-3" @click="$router.push('/ManageStrandsinSHS')">
-           <i class="bi bi-book-half icon icon3"></i>
+          <i class="bi bi-book-half icon icon3"></i>
           <div class="content">
             <h4>{{ counts.strand_count }}</h4>
             <span class="label">Total Number Of Strands</span>
@@ -31,7 +31,7 @@
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
         <div class="boxes d-flex align-items-center p-3" @click="$router.push('/AManageSubject')">
-           <i class="bi bi-file-earmark-text-fill icon icon4"></i>
+          <i class="bi bi-file-earmark-text-fill icon icon4"></i>
           <div class="content">
             <h4>{{ counts.subject_count }}</h4>
             <span class="label">Total Number Of Subjects</span>
@@ -40,79 +40,90 @@
       </div>
     </div>
 
-
-
+    <!-- Table and Chart Sections -->
     <div class="row">
-      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher"><br>
-        <div class="container">
-          <center><h5>TOTAL NUMBER OF TEACHERS: {{ counts.teacher_count }}</h5></center><br>
-        <canvas id="teacher-gender-chart" ></canvas>
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-container">
+          <h6 class="mb-2">TEACHERS GENDER DISTRIBUTION</h6>
+          <canvas id="teacher-gender-chart" width="400" height="200"></canvas>
         </div>
       </div>
-      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher"></div>
-      <div class="col-12 col-sm-6 col-md-3 mb-3 teacher ">
-        <div class="table-wrapper">
-          <table class="table table-hover table-custom">
-            <thead>
-              <tr>
-                <th>Strand</th>
-                <th><i class="fa fa-mars mr-2 tcon"></i></th>
-                <th><i class="fa fa-venus mr-2 tcon"></i></th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(strand, index) in studentsGrouped" :key="index">
-                <td class="text-center">{{ strand.strand_name }} {{ strand.grade_level }}</td>
-                <td class="text-center">{{ strand.male_count }}</td>
-                <td class="text-center">{{ strand.female_count }}</td>
-                <td class="text-center">{{ strand.total_count }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-container">
+          <h6 class="mb-2">STUDENTS GENDER DISTRIBUTION</h6>
+          <canvas id="student-gender-chart" width="400" height="200"></canvas>
+        </div>
+      </div>
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-table">
+          <div class="table-wrapper">
+            <table class="table table-hover table-custom">
+              <thead>
+                <tr>
+                  <th>Strand</th>
+                  <th><i class="fa fa-mars mr-2 tcon"></i></th>
+                  <th><i class="fa fa-venus mr-2 tcon"></i></th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(strand, index) in studentsGrouped" :key="index">
+                  <td class="text-center">{{ strand.strand_name }} {{ strand.grade_level }}</td>
+                  <td class="text-center">{{ strand.male_count }}</td>
+                  <td class="text-center">{{ strand.female_count }}</td>
+                  <td class="text-center">{{ strand.total_count }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
+
     <div class="row">
-      <div class="col">
-        <canvas id="strand-student-chart" ></canvas>
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-container2">
+          <canvas id="strand-chart" width="400" height="200"></canvas>
+          <div class="chart-summary">
+            <h6>Summary:</h6>
+            <ul>
+              <li v-for="(strand, index) in strandChartData" :key="index">
+                {{ strand.label }}: {{ strand.value }} students
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
-
-</div>
-
+  </div>
 </template>
+
+
 <script>
 import axios from 'axios';
-import { Chart } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
 export default {
   name: 'AdminDashboard',
   data() {
     return {
-      chartInstance: null,
       counts: {
         teacher_count: 0,
         student_count: 0,
         strand_count: 0,
         subject_count: 0,
+        male_teacher_count: 0,
+        female_teacher_count: 0,
       },
-      teacherGrouped: {
-        male: {
-          male_count: 0,
-          female_count: 0,
-          total_count: 0,
-        },
-        female: {
-          male_count: 0,
-          female_count: 0,
-          total_count: 0,
-        },
-      },
+      studentsGrouped: [],
+      strandChartData: [],
+      chartInstanceTeacher: null,
+      chartInstanceStudent: null,
     };
   },
   mounted() {
     this.fetchCounts();
-    this.createTeacherGenderChart();
   },
   methods: {
     fetchCounts() {
@@ -122,52 +133,264 @@ export default {
         }
       })
       .then(response => {
+        // Extract strand counts data
+        let strandCounts = response.data.data.strand_counts;
+        this.strandChartData = Object.keys(strandCounts).map(strandName => {
+          return {
+            label: strandName,
+            value: strandCounts[strandName]
+          };
+        });
+
+        
+        // Set the counts data from the response
         this.counts = response.data.data.counts;
-        this.teacherGrouped = response.data.data.teacher_grouped;
-        this.createTeacherGenderChart();
+        
+        // Extract grouped student data
+        let groupedData = [];
+        let grouped = response.data.data.students_grouped;
+        
+        // Loop through the grouped data to extract male and female counts per strand and grade level
+        for (let strandName in grouped) {
+          for (let gradeLevel in grouped[strandName]) {
+            let group = grouped[strandName][gradeLevel];
+            
+            // Count male and female students manually from the students array
+            let maleCount = group.students.filter(student => student.sex === 'male').length;
+            let femaleCount = group.students.filter(student => student.sex === 'female').length;
+
+            // Add the parsed data to the array
+            groupedData.push({
+              strand_name: strandName,
+              grade_level: gradeLevel,
+              male_count: maleCount,
+              female_count: femaleCount,
+              total_count: maleCount + femaleCount
+            });
+          }
+        }
+
+        this.studentsGrouped = groupedData;
+        
+        // Render charts after data is fetched
+        this.renderTeacherGenderChart();
+        this.renderStudentGenderChart();
+
+        // Render strand chart
+        this.renderStrandChart();
       })
       .catch(error => {
         alert('Error fetching data: ' + error.message);
       });
     },
-    createTeacherGenderChart() {
-      if (this.chartInstance) {
-        this.chartInstance.destroy(); // Destroy the previous chart instance
+    
+    renderTeacherGenderChart() {
+      if (this.chartInstanceTeacher) {
+        this.chartInstanceTeacher.destroy();
       }
-
       const ctx = document.getElementById('teacher-gender-chart').getContext('2d');
-      this.chartInstance = new Chart(ctx, { // Create a new chart instance and store it in the reference
+      this.chartInstanceTeacher = new Chart(ctx, {
         type: 'pie',
         data: {
-          labels: [ 
-            
-          `Male (${this.teacherGrouped.male.total_count})`,
-          `Female (${this.teacherGrouped.female.total_count})`,
-          ],
+          labels: [
+            `Male Teachers: ${this.counts.male_teacher_count}`, 
+            `Female Teachers: ${this.counts.female_teacher_count}`],
           datasets: [{
-            label: 'Teacher Gender',
-            data: [this.teacherGrouped.male.total_count, this.teacherGrouped.female.total_count],
-            backgroundColor: ['#3559E0', '#98ABEE'],
-            hoverBackgroundColor: ['#007BFF', '#28a745'],
-            borderWidth: 0
+            label: 'Teacher Gender Distribution',
+            data: [this.counts.male_teacher_count, this.counts.female_teacher_count],
+            backgroundColor: [
+              '#3572EF',
+              '#3ABEF9'
+            ],
+            borderColor: [
+              '#F5F5F5',
+              '#F5F5F5'
+            ],
+            borderWidth: 1
           }]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
           legend: {
-            display: false
+            position: 'bottom',
+            labels: {
+              font: {
+                family: 'Arial', // Font family for legend labels
+                size: 20,       // Font size for legend labels
+                weight: 'bold'  // Font weight for legend labels
+              }
+            }
           },
-        
+          tooltip: {
+            // callbacks: {
+            //   label: function(context) {
+            //     return `${context.label}: ${context.raw}`;
+            //   }
+            // },
+            titleFont: {
+              family: 'Arial', // Font family for tooltip title
+              size: 17,       // Font size for tooltip title
+              weight: 'bold',
+            },
+            bodyFont: {
+              family: 'Arial', // Font family for tooltip body
+              size: 12        // Font size for tooltip body
+            }
+          }
         }
+      }
       });
     },
-   
-  },
-};
+
+    renderStudentGenderChart() {
+      if (this.chartInstanceStudent) {
+        this.chartInstanceStudent.destroy();
+      }
+      const ctx = document.getElementById('student-gender-chart').getContext('2d');
+      this.chartInstanceStudent = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: [
+            `Male Students: ${this.counts.male_student_count}`, 
+            `Female Students: ${this.counts.female_student_count}`],
+          datasets: [{
+            label: 'Student Gender Distribution',
+            data: [this.counts.male_student_count, this.counts.female_student_count],
+            backgroundColor: [
+              '#3572EF',
+              '#A7E6FF'
+            ],
+            borderColor: [
+              '#F5F5F5',
+              '#F5F5F5'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                family: 'Arial', // Font family for legend labels
+                size: 20,       // Font size for legend labels
+                weight: 'bold'  // Font weight for legend labels
+              }
+            }
+          },
+          tooltip: {
+            // callbacks: {
+            //   label: function(context) {
+            //     return `${context.label}: ${context.raw}`;
+            //   }
+            // },
+            titleFont: {
+              family: 'Arial', // Font family for tooltip title
+              size: 17,       // Font size for tooltip title
+              weight: 'bold'  // Font weight for tooltip title
+            },
+            bodyFont: {
+              family: 'Arial', // Font family for tooltip body
+              size: 12        // Font size for tooltip body
+            }
+          }
+        }
+      }
+
+
+     });
+    },
+    renderStrandChart() {
+        console.log('Rendering strand chart');
+        const ctx = document.getElementById('strand-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: this.strandChartData.map(data => data.label),
+                datasets: [{
+                    label: 'Number of Students per Strand',
+                    data: this.strandChartData.map(data => data.value),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+  }
+}
 </script>
 
 <style scoped>
+.chart-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 10px;
+  padding-top: 5px;
+  margin: 10px;
+  width: 420px;
+  height: 500px;
+  border: 1px solid #dee2e6;
+  border-radius: 15PX;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+.chart-container2 {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 10px;
+  padding-top: 5px;
+  width: 920px;
+  height: 300px;
+  border: 1px solid #dee2e6;
+  border-radius: 15PX;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+.chart-table {
+ margin-top: 10px;
+ 
+  padding: 10px;
+  padding-top: 5px;
+
+  border: 1px solid #dee2e6;
+  border-radius: 15PX;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+h6{
+  padding-top: 30px;
+}
+.chart-wrapper {
+  flex: 1;
+  max-width: 300px; /* Adjust this as needed */
+  text-align: center;
+}
+
 .boxes {
   border: 1px solid #dee2e6;
   border-radius: 10px;
@@ -179,30 +402,24 @@ export default {
   display: flex;
   align-items: center;
 }
-.teacher {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 10;
-  height: 400px;
-  width: 380px;
-  margin-top: 10px;
-  margin: 10px;
-  
-}
-.container{
-  border-radius: 10px;
-  padding: 10;
-  height: 300px;
-  margin-bottom: 10px;
-}
-
 
 .icon {
   font-size: 60px;
   padding: 20px;
-  color: #3D56B2;
 }
 
+.icon1{
+  color: #3572EF;
+}
+.icon2{
+  color: #3572EF;
+}
+.icon3{
+  color: #3572EF;
+}
+.icon4{
+  color: #3572EF;
+}
 
 .content {
   flex: 1;
@@ -219,7 +436,7 @@ export default {
 }
 /* Table Wrapper */
 .table-wrapper {
-  margin-top: 12px;
+  padding: 10PX;
 }
 
 /* Table Styles */
@@ -231,7 +448,7 @@ export default {
 }
 
 .table-custom th {
-  background-color: #0d8aeadf;
+  background-color: #3572EF;
   color: #000000;
   font-weight: 500;
   font-size: 20px;
@@ -251,6 +468,7 @@ export default {
 .table-custom tbody tr {
   transition: background-color 0.3s ease;
 }
+
 
 
 .label {
