@@ -20,36 +20,27 @@
       <!-- Left Section: Created Questions -->
       <div class="left-section w-50 me-4">
         <h4>Created Questions</h4>
-        <div v-if="filteredQuestions.length > 0">
-          <!-- Instruction Display -->
+        <div v-if="existingQuestions.length > 0">
           <div class="instruction-card mb-4 p-3 border bg-light">
             <p><strong>Instruction:</strong> {{ examInstruction }}</p>
           </div>
 
-          <!-- Question Display -->
-          <div v-for="(question, index) in filteredQuestions" :key="index" class="question-card mb-4">
-            <!-- Question Number without 'Question' -->
-            <h5 class="question-title">{{ index + 1 }}. {{ question.question_text }}</h5>
-            
-            <p><strong>Correct Answer:</strong> <span class="correct-answer">{{ question.correct_answers[0].correct_answer }}</span></p>
-            <p><strong>Points:</strong> {{ question.correct_answers[0].points }}</p>
-            
-            <!-- Show choices only for multiple-choice questions -->
-            <ul v-if="question.choices.length > 0 && globalQuestionType === 'multiple-choice'">
-              <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choice }}</li>
-            </ul>
+          <div v-for="(question, index) in existingQuestions" :key="index" class="question-card mb-4">
+            <h5 class="question-title">{{ index + 1 }}. {{ question.question }}</h5> <!-- Updated field -->
 
-            <!-- Display choices as text for non-multiple choice -->
-            <div v-else>
-              <p v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choice }}</p>
-            </div>
+            <p><strong>Correct Answer:</strong> <span class="correct-answer">{{ question.correct_answers[0]?.correct_answer }}</span></p>
+            <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
+
+            <ul v-if="question.choices && question.choices.length > 0">
+              <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choices }}</li> <!-- Updated field -->
+            </ul>
 
             <button @click="editQuestion(index)" class="btn btn-warning btn-sm me-2">Edit</button>
             <button @click="deleteQuestion(question.question_id)" class="btn btn-danger btn-sm">Delete</button>
           </div>
         </div>
         <div v-else>
-          <p>No questions found matching your criteria.</p>
+          <p>No questions found.</p>
         </div>
       </div>
 
@@ -57,7 +48,6 @@
       <div class="right-section w-50">
         <h4>Add New Question</h4>
 
-        <!-- Instruction and Question Type Selection -->
         <div class="instruction-card mb-4 p-3 border bg-light">
           <div class="mb-3">
             <label for="instruction" class="form-label">Exam Instruction</label>
@@ -71,8 +61,7 @@
               <option value="true-false">True/False</option>
             </select>
           </div>
-          
-          <!-- Button to Change Question Type and Create New Instruction -->
+
           <button @click="createNewInstruction" class="btn btn-secondary mt-2">Change Question Type and Create New Instruction</button>
         </div>
 
@@ -82,7 +71,6 @@
             <input type="text" v-model="question.text" class="form-control" required />
           </div>
 
-          <!-- Choices Section (for multiple-choice questions) -->
           <div v-if="globalQuestionType === 'multiple-choice'" class="mb-3">
             <label class="form-label">Choices</label>
             <div v-for="(choice, idx) in question.choices" :key="idx" class="input-group mb-2">
@@ -102,7 +90,6 @@
           </div>
         </div>
 
-        <!-- Button to Add a New Question Form and Save Button beside each other -->
         <div class="d-flex justify-content-between">
           <button @click="addNewQuestionForm" class="btn btn-secondary mt-4">Add New Question</button>
           <button @click="saveAllQuestions" class="btn btn-primary mt-4">Save All</button>
@@ -119,15 +106,15 @@ export default {
   name: 'AddExaminationsofSHS',
   data() {
     return {
-      examInstruction: '', 
-      globalQuestionType: 'multiple-choice', 
+      examInstruction: '',
+      globalQuestionType: 'multiple-choice',
       questions: [
         {
           text: '',
           correctAnswer: '',
           points: 1,
-          choices: ['', '', ''], 
-        }
+          choices: ['', '', ''],
+        },
       ],
       existingQuestions: [],
       searchQuery: '',
@@ -138,7 +125,7 @@ export default {
     filteredQuestions() {
       if (!this.searchQuery) return this.existingQuestions;
       return this.existingQuestions.filter((question) =>
-        question.question_text.toLowerCase().includes(this.searchQuery.toLowerCase())
+        question.question.toLowerCase().includes(this.searchQuery.toLowerCase()) // Updated field
       );
     },
   },
@@ -155,16 +142,17 @@ export default {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           }
         );
-        const { data } = response.data;
-        this.existingQuestions = data.map(instruction => instruction.questions).flat();
-        this.examInstruction = data.length > 0 ? data[0].instruction : '';
+
+        const { instructions } = response.data;
+        this.existingQuestions = instructions.map(instruction => instruction.questions).flat();
+        this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
       } catch (error) {
         console.error('Failed to fetch questions:', error.message);
       }
     },
 
     addChoice(question) {
-      question.choices.push(''); 
+      question.choices.push('');
     },
 
     addNewQuestionForm() {
@@ -172,35 +160,51 @@ export default {
         text: '',
         correctAnswer: '',
         points: 1,
-        choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [], 
+        choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
       });
     },
 
     createNewInstruction() {
       this.examInstruction = '';
-      this.globalQuestionType = 'multiple-choice'; 
+      this.globalQuestionType = 'multiple-choice';
     },
 
-    saveAllQuestions() {
-      this.questions.forEach((_, index) => this.saveQuestion(index));
-      alert('All questions saved successfully!');
-    },
+    async saveAllQuestions() {
+      try {
+        // Prepare the data structure for saving
+        const instructionsData = [
+          {
+            instruction: this.examInstruction,
+            question_type: this.globalQuestionType,
+            questions: this.questions.map((question) => ({
+              question: question.text,
+              choices: question.choices,
+              correct_answers: [
+                {
+                  correct_answer: question.correctAnswer,
+                  points: question.points,
+                },
+              ],
+            })),
+          },
+        ];
 
-    saveQuestion(index) {
-      const newQuestion = this.questions[index];
-      this.existingQuestions.push({
-        question_text: newQuestion.text,
-        correct_answers: [{ correct_answer: newQuestion.correctAnswer, points: newQuestion.points }],
-        choices: newQuestion.choices,
-        instruction: this.examInstruction,
-      });
+        // Send a POST request to save questions
+        await axios.post(
+          `http://localhost:8000/api/addQuestionsToExam/${this.examId}`,
+          { instructions: instructionsData },
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          }
+        );
 
-      this.questions.splice(index, 1, {
-        text: '',
-        correctAnswer: '',
-        points: 1,
-        choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
-      });
+        // After saving, fetch the updated list of questions
+        await this.fetchQuestions();
+
+        alert('All questions saved successfully!');
+      } catch (error) {
+        console.error('Error saving questions:', error.message);
+      }
     },
 
     async publishExam() {
