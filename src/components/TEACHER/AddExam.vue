@@ -59,6 +59,7 @@
             <select id="questionType" v-model="globalQuestionType" class="form-control" required>
               <option value="multiple-choice">Multiple Choice</option>
               <option value="true-false">True/False</option>
+              <option value="identification">Identification</option>
             </select>
           </div>
 
@@ -69,9 +70,10 @@
         <div v-for="(question, index) in questions" :key="index" class="question-card mb-4 p-3 border bg-light">
           <div class="mb-3">
             <label class="form-label">Question</label>
-            <input type="text" v-model="question.text" class="form-control" required />
+            <input type="text" v-model="question.question" class="form-control" required />
           </div>
 
+          <!-- Multiple Choice Question Type -->
           <div v-if="globalQuestionType === 'multiple-choice'" class="mb-3">
             <label class="form-label">Choices</label>
             <div v-for="(choice, idx) in question.choices" :key="idx" class="input-group mb-2">
@@ -80,14 +82,24 @@
             <button @click="addChoice(question)" class="btn btn-secondary btn-sm">Add Choice</button>
           </div>
 
-          <div class="mb-3">
+          <!-- True/False Question Type -->
+          <div v-if="globalQuestionType === 'true-false'" class="mb-3">
             <label class="form-label">Correct Answer</label>
-            <input type="text" v-model="question.correctAnswer" class="form-control" required />
+            <select v-model="question.correct_answers[0].correct_answer" class="form-control" required>
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+          </div>
+
+          <!-- Identification Question Type -->
+          <div v-if="globalQuestionType === 'identification'" class="mb-3">
+            <label class="form-label">Correct Answer</label>
+            <input type="text" v-model="question.correct_answers[0].correct_answer" class="form-control" required />
           </div>
 
           <div class="mb-3">
             <label class="form-label">Points</label>
-            <input type="number" v-model="question.points" class="form-control" min="1" required />
+            <input type="number" v-model="question.correct_answers[0].points" class="form-control" min="1" required />
           </div>
         </div>
 
@@ -100,8 +112,6 @@
   </div>
 </template>
 
-
-
 <script>
 import axios from 'axios';
 
@@ -110,13 +120,17 @@ export default {
   data() {
     return {
       examInstruction: '',
-      globalQuestionType: 'multiple-choice', // matches the "question_type" field in backend
+      globalQuestionType: 'multiple-choice', // default is multiple-choice
       questions: [
         {
-          text: '',  // corresponds to 'question' field in backend
-          correctAnswer: '', // corresponds to 'correct_answers[0].correct_answer' in backend
-          points: 1,  // corresponds to 'correct_answers[0].points' in backend
-          choices: ['', '', ''], // corresponds to 'choices' field in backend
+          question: '',
+          correct_answers: [
+            {
+              correct_answer: '',
+              points: 1,
+            },
+          ],
+          choices: ['', '', ''], // default choices for multiple-choice
         },
       ],
       existingQuestions: [],
@@ -125,7 +139,7 @@ export default {
   },
   created() {
     this.examId = this.$route.params.examId;
-    this.fetchQuestions();  // Fetch existing questions when the component is created
+    this.fetchQuestions();
   },
   methods: {
     async fetchQuestions() {
@@ -136,7 +150,6 @@ export default {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           }
         );
-
         const { instructions } = response.data;
         this.existingQuestions = instructions.map(instruction => instruction.questions).flat();
         this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
@@ -146,42 +159,55 @@ export default {
     },
 
     addChoice(question) {
-      question.choices.push('');  // Add an empty choice to the array
+      question.choices.push(''); // Add an empty choice to the array
     },
 
     addNewQuestionForm() {
       this.questions.push({
-        text: '',
-        correctAnswer: '',
-        points: 1,
+        question: '',
+        correct_answers: [
+          {
+            correct_answer: '',
+            points: 1,
+          },
+        ],
         choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
       });
     },
 
     async saveAllQuestions() {
       try {
-        // Ensure the payload structure matches backend expectations
+        // Prepare the payload dynamically
         const instructionsData = [
           {
-            instruction: this.examInstruction,  // instruction field
-            question_type: this.globalQuestionType,  // question_type field
-            questions: this.questions.map((question) => ({
-              question: question.text,  // question field
-              choices: question.choices,  // choices field (nullable)
-              correct_answers: [
-                {
-                  correct_answer: question.correctAnswer,  // correct_answer field
-                  points: question.points,  // points field
-                },
-              ],
-            })),
+            instruction: this.examInstruction,
+            question_type: this.globalQuestionType,
+            questions: this.questions.map((question) => {
+              // Exclude `choices` for true-false or identification question types
+              let questionData = {
+                question: question.question,
+                correct_answers: [
+                  {
+                    correct_answer: question.correct_answers[0].correct_answer,
+                    points: question.correct_answers[0].points,
+                  },
+                ],
+              };
+
+              // Only include choices for multiple-choice questions
+              if (this.globalQuestionType === 'multiple-choice') {
+                questionData.choices = question.choices;
+              }
+
+              return questionData;
+            }),
           },
         ];
 
-        // Log the payload for debugging
-        console.log('Payload being sent:', instructionsData);
+        // Log the payload being sent to verify correctness
+        console.log('Payload being sent:', JSON.stringify(instructionsData, null, 2));
 
-        // Send the data to backend
+        // Send the data to the backend
         await axios.post(
           `http://localhost:8000/api/addQuestionsToExam/${this.examId}`,
           { instructions: instructionsData },
@@ -221,8 +247,6 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 .manage-exam-container {
   padding: 20px;
@@ -249,14 +273,6 @@ export default {
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.top-section {
-  margin-bottom: 20px;
-}
-
-.correct-answer {
-  color: green;
 }
 
 input.form-control, textarea.form-control {
