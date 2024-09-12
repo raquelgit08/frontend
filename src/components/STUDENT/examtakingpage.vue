@@ -122,11 +122,12 @@ export default {
     async fetchExam() {
       const examId = this.$route.params.exam_id;
       try {
-        const response = await axios.get(`http://localhost:8000/api/viewExam2/${examId}`, {
+        const response = await axios.get(`http://localhost:8000/api/viewExam2updated/${examId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
+        console.log('Fetched exam data:', this.exam);
         this.exam = response.data.exam;
       } catch (error) {
         Swal.fire({
@@ -236,7 +237,7 @@ export default {
 
         async getResults(examId) {
       try {
-        const response = await axios.get(`http://localhost:8000/api/getResults/${examId}`, {
+        const response = await axios.get(`http://localhost:8000/api/getResultswithtestbank/${examId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },

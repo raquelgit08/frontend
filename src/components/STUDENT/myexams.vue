@@ -155,11 +155,12 @@ export default {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await axios.get(`http://localhost:8000/api/viewExam2/${exam.id}`, {
+        const response = await axios.get(`http://localhost:8000/api/viewExam2updated/${exam.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Fetched exam data:', this.exam);
         this.modalExam = response.data.exam;
         this.showModal = true;
       } catch (error) {
