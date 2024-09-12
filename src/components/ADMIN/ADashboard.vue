@@ -79,6 +79,22 @@
         </div>
       </div>
     </div>
+
+    <div class="row">
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-container2">
+          <canvas id="strand-chart" width="400" height="200"></canvas>
+          <div class="chart-summary">
+            <h6>Summary:</h6>
+            <ul>
+              <li v-for="(strand, index) in strandChartData" :key="index">
+                {{ strand.label }}: {{ strand.value }} students
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -101,6 +117,7 @@ export default {
         female_teacher_count: 0,
       },
       studentsGrouped: [],
+      strandChartData: [],
       chartInstanceTeacher: null,
       chartInstanceStudent: null,
     };
@@ -116,6 +133,16 @@ export default {
         }
       })
       .then(response => {
+        // Extract strand counts data
+        let strandCounts = response.data.data.strand_counts;
+        this.strandChartData = Object.keys(strandCounts).map(strandName => {
+          return {
+            label: strandName,
+            value: strandCounts[strandName]
+          };
+        });
+
+        
         // Set the counts data from the response
         this.counts = response.data.data.counts;
         
@@ -148,6 +175,9 @@ export default {
         // Render charts after data is fetched
         this.renderTeacherGenderChart();
         this.renderStudentGenderChart();
+
+        // Render strand chart
+        this.renderStrandChart();
       })
       .catch(error => {
         alert('Error fetching data: ' + error.message);
@@ -272,7 +302,46 @@ export default {
 
 
      });
+    },
+    renderStrandChart() {
+        console.log('Rendering strand chart');
+        const ctx = document.getElementById('strand-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: this.strandChartData.map(data => data.label),
+                datasets: [{
+                    label: 'Number of Students per Strand',
+                    data: this.strandChartData.map(data => data.value),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     }
+    
   }
 }
 </script>
@@ -287,6 +356,18 @@ export default {
   margin: 10px;
   width: 420px;
   height: 500px;
+  border: 1px solid #dee2e6;
+  border-radius: 15PX;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+.chart-container2 {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  padding: 10px;
+  padding-top: 5px;
+  width: 920px;
+  height: 300px;
   border: 1px solid #dee2e6;
   border-radius: 15PX;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);

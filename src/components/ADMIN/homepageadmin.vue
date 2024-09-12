@@ -23,7 +23,16 @@
       
     </ul>
     <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button>
-  </div>
+    <div class="profile2" style="display: flex; align-items: center;">
+        <img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%;" alt="Profile Image">
+        <div class="profile_content" style="flex: 1; text-align: center;">
+          <div class="name" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div>
+          <div class="designation" v-if="userProfile && Object.keys(userProfile).length">ADMIN</div>
+          <p v-else>Loading profile...</p>
+        </div>
+        <i class="bi bi-box-arrow-left fs-2" id="log_out" @click="handleLogout"></i>
+      </div>
+    </div>
   <div class="content">
     
     <router-view></router-view>
@@ -51,21 +60,21 @@ export default {
           { name: 'Dashboard', path: '/adashboard', icon: 'bi bi-speedometer2 fs-3' }
         ] },
         { section: 'Set Up', items: [
-          { name: 'Manage School Year', path: '/ASchoolYear', icon: 'bi bi-chat-dots fs-3' },
+          { name: 'Manage School Year', path: '/ASchoolYear', icon: 'bi bi-calendar-month-fill fs-3' },
           { name: 'Manage Strand', path: '/ManageStrandsinSHS', icon: 'bi bi-bar-chart-fill fs-3' },
-          { name: 'Manage Section', path: '/ASection', icon: 'bi bi-folder-fill fs-3' },
-          { name: 'Manage Subjects', path: '/AManageSubject', icon: 'bi bi-cart-fill fs-3' },
-          { name: 'Manage Position', path: '/AManagePosition', icon: 'bi bi-gear-fill fs-3' }
+          { name: 'Manage Section', path: '/ASection', icon: 'bi-book-half fs-3' },
+          { name: 'Manage Subjects', path: '/AManageSubject', icon: 'bi bi-file-earmark-text-fill fs-3' },
+          { name: 'Manage Position', path: '/AManagePosition', icon: 'bi bi-file-person fs-3' }
         ] },
         { section: 'Manage Users', items: [
           { name: 'Manage All Users', path: '/allusers', icon: 'bi bi-chat-dots fs-3' },
           { name: 'Manage Students', path: '/manage_students', icon: 'bi bi-bar-chart-fill fs-3' },
-          { name: 'Manage Teachers', path: '/manage_teachers', icon: 'bi bi-folder-fill fs-3' },
+          { name: 'Manage Teachers', path: '/manage_teachers', icon: 'bi bi-person-bounding-box fs-3' },
     
         ] },
         { section: 'Reports', items: [
-          { name: 'List of Student', path: '/ReportListofStudent', icon: 'bi bi-cart-fill fs-3' },
-          { name: 'List of Teacher', path: '/ReportListofTeacher', icon: 'bi bi-gear-fill fs-3' }
+          { name: 'List of Student', path: '/ReportListofStudent', icon: 'bi bi-person-fill fs-3' },
+          { name: 'List of Teacher', path: '/ReportListofTeacher', icon: 'bi bi-person-lines-fill fs-3' }
         ] },
       ],
     };
