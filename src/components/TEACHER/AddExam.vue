@@ -1,123 +1,114 @@
 <template>
-  <div>
-    <h2>Manage Exam Questions</h2>
+  <div class="manage-exam-container">
+    <h2 class="page-title">Exam Creation and Management</h2>
 
-    <!-- Display Existing Questions -->
-    <div v-if="existingQuestions.length > 0" class="existing-questions mt-4">
-      <h4>Existing Questions</h4>
-      <div v-for="(question, index) in existingQuestions" :key="index" class="question-card mb-4">
-        <h5 class="question-title">Question {{ index + 1 }}: {{ question.question }}</h5>
-        <p><strong>Type:</strong> {{ question.question_type }}</p>
-        <p v-if="question.question_type === 'multiple-choice'"><strong>Options:</strong></p>
-        <ul v-if="question.question_type === 'multiple-choice'">
-          <li v-for="(option, idx) in question.choices" :key="idx">{{ option }}</li>
-        </ul>
-        <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
-        <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
-
-        <!-- Edit and Delete Buttons for Each Question -->
-        <button @click="editQuestion(index)" class="btn btn-warning btn-sm me-2">Edit</button>
-        <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">Delete</button>
+    <div class="top-section d-flex justify-content-between align-items-center mb-4">
+      <div class="button-group">
+        <button v-if="existingQuestions.length > 0" @click="publishExam" type="button" class="btn btn-success me-2">
+          Publish Exam
+        </button>
+        <button v-if="existingQuestions.length > 0" @click="saveToTestBank" type="button" class="btn btn-info me-2">
+          Save to Test Bank
+        </button>
+        <button @click="viewExamSchedule" type="button" class="btn btn-primary">
+          View Exam Schedule
+        </button>
       </div>
     </div>
 
-    <!-- Add New Question Section -->
-    <div v-if="isAddingOrEditing">
-      <h4 v-if="editIndex !== null">Edit Question</h4>
-      <h4 v-else>Add New Question</h4>
-
-      <!-- Instruction Field -->
-      <div class="mb-3">
-        <label for="instruction" class="form-label">Exam Instruction</label>
-        <textarea
-          id="instruction"
-          v-model="examInstruction"
-          class="form-control"
-          required
-        ></textarea>
-      </div>
-
-      <!-- Questions Section -->
-      <div v-for="(question, index) in questions" :key="index" class="question-card mb-4">
-        <h5 class="question-title">Question {{ index + 1 }}</h5>
-
-        <!-- Question Type -->
-        <div class="mb-3">
-          <label class="form-label">Question Type</label>
-          <select v-model="question.type" class="form-select">
-            <option value="multiple-choice">Multiple Choice</option>
-            <option value="true-false">True or False</option>
-            <option value="identification">Identification</option>
-          </select>
-        </div>
-
-        <!-- Question Text -->
-        <div class="mb-3">
-          <label class="form-label">Question</label>
-          <input
-            type="text"
-            v-model="question.text"
-            class="form-control"
-            required
-          />
-        </div>
-
-        <!-- Options for Multiple Choice Questions -->
-        <div v-if="question.type === 'multiple-choice'" class="mb-3">
-          <label class="form-label">Options</label>
-          <div v-for="(option, idx) in question.options" :key="idx" class="d-flex align-items-center mb-2">
-            <input
-              type="text"
-              v-model="question.options[idx]"
-              class="form-control me-2"
-              placeholder="Option"
-              required
-            />
-            <button @click="removeOption(index, idx)" type="button" class="btn btn-danger btn-sm">X</button>
+    <div class="main-content d-flex mt-4">
+      <!-- Left Section: Created Questions -->
+      <div class="left-section w-50 me-4">
+        <h4>Created Questions</h4>
+        <div v-if="filteredQuestions.length > 0">
+          <!-- Instruction Display -->
+          <div class="instruction-card mb-4 p-3 border bg-light">
+            <p><strong>Instruction:</strong> {{ examInstruction }}</p>
           </div>
-          <button @click="addOption(index)" type="button" class="btn btn-secondary btn-sm">Add Option</button>
-        </div>
 
-        <!-- Correct Answer -->
-        <div class="mb-3">
-          <label class="form-label">Correct Answer</label>
-          <input
-            v-if="question.type !== 'multiple-choice'"
-            type="text"
-            v-model="question.correctAnswer"
-            class="form-control"
-            required
-          />
-          <select v-else v-model="question.correctAnswer" class="form-select">
-            <option v-for="(option, idx) in question.options" :key="idx" :value="option">
-              {{ option }}
-            </option>
-          </select>
-        </div>
+          <!-- Question Display -->
+          <div v-for="(question, index) in filteredQuestions" :key="index" class="question-card mb-4">
+            <!-- Question Number without 'Question' -->
+            <h5 class="question-title">{{ index + 1 }}. {{ question.question_text }}</h5>
+            
+            <p><strong>Correct Answer:</strong> <span class="correct-answer">{{ question.correct_answers[0].correct_answer }}</span></p>
+            <p><strong>Points:</strong> {{ question.correct_answers[0].points }}</p>
+            
+            <!-- Show choices only for multiple-choice questions -->
+            <ul v-if="question.choices.length > 0 && globalQuestionType === 'multiple-choice'">
+              <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choice }}</li>
+            </ul>
 
-        <!-- Points -->
-        <div class="mb-3">
-          <label class="form-label">Points</label>
-          <input
-            type="number"
-            v-model="question.points"
-            class="form-control"
-            min="1"
-            required
-          />
+            <!-- Display choices as text for non-multiple choice -->
+            <div v-else>
+              <p v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choice }}</p>
+            </div>
+
+            <button @click="editQuestion(index)" class="btn btn-warning btn-sm me-2">Edit</button>
+            <button @click="deleteQuestion(question.question_id)" class="btn btn-danger btn-sm">Delete</button>
+          </div>
+        </div>
+        <div v-else>
+          <p>No questions found matching your criteria.</p>
         </div>
       </div>
 
-      <!-- Add/Edit Buttons -->
-      <div class="d-flex justify-content-between mt-4">
-        <button v-if="editIndex === null" @click="addQuestion" type="button" class="btn btn-secondary">Add New Question</button>
-        <button v-if="editIndex !== null" @click="updateQuestion" type="button" class="btn btn-warning">Update Question</button>
-        <button @click="submitExam" type="button" class="btn btn-primary">Submit</button>
+      <!-- Right Section: Add New Question Form -->
+      <div class="right-section w-50">
+        <h4>Add New Question</h4>
+
+        <!-- Instruction and Question Type Selection -->
+        <div class="instruction-card mb-4 p-3 border bg-light">
+          <div class="mb-3">
+            <label for="instruction" class="form-label">Exam Instruction</label>
+            <textarea id="instruction" v-model="examInstruction" class="form-control" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="questionType" class="form-label">Question Type</label>
+            <select id="questionType" v-model="globalQuestionType" class="form-control" required>
+              <option value="multiple-choice">Multiple Choice</option>
+              <option value="true-false">True/False</option>
+            </select>
+          </div>
+          
+          <!-- Button to Change Question Type and Create New Instruction -->
+          <button @click="createNewInstruction" class="btn btn-secondary mt-2">Change Question Type and Create New Instruction</button>
+        </div>
+
+        <div v-for="(question, index) in questions" :key="index" class="question-card mb-4 p-3 border bg-light">
+          <div class="mb-3">
+            <label class="form-label">Question</label>
+            <input type="text" v-model="question.text" class="form-control" required />
+          </div>
+
+          <!-- Choices Section (for multiple-choice questions) -->
+          <div v-if="globalQuestionType === 'multiple-choice'" class="mb-3">
+            <label class="form-label">Choices</label>
+            <div v-for="(choice, idx) in question.choices" :key="idx" class="input-group mb-2">
+              <input type="text" v-model="question.choices[idx]" class="form-control" placeholder="Choice" />
+            </div>
+            <button @click="addChoice(question)" class="btn btn-secondary btn-sm">Add Choice</button>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Correct Answer</label>
+            <input type="text" v-model="question.correctAnswer" class="form-control" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Points</label>
+            <input type="number" v-model="question.points" class="form-control" min="1" required />
+          </div>
+        </div>
+
+        <!-- Button to Add a New Question Form and Save Button beside each other -->
+        <div class="d-flex justify-content-between">
+          <button @click="addNewQuestionForm" class="btn btn-secondary mt-4">Add New Question</button>
+          <button @click="saveAllQuestions" class="btn btn-primary mt-4">Save All</button>
+        </div>
       </div>
     </div>
-
-    <!-- Publish Exam Button -->
-    <button v-if="existingQuestions.length > 0" @click="publishExam" type="button" class="btn btn-success mt-4">Publish Exam</button>
   </div>
 </template>
 
@@ -125,142 +116,157 @@
 import axios from 'axios';
 
 export default {
-  name: 'AddexaminationsofSHS',
+  name: 'AddExaminationsofSHS',
   data() {
     return {
-      examInstruction: '', // Instruction for the exam
-      questions: [], // Array of questions (for adding/editing)
-      existingQuestions: [], // Store existing questions
-      examId: null, // This will hold the exam ID from the route
-      editIndex: null, // Index of the question being edited
-      isAddingOrEditing: false, // Flag to toggle between viewing and adding/editing questions
+      examInstruction: '', 
+      globalQuestionType: 'multiple-choice', 
+      questions: [
+        {
+          text: '',
+          correctAnswer: '',
+          points: 1,
+          choices: ['', '', ''], 
+        }
+      ],
+      existingQuestions: [],
+      searchQuery: '',
+      examId: null,
     };
   },
+  computed: {
+    filteredQuestions() {
+      if (!this.searchQuery) return this.existingQuestions;
+      return this.existingQuestions.filter((question) =>
+        question.question_text.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+  },
   created() {
-    // Get the examId from the route parameters
     this.examId = this.$route.params.examId;
-    this.fetchQuestions(); // Fetch existing questions
+    this.fetchQuestions();
   },
   methods: {
     async fetchQuestions() {
       try {
-        const response = await axios.get(`http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        this.existingQuestions = response.data.questions; // Load existing questions
-        this.examInstruction = response.data.instruction; // Set the instruction if available
+        const response = await axios.get(
+          `http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          }
+        );
+        const { data } = response.data;
+        this.existingQuestions = data.map(instruction => instruction.questions).flat();
+        this.examInstruction = data.length > 0 ? data[0].instruction : '';
       } catch (error) {
-        console.error('Failed to fetch questions:', error.response ? error.response.data : error.message);
+        console.error('Failed to fetch questions:', error.message);
       }
     },
 
-    addQuestion() {
-      const newQuestion = {
-        type: 'multiple-choice', // Default type
+    addChoice(question) {
+      question.choices.push(''); 
+    },
+
+    addNewQuestionForm() {
+      this.questions.push({
         text: '',
         correctAnswer: '',
         points: 1,
-        options: ['', '', '', ''], // 4 options by default for multiple-choice
-      };
-      this.questions.push(newQuestion);
-      this.isAddingOrEditing = true;
+        choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [], 
+      });
     },
 
-    editQuestion(index) {
-      this.questions = [this.existingQuestions[index]]; // Load the question to edit
-      this.editIndex = index;
-      this.isAddingOrEditing = true;
+    createNewInstruction() {
+      this.examInstruction = '';
+      this.globalQuestionType = 'multiple-choice'; 
     },
 
-    updateQuestion() {
-      this.existingQuestions.splice(this.editIndex, 1, this.questions[0]); // Update the question
-      this.questions = [];
-      this.isAddingOrEditing = false;
-      this.editIndex = null;
+    saveAllQuestions() {
+      this.questions.forEach((_, index) => this.saveQuestion(index));
+      alert('All questions saved successfully!');
     },
 
-    removeOption(questionIndex, optionIndex) {
-      this.questions[questionIndex].options.splice(optionIndex, 1);
-    },
+    saveQuestion(index) {
+      const newQuestion = this.questions[index];
+      this.existingQuestions.push({
+        question_text: newQuestion.text,
+        correct_answers: [{ correct_answer: newQuestion.correctAnswer, points: newQuestion.points }],
+        choices: newQuestion.choices,
+        instruction: this.examInstruction,
+      });
 
-    addOption(questionIndex) {
-      this.questions[questionIndex].options.push('');
-    },
-
-    async deleteQuestion(questionId) {
-      try {
-        await axios.delete(`http://localhost:8000/api/deleteQuestion/${questionId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        this.existingQuestions = this.existingQuestions.filter(q => q.id !== questionId);
-        alert('Question deleted successfully');
-      } catch (error) {
-        console.error('Failed to delete question:', error.response ? error.response.data : error.message);
-      }
-    },
-
-    async submitExam() {
-      try {
-        const payload = {
-          instruction: this.examInstruction,
-          questions: this.questions.map((q) => ({
-            question_type: q.type,
-            question: q.text,
-            choices: q.type === 'multiple-choice' ? q.options : null,
-            correct_answers: [{
-              correct_answer: q.correctAnswer,
-              points: q.points,
-            }],
-          })),
-        };
-
-        await axios.post(`http://localhost:8000/api/addQuestionsToExam/${this.examId}`, payload, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-
-        alert('Questions added successfully');
-        this.fetchQuestions(); // Refresh the questions after adding
-        this.isAddingOrEditing = false;
-        this.questions = [];
-      } catch (error) {
-        console.error('Failed to add questions:', error.response ? error.response.data : error.message);
-      }
+      this.questions.splice(index, 1, {
+        text: '',
+        correctAnswer: '',
+        points: 1,
+        choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
+      });
     },
 
     async publishExam() {
       try {
-        await axios.post(`http://localhost:8000/api/publishExam/${this.examId}`, {}, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+        await axios.post(`http://localhost:8000/api/exams/publish2/${this.examId}`, {}, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         alert('Exam published successfully');
       } catch (error) {
-        console.error('Failed to publish exam:', error.response ? error.response.data : error.message);
+        console.error('Failed to publish exam:', error.message);
       }
+    },
+
+    saveToTestBank() {
+      alert('Questions saved to test bank!');
+    },
+
+    viewExamSchedule() {
+      alert('Redirecting to exam schedule...');
     },
   },
 };
 </script>
 
-
 <style scoped>
-.question-card {
-  background-color: #ffffff;
+.manage-exam-container {
   padding: 20px;
+  background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.question-title {
-  font-weight: 600;
+.page-title {
+  font-weight: bold;
   color: #0b355e;
-  margin-bottom: 15px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.left-section, .right-section {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.question-card {
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.top-section {
+  margin-bottom: 20px;
+}
+
+.correct-answer {
+  color: green;
+}
+
+input.form-control, textarea.form-control {
+  margin-bottom: 10px;
+}
+
+.d-flex {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

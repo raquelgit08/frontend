@@ -173,7 +173,7 @@ export default {
   padding: 10px;
   border-radius: 8px 8px 0 0;
   font-family: 'Georgia', serif;
-  margin-bottom: 20px;
+  margin-bottom: 20px; 
 }
 
 .table {
