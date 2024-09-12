@@ -25,14 +25,14 @@
             <p><strong>Instruction:</strong> {{ examInstruction }}</p>
           </div>
 
+          <!-- Display all existing questions -->
           <div v-for="(question, index) in existingQuestions" :key="index" class="question-card mb-4">
-            <h5 class="question-title">{{ index + 1 }}. {{ question.question }}</h5> <!-- Updated field -->
-
-            <p><strong>Correct Answer:</strong> <span class="correct-answer">{{ question.correct_answers[0]?.correct_answer }}</span></p>
+            <h5 class="question-title">{{ index + 1 }}. {{ question.question }}</h5>
+            <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
             <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
             <ul v-if="question.choices && question.choices.length > 0">
-              <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choices }}</li> <!-- Updated field -->
+              <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choices }}</li>
             </ul>
 
             <button @click="editQuestion(index)" class="btn btn-warning btn-sm me-2">Edit</button>
@@ -65,6 +65,7 @@
           <button @click="createNewInstruction" class="btn btn-secondary mt-2">Change Question Type and Create New Instruction</button>
         </div>
 
+        <!-- Add Question form -->
         <div v-for="(question, index) in questions" :key="index" class="question-card mb-4 p-3 border bg-light">
           <div class="mb-3">
             <label class="form-label">Question</label>
@@ -99,6 +100,8 @@
   </div>
 </template>
 
+
+
 <script>
 import axios from 'axios';
 
@@ -107,31 +110,22 @@ export default {
   data() {
     return {
       examInstruction: '',
-      globalQuestionType: 'multiple-choice',
+      globalQuestionType: 'multiple-choice', // matches the "question_type" field in backend
       questions: [
         {
-          text: '',
-          correctAnswer: '',
-          points: 1,
-          choices: ['', '', ''],
+          text: '',  // corresponds to 'question' field in backend
+          correctAnswer: '', // corresponds to 'correct_answers[0].correct_answer' in backend
+          points: 1,  // corresponds to 'correct_answers[0].points' in backend
+          choices: ['', '', ''], // corresponds to 'choices' field in backend
         },
       ],
       existingQuestions: [],
-      searchQuery: '',
       examId: null,
     };
   },
-  computed: {
-    filteredQuestions() {
-      if (!this.searchQuery) return this.existingQuestions;
-      return this.existingQuestions.filter((question) =>
-        question.question.toLowerCase().includes(this.searchQuery.toLowerCase()) // Updated field
-      );
-    },
-  },
   created() {
     this.examId = this.$route.params.examId;
-    this.fetchQuestions();
+    this.fetchQuestions();  // Fetch existing questions when the component is created
   },
   methods: {
     async fetchQuestions() {
@@ -152,7 +146,7 @@ export default {
     },
 
     addChoice(question) {
-      question.choices.push('');
+      question.choices.push('');  // Add an empty choice to the array
     },
 
     addNewQuestionForm() {
@@ -164,32 +158,30 @@ export default {
       });
     },
 
-    createNewInstruction() {
-      this.examInstruction = '';
-      this.globalQuestionType = 'multiple-choice';
-    },
-
     async saveAllQuestions() {
       try {
-        // Prepare the data structure for saving
+        // Ensure the payload structure matches backend expectations
         const instructionsData = [
           {
-            instruction: this.examInstruction,
-            question_type: this.globalQuestionType,
+            instruction: this.examInstruction,  // instruction field
+            question_type: this.globalQuestionType,  // question_type field
             questions: this.questions.map((question) => ({
-              question: question.text,
-              choices: question.choices,
+              question: question.text,  // question field
+              choices: question.choices,  // choices field (nullable)
               correct_answers: [
                 {
-                  correct_answer: question.correctAnswer,
-                  points: question.points,
+                  correct_answer: question.correctAnswer,  // correct_answer field
+                  points: question.points,  // points field
                 },
               ],
             })),
           },
         ];
 
-        // Send a POST request to save questions
+        // Log the payload for debugging
+        console.log('Payload being sent:', instructionsData);
+
+        // Send the data to backend
         await axios.post(
           `http://localhost:8000/api/addQuestionsToExam/${this.examId}`,
           { instructions: instructionsData },
@@ -198,24 +190,24 @@ export default {
           }
         );
 
-        // After saving, fetch the updated list of questions
+        // Re-fetch questions after saving
         await this.fetchQuestions();
-
         alert('All questions saved successfully!');
       } catch (error) {
         console.error('Error saving questions:', error.message);
       }
     },
 
-    async publishExam() {
-      try {
-        await axios.post(`http://localhost:8000/api/exams/publish2/${this.examId}`, {}, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
+    publishExam() {
+      axios.post(
+        `http://localhost:8000/api/exams/publish2/${this.examId}`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      ).then(() => {
         alert('Exam published successfully');
-      } catch (error) {
+      }).catch((error) => {
         console.error('Failed to publish exam:', error.message);
-      }
+      });
     },
 
     saveToTestBank() {
@@ -228,6 +220,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 .manage-exam-container {
