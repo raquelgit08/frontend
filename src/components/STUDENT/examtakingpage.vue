@@ -44,26 +44,30 @@
       </div>
     </form>
 
-    <!-- Results Display -->
     <div v-if="examSubmitted" class="results-container">
       <div class="row">
         <div class="col-8">
           <h3 class="results-title">Your Results</h3>
             <ul class="results-list">
               <li v-for="(result, index) in results" :key="result.question_number" class="result-item">
-                <p><strong>{{ index + 1 }} . Question ({{ result.question_number }}):</strong></p>
-                <p>Your Answer: <span class="user-answer">{{ result.student_answer }}</span></p>
+                <p><strong>{{ index + 1 }}. Question {{ result.question }}:</strong></p>
+                <p>Your Answer: 
+                  <span :class="{'correct-answer': result.student_answer === result.correct_answer, 'incorrect-answer': result.student_answer !== result.correct_answer}" class="user-answer">
+                    {{ result.student_answer }}
+                  </span>
+                </p>
                 <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p>
-                <p>Points: <span class="points">{{ result.points_awarded}}</span></p>
+                <p>Points: <span class="points">{{ result.points_awarded }}</span></p>
               </li>
             </ul>
             <p class="total-score"><strong>Total Score: {{ totalScore }}</strong></p>
         </div>
         <div class="col-4">
           <h3 class="feedback-title">Your Feedback</h3>
-          <textarea v-model="feedback" class="form-control" rows="10" placeholder="Please provide your feedback about the exam..."></textarea>
-          <button @click="submitFeedback" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
+          <textarea  v-model="comment"   class="form-control" rows="10"  placeholder="Please provide your feedback about the exam..."> </textarea>
+          <button @click="submitFeedback(exam.id)" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
         </div>
+
       </div>
     </div>
   </div>
@@ -83,6 +87,7 @@ export default {
       studentTextAnswers: {}, 
       isSubmitting: false, 
       validationError: '', 
+      comment: '',
       examSubmitted: false, 
       results: [], 
       totalScore: 0, 
@@ -275,8 +280,42 @@ export default {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
       }
-    }
+    },
+    async submitFeedback(examId) {
+      try {
+        console.log('Comment to submit:', this.comment);
+        await axios.post(`http://localhost:8000/api/commentfeedback/${examId}`, 
+          { comment: this.comment },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          }
+        );
 
+        Swal.fire({
+          title: 'Success!',
+          text: 'Feedback submitted successfully!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          this.comment = '';
+        });
+
+      } catch (error) {
+        this.handleError('Failed to submit feedback. Please try again later.', error);
+      }
+    },
+    handleError(message, error) {
+      console.error(error); // Log error details for debugging
+      Swal.fire({
+        title: 'Error!',
+        text: message,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+    },
+  
     
   }
 };
@@ -320,6 +359,13 @@ export default {
       margin-right: 10px;
     }
   }
+  .correct-answer {
+  color: green;
+}
+
+.incorrect-answer {
+  color: red;
+}
 
   .pagination-controls {
     display: flex;
