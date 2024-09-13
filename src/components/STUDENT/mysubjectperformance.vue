@@ -1,4 +1,3 @@
-
 <template>
   <div class="main-container">
     <!-- Subject Information Display on the Left -->
@@ -40,18 +39,21 @@
       <table class="table table-hover" v-if="performances.length">
         <thead>
           <tr>
-            <th>Subject Name</th>
-            <th>Average Grade</th>
-            <th>Attendance</th>
-            <th>Performance Status</th>
+            <th>Exam Title</th>
+            <th>Total Score</th>
+            <th>Total Exam</th>
+            <th>Status</th>
+            <th>Date</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="performance in performances" :key="performance.id">
-            <td>{{ performance.subjectName }}</td>
-            <td>{{ performance.averageGrade }}</td>
-            <td>{{ performance.attendance }}%</td>
-            <td>{{ performance.performanceStatus }}</td>
+            <td>{{ performance.exam_title }}</td>
+            <td>{{ performance.total_score }}</td>
+            <td>{{ performance.total_exam }}</td>
+            <td>{{ performance.status }}</td>
+            <td>{{ formatDate(performance.start) }}</td>
+       
           </tr>
         </tbody>
       </table>
@@ -83,6 +85,7 @@ export default {
       const token = localStorage.getItem('token');
 
       try {
+        // Fetching subject details
         const subjectResponse = await axios.get(`http://localhost:8000/api/classroom/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,26 +96,36 @@ export default {
           this.subject.subjectName = subjectResponse.data.subject_name;
           this.subject.classDescription = subjectResponse.data.class_description;
           this.subject.classGenCode = subjectResponse.data.class_gen_code;
-
-          // Fetch performance data
-          const performancesResponse = await axios.get(`http://localhost:8000/api/class/${classId}/performances`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (performancesResponse.data) {
-            this.performances = performancesResponse.data.performances;
-          } else {
-            this.error = 'No performance data found';
-          }
         } else {
           this.error = 'Class details not found';
+          return;
         }
+        
+        // Fetching performance data
+        const performancesResponse = await axios.get(`http://localhost:8000/api/getResultsallexam`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          
+          params: {
+            classtable_id: classId // Send classtable_id as a query parameter
+          }
+        });
+        console.log('Performances Response:', performancesResponse.data);
 
+        if (performancesResponse.data) {
+          this.performances = performancesResponse.data; // Assuming backend returns the results array
+        } else {
+          this.error = 'No performance data found';
+          
+        }
       } catch (error) {
         this.error = error.response ? error.response.data.error : 'Error fetching subject and performance details';
       }
+    },
+    formatDate(date) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return new Date(date).toLocaleDateString(undefined, options);
     }
   },
   created() {
@@ -125,78 +138,77 @@ export default {
 /* Main Container */
 .main-container {
   display: flex;
-  align-items: flex-start; /* Align items at the start for better structure */
+  align-items: flex-start;
   justify-content: space-between;
-  flex-wrap: wrap; /* Ensure responsiveness on smaller screens */
-  padding: 20px; /* Add padding to the main container */
-  gap: 20px; /* Add spacing between the subject info and navigation */
+  flex-wrap: wrap;
+  padding: 20px;
+  gap: 20px;
 }
 
 /* Subject Info Container */
 .subject-info-container {
   flex: 1;
-  min-width: 250px; /* Ensure a minimum width for smaller screens */
-  max-width: 350px; /* Limit the maximum width */
-  margin-right: 20px; /* Add more space to the right */
+  min-width: 250px;
+  max-width: 350px;
+  margin-right: 20px;
 }
 
 .subject-info {
   padding: 20px;
-  background-color: #f8f9fa; /* Lighter background color */
+  background-color: #f8f9fa;
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Increase shadow depth for better distinction */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
 }
 
 .subject-info:hover {
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); /* Hover effect for better interactivity */
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
 }
 
 .subject-info h2 {
   font-size: 1.75rem;
-  color: #212529; /* Slightly darker color for better readability */
+  color: #212529;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
 .subject-info p {
   font-size: 1.1rem;
-  color: #495057; /* Softer gray for better readability */
+  color: #495057;
 }
 
 /* Navigation Bar */
 .nav {
   flex: 2;
   display: flex;
-  flex-wrap: wrap; /* Ensure items wrap on smaller screens */
+  flex-wrap: wrap;
   background-color: #ffffff;
-  justify-content: center; /* Center nav items for balance */
+  justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Increase shadow depth */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   padding: 15px;
   border-radius: 10px;
-  gap: 10px; /* Add spacing between the nav items */
+  gap: 10px;
 }
 
 .nav-link {
   color: #343a40 !important;
   text-decoration: none;
   font-weight: 500;
-  padding: 10px 15px; /* Add padding for better spacing */
-  border-radius: 5px; /* Add rounded corners */
+  padding: 10px 15px;
+  border-radius: 5px;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .nav-link:hover {
   background-color: #007bff;
-  color: white !important; /* Change text color to white on hover */
+  color: white !important;
 }
 
 .router-link-active {
   color: #007bff !important;
-  border-bottom: none; /* Remove the border-bottom and rely on color change */
-  background-color: #e9f5ff; /* Subtle background change for active links */
-  padding: 10px 15px; /* Keep padding consistent */
+  background-color: #e9f5ff;
+  padding: 10px 15px;
   border-radius: 5px;
 }
 
@@ -227,17 +239,17 @@ export default {
 /* Responsive Design */
 @media (max-width: 768px) {
   .main-container {
-    flex-direction: column; /* Stack the containers vertically */
-    gap: 10px; /* Reduce the gap for smaller screens */
+    flex-direction: column;
+    gap: 10px;
   }
 
   .nav {
     flex-direction: row;
-    justify-content: space-between; /* Align the links across the container */
+    justify-content: space-between;
   }
 
   .nav-link {
-    padding: 8px 10px; /* Adjust padding for smaller screens */
+    padding: 8px 10px;
   }
 }
 </style>
