@@ -7,16 +7,20 @@
       <!-- Display classes fetched from the backend -->
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
         <div class="card" @click="$router.push(`/subject/${classItem.id}`)">
-          <img :src="require('@/assets/back1.jpg')" class="card-img" alt="Class Image">
+          <!-- Dynamically bind the image URL -->
+          <img 
+            :src="classItem.image ? classItem.image : require('@/assets/back1.jpg')" 
+            class="card-img" 
+            alt="Class Image"
+          >
           <div class="card-container">
-            <p class="card-subject-name" >
+            <p class="card-subject-name">
               <b>{{ classItem.subject.subjectname }}</b>
             </p>
-            <!-- <p class="card-text">{{ classItem.class_desc }}</p> -->
-            <hr> <!-- Add this to display a horizontal line -->
+            <hr>
             <p class="card-text"> {{ classItem.strand.addstrand }} {{ classItem.strand.grade_level }} {{ classItem.section.section }}</p>
             <p class="card-text"><strong>CODE:</strong> {{ classItem.gen_code }}</p>
-            <p class="card-text"> {{ classItem.semester }} <a>semester S.Y. {{ classItem.year.addyear }}</a></p>
+            <p class="card-text">{{ classItem.semester }} <a>semester S.Y. {{ classItem.year.addyear }}</a></p>
             <p class="card-text"><strong>Curriculum:</strong> {{ classItem.curriculum.Namecuriculum }}</p>
           </div>
         </div>
@@ -44,6 +48,7 @@
           </div>
           
           <div class="modal-body">
+            <!-- Form for adding a new class -->
             <div class="form-group">
               <label for="curriculum" class="form-label">Curriculum:</label>
               <select v-model="newClass.curiculum_id" id="curriculum" class="form-select" @change="onCurriculumChange" required>
@@ -69,8 +74,8 @@
               <select v-model="newClass.section_id" id="section" class="form-select" required>
                 <option value="">Select Section</option>
                 <option v-for="section in filteredSections" :key="section.id" :value="section.id">
-                      {{ section.label }}
-                    </option>
+                  {{ section.label }}
+                </option>
               </select>
             </div>
 
@@ -88,19 +93,18 @@
               <select v-model="newClass.subject_id" id="subjects" class="form-select" required>
                 <option value="">Select Subjects</option>
                 <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
-                      {{ subject.label }}
-                    </option>
+                  {{ subject.label }}
+                </option>
               </select>
-              
             </div>
 
             <div class="form-group">
               <label for="year">Year</label>
-              <select v-model="newClass.year_id" id="subjects" class="form-select" required>
-                <option value="">Select Subjects</option>
+              <select v-model="newClass.year_id" id="year" class="form-select" required>
+                <option value="">Select Year</option>
                 <option v-for="year in years" :key="year.id" :value="year.id">
-                      {{ year.label }}
-                    </option>
+                  {{ year.label }}
+                </option>
               </select>
             </div>
 
@@ -116,7 +120,7 @@
                 <div class="upload-message" v-if="!newClass.image">Drag and drop an image here, or click to select one</div>
                 <img v-if="newClass.image" :src="newClass.image" class="img-thumbnail" alt="Preview Image" />
               </div>
-            </div>
+            </div> 
 
             <div class="form-group">
               <label for="code">Generate Code</label>
@@ -137,35 +141,30 @@
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
-import { Modal } from 'bootstrap'; // Make sure you have Bootstrap JavaScript imported
+import { Modal } from 'bootstrap';
 
 export default {
   name: 'TeacherAddSubject',
   data() {
     return {
-      
       newClass: {
         curiculum_id: '',
         strand_id: '',
         section_id: '',
-        gradeLevel: '',
         subject_id: '',
         year_id: '',
         semester: '',
-        year: '',
         class_desc: '',
-        image: '',
+        image: '', // Image for preview and upload
         gen_code: '',
-        progress: 0
       },
-      classes:[],
+      classes: [],
       strands: [],
       sections: [],
       curriculums: [],
-      subjects:[],
+      subjects: [],
       years: [],
       filteredSections: []
     };
@@ -177,7 +176,6 @@ export default {
     this.fetchSubjects();
     this.fetchYear();
     this.fetchClasses();
-    
   },
   watch: {
     'newClass.strand_id': 'filterSections' // Watch for changes to strand_id
@@ -191,7 +189,7 @@ export default {
     onFileChange(event) {
       const file = event.target.files[0];
       if (file) {
-        this.newClass.image = URL.createObjectURL(file);
+        this.newClass.image = URL.createObjectURL(file); // Preview the selected image
       }
     },
     onFileDrop(event) {
@@ -212,106 +210,103 @@ export default {
       .then(response => {
         if (response.data && Array.isArray(response.data.data)) {
           this.curriculums = response.data.data;
-        } else {
-          console.error('Unexpected response format:', response.data);
         }
       })
       .catch(error => {
         console.error('Error fetching curriculums:', error);
       });
     },
-    async fetchStrands() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewstrand', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
+    fetchStrands() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewstrand', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
         if (response.data && Array.isArray(response.data.data)) {
           this.strands = response.data.data.map(strand => ({
             id: strand.id,
-            value: `${strand.addstrand} ${strand.grade_level}`,
             label: `${strand.addstrand} ${strand.grade_level}`
           }));
-        } else {
-          console.error('Unexpected response format:', response.data);
         }
-      } catch (error) {
+      })
+      .catch(error => {
         console.error('Error fetching strands:', error);
-      }
+      });
     },
-    async fetchSections() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewsection', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
+    fetchSections() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewsection', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
         if (response.data.sections && Array.isArray(response.data.sections)) {
           this.sections = response.data.sections.map(section => ({
             id: section.id,
             strand_id: section.strand.id,
-            value: section.section,
-            label: `${section.section}`
+            label: section.section
           }));
           this.filterSections();
-        } else {
-          console.error('Unexpected response format:', response.data);
         }
-      } catch (error) {
+      })
+      .catch(error => {
         console.error('Error fetching sections:', error);
-      }
+      });
     },
     filterSections() {
       this.filteredSections = this.sections.filter(
         section => section.strand_id === this.newClass.strand_id
       );
     },
-    async fetchSubjects() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewsubject', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
+    fetchSubjects() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewsubject', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
         if (response.data && Array.isArray(response.data.data)) {
           this.subjects = response.data.data.map(subject => ({
             id: subject.id,
-            value: `${subject.subjectname} `,
-            label: `${subject.subjectname} `
+            label: subject.subjectname
           }));
-        } else {
-          console.error('Unexpected response format:', response.data);
         }
-      } catch (error) {
-        console.error('Error fetching strands:', error);
-      }
+      })
+      .catch(error => {
+        console.error('Error fetching subjects:', error);
+      });
     },
-    async fetchYear() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewyear', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
+    fetchYear() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewyear', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
         if (response.data && Array.isArray(response.data.data)) {
           this.years = response.data.data.map(year => ({
             id: year.id,
-            value: `${year.addyear} `,
-            label: `${year.addyear} `
+            label: year.addyear
           }));
-        } else {
-          console.error('Unexpected response format:', response.data);
         }
-      } catch (error) {
-        console.error('Error fetching strands:', error);
-      }
+      })
+      .catch(error => {
+        console.error('Error fetching years:', error);
+      });
+    },
+    fetchClasses() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewAllClassDetails', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(response => {
+        if (response.data && response.data.classes) {
+          this.classes = response.data.classes.map(classItem => ({
+            ...classItem,
+            image: classItem.image ? classItem.image : null // Ensure image is handled
+          }));
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching classes:', error);
+      });
     },
     async addClass() {
       const token = localStorage.getItem('token'); 
@@ -324,7 +319,6 @@ export default {
       formData.append('semester', this.newClass.semester);
       formData.append('class_desc', this.newClass.class_desc);
       formData.append('gen_code', this.newClass.gen_code);
-      formData.append('progress', this.newClass.progress); ////.sppends the name of the field in the form data
       
       // Check if there's a file
       const file = this.$refs.fileInput.files[0];
@@ -335,15 +329,11 @@ export default {
       try {
         const response = await axios.post('http://localhost:8000/api/addclass', formData, {
           headers: {
-            // 'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`,
           },
         });
 
-        console.log('Response:', response.data);
-
         if (response.status === 201) {
-          console.log('Class created successfully:', response.data);
           this.fetchClasses(); // Refresh classes list
           this.clearForm();
           const modalElement = document.getElementById('addClassModal');
@@ -357,55 +347,22 @@ export default {
         alert('ERROR: Class is already created in this section with this subject.');
       }
     },
-
-  clearForm() {
-    this.newClass = {
-      curiculum_id: '',
-      strand_id: '',
-      section_id: '',
-      gradeLevel: '',
-      subject_id: '',
-      year_id: '',
-      semester: '',
-      year: '',
-      class_desc: '',
-      image: '',
-      gen_code: '',
-      progress: 0
-    };
-  },
-    fetchClasses() {
-      const token = localStorage.getItem('token');
-      axios.get('http://localhost:8000/api/viewAllClassDetails', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(response => {
-        if (response.data && response.data.classes) {
-          this.classes = response.data.classes.map(classItem => ({
-            id: classItem.id,
-            class_desc: classItem.class_desc,
-            strand: classItem.strand ||  {},
-            section: classItem.section || {},
-            subject: classItem.subject || {},
-            year: classItem.year || {},
-            gen_code: classItem.gen_code,
-            semester: classItem.semester,
-            curriculum: classItem.curriculum || {},
-          }));
-        } else {
-          console.error('Unexpected response format:', response.data);
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching classes:', error);
-      });
+    clearForm() {
+      this.newClass = {
+        curiculum_id: '',
+        strand_id: '',
+        section_id: '',
+        subject_id: '',
+        year_id: '',
+        semester: '',
+        class_desc: '',
+        image: '',
+        gen_code: ''
+      };
     },
-
   }
 };
 </script>
-
-
 
 <style scoped>
   .container-fluid {
@@ -452,18 +409,17 @@ export default {
   flex-direction: column;
   border: 2px solid #ebedf0;
   border-radius: 8px;
-  width: 100%; /* Card width set to fill container */
-  max-width: 350px; /* Maximum width of the card */
+  width: 100%;
+  max-width: 350px;
   height: 400px;
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  margin-bottom: 20px; /* Space between cards */
-  
+  margin-bottom: 20px;
 }
 
 .card-img {
   width: 100%;
-  height: 180px; /* Adjusted height for a wider card */
+  height: 180px;
   object-fit: cover;
 }
 
@@ -472,24 +428,19 @@ export default {
   background-color: #f8f9fa;
 }
 
-
 .card-subject-name {
   font-size: 18px;
   margin-bottom: 5px;
-  white-space: nowrap; /* Keep text in a single line */
-  overflow: hidden; /* Hide overflow */
-  text-overflow: ellipsis; /* Show ellipsis (...) if the text is too long */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.card-subject-name.long-text {
-  font-size: 1rem; /* Reduce font size if the text is too long */
-}
-
 
 .card-text {
-  margin: 5px 0; /* Add this to add a small margin between paragraphs */
+  margin: 5px 0;
   font-size: 15px;
 }
-.card-container{
+.card-container {
   padding: 20px;
 }
 </style>

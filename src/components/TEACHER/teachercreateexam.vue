@@ -26,9 +26,19 @@
   <div class="container-fluid">
     <h2 class="text-center">Examinations</h2>
 
+    <!-- Search Bar and Exam Schedule Button -->
+    <div class="d-flex justify-content-between mb-3">
+      <input
+        type="text"
+        v-model="searchTerm"
+        placeholder="Search Exam..."
+        class="form-control w-50"
+        @input="filterExams"
+      />
+      <button @click="showModalHandler" class="btn btn-primary">Exam Schedule</button>
+    </div>
+
     <div class="table-wrapper">
-      <button @click="navigateToAddExam" class="btn btn-primary mt-3 mr-0">Add Exam</button>
-      <button @click="showModalHandler" class="btn btn-primary mt-3 mr-0">Test Details</button>
       <table class="table table-hover table-custom">
         <thead class="table-info">
           <tr>
@@ -44,10 +54,11 @@
             <th style="width: 8%">No. of Response</th>
             <th style="width: 8%">Average Score</th>
             <th style="width: 14%">Actions</th>
+            <th style="width: 14%">Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(exam, index) in exams" :key="exam.id">
+          <tr v-for="(exam, index) in filteredExams" :key="exam.id">
             <td>{{ index + 1 }}</td>
             <td>{{ exam.title }}</td>
             <td>{{ exam.quarter }}</td>
@@ -60,8 +71,15 @@
             <td></td>
             <td></td>
             <td>
-              <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
-              <button @click="archiveExam(exam.id)" class="btn btn-danger btn-sm me-2">Archive</button>
+              <div class="d-flex justify-content-center">
+                <button @click="publishExam(exam.id)" class="btn btn-success btn-sm me-2" v-if="!exam.isPublished">Publish</button>
+                <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
+                <button @click="confirmArchive(exam.id)" class="btn btn-danger btn-sm">Archive</button>
+              </div>
+            </td>
+            <td>
+              <span v-if="exam.isPublished" class="badge bg-success">Published</span>
+              <span v-else class="badge bg-warning">Not Published</span>
             </td>
           </tr>
         </tbody>
@@ -140,13 +158,16 @@
 
 <script>
 import axios from 'axios';
-
 import moment from 'moment';
+import Swal from 'sweetalert2';
+
 export default {
   name: 'TeacherCreateExams',
   data() {
     return {
       exams: [],
+      filteredExams: [],
+      searchTerm: '',
       subject: {
         subjectName: '',
         semester: '',
@@ -158,6 +179,7 @@ export default {
       startTime: '',
       endDate: '',
       endTime: '',
+      points_exam: '',
       isModalVisible: false,
       classtable_id: '',
     };
@@ -176,7 +198,11 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        this.exams = response.data.exams;
+        this.exams = response.data.exams.map(exam => ({
+          ...exam,
+          isPublished: exam.isPublished || false, // Ensure isPublished is part of each exam
+        }));
+        this.filteredExams = this.exams;
       } catch (error) {
         console.error('Error fetching exams:', error);
       }
@@ -202,13 +228,74 @@ export default {
         console.error('Error fetching subject:', error);
       }
     },
+    async publishExam(examId) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.post(`http://localhost:8000/api/exams/publish2/${examId}`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        // Find the published exam and update its status in the exams array
+        const updatedExam = this.exams.find(exam => exam.id === examId);
+        if (updatedExam) {
+          updatedExam.isPublished = true;
+        }
+        
+        Swal.fire('Success', 'Exam published successfully!', 'success');
+      } catch (error) {
+        Swal.fire('Error', 'Failed to publish the exam. Please try again.', 'error');
+        console.error('Failed to publish exam:', error.message);
+      }
+    },
+    filterExams() {
+      this.filteredExams = this.exams.filter((exam) =>
+        exam.title.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    },
     navigateToAddExam(examId) {
       this.$router.push(`/AddExam/${examId}`);
     },
     showModalHandler() {
       this.isModalVisible = true;
     },
+    async archiveExam(examId) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.patch(`http://localhost:8000/api/exam/${examId}/archive`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.exams = this.exams.filter((exam) => exam.id !== examId);
+        this.filteredExams = this.filteredExams.filter((exam) => exam.id !== examId);
+        Swal.fire('Archived!', 'The exam has been archived.', 'success');
+      } catch (error) {
+        Swal.fire('Error!', 'Failed to archive the exam. Please try again.', 'error');
+        console.error('Failed to archive exam:', error.message);
+      }
+    },
+    confirmArchive(examId) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, archive it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.archiveExam(examId);
+        }
+      });
+    },
     saveChanges() {
+      if (!this.examTitle || !this.startDate || !this.startTime || !this.endDate || !this.endTime || !this.points_exam) {
+        Swal.fire('Error!', 'Please fill in all the required fields.', 'error');
+        return;
+      }
       const startDateTime = moment(`${this.startDate} ${this.startTime}`).format('YYYY-MM-DD HH:mm:ss');
       const endDateTime = moment(`${this.endDate} ${this.endTime}`).format('YYYY-MM-DD HH:mm:ss');
 
@@ -244,42 +331,25 @@ export default {
     formatTime(dateTime) {
       return moment(dateTime).format('hh:mm A');
     },
-    async archiveExam(examId) {
-      try {
-        await axios.patch(`http://localhost:8000/api/exam/${examId}/archive`, {}, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        this.exams = this.exams.filter((exam) => exam.id !== examId);
-        alert('Exam archived successfully.');
-      } catch (error) {
-        console.error('Failed to archive exam:', error.message);
-        alert('Failed to archive exam. Please try again later.');
-      }
-    },
   },
 };
 </script>
 
-
 <style scoped>
 .main-container {
   display: flex;
-  align-items: stretch; /* Ensure both containers stretch to the same height */
-  justify-content: space-between; /* Space out the subject info and nav bar */
-
+  align-items: stretch;
+  justify-content: space-between;
 }
 
 /* Subject Info Container */
 .subject-info-container {
-  flex: 1; /* Flex value of 1 to take equal height as the nav */
+  flex: 1;
   max-width: 300px;
   margin-right: 10px;
   display: flex;
-  align-items: center; /* Center the content vertically */
+  align-items: center;
 }
-
 
 /* Subject Info Styling */
 .subject-info {
@@ -311,11 +381,11 @@ export default {
 
 /* Navigation Bar */
 .nav {
-  flex: 2; /* Flex value of 2 to balance the nav width */
+  flex: 2;
   display: flex;
   justify-content: space-around;
   background-color: #ffffff;
-  align-items: center; /* Ensure nav items are centered vertically */
+  align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 10px;
@@ -335,13 +405,13 @@ export default {
   color: #007bff !important;
   border-bottom: 2px solid #007bff;
 }
+
 /* Table Wrapper */
 .table-wrapper {
   margin: 0 auto;
   padding: 0 15px;
   max-width: 100%;
   overflow-x: auto;
-  
 }
 
 /* Table Styles */
@@ -361,6 +431,7 @@ export default {
 .table th, .table td {
   text-align: center;
   vertical-align: middle;
+  border-bottom: 1px solid #dee2e6;
 }
 
 .table-custom tbody tr:hover {
@@ -369,6 +440,16 @@ export default {
 
 .table-custom tbody tr {
   transition: background-color 0.3s ease;
+}
+
+.d-flex .btn {
+  min-width: 80px;
+  transition: background-color 0.3s ease;
+}
+
+.d-flex .btn:hover {
+  background-color: #007bff;
+  color: white;
 }
 
 </style>

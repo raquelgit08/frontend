@@ -41,7 +41,7 @@
           <span v-else>Submit Exam</span>
         </button>
         <button type="button" @click="clearForm" class="btn btn-secondary">Clear form</button>
-      </div>
+      </div> 
     </form>
 
     <!-- Results Display -->
