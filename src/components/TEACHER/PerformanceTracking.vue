@@ -23,10 +23,50 @@
     </nav>
   </div>
 
-  <!-- Page Content -->
   <div class="performance-page">
     <div class="container-fluid">
       <h5>Performance Tracking</h5>
+
+      <!-- Alert for Errors -->
+      <div v-if="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+
+      <!-- Results Table -->
+      <div v-if="Object.keys(results).length">
+        <div v-for="(examData, examTitle) in results" :key="examTitle">
+          <h6>{{ examTitle }}</h6>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>LRN</th>
+                <th>Student Name</th>
+                <th>Total Score</th>
+                <th>Total Exam</th>
+                <th>Exam Start</th>
+                <th>Exam End</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="result in examData.exam_results" :key="result.student_id">
+                <td>{{ result.student_id }}</td>
+                <td>{{ result.student_name }}</td>
+                <td>{{ result.total_score }}</td>
+                <td>{{ result.total_exam }}</td>
+                <td>{{ new Date(result.exam_start).toLocaleString() }}</td>
+                <td>{{ new Date(result.exam_end).toLocaleString() }}</td>
+                <td>{{ result.status }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Finished Students: {{ examData.finished_students }}</p>
+          <p>Unfinished Students: {{ examData.unfinished_students }}</p>
+        </div>
+      </div>
+      <div v-else>
+        <p>No results available.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -44,11 +84,13 @@ export default {
         semester: '',
         schoolYear: ''
       },
+      results: {},
       error: ''
     };
   },
   created() {
     this.fetchSubject(); // Fetch subject details when the component is created
+    this.fetchStudentResults();
   },
   methods: {
     async fetchSubject() {
@@ -88,6 +130,36 @@ export default {
           }
         } else {
           this.error = 'Failed to fetch subject data. Please try again later.';
+        }
+      }
+    },
+    async fetchStudentResults() {
+      try {
+        const classId = this.$route.params.class_id;
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+          this.error = 'Authorization token is missing. Please log in again.';
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:8000/api/getAllStudentResults?classtable_id=${classId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.data.results) {
+          this.results = response.data.results;
+        } else {
+          this.error = 'No results found for this class.';
+        }
+      } catch (error) {
+        console.error('Error fetching student results:', error);
+        if (error.response) {
+          this.error = error.response.data.error || 'Failed to fetch student results. Please try again later.';
+        } else {
+          this.error = 'Failed to fetch student results. Please try again later.';
         }
       }
     },
@@ -176,10 +248,18 @@ export default {
   margin-bottom: 40px;
 }
 
-/* Alert Styling */
+/* Table Styling */
+.table {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.table th, .table td {
+  text-align: center;
+}
+
 .alert {
-  border-radius: 15px;
-  max-width: 600px;
-  margin: 0 auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 </style>

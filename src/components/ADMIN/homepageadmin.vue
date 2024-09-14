@@ -1,43 +1,57 @@
 <template>
-  
-  <div class="sidebar" :class="{ open: isOpen }">
-    <div class="logo_details">
-      <img :src="profileImage || require('@/assets/logowise.png')" class="icon" style="width: 70px; height: 70px; border-radius: 50%; margin: 10px;" alt="Profile Image">
-      <div class="logo_name">WISE-SHS</div>
-      <i class="bi" :class="isOpen ? 'bi-text-indent-right fs-1' : 'bi bi-list fs-1'" @click="toggleSidebar" id="btn"></i>
-    </div>
-    <ul class="nav-list">
-      <li v-for="(section, sectionIndex) in menuItems" :key="sectionIndex">
-        <div v-if="section.section !== 'Dashboard'">{{ section.section }}</div>
-        <ul>
-          <li v-for="(item, itemIndex) in section.items" :key="itemIndex">
-            <a :href="item.path" @click.prevent="handleItemClick(item.path)">
-              <i :class="item.icon"></i>
-              <span class="link_name">{{ item.name }}</span>
-            </a>
-            <span class="tooltip">{{ item.name }}</span>
-          </li>
-          
-        </ul>
-      </li>
+  <div>
+    <!-- Sidebar Component -->
+    <div class="sidebar" :class="{ open: isOpen }">
+      <div class="logo_details">
+        <img :src="profileImage || require('@/assets/logowise.png')" class="icon" style="width: 70px; height: 70px; border-radius: 50%; margin: 10px;" alt="Profile Image">
+        <div class="logo_name">WISE-SHS</div>
+        <i class="bi" :class="isOpen ? 'bi-text-indent-right fs-1' : 'bi bi-list fs-1'" @click="toggleSidebar" id="btn"></i>
+      </div>
+      <ul class="nav-list">
+        <li v-for="(section, sectionIndex) in menuItems" :key="sectionIndex">
+          <div v-if="section.section !== 'Dashboard'">{{ section.section }}</div>
+          <ul>
+            <li v-for="(item, itemIndex) in section.items" :key="itemIndex">
+              <a :href="item.path" @click.prevent="handleItemClick(item.path)">
+                <i :class="item.icon"></i>
+                <span class="link_name">{{ item.name }}</span>
+              </a>
+              <span class="tooltip">{{ item.name }}</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button>
       
-    </ul>
-    <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button>
-    <div class="profile2" style="display: flex; align-items: center;">
+    </div>
+    
+    <!-- Navbar Component -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="d-flex align-items-center">
+        <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
+          <h2>Admin Portal</h2>
+        </div>
+      </div>
+      <div class="d-flex align-items-center ms-auto" style="margin-right: 20px;">
+        
+        
         <img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%;" alt="Profile Image">
-        <div class="profile_content" style="flex: 1; text-align: center;">
-          <div class="name" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div>
-          <div class="designation" v-if="userProfile && Object.keys(userProfile).length">ADMIN</div>
+        <div class="profile_content2" style="flex: 1; text-align: center;">
+          <div class="names" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div>
+          <div class="designations" v-if="userProfile && Object.keys(userProfile).length">ADMIN</div>
           <p v-else>Loading profile...</p>
         </div>
         <i class="bi bi-box-arrow-left fs-2" id="log_out" @click="handleLogout"></i>
       </div>
+    </nav>
+
+    <!-- Content Area -->
+    <div class="content">
+      <router-view></router-view>
     </div>
-  <div class="content">
-    
-    <router-view></router-view>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 
@@ -162,13 +176,6 @@ body {
 .logOut{
   margin: 20px;
 }
-.content {
-  margin-left: 80px;
-  padding: 10px;
-  width: 95%;
-  transition: margin-left 0.3s ease, width 0.3s ease;
-}
-
 .sidebar {
   min-height: 100vh;
   width: 85px;
@@ -183,9 +190,69 @@ body {
   top: 0;
   left: 0;
 }
+/* Sidebar and Content */
+
+
+.sidebar.open {
+  width: 320px; /* Width when open */
+}
+.profile_content2{
+  font-size: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.content {
+  margin-top: 20px;
+  margin-left: 85px; /* Margin when sidebar is closed */
+  padding: 10px;
+  width: calc(100% - 85px); /* Adjust width based on sidebar state */
+  transition: margin-left 0.3s ease, width 0.3s ease; /* Adjust transition duration as needed */
+}
+
+.sidebar.open ~ .content {
+  margin-left: 320px; /* Margin when sidebar is open */
+  width: calc(100% - 320px); /* Adjust width based on sidebar state */
+}
+
+/* Navbar Adjustments */
+.navbar {
+  transition: margin-left 0.3s ease, width 0.3s ease; /* Ensure navbar transitions smoothly */
+}
+
+.sidebar.open ~ .navbar {
+  margin-left: 320px; /* Adjust margin based on sidebar state */
+  width: calc(100% - 320px); /* Adjust width based on sidebar state */
+}
+
+
 .sidebar::-webkit-scrollbar {
   display: none; /* For Chrome, Safari, and Opera */
 }
+.sidebar.open {
+  width: 320px; /* Width when open */
+}
+
+
+.sidebar.open ~ .content {
+  margin-left: 320px; /* Margin when sidebar is open */
+  width: calc(100% - 320px); /* Adjust width based on sidebar state */
+}
+
+/* Navbar Adjustments */
+.navbar {
+  transition: margin-left 0.3s ease, width 0.3s ease; /* Ensure navbar transitions smoothly */
+}
+
+.sidebar.open ~ .navbar {
+  margin-left: 320px; /* Adjust margin based on sidebar state */
+  width: calc(100% - 320px); /* Adjust width based on sidebar state */
+}
+.navbar {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
 .sidebar .section-title {
   font-size: 16px;
   font-weight: 600;
@@ -287,20 +354,6 @@ body {
   display: none;
 }
 
-.sidebar input {
-  font-size: 15px;
-  color: var(--color-white);
-  font-weight: 400;
-  outline: none;
-  height: 35px;
-  width: 35px;
-  border: none;
-  border-radius: 5px;
-  background-color: bisque;
-  transition: all 0.5s ease;
-}
-
-
 
 
 .sidebar li a {
@@ -348,7 +401,7 @@ body {
 .sidebar li a:hover .link_name,
 .sidebar li a:hover i {
   transition: all 0.5s ease;
-  color: #0071c5;
+  color: #000000;
 }
 
 .sidebar.open li a .link_name {

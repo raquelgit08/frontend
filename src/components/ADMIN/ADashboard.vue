@@ -42,59 +42,33 @@
 
     <!-- Table and Chart Sections -->
     <div class="row">
-      <div class="col-12 col-md-4 mb-3">
+      <div class="col-2">
         <div class="chart-container">
           <h6 class="mb-2">TEACHERS GENDER DISTRIBUTION</h6>
           <canvas id="teacher-gender-chart" width="400" height="200"></canvas>
         </div>
-      </div>
-      <div class="col-12 col-md-4 mb-3">
+        </div>
+        <div class="col-2">
         <div class="chart-container">
           <h6 class="mb-2">STUDENTS GENDER DISTRIBUTION</h6>
           <canvas id="student-gender-chart" width="400" height="200"></canvas>
         </div>
       </div>
       <div class="col-12 col-md-4 mb-3">
-        <div class="chart-table">
-          <div class="table-wrapper">
-            <table class="table table-hover table-custom">
-              <thead>
-                <tr>
-                  <th>Strand</th>
-                  <th><i class="fa fa-mars mr-2 tcon"></i></th>
-                  <th><i class="fa fa-venus mr-2 tcon"></i></th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(strand, index) in studentsGrouped" :key="index">
-                  <td class="text-center">{{ strand.strand_name }} {{ strand.grade_level }}</td>
-                  <td class="text-center">{{ strand.male_count }}</td>
-                  <td class="text-center">{{ strand.female_count }}</td>
-                  <td class="text-center">{{ strand.total_count }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="chart-container">
+          <h6 class="mb-2">STUDENTS BY STRAND AND GRADE LEVEL</h6>
+          <canvas id="students-strand-chart" width="400" height="200"></canvas>
+        </div>
+      </div>
+      <div class="col-12 col-md-4 mb-3">
+        <div class="chart-container">
+          <h6 class="mb-2">STUDENTS STRAND Analysis</h6>
+          <canvas id="strand-chart" width="400" height="200"></canvas>
         </div>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-12 col-md-4 mb-3">
-        <div class="chart-container2">
-          <canvas id="strand-chart" width="400" height="200"></canvas>
-          <div class="chart-summary">
-            <h6>Summary:</h6>
-            <ul>
-              <li v-for="(strand, index) in strandChartData" :key="index">
-                {{ strand.label }}: {{ strand.value }} students
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+    
   </div>
 </template>
 
@@ -120,6 +94,7 @@ export default {
       strandChartData: [],
       chartInstanceTeacher: null,
       chartInstanceStudent: null,
+      chartInstanceStrand: null,
     };
   },
   mounted() {
@@ -142,7 +117,6 @@ export default {
           };
         });
 
-        
         // Set the counts data from the response
         this.counts = response.data.data.counts;
         
@@ -175,9 +149,8 @@ export default {
         // Render charts after data is fetched
         this.renderTeacherGenderChart();
         this.renderStudentGenderChart();
-
-        // Render strand chart
         this.renderStrandChart();
+        this.renderStudentsStrandChart();
       })
       .catch(error => {
         alert('Error fetching data: ' + error.message);
@@ -217,17 +190,11 @@ export default {
             labels: {
               font: {
                 family: 'Arial', // Font family for legend labels
-                size: 20,       // Font size for legend labels
-                weight: 'bold'  // Font weight for legend labels
+                size: 14,
               }
             }
           },
           tooltip: {
-            // callbacks: {
-            //   label: function(context) {
-            //     return `${context.label}: ${context.raw}`;
-            //   }
-            // },
             titleFont: {
               family: 'Arial', // Font family for tooltip title
               size: 17,       // Font size for tooltip title
@@ -235,7 +202,7 @@ export default {
             },
             bodyFont: {
               family: 'Arial', // Font family for tooltip body
-              size: 12        // Font size for tooltip body
+              size: 14,
             }
           }
         }
@@ -269,109 +236,176 @@ export default {
           }]
         },
         options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              font: {
-                family: 'Arial', // Font family for legend labels
-                size: 20,       // Font size for legend labels
-                weight: 'bold'  // Font weight for legend labels
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: {
+                  family: 'Arial',
+                  size: 14,
+                }
               }
-            }
-          },
-          tooltip: {
-            // callbacks: {
-            //   label: function(context) {
-            //     return `${context.label}: ${context.raw}`;
-            //   }
-            // },
-            titleFont: {
-              family: 'Arial', // Font family for tooltip title
-              size: 17,       // Font size for tooltip title
-              weight: 'bold'  // Font weight for tooltip title
             },
-            bodyFont: {
-              family: 'Arial', // Font family for tooltip body
-              size: 12        // Font size for tooltip body
+            tooltip: {
+              titleFont: {
+                family: 'Arial',
+                size: 17,
+                weight: 'bold',
+              },
+              bodyFont: {
+                family: 'Arial',
+                size: 14,
+              }
             }
           }
         }
-      }
-
-
-     });
+      });
     },
+
     renderStrandChart() {
-        console.log('Rendering strand chart');
-        const ctx = document.getElementById('strand-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: this.strandChartData.map(data => data.label),
-                datasets: [{
-                    label: 'Number of Students per Strand',
-                    data: this.strandChartData.map(data => data.value),
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+      if (this.chartInstanceStrand) {
+        this.chartInstanceStrand.destroy();
+      }
+      const ctx = document.getElementById('strand-chart').getContext('2d');
+      this.chartInstanceStrand = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: this.strandChartData.map(strand => strand.label),
+          datasets: [{
+            label: 'Number of Students',
+            data: this.strandChartData.map(strand => strand.value),
+            backgroundColor: '#3ABEF9',
+            borderColor: '#1A2130',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                font: {
+                  family: 'Arial',
+                  size: 14,
                 }
+              }
+            },
+            tooltip: {
+              titleFont: {
+                family: 'Arial',
+                size: 17,
+                weight: 'bold',
+              },
+              bodyFont: {
+                family: 'Arial',
+                size: 14,
+              }
             }
-        });
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: {
+                display: false
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                display: true
+              }
+            }
+          }
+        }
+      });
+    },
+
+    renderStudentsStrandChart() {
+      if (this.chartInstanceStudentsStrand) {
+        this.chartInstanceStudentsStrand.destroy();
+      }
+      const ctx = document.getElementById('students-strand-chart').getContext('2d');
+      this.chartInstanceStudentsStrand = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: this.studentsGrouped.map(data => `${data.strand_name} ${data.grade_level}`),
+          datasets: [
+            {
+              label: 'Male Students',
+              data: this.studentsGrouped.map(data => data.male_count),
+              backgroundColor: '#4942E4',
+              borderColor: '#1A2130',
+              borderWidth: 1
+            },
+            {
+              label: 'Female Students',
+              data: this.studentsGrouped.map(data => data.female_count),
+              backgroundColor: '#E6B9DE',
+              borderColor: '#1A2130',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                font: {
+                  family: 'Arial',
+                  size: 14,
+                }
+              }
+            },
+            tooltip: {
+              titleFont: {
+                family: 'Arial',
+                size: 17,
+                weight: 'bold',
+              },
+              bodyFont: {
+                family: 'Arial',
+                size: 14,
+              }
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: {
+                display: false
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                display: true
+              }
+            }
+          }
+        }
+      });
     }
-    
   }
-}
+};
 </script>
+
 
 <style scoped>
 .chart-container {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  width: 100%;  /* Instead of fixed 420px */
+  height: auto;  /* Let height adjust based on content */
+  max-width: 500px; /* Ensure it doesn't grow too large */
   padding: 10px;
-  padding-top: 5px;
   margin: 10px;
-  width: 420px;
-  height: 500px;
-  border: 1px solid #dee2e6;
-  border-radius: 15PX;
+  border-radius: 15px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
-.chart-container2 {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  padding: 10px;
-  padding-top: 5px;
-  width: 920px;
-  height: 300px;
-  border: 1px solid #dee2e6;
-  border-radius: 15PX;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
+
+
 .chart-table {
  margin-top: 10px;
  

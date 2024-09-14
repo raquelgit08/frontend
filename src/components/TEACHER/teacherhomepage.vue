@@ -39,11 +39,11 @@
         </div>
       </div>
     </nav>
-    <div class="d-flex">
+    <!-- <div class="d-flex">
       <div :class="['sidebar', isSidebarCollapsed ? 'collapsed' : '']">
         <img :src="require('@/assets/i12.png')" class="img-fluid logo" alt="Your Image">
 
-        <!-- Dashboard Section -->
+        Dashboard Section -->
         <!-- <h5 class="sidebar-section-label">Dashboard</h5>
         <router-link v-for="(item, index) in items.filter(i => i.section === 'dashboard')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }"  @click="handleItemClick(item.path)">
           <span class="icon-label">
@@ -53,14 +53,14 @@
         </router-link> -->
 
         <!-- Manage Section -->
-        <h5 class="sidebar-section-label">Instructional Authority</h5>
+        <!-- <h5 class="sidebar-section-label">Instructional Authority</h5>
         <router-link
           v-for="(item, index) in items.filter(i => i.section === 'manage')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)">
           <span class="icon-label">
             <i :class="item.icon"></i>
             <span class="label">{{ item.label }}</span>
           </span>
-        </router-link>
+        </router-link> -->
         <!-- Report Section -->
         <!-- <h5 class="sidebar-section-label">Report</h5>
         <router-link v-for="(item, index) in items.filter(i => i.section === 'report')" :key="index" :to="item.path" class="list-group" :class="{ active: selectedItem === item.path }" @click="handleItemClick(item.path)" >
@@ -70,14 +70,14 @@
           </span>
         </router-link> -->
 
-        <!-- Chevron Icon to Collapse/Expand Sidebar -->
-        <i @click="toggleSidebar" class="bi" :class="isSidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
-      </div>
-      <div :class="['content', isSidebarCollapsed ? 'collapsed' : '']">
+            <!-- Chevron Icon to Collapse/Expand Sidebar -->
+        <!-- <i @click="toggleSidebar" class="bi" :class="isSidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+      </div> --> 
+      <div :class="['container-fluid', isSidebarCollapsed ? 'collapsed' : '']">
         <router-view></router-view>
       </div>
     </div>
-  </div>
+  <!-- </div> -->
 </template>
 
 <script>
@@ -361,65 +361,5 @@ h2 {
   cursor: pointer;
 }
 
-.sidebar {
-  width: 270px;
-  background-color: #0e68bc;
-  height: 100vh;
-  padding: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  transition: width 0.3s ease;
-  overflow-y: auto;
-  overflow-x: hidden;
-  color: #fff;
-}
 
-.sidebar.collapsed {
-  width: 80px;
-}
-
-.sidebar .logo {
-  width: 100%;
-  transition: opacity 0.3s ease;
-}
-
-.sidebar .list-group {
-  margin-top: 10px; /* Reduce space between items */
-}
-
-.sidebar .list-group .icon-label {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  transition: opacity 0.3s ease;
-}
-
-.sidebar.collapsed .icon-label .label {
-  display: none;
-}
-
-.sidebar.collapsed .icon-label i {
-  font-size: 1.5rem;
-}
-
-.bi-chevron-left, .bi-chevron-right {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: wheat;
-  transition: color 0.3s;
-}
-
-.bi-chevron-left:hover, .bi-chevron-right:hover {
-  color: #0056b3;
-}
-
-.content.collapsed {
-  margin-left: 80px;
-  width: calc(100% - 80px);
-}
 </style>
