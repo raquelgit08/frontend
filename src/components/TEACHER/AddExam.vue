@@ -79,13 +79,7 @@
               <input type="text" v-model="question.choices[idx]" class="form-control" placeholder="Choice" />
             </div>
             <button @click="addChoice(question)" class="btn btn-secondary btn-sm">Add Choice</button>
-            <div class="mb-3">
-            <label class="form-label">Correct Answer</label>
-            <input type="text" v-model="question.correctAnswer" class="form-control" required />
           </div>
-
-          </div>
-
 
           <div v-if="globalQuestionType === 'true-false'" class="mb-3">
             <label class="form-label">True/False Answer</label>

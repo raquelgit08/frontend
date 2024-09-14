@@ -5,74 +5,74 @@
     <!-- Exam Form -->
     <form v-if="!examSubmitted" @submit.prevent="submitExam" class="exam-form">
       <div v-if="exam.questions && exam.questions.length">
-        <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="question-container">
-          <h5 class="question-header">Question {{ index + 1 + (currentPage - 1) * questionsPerPage }}:</h5>
-          <p class="question-text">{{ question.question }}</p>
-          <div class="choice-container">
-            <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
-              <input type="radio" :name="'question_' + question.id" :value="choice.id" @input="updateSelectedAnswer(question.id, choice.choices)" />
-              {{ choice.choices }}
-            </label>
-          </div>
-          <textarea v-if="question.requires_text_input" @input="updateStudentTextAnswer(question.id, $event.target.value)" class="text-answer" 
-            placeholder="Your answer">
-          </textarea>
-        </div>
-      </div>
-      <div v-else>
-        <p class="no-questions">No questions available for this exam.</p>
-      </div>
+        <div v-for="(question, index) in paginatedQuestions" :key="index" class="question-container">
+  <h4 class="question-header">{{ index + 1 }}. {{ question.question }}</h4>
+  <div v-if="question.choices && question.choices.length > 0" class="choice-container">
+    <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
+      <input
+        type="radio"
+        :name="'question_' + question.id"
+        :value="choice.choices.id"
+        v-model="selectedAnswers[question.id]"
+      />
+      {{ choice.choices }}
+    </label>
+  </div>
+  <div v-else>No choices available for this question</div>
+</div>
+</div>
+
 
       <!-- Pagination Controls -->
       <div class="pagination-controls">
-        <button  type="button"  class="btn btn-secondary"  @click="prevPage"  :disabled="currentPage === 1"> Previous</button>
+        <button type="button" class="btn btn-secondary" @click="prevPage" :disabled="currentPage === 1">Previous</button>
         <span class="pagination-status">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button  type="button" class="btn btn-secondary"  @click="nextPage"  :disabled="currentPage === totalPages"> Next</button>
+        <button type="button" class="btn btn-secondary" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
       </div>
 
-      <!-- Display validation errors -->
+      <!-- Validation Errors -->
       <div v-if="validationError" class="alert alert-danger">
         {{ validationError }}
       </div>
 
+      <!-- Form Buttons -->
       <div class="button-group">
         <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
           <span v-if="isSubmitting">Submitting...</span>
           <span v-else>Submit Exam</span>
         </button>
         <button type="button" @click="clearForm" class="btn btn-secondary">Clear form</button>
-      </div> 
+      </div>
     </form>
 
+    <!-- Display Results After Submission -->
     <div v-if="examSubmitted" class="results-container">
       <div class="row">
         <div class="col-8">
           <h3 class="results-title">Your Results</h3>
-            <ul class="results-list">
-              <li v-for="(result, index) in results" :key="result.question_number" class="result-item">
-                <p><strong>{{ index + 1 }}. Question {{ result.question }}:</strong></p>
-                <p>Your Answer: 
-                  <span :class="{'correct-answer': result.student_answer === result.correct_answer, 'incorrect-answer': result.student_answer !== result.correct_answer}" class="user-answer">
-                    {{ result.student_answer }}
-                  </span>
-                </p>
-                <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p>
-                <p>Points: <span class="points">{{ result.points_awarded }}</span></p>
-              </li>
-            </ul>
-            <p class="total-score"><strong>Total Score: {{ totalScore }}</strong></p>
+          <ul class="results-list">
+            <li v-for="(result, index) in results" :key="result.question_number" class="result-item">
+              <p><strong>{{ index + 1 }}. Question {{ result.question }}:</strong></p>
+              <p>Your Answer: 
+                <span :class="{'correct-answer': result.student_answer === result.correct_answer, 'incorrect-answer': result.student_answer !== result.correct_answer}" class="user-answer">
+                  {{ result.student_answer }}
+                </span>
+              </p>
+              <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p>
+              <p>Points: <span class="points">{{ result.points_awarded }}</span></p>
+            </li>
+          </ul>
+          <p class="total-score"><strong>Total Score: {{ totalScore }}</strong></p>
         </div>
         <div class="col-4">
           <h3 class="feedback-title">Your Feedback</h3>
-          <textarea  v-model="comment"   class="form-control" rows="10"  placeholder="Please provide your feedback about the exam..."> </textarea>
+          <textarea v-model="comment" class="form-control" rows="10" placeholder="Please provide your feedback about the exam..."></textarea>
           <button @click="submitFeedback(exam.id)" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
         </div>
-
       </div>
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -82,37 +82,34 @@ export default {
   name: 'ExamTakingPages',
   data() {
     return {
-      exam: {}, 
-      selectedAnswers: {}, 
-      studentTextAnswers: {}, 
-      isSubmitting: false, 
-      validationError: '', 
+      exam: {},
+      selectedAnswers: {},
+      studentTextAnswers: {},
+      isSubmitting: false,
+      validationError: '',
       comment: '',
-      examSubmitted: false, 
-      results: [], 
-      totalScore: 0, 
-      currentPage: 1, 
-      questionsPerPage: 5, 
+      examSubmitted: false,
+      results: [],
+      totalScore: 0,
+      currentPage: 1,
+      questionsPerPage: 5,
     };
   },
   computed: {
-  paginatedQuestions() {
-    const start = (this.currentPage - 1) * this.questionsPerPage;
-    const end = start + this.questionsPerPage;
-    return this.exam.questions ? this.exam.questions.slice(start, end) : [];
+    paginatedQuestions() {
+      const start = (this.currentPage - 1) * this.questionsPerPage;
+      const end = start + this.questionsPerPage;
+      return this.exam.questions ? this.exam.questions.slice(start, end) : [];
+    },
+    totalPages() {
+      return this.exam.questions ? Math.ceil(this.exam.questions.length / this.questionsPerPage) : 1;
+    },
   },
-  totalPages() {
-    // Add a null/undefined check to avoid errors
-    return this.exam.questions ? Math.ceil(this.exam.questions.length / this.questionsPerPage) : 1;
-  },
-},
   created() {
     this.fetchExam();
   },
   methods: {
-
     clearForm() {
-      // Reset the form selections and answers
       this.selectedAnswers = {};
       this.studentTextAnswers = {};
       this.validationError = '';
@@ -120,7 +117,6 @@ export default {
     updateSelectedAnswer(questionId, answerText) {
       this.selectedAnswers[questionId] = answerText;
     },
-
     updateStudentTextAnswer(questionId, answerText) {
       this.studentTextAnswers[questionId] = answerText;
     },
@@ -128,52 +124,35 @@ export default {
       const examId = this.$route.params.exam_id;
       try {
         const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${examId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        console.log('Fetched exam data:', this.exam);
+
+        // Log to ensure questions and choices are fetched correctly
+        console.log(response.data.exam);
+
         this.exam = response.data.exam;
+        this.exam.questions = response.data.exam.instructions.questions;
       } catch (error) {
         Swal.fire({
           title: 'Error!',
           text: 'Failed to retrieve exam details. Please try again later.',
           icon: 'error',
-          confirmButtonText: 'OK'
+          confirmButtonText: 'OK',
         });
         this.$router.push('/myExams');
       }
     },
-
-    // validateAnswers() {
-    //   if (Object.keys(this.selectedAnswers).length !== this.exam.questions.length) {
-    //     this.validationError = 'Please answer all questions before submitting.';
-    //     return false;
-    //   }
-
-    //   for (const question of this.exam.questions) {
-    //     if (!this.selectedAnswers[question.id] && !this.studentTextAnswers[question.id]) {
-    //       this.validationError = `Please provide an answer for question ${question.id}`;
-    //       return false;
-    //     }
-    //   }
-
-    //   this.validationError = '';
-    //   return true;
-    // },
     validateAnswers() {
       if (Object.keys(this.selectedAnswers).length !== this.exam.questions.length) {
         this.validationError = 'Please answer all questions before submitting.';
         return false;
       }
-
       for (const question of this.exam.questions) {
         if (!this.selectedAnswers[question.id] && !this.studentTextAnswers[question.id]) {
           this.validationError = `Please provide an answer for question ${question.id}`;
           return false;
         }
       }
-
       this.validationError = '';
       return true;
     },
@@ -181,84 +160,64 @@ export default {
       if (!this.validateAnswers()) return;
 
       this.isSubmitting = true;
-
-      // const examId = this.$route.params.exam_id;
-      // const formattedAnswers = this.exam.questions.map((question) => {
-      //   const selectedChoice = this.selectedAnswers[question.id]; 
-      //   const textAnswer = this.studentTextAnswers[question.id] || null; 
-
       const formattedAnswers = this.exam.questions.map((question) => {
-      const selectedChoice = this.selectedAnswers[question.id]; 
-      const textAnswer = this.studentTextAnswers[question.id] || null; 
-      let addchoices_id = null;
-      let Student_answer = null;
-      if (selectedChoice) {
-        const choice = question.choices.find(choice => choice.choices === selectedChoice);
-        addchoices_id = choice.id;
-        Student_answer = choice.choices;
-      } else {
-        Student_answer = textAnswer;
-      }
-      return {
-        question_id: question.id,
-        addchoices_id,
-        Student_answer,
-      };
-    });
-
-    console.log('Formatted answers:', formattedAnswers);
-
-    try {
-      const examId = this.$route.params.exam_id;
-      await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
-        { answers: formattedAnswers },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          }
+        const selectedChoice = this.selectedAnswers[question.id];
+        const textAnswer = this.studentTextAnswers[question.id] || null;
+        let addchoices_id = null;
+        let Student_answer = null;
+        if (selectedChoice) {
+          const choice = question.choices.find(choice => choice.choice_text === selectedChoice);
+          addchoices_id = choice?.id;
+          Student_answer = choice?.choice_text;
+        } else {
+          Student_answer = textAnswer;
         }
-      );
+        return {
+          question_id: question.id,
+          addchoices_id,
+          Student_answer,
+        };
+      });
 
-    Swal.fire({
-      title: 'Success!',
-      text: 'Exam submitted successfully!',
-      icon: 'success',
-      confirmButtonText: 'OK'
-    }).then(() => {
-      this.getResults(examId);
-    });
+      try {
+        const examId = this.$route.params.exam_id;
+        await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
+          { answers: formattedAnswers },
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
+
+        Swal.fire({
+          title: 'Success!',
+          text: 'Exam submitted successfully!',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        }).then(() => {
+          this.getResults(examId);
+        });
 
       } catch (error) {
-            Swal.fire({
-              title: 'Error!',
-              text: 'Failed to submit exam. Please try again later.',
-              icon: 'error',
-              confirmButtonText: 'OK'
-            });
-          } finally {
-            this.isSubmitting = false;
-          }
-        },
-
-        async getResults(examId) {
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to submit exam. Please try again later.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+    async getResults(examId) {
       try {
         const response = await axios.get(`http://localhost:8000/api/getResultswithtestbank/${examId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        console.log('Response data:', response.data);
-
         this.results = response.data.results.map((result) => {
           const studentAnswer = this.selectedAnswers[result.question_id] || this.studentTextAnswers[result.question_id];
           return {
             ...result,
-            Student_answer: studentAnswer, 
+            Student_answer: studentAnswer,
           };
         });
-
-        console.log('Updated results:', this.results); // Add this line to inspect the updated results array
-
         this.totalScore = response.data.total_score;
         this.examSubmitted = true;
       } catch (error) {
@@ -266,7 +225,7 @@ export default {
           title: 'Error!',
           text: 'Failed to retrieve results. Please try again later.',
           icon: 'error',
-          confirmButtonText: 'OK'
+          confirmButtonText: 'OK',
         });
       }
     },
@@ -275,7 +234,6 @@ export default {
         this.currentPage--;
       }
     },
-
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -283,41 +241,28 @@ export default {
     },
     async submitFeedback(examId) {
       try {
-        console.log('Comment to submit:', this.comment);
         await axios.post(`http://localhost:8000/api/commentfeedback/${examId}`, 
           { comment: this.comment },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
         );
-
         Swal.fire({
           title: 'Success!',
           text: 'Feedback submitted successfully!',
           icon: 'success',
-          confirmButtonText: 'OK'
+          confirmButtonText: 'OK',
         }).then(() => {
           this.comment = '';
         });
-
       } catch (error) {
-        this.handleError('Failed to submit feedback. Please try again later.', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to submit feedback. Please try again later.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
       }
     },
-    handleError(message, error) {
-      console.error(error); // Log error details for debugging
-      Swal.fire({
-        title: 'Error!',
-        text: message,
-        icon: 'error',
-        confirmButtonText: 'OK'
-      });
-    },
-  
-    
-  }
+  },
 };
 </script>
 
@@ -359,13 +304,6 @@ export default {
       margin-right: 10px;
     }
   }
-  .correct-answer {
-  color: green;
-}
-
-.incorrect-answer {
-  color: red;
-}
 
   .pagination-controls {
     display: flex;
@@ -377,17 +315,42 @@ export default {
     margin-top: 20px;
     display: flex;
     justify-content: space-between;
-
-    button {
-      padding: 10px 20px;
-    }
   }
 
   .results-container {
-    margin-top: 20px;
+    margin-top: 30px;
+
+    .results-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .feedback-title {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
     .total-score {
+      font-size: 1.2rem;
+      margin-top: 20px;
+    }
+
+    .result-item {
+      margin-bottom: 20px;
+    }
+
+    .correct-answer {
+      color: green;
       font-weight: bold;
-      margin-top: 10px;
+    }
+
+    .incorrect-answer {
+      color: red;
+      font-weight: bold;
+    }
+
+    .points {
+      font-size: 1.1rem;
     }
   }
 }
