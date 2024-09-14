@@ -4,7 +4,7 @@
 
     <div class="top-section d-flex justify-content-between align-items-center mb-4">
       <div class="button-group">
-        <button v-if="existingQuestions.length > 0 && !isPublished" @click="publishExam" type="button" class="btn btn-success me-2">
+        <button v-if="newQuestions.length > 0 && !isPublished" @click="publishExam" type="button" class="btn btn-success me-2">
           Publish Exam
         </button>
         <button @click="viewExamSchedule" type="button" class="btn btn-primary">
@@ -66,12 +66,13 @@
         </div>
 
         <!-- Add Question form -->
-        <div v-for="(question, index) in questions" :key="index" class="question-card mb-4 p-3 border bg-light">
+        <div v-for="(question, index) in newQuestions" :key="index" class="question-card mb-4 p-3 border bg-light">
           <div class="mb-3">
             <label class="form-label">Question</label>
             <input type="text" v-model="question.text" class="form-control" required />
           </div>
 
+          <!-- Display input fields based on question type -->
           <div v-if="globalQuestionType === 'multiple-choice'" class="mb-3">
             <label class="form-label">Choices</label>
             <div v-for="(choice, idx) in question.choices" :key="idx" class="input-group mb-2">
@@ -80,9 +81,17 @@
             <button @click="addChoice(question)" class="btn btn-secondary btn-sm">Add Choice</button>
           </div>
 
-          <div class="mb-3">
+          <div v-if="globalQuestionType === 'true-false'" class="mb-3">
+            <label class="form-label">True/False Answer</label>
+            <select v-model="question.correctAnswer" class="form-control">
+              <option value="True">True</option>
+              <option value="False">False</option>
+            </select>
+          </div>
+
+          <div v-if="globalQuestionType === 'identification'" class="mb-3">
             <label class="form-label">Correct Answer</label>
-            <input type="text" v-model="question.correctAnswer" class="form-control" required />
+            <input type="text" v-model="question.correctAnswer" class="form-control" placeholder="Enter the correct answer" />
           </div>
 
           <div class="mb-3">
@@ -108,26 +117,26 @@ export default {
   data() {
     return {
       examId: null,
-      existingQuestions: [], // for fetched questions
-      questions: [
+      existingQuestions: [], // Existing questions from backend
+      newQuestions: [
         {
-          text: '', // question text
-          correctAnswer: '', // correct answer
-          points: 1, // default points
-          choices: ['', '', ''], // default multiple-choice structure
+          text: '', // Question text
+          correctAnswer: '', // Correct answer
+          points: 1, // Default points
+          choices: ['', '', ''], // Default multiple-choice structure
         },
-      ], // new questions to be created
-      globalQuestionType: 'multiple-choice', // default question type
-      examInstruction: '', // exam instruction
-      isPublished: false, // exam publish status
+      ],
+      globalQuestionType: 'multiple-choice', // Default question type
+      examInstruction: '', // Exam instruction
+      isPublished: false, // Publish status
     };
   },
   created() {
     this.examId = this.$route.params.examId;
-    this.fetchQuestions(); // Fetch existing questions on component load
+    this.fetchQuestions(); // Fetch existing questions when the component loads
   },
   methods: {
-    // Fetch existing questions from the backend
+    // Fetch the existing questions from the backend
     async fetchQuestions() {
       try {
         const response = await axios.get(
@@ -145,31 +154,34 @@ export default {
       }
     },
 
-    // Add a new choice to the multiple-choice question
+    // Add a new choice to a multiple-choice question
     addChoice(question) {
-      question.choices.push(''); // Add an empty choice input
+      question.choices.push(''); // Add an empty choice
     },
 
-    // Add a new question form
+    // Add a new question form for the user to fill out
     addNewQuestionForm() {
-      this.questions.push({
-        text: '', // empty question text
-        correctAnswer: '', // empty correct answer
-        points: 1, // default points
-        choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [], // default choices
+      this.newQuestions.push({
+        text: '',
+        correctAnswer: '',
+        points: 1,
+        choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
       });
     },
 
-    // Save all new questions to the backend
+    // Save all newly created questions to the backend
     async saveAllQuestions() {
       try {
         const instructionsData = [
           {
             instruction: this.examInstruction,
             question_type: this.globalQuestionType,
-            questions: this.questions.map(question => ({
+            questions: this.newQuestions.map(question => ({
               question: question.text,
-              choices: question.choices,
+              choices:
+                this.globalQuestionType === 'multiple-choice'
+                  ? question.choices.filter(choice => choice !== '') // Filter out empty choices
+                  : [],
               correct_answers: [
                 {
                   correct_answer: question.correctAnswer,
@@ -180,7 +192,7 @@ export default {
           },
         ];
 
-        // Post new questions to the backend
+        // Post the new questions to the backend
         await axios.post(
           `http://localhost:8000/api/addQuestionsToExam/${this.examId}`,
           { instructions: instructionsData },
@@ -189,15 +201,27 @@ export default {
           }
         );
 
-        // Re-fetch questions after saving
+        // Clear the newQuestions array after saving to avoid duplications
+        this.newQuestions = [
+          {
+            text: '',
+            correctAnswer: '',
+            points: 1,
+            choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
+          },
+        ];
+
+        // Re-fetch the existing questions to update the view
         await this.fetchQuestions();
+
         alert('All questions saved successfully!');
       } catch (error) {
         console.error('Failed to save questions:', error.message);
+        Swal.fire('Error', 'Failed to save questions. Please try again.', 'error');
       }
     },
 
-    // Confirm and save question to the test bank
+    // Save the selected question to the test bank
     confirmSaveToTestBank(question) {
       Swal.fire({
         title: 'Do you want to save this question to the test bank?',
@@ -218,30 +242,7 @@ export default {
       });
     },
 
-    // Save question to the test bank
-    async saveToTestBank(questionData) {
-      try {
-        const payload = {
-          schedule_id: this.examId,
-          questions: [questionData], // save one question at a time
-        };
-
-        await axios.post(
-          `http://localhost:8000/api/storetestbank`,
-          payload,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-          }
-        );
-
-        Swal.fire('Success', 'Question saved to test bank successfully!', 'success');
-      } catch (error) {
-        console.error('Error saving to test bank:', error.response.data);
-        Swal.fire('Error', error.response.data.message, 'error');
-      }
-    },
-
-    // Prepare the question data for the test bank
+    // Prepare the question data for saving to the test bank
     prepareQuestionForSelection(question) {
       const questionId = question.id || question.question_id;
       const correctAnswerId = question.correct_answers?.[0]?.correct_answer_id || question.correct_answers?.[0]?.id;
@@ -260,6 +261,11 @@ export default {
         }));
       }
 
+      // Identification questions have no choices
+      if (this.globalQuestionType === 'identification') {
+        choices = [];
+      }
+
       if (!questionId || !correctAnswerId) {
         console.error('Missing question_id or correct_answer_id');
         return null;
@@ -270,6 +276,29 @@ export default {
         correct_id: correctAnswerId,
         choices: choices,
       };
+    },
+
+    // Save the question to the test bank
+    async saveToTestBank(questionData) {
+      try {
+        const payload = {
+          schedule_id: this.examId,
+          questions: [questionData], // Save one question at a time
+        };
+
+        await axios.post(
+          `http://localhost:8000/api/storetestbank`,
+          payload,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          }
+        );
+
+        Swal.fire('Success', 'Question saved to test bank successfully!', 'success');
+      } catch (error) {
+        console.error('Error saving to test bank:', error.response.data);
+        Swal.fire('Error', error.response.data.message, 'error');
+      }
     },
 
     // Publish the exam
@@ -288,7 +317,7 @@ export default {
         });
     },
 
-    // View the exam schedule
+    // Redirect to the exam schedule
     viewExamSchedule() {
       alert('Redirecting to exam schedule...');
     },
