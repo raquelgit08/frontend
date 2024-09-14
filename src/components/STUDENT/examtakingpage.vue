@@ -127,7 +127,7 @@ export default {
     async fetchExam() {
       const examId = this.$route.params.exam_id;
       try {
-        const response = await axios.get(`http://localhost:8000/api/viewExam2updated/${examId}`, {
+        const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${examId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
