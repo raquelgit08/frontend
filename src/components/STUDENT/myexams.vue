@@ -155,7 +155,7 @@ export default {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await axios.get(`http://localhost:8000/api/viewExam2updated/${exam.id}`, {
+        const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${exam.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
