@@ -21,12 +21,12 @@
             <p class="card-text"> {{ classItem.strand.addstrand }} {{ classItem.strand.grade_level }} {{ classItem.section.section }}</p>
             <p class="card-text"><strong>CODE:</strong> {{ classItem.gen_code }}</p>
             <p class="card-text">{{ classItem.semester }} <a>semester S.Y. {{ classItem.year.addyear }}</a></p>
-            <p class="card-text"><strong>Curriculum:</strong> {{ classItem.curriculum.Namecuriculum }}</p>
+         <!--   <p class="card-text"><strong>Curriculum:</strong> {{ classItem.curriculum.Namecuriculum }}</p>-->
           </div>
         </div>
       </div>
 
-      <div class="col-md-3">
+      <div class="col-md-3"> 
         <div class="card add-class-card" @click="openModal">
           <div class="card-body d-flex justify-content-center align-items-center">
             <div class="plus-icon">
@@ -48,7 +48,7 @@
           </div>
           
           <div class="modal-body">
-            <!-- Form for adding a new class -->
+            <!-- Form for adding a new class 
             <div class="form-group">
               <label for="curriculum" class="form-label">Curriculum:</label>
               <select v-model="newClass.curiculum_id" id="curriculum" class="form-select" @change="onCurriculumChange" required>
@@ -57,7 +57,7 @@
                   {{ curriculum.Namecuriculum }}
                 </option>
               </select>
-            </div>
+            </div>-->
 
             <div class="form-group">
               <label for="strand">Strand:</label>
@@ -150,7 +150,7 @@ export default {
   data() {
     return {
       newClass: {
-        curiculum_id: '',
+       // curiculum_id: '',
         strand_id: '',
         section_id: '',
         subject_id: '',
@@ -163,14 +163,14 @@ export default {
       classes: [],
       strands: [],
       sections: [],
-      curriculums: [],
+    //  curriculums: [],
       subjects: [],
       years: [],
       filteredSections: []
     };
   },
   mounted() {
-    this.fetchCurriculums();
+    //this.fetchCurriculums();
     this.fetchSections();
     this.fetchStrands();
     this.fetchSubjects();
@@ -311,7 +311,7 @@ export default {
     async addClass() {
       const token = localStorage.getItem('token'); 
       const formData = new FormData();
-      formData.append('curiculum_id', this.newClass.curiculum_id);
+    //  formData.append('curiculum_id', this.newClass.curiculum_id);
       formData.append('strand_id', this.newClass.strand_id);
       formData.append('section_id', this.newClass.section_id);
       formData.append('subject_id', this.newClass.subject_id);
@@ -349,7 +349,7 @@ export default {
     },
     clearForm() {
       this.newClass = {
-        curiculum_id: '',
+        //curiculum_id: '',
         strand_id: '',
         section_id: '',
         subject_id: '',

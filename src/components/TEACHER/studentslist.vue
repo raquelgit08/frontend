@@ -25,6 +25,16 @@
 
   <div class="container-fluid">
     <h4 class="text-center">Manage Students</h4><br>
+
+    <!-- Invitation Form -->
+    <div class="row mb-4">
+      <div class="col-md-8 offset-md-2">
+        <input v-model="inviteEmail" type="email" class="form-control" placeholder="Enter student's email" />
+        <input v-model="inviteName" type="text" class="form-control mt-2" placeholder="Enter student's name" />
+        <button class="btn btn-primary mt-2" @click="inviteStudentEmail">Invite Student</button>
+      </div>
+    </div>
+
     <div class="row mb-4">
       <div class="col-md-8 offset-md-2">
         <table class="table table-bordered table-hover">
@@ -40,7 +50,6 @@
               <td class="text-center">{{ student.email }}</td>
               <td class="text-center">{{ student.users?.lname }}</td>
               <td class="text-center">
-                <!-- <button class="btn btn-danger" @click="kickStudent(student.id)">Kick</button> -->
                 <button class="btn btn-primary" @click="inviteStudent(student.id)">Invite</button>
               </td>
             </tr>
@@ -64,22 +73,21 @@ export default {
         semester: '',
         schoolYear: ''
       },
+      inviteEmail: '',
+      inviteName: '',
       error: ''
     };
   },
   methods: {
     async fetchStudents() {
       try {
-        const classId = this.$route.params.class_id; // Get class_id from route params
+        const classId = this.$route.params.class_id;
         const response = await axios.get(`http://localhost:8000/api/viewAllStudents`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           },
-          params: {
-            class_id: classId
-          }
+          params: { class_id: classId }
         });
-        console.log(response.data);
         this.students = response.data.students;
       } catch (error) {
         alert('Error fetching students: ' + error.message);
@@ -87,7 +95,7 @@ export default {
     },
     async fetchSubject() {
       try {
-        const classId = this.$route.params.class_id; // Get class_id from route params
+        const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
 
         if (!token) {
@@ -96,9 +104,7 @@ export default {
         }
 
         const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
 
         if (!response.data.class || !response.data.class.subject.subjectname) {
@@ -106,52 +112,33 @@ export default {
           return;
         }
 
-        // Update subject details from the API response
         this.subject.subjectName = response.data.class.subject.subjectname;
         this.subject.semester = response.data.class.semester;
         this.subject.schoolYear = response.data.class.year.addyear;
       } catch (error) {
         console.error('Error fetching subject:', error);
-        if (error.response) {
-          if (error.response.status === 404) {
-            this.error = 'Class not found or you are not authorized to view this class.';
-          } else if (error.response.status === 403) {
-            this.error = 'You are not authorized to view this class.';
-          } else {
-            this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
-          }
-        } else {
-          this.error = 'Failed to fetch subject data. Please try again later.';
-        }
+        this.error = error.response ? error.response.data.message : 'Failed to fetch subject data.';
       }
     },
-    // async kickStudent(studentId) {
-    //   if (confirm('Are you sure you want to remove this student from the class?')) {
-    //     try {
-    //       const classId = this.$route.params.class_id; // Get class_id from route params
-    //       await axios.delete(`http://localhost:8000/api/students/${studentId}`, {
-    //         headers: {
-    //           Authorization: `Bearer ${localStorage.getItem('token')}`
-    //         },
-    //         params: {
-    //           class_id: classId
-    //         }
-    //       });
-    //       alert('Student removed successfully');
-    //       this.fetchStudents();
-    //     } catch (error) {
-    //       alert('Error removing student: ' + error.message);
-    //     }
-    //   }
-    // },
     async inviteStudent(studentId) {
       try {
         const response = await axios.post(`http://localhost:8000/api/inviteStudent`, {
           student_id: studentId
         }, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        alert(response.data.message || 'Invitation sent successfully');
+      } catch (error) {
+        alert('Error inviting student: ' + error.message);
+      }
+    },
+    async inviteStudentEmail() {
+      try {
+        const response = await axios.post(`http://localhost:8000/api/inviteStudentByEmail`, {
+          email: this.inviteEmail,
+          name: this.inviteName
+        }, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         alert(response.data.message || 'Invitation sent successfully');
       } catch (error) {
@@ -165,6 +152,8 @@ export default {
   }
 };
 </script>
+
+
 
 <style scoped>
 .container-fluid {
