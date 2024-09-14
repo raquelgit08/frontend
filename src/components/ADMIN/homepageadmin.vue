@@ -29,7 +29,7 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2>Teacher Portal</h2>
+          <h2>Admin Portal</h2>
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto" style="margin-right: 20px;">
@@ -354,20 +354,6 @@ body {
   display: none;
 }
 
-.sidebar input {
-  font-size: 15px;
-  color: var(--color-white);
-  font-weight: 400;
-  outline: none;
-  height: 35px;
-  width: 35px;
-  border: none;
-  border-radius: 5px;
-  background-color: bisque;
-  transition: all 0.5s ease;
-}
-
-
 
 
 .sidebar li a {
@@ -415,7 +401,7 @@ body {
 .sidebar li a:hover .link_name,
 .sidebar li a:hover i {
   transition: all 0.5s ease;
-  color: #0071c5;
+  color: #000000;
 }
 
 .sidebar.open li a .link_name {

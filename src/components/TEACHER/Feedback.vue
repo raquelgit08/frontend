@@ -23,12 +23,24 @@
     </nav>
   </div>
 
-  <!-- Feedback Page Content -->
-  <div class="feedback-page">
-    <div class="container-fluid">
-      <h5>Feedbacks</h5>
+   <!-- Feedback Page Content -->
+   <div class="feedback-page">
+      <div class="container-fluid">
+        <h5>Feedbacks</h5>
+        <div v-if="error" class="alert alert-danger">{{ error }}</div>
+        <div v-else>
+          <div v-for="feedback in feedbacks" :key="feedback.title">
+            <h6>{{ feedback.title }}  </h6>
+            <ul>
+              <li v-if="feedback.comments === 'No comment'">{{ feedback.comments }}</li>
+              <li v-else v-for="(comment, index) in feedback.comments" :key="comment.student_id">
+                <strong>{{ index + 1 }}. {{ comment.student_name }} {{ comment.fname }} {{ comment.mname }}</strong>: {{ comment.comment }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -44,11 +56,13 @@ export default {
         semester: '',
         schoolYear: ''
       },
+      feedbacks: [], // To store feedbacks from the API
       error: ''
     };
   },
   created() {
     this.fetchSubject(); // Fetch subject details when the component is created
+    this.fetchComments();
   },
   methods: {
     async fetchSubject() {
@@ -90,6 +104,44 @@ export default {
         } else {
           this.error = 'Failed to fetch subject data. Please try again later.';
         }
+      }
+    },
+    async fetchComments() {
+      try {
+        const classId = this.$route.params.class_id; // Get class_id from route params
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+          this.error = 'Authorization token is missing. Please log in again.';
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:8000/api/getComments`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          params: {
+            classtable_id: classId
+          }
+        });
+
+        this.feedbacks = response.data.comments; // Set the comments data to the feedbacks array
+      } catch (error) {
+        this.handleError(error, 'Failed to fetch comments.');
+      }
+    },
+    handleError(error, message) {
+      console.error('Error:', error);
+      if (error.response) {
+        if (error.response.status === 404) {
+          this.error = 'Resource not found.';
+        } else if (error.response.status === 403) {
+          this.error = 'You are not authorized to view this data.';
+        } else {
+          this.error = error.response.data.message || message;
+        }
+      } else {
+        this.error = message;
       }
     },
     handleLogoutClick() {
