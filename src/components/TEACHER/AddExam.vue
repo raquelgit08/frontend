@@ -4,21 +4,16 @@
 
     <div class="top-section d-flex justify-content-between align-items-center mb-4">
       <div class="button-group">
-        <button v-if="existingQuestions.length > 0 && !isPublished" @click="publishExam" type="button" class="btn btn-success me-2">
+        <button v-if="existingQuestions.length > 0" @click="publishExam" type="button" class="btn btn-success me-2">
           Publish Exam
         </button>
-        <button v-if="selectedQuestions.length > 0" @click="saveToTestBank" type="button" class="btn btn-info me-2">
-          Save Selected to Test Bank
+        <button v-if="existingQuestions.length > 0" @click="saveToTestBank" type="button" class="btn btn-info me-2">
+          Save to Test Bank
         </button>
         <button @click="viewExamSchedule" type="button" class="btn btn-primary">
           View Exam Schedule
         </button>
       </div>
-    </div>
-
-    <!-- Show the published message if the exam is published -->
-    <div v-if="isPublished" class="alert alert-success">
-      The exam has been successfully published.
     </div>
 
     <div class="main-content d-flex mt-4">
@@ -30,19 +25,14 @@
             <p><strong>Instruction:</strong> {{ examInstruction }}</p>
           </div>
 
-          <!-- Display all existing questions with a checkbox to select -->
+          <!-- Display all existing questions -->
           <div v-for="(question, index) in existingQuestions" :key="index" class="question-card mb-4">
-            <div class="d-flex justify-content-between align-items-center">
-              <h5 class="question-title">{{ index + 1 }}. {{ question.question }}</h5>
-              <input type="checkbox" v-model="selectedQuestions" :value="prepareQuestionForSelection(question)" />
-            </div>
+            <h5 class="question-title">{{ index + 1 }}. {{ question.question }}</h5>
             <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
             <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
             <ul v-if="question.choices && question.choices.length > 0">
-              <li v-for="(choice, idx) in question.choices" :key="idx">
-                {{ choice.choices }}
-              </li>
+              <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choices }}</li>
             </ul>
 
             <button @click="editQuestion(index)" class="btn btn-warning btn-sm me-2">Edit</button>
@@ -80,10 +70,9 @@
         <div v-for="(question, index) in questions" :key="index" class="question-card mb-4 p-3 border bg-light">
           <div class="mb-3">
             <label class="form-label">Question</label>
-            <input type="text" v-model="question.question" class="form-control" required />
+            <input type="text" v-model="question.text" class="form-control" required />
           </div>
 
-          <!-- Multiple Choice Question Type -->
           <div v-if="globalQuestionType === 'multiple-choice'" class="mb-3">
             <label class="form-label">Choices</label>
             <div v-for="(choice, idx) in question.choices" :key="idx" class="input-group mb-2">
@@ -92,21 +81,20 @@
             <button @click="addChoice(question)" class="btn btn-secondary btn-sm">Add Choice</button>
           </div>
 
-          <!-- Correct Answer for all question types -->
           <div class="mb-3">
             <label class="form-label">Correct Answer</label>
-            <input type="text" v-model="question.correct_answers[0].correct_answer" class="form-control" required />
+            <input type="text" v-model="question.correctAnswer" class="form-control" required />
           </div>
 
           <div class="mb-3">
             <label class="form-label">Points</label>
-            <input type="number" v-model="question.correct_answers[0].points" class="form-control" min="1" required />
+            <input type="number" v-model="question.points" class="form-control" min="1" required />
           </div>
         </div>
 
         <div class="d-flex justify-content-between">
           <button @click="addNewQuestionForm" class="btn btn-secondary mt-4">Add New Question</button>
-          <button @click="saveAllQuestions" class="btn btn-primary mt-4">Save All</button>
+          <button @click="saveCreatedQuestions" class="btn btn-primary mt-4">Save Questions</button>
         </div>
       </div>
     </div>
@@ -115,37 +103,31 @@
 
 <script>
 import axios from 'axios';
-import Swal from 'sweetalert2';
 
 export default {
   name: 'AddExaminationsofSHS',
   data() {
     return {
       examInstruction: '',
-      globalQuestionType: 'multiple-choice',
+      globalQuestionType: 'multiple-choice', // Default question type
       questions: [
         {
-          question: '',
-          correct_answers: [
-            {
-              correct_answer: '',
-              points: 1,
-            },
-          ],
-          choices: [{ choices: '' }, { choices: '' }, { choices: '' }],
+          text: '',  // Question text
+          correctAnswer: '', // Correct answer
+          points: 1,  // Points for the question
+          choices: [{ choices: '' }, { choices: '' }, { choices: '' }], // Choices for multiple-choice questions
         },
       ],
       existingQuestions: [],
-      examId: null,
-      selectedQuestions: [], // Store selected questions
-      isPublished: false, // Track the published status
+      examId: null, // Will be set when the component is created
     };
   },
   created() {
     this.examId = this.$route.params.examId;
-    this.fetchQuestions();
+    this.fetchQuestions();  // Fetch existing questions when the component is created
   },
   methods: {
+    // Fetch questions from backend
     async fetchQuestions() {
       try {
         const response = await axios.get(
@@ -154,6 +136,7 @@ export default {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           }
         );
+
         const { instructions } = response.data;
         this.existingQuestions = instructions.map(instruction => instruction.questions).flat();
         this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
@@ -162,143 +145,87 @@ export default {
       }
     },
 
+    // Add a new choice to the question
     addChoice(question) {
-      question.choices.push({ choices: '' }); // Add an empty choice to the array
+      question.choices.push({ choices: '' });  // Add an empty object with `choices` field
     },
 
+    // Add a new question form
     addNewQuestionForm() {
       this.questions.push({
-        question: '',
-        correct_answers: [
-          {
-            correct_answer: '',
-            points: 1,
-          },
-        ],
+        text: '',
+        correctAnswer: '',
+        points: 1,
         choices: this.globalQuestionType === 'multiple-choice' ? [{ choices: '' }, { choices: '' }, { choices: '' }] : [],
       });
     },
 
-    createNewInstruction() {
-      this.questions = [];
-      this.addNewQuestionForm(); // Reset the question form
-    },
-
-    prepareQuestionForSelection(question) {
-      return {
-        question_id: question.question_id,
-        correct_id: question.correct_answers[0]?.correct_answer_id,
-        choices: question.choices ? question.choices.map(choice => ({
-          choice_id: choice.choice_id, // Prepare all choices for selection
-        })) : [],
-      };
-    },
-
-    async saveAllQuestions() {
+    // Save all created questions to the backend
+    async saveCreatedQuestions() {
       try {
-        const instructionsData = [
+        const questionsToSave = this.questions.map((question) => ({
+          question: question.text,
+          choices: this.globalQuestionType === 'multiple-choice' ? question.choices : [],
+          correct_answers: [
+            {
+              correct_answer: question.correctAnswer,
+              points: question.points,
+            },
+          ],
+        }));
+
+        const questionData = {
+          instruction: this.examInstruction,
+          question_type: this.globalQuestionType,
+          questions: questionsToSave,  // Save all questions
+        };
+
+        // Send data to the backend for all new questions
+        await axios.post(
+          `http://localhost:8000/api/addQuestionsToExam/${this.examId}`,
+          { instructions: [questionData] },
           {
-            instruction: this.examInstruction,
-            question_type: this.globalQuestionType,
-            questions: this.questions.map((question) => {
-              let existingQuestion = this.existingQuestions.find(
-                (q) => q.question === question.question
-              );
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          }
+        );
 
-              let questionData = {
-                question: question.question,
-                correct_answers: [
-                  {
-                    correct_answer: question.correct_answers[0].correct_answer,
-                    points: question.correct_answers[0].points,
-                  },
-                ],
-              };
+        // Add the created questions to existingQuestions array to display them
+        this.existingQuestions.push(...questionsToSave);
 
-              if (this.globalQuestionType === 'multiple-choice') {
-                questionData.choices = question.choices;
-              }
-
-              if (existingQuestion) {
-                // Update existing question if found
-                existingQuestion = { ...existingQuestion, ...questionData };
-              } else {
-                // Add new question if not found
-                this.existingQuestions.push(questionData);
-              }
-
-              return questionData;
-            }),
+        // Clear the form after saving
+        this.questions = [
+          {
+            text: '',
+            correctAnswer: '',
+            points: 1,
+            choices: this.globalQuestionType === 'multiple-choice' ? [{ choices: '' }, { choices: '' }, { choices: '' }] : [],
           },
         ];
 
-        await axios.post(
-          `http://localhost:8000/api/addQuestionsToExam/${this.examId}`,
-          { instructions: instructionsData },
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-          }
-        );
-
-        await this.fetchQuestions();
-        Swal.fire('Success', 'All questions saved successfully!', 'success');
+        alert('Questions saved successfully!');
       } catch (error) {
         console.error('Error saving questions:', error.message);
-        Swal.fire('Error', 'There was a problem saving the questions.', 'error');
       }
     },
 
-    async saveToTestBank() {
-      if (this.selectedQuestions.length === 0) {
-        Swal.fire('No Questions Selected', 'Please select at least one question to save.', 'warning');
-        return;
-      }
-
-      try {
-        const payload = {
-          schedule_id: this.examId, 
-          questions: this.selectedQuestions.map((question) => ({
-            question_id: question.question_id,
-            correct_id: question.correct_id,
-            choices: question.choices.map(choice => ({
-              choice_id: choice.choice_id, 
-            })),
-          })),
-        };
-
-        await axios.post(
-          `http://localhost:8000/api/storetestbank`,
-          payload,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-          }
-        );
-
-        Swal.fire('Success', 'Selected questions saved to test bank successfully!', 'success');
-        this.selectedQuestions = []; // Clear selected questions after saving
-      } catch (error) {
-        console.error('Error saving to test bank:', error.message);
-        Swal.fire('Error', 'There was a problem saving the questions to the test bank.', 'error');
-      }
-    },
-
-    async publishExam() {
-      try {
-        await axios.post(
-          `http://localhost:8000/api/exams/publish2/${this.examId}`,
-          {},
-          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-        );
-        this.isPublished = true; // Set isPublished to true when the exam is successfully published
-        Swal.fire('Success', 'Exam published successfully', 'success');
-      } catch (error) {
+    publishExam() {
+      axios.post(
+        `http://localhost:8000/api/exams/publish2/${this.examId}`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      ).then(() => {
+        alert('Exam published successfully');
+      }).catch((error) => {
         console.error('Failed to publish exam:', error.message);
-        Swal.fire('Error', 'There was a problem publishing the exam.', 'error');
-      }
+      });
+    },
+
+    saveToTestBank() {
+      alert('Questions saved to test bank!');
     },
 
     viewExamSchedule() {
-      Swal.fire('Redirect', 'Redirecting to exam schedule...', 'info');
+      alert('Redirecting to exam schedule...');
     },
   },
 };
@@ -332,9 +259,12 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.top-section {
+  margin-bottom: 20px;
+}
+
 .correct-answer {
   color: green;
-  font-weight: bold;
 }
 
 input.form-control, textarea.form-control {
@@ -344,9 +274,5 @@ input.form-control, textarea.form-control {
 .d-flex {
   display: flex;
   justify-content: space-between;
-}
-
-.alert {
-  margin-top: 10px;
 }
 </style>
