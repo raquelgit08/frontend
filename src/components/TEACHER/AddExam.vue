@@ -23,16 +23,24 @@
         <h4>Created Questions</h4>
         <div v-if="existingQuestions.length > 0">
           <div v-for="(question, index) in existingQuestions" :key="index" class="question-card mb-4">
+            <!-- Display the question text -->
             <h5>{{ index + 1 }}. {{ question.question }}</h5>
+
+            <!-- Display the correct answer -->
             <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
+
+            <!-- Display the points assigned -->
             <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
-            <!-- Display choices -->
+            <!-- Display the instruction -->
+            <p><strong>Instruction:</strong> {{ question.instruction }}</p>
+
+            <!-- Display the choices, if available -->
             <ul v-if="question.choices && question.choices.length > 0">
               <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choices }}</li>
             </ul>
 
-            <!-- Button to save to test bank -->
+            <!-- Buttons for actions -->
             <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">Select to Save</button>
             <button @click="editQuestion(index)" class="btn btn-warning btn-sm">Edit</button>
             <button @click="deleteQuestion(question.question_id)" class="btn btn-danger btn-sm">Delete</button>
@@ -79,6 +87,11 @@
               <input type="text" v-model="question.choices[idx]" class="form-control" placeholder="Choice" />
             </div>
             <button @click="addChoice(question)" class="btn btn-secondary btn-sm">Add Choice</button>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Correct Answer</label>
+            <input type="text" v-model="question.correctAnswer" class="form-control" required />
           </div>
 
           <div v-if="globalQuestionType === 'true-false'" class="mb-3">
@@ -181,7 +194,7 @@ export default {
               choices:
                 this.globalQuestionType === 'multiple-choice'
                   ? question.choices.filter(choice => choice !== '') // Filter out empty choices
-                  : [],
+                  : [], // True/False or Identification have no choices
               correct_answers: [
                 {
                   correct_answer: question.correctAnswer,
@@ -353,21 +366,7 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.correct-answer {
-  color: green;
-  font-weight: bold;
-}
-
 input.form-control, textarea.form-control {
   margin-bottom: 10px;
-}
-
-.d-flex {
-  display: flex;
-  justify-content: space-between;
-}
-
-.alert {
-  margin-top: 10px;
 }
 </style>
