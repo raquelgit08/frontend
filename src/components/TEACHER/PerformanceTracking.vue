@@ -16,7 +16,7 @@
       <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
+      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
       <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
       <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
@@ -50,8 +50,8 @@
             </thead>
             <tbody>
               <tr v-for="result in examData.exam_results" :key="result.student_id">
-                <td>{{ result.student_id }}</td>
-                <td>{{ result.student_name }}</td>
+                <td>{{ result.Lrn_id }}</td>
+                <td>{{ result.Last_name }}, {{ result.First_name }} {{ result.Middle_i }}</td>
                 <td>{{ result.total_score }}</td>
                 <td>{{ result.total_exam }}</td>
                 <td>{{ new Date(result.exam_start).toLocaleString() }}</td>
@@ -148,6 +148,7 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
+        console.log('Response data:', response.data);
 
         if (response.data.results) {
           this.results = response.data.results;

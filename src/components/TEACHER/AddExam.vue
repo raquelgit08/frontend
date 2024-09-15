@@ -7,9 +7,11 @@
         <button v-if="newQuestions.length > 0 && !isPublished" @click="publishExam" type="button" class="btn btn-success me-2">
           Publish Exam
         </button>
-        <button @click="viewExamSchedule" type="button" class="btn btn-primary">
-          View Exam Schedule
-        </button>
+  
+  <button @click="viewItemAnalysis(exam.id)" type="button" class="btn btn-primary">
+    View Item Analysis
+  </button>
+
       </div>
     </div>
 
@@ -22,46 +24,42 @@
       <div class="left-section w-50 me-4">
         <h4>Created Questions</h4>
         <div v-if="existingQuestions.length > 0">
-  <!-- Loop through instructions first -->
-  <div v-for="(instruction, iIndex) in existingQuestions" :key="iIndex" class="instruction-card mb-4">
-    <!-- Display the instruction text -->
-    <h4>Instruction: {{ instruction.instructions.instruction }}</h4>
+          <!-- Loop through instructions first -->
+          <div v-for="(instruction, iIndex) in existingQuestions" :key="iIndex" class="instruction-card mb-4">
+            <!-- Display the instruction text -->
+            <h4>Instruction: {{ instruction.instructions.instruction }}</h4>
 
-    <!-- Loop through the questions within each instruction -->
-    <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
-      <!-- Display the question text -->
-      <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
+            <!-- Loop through the questions within each instruction -->
+            <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
+              <!-- Display the question text -->
+              <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
 
-      <!-- Display the correct answer -->
-      <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
+              <!-- Display the correct answer -->
+              <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
 
-      <!-- Check if the question type is True/False -->
-      <div v-if="instruction.question_type === 'true-false'">
-        <ul>
-          <li>True</li>
-          <li>False</li>
-        </ul>
-      </div>
+              <!-- Check if the question type is True/False -->
+              <div v-if="instruction.question_type === 'true-false'">
+                <ul>
+                  <li>True</li>
+                  <li>False</li>
+                </ul>
+              </div>
 
-      <!-- Display the choices for other question types -->
-      <ul v-else-if="question.choices && question.choices.length > 0">
-        <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li>
-      </ul>
+              <!-- Display the choices for other question types -->
+              <ul v-else-if="question.choices && question.choices.length > 0">
+                <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li>
+              </ul>
 
-      <!-- Display the points assigned -->
-      <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
+              <!-- Display the points assigned -->
+              <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
-      <!-- Buttons for actions -->
-      <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">Select to Save</button>
-      <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">Edit</button>
-      <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">Delete</button>
-    </div>
-  </div>
-</div>
-
-
-
-        
+              <!-- Buttons for actions -->
+              <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">Select to Save</button>
+              <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">Edit</button>
+              <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">Delete</button>
+            </div>
+          </div>
+        </div>
         <div v-else>
           <p>No questions found.</p>
         </div>
@@ -271,7 +269,10 @@ export default {
         }
       });
     },
-
+     //Redirect to the exam schedule
+     viewItemAnalysis(examId) {
+      this.$router.push(`/ItemAnalysis/${examId}`);
+    },
     // Prepare the question data for saving to the test bank
     prepareQuestionForSelection(question) {
       const questionId = question.id || question.question_id;
@@ -347,10 +348,7 @@ export default {
         });
     },
 
-    // Redirect to the exam schedule
-    viewExamSchedule() {
-      alert('Redirecting to exam schedule...');
-    },
+    
   },
 };
 </script>

@@ -6,22 +6,22 @@
     <form v-if="!examSubmitted" @submit.prevent="submitExam" class="exam-form">
       <div v-if="exam.questions && exam.questions.length">
         <div v-for="(question, index) in paginatedQuestions" :key="index" class="question-container">
-  <h4 class="question-header">{{ index + 1 }}. {{ question.question }}</h4>
-  <div v-if="question.choices && question.choices.length > 0" class="choice-container">
-    <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
-      <input
-        type="radio"
-        :name="'question_' + question.id"
-        :value="choice.choices.id"
-        v-model="selectedAnswers[question.id]"
-      />
-      {{ choice.choices }}
-    </label>
-  </div>
-  <div v-else>No choices available for this question</div>
-</div>
-</div>
-
+          <h4 class="question-header">{{ index + 1 }}. {{ question.question }}</h4>
+          
+          <!-- Multiple Choice Questions -->
+          <div v-if="question.choices && question.choices.length > 0" class="choice-container">
+            <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
+              <input type="radio" :name="'question_' + question.id" :value="choice.id" v-model="selectedAnswers[question.id]" />
+              {{ choice.choices }}
+            </label>
+          </div>
+          
+          <!-- No Choices Available -->
+          <div v-else>
+            <input type="text" v-model="studentTextAnswers[question.id]" placeholder="Your answer here" class="form-control" />
+          </div>
+        </div>
+      </div>
 
       <!-- Pagination Controls -->
       <div class="pagination-controls">
@@ -114,36 +114,8 @@ export default {
       this.studentTextAnswers = {};
       this.validationError = '';
     },
-    updateSelectedAnswer(questionId, answerText) {
-      this.selectedAnswers[questionId] = answerText;
-    },
-    updateStudentTextAnswer(questionId, answerText) {
-      this.studentTextAnswers[questionId] = answerText;
-    },
-    async fetchExam() {
-      const examId = this.$route.params.exam_id;
-      try {
-        const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${examId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
-
-        // Log to ensure questions and choices are fetched correctly
-        console.log(response.data.exam);
-
-        this.exam = response.data.exam;
-        this.exam.questions = response.data.exam.instructions.questions;
-      } catch (error) {
-        Swal.fire({
-          title: 'Error!',
-          text: 'Failed to retrieve exam details. Please try again later.',
-          icon: 'error',
-          confirmButtonText: 'OK',
-        });
-        this.$router.push('/myExams');
-      }
-    },
     validateAnswers() {
-      if (Object.keys(this.selectedAnswers).length !== this.exam.questions.length) {
+      if (Object.keys(this.selectedAnswers).length + Object.keys(this.studentTextAnswers).length !== this.exam.questions.length) {
         this.validationError = 'Please answer all questions before submitting.';
         return false;
       }
@@ -156,6 +128,24 @@ export default {
       this.validationError = '';
       return true;
     },
+    async fetchExam() {
+      const examId = this.$route.params.exam_id;
+      try {
+        const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${examId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        this.exam = response.data.exam;
+        this.exam.questions = response.data.exam.instructions.questions;
+      } catch (error) {
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to retrieve exam details. Please try again later.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+        this.$router.push('/myExams');
+      }
+    },
     async submitExam() {
       if (!this.validateAnswers()) return;
 
@@ -163,22 +153,13 @@ export default {
       const formattedAnswers = this.exam.questions.map((question) => {
         const selectedChoice = this.selectedAnswers[question.id];
         const textAnswer = this.studentTextAnswers[question.id] || null;
-        let addchoices_id = null;
-        let Student_answer = null;
-        if (selectedChoice) {
-          const choice = question.choices.find(choice => choice.choice_text === selectedChoice);
-          addchoices_id = choice?.id;
-          Student_answer = choice?.choice_text;
-        } else {
-          Student_answer = textAnswer;
-        }
         return {
           question_id: question.id,
-          addchoices_id,
-          Student_answer,
+          addchoices_id: selectedChoice ? selectedChoice : null,
+          Student_answer: selectedChoice ? question.choices.find(choice => choice.id === selectedChoice)?.choices : textAnswer,
         };
       });
-
+      console.log('Formatted answers:', formattedAnswers);
       try {
         const examId = this.$route.params.exam_id;
         await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
@@ -229,6 +210,7 @@ export default {
         });
       }
     },
+
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
@@ -266,92 +248,72 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .exam-container {
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
   padding: 20px;
-  background: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-  .exam-title {
-    color: #007bff;
-    margin-bottom: 20px;
-    text-align: center;
-  }
+.exam-title {
+  margin-bottom: 20px;
+}
 
-  .question-container {
-    margin-bottom: 20px;
-  }
+.exam-form {
+  border: 1px solid #dee2e6;
+  padding: 20px;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
 
-  .question-header {
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
+.question-container {
+  margin-bottom: 20px;
+}
 
-  .choice-container {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
-  }
+.choice-container {
+  margin-top: 10px;
+}
 
-  .choice-label {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    input {
-      margin-right: 10px;
-    }
-  }
+.choice-label {
+  display: block;
+}
 
-  .pagination-controls {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
+.pagination-controls {
+  margin: 20px 0;
+}
 
-  .button-group {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-  }
+.results-container {
+  margin-top: 20px;
+}
 
-  .results-container {
-    margin-top: 30px;
+.results-title {
+  margin-bottom: 20px;
+}
 
-    .results-title {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-    }
+.results-list {
+  list-style: none;
+  padding: 0;
+}
 
-    .feedback-title {
-      font-size: 1.3rem;
-      margin-bottom: 10px;
-    }
+.result-item {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
 
-    .total-score {
-      font-size: 1.2rem;
-      margin-top: 20px;
-    }
+.correct-answer {
+  color: green;
+}
 
-    .result-item {
-      margin-bottom: 20px;
-    }
+.incorrect-answer {
+  color: red;
+}
 
-    .correct-answer {
-      color: green;
-      font-weight: bold;
-    }
+.points {
+  font-weight: bold;
+}
 
-    .incorrect-answer {
-      color: red;
-      font-weight: bold;
-    }
-
-    .points {
-      font-size: 1.1rem;
-    }
-  }
+.feedback-title {
+  margin-bottom: 10px;
 }
 </style>

@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <!-- Unified Navigation Bar -->
+    <!-- Unified Navigation Bar
     <nav class="nav nav-pills">
       <router-link to="/teacheraddsubject" class="nav-link">
         <span><i class="bi bi-arrow-left fs-4"></i></span>
@@ -20,7 +20,7 @@
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
       <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
       <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
-    </nav>
+    </nav> -->
   </div>
 
   <div class="itemanalysis-page">

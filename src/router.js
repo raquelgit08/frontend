@@ -97,7 +97,7 @@ const routes = [
   { path: '/AddExam/:examId', component: AddexaminationsofSHS },
   { path: '/CreatingExam/:class_id', component: CreationOfExaminations},
   { path: '/Feedback/:class_id', component: FeedbacksofStudent },
-  { path: '/ItemAnalysis/:class_id', component: ITEManalysis },
+  { path: '/ItemAnalysis/:exam.id', component: ITEManalysis },
   { path: '/PerformanceTracking/:class_id', component: PerformancesTracking },
   { path: '/GenerateReport/:class_id', component: ReportGenerating},
 
