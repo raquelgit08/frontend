@@ -22,30 +22,46 @@
       <div class="left-section w-50 me-4">
         <h4>Created Questions</h4>
         <div v-if="existingQuestions.length > 0">
-          <div v-for="(question, index) in existingQuestions" :key="index" class="question-card mb-4">
-            <!-- Display the question text -->
-            <h5>{{ index + 1 }}. {{ question.question }}</h5>
+  <!-- Loop through instructions first -->
+  <div v-for="(instruction, iIndex) in existingQuestions" :key="iIndex" class="instruction-card mb-4">
+    <!-- Display the instruction text -->
+    <h4>Instruction: {{ instruction.instruction }}</h4>
 
-            <!-- Display the correct answer -->
-            <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
+    <!-- Loop through the questions within each instruction -->
+    <div v-for="(question, qIndex) in instruction.questions" :key="qIndex" class="question-card mb-4">
+      <!-- Display the question text -->
+      <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
 
-            <!-- Display the points assigned -->
-            <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
+      <!-- Display the correct answer -->
+      <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
 
-            <!-- Display the instruction -->
-            <p><strong>Instruction:</strong> {{ question.instruction }}</p>
+      <!-- Check if the question type is True/False -->
+      <div v-if="instruction.question_type === 'true-false'">
+        <ul>
+          <li>True</li>
+          <li>False</li>
+        </ul>
+      </div>
 
-            <!-- Display the choices, if available -->
-            <ul v-if="question.choices && question.choices.length > 0">
-              <li v-for="(choice, idx) in question.choices" :key="idx">{{ choice.choices }}</li>
-            </ul>
+      <!-- Display the choices for other question types -->
+      <ul v-else-if="question.choices && question.choices.length > 0">
+        <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li>
+      </ul>
 
-            <!-- Buttons for actions -->
-            <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">Select to Save</button>
-            <button @click="editQuestion(index)" class="btn btn-warning btn-sm">Edit</button>
-            <button @click="deleteQuestion(question.question_id)" class="btn btn-danger btn-sm">Delete</button>
-          </div>
-        </div>
+      <!-- Display the points assigned -->
+      <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
+
+      <!-- Buttons for actions -->
+      <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">Select to Save</button>
+      <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">Edit</button>
+      <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+
+        
         <div v-else>
           <p>No questions found.</p>
         </div>
@@ -151,21 +167,21 @@ export default {
   methods: {
     // Fetch the existing questions from the backend
     async fetchQuestions() {
-      try {
-        const response = await axios.get(
-          `http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-          }
-        );
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }
+      );
 
-        const { instructions } = response.data;
-        this.existingQuestions = instructions.map(instruction => instruction.questions).flat();
-        this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
-      } catch (error) {
-        console.error('Failed to fetch questions:', error.message);
-      }
-    },
+      // Map the structure to existingQuestions, which now includes instructions
+      this.existingQuestions = response.data.instructions;
+      this.examInstruction = this.existingQuestions.length > 0 ? this.existingQuestions[0].instruction : '';
+    } catch (error) {
+      console.error('Failed to fetch questions:', error.message);
+    }
+  },
 
     // Add a new choice to a multiple-choice question
     addChoice(question) {
