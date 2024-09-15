@@ -25,10 +25,10 @@
   <!-- Loop through instructions first -->
   <div v-for="(instruction, iIndex) in existingQuestions" :key="iIndex" class="instruction-card mb-4">
     <!-- Display the instruction text -->
-    <h4>Instruction: {{ instruction.instruction }}</h4>
+    <h4>Instruction: {{ instruction.instructions.instruction }}</h4>
 
     <!-- Loop through the questions within each instruction -->
-    <div v-for="(question, qIndex) in instruction.questions" :key="qIndex" class="question-card mb-4">
+    <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
       <!-- Display the question text -->
       <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
 
@@ -174,10 +174,11 @@ export default {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         }
       );
+      const instructions = response.data.instructions || [];
 
       // Map the structure to existingQuestions, which now includes instructions
-      this.existingQuestions = response.data.instructions;
-      this.examInstruction = this.existingQuestions.length > 0 ? this.existingQuestions[0].instruction : '';
+      this.existingQuestions = instructions;
+      this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
     } catch (error) {
       console.error('Failed to fetch questions:', error.message);
     }
