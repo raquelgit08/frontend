@@ -22,46 +22,43 @@
       <div class="left-section w-50 me-4">
         <h4>Created Questions</h4>
         <div v-if="existingQuestions.length > 0">
-  <!-- Loop through instructions first -->
-  <div v-for="(instruction, iIndex) in existingQuestions" :key="iIndex" class="instruction-card mb-4">
-    <!-- Display the instruction text -->
-    <h4>Instruction: {{ instruction.instructions.instruction }}</h4>
+          <!-- Loop through instructions first -->
+          <div v-for="(instruction, iIndex) in existingQuestions" :key="iIndex" class="instruction-card mb-4">
+            <!-- Display the instruction text -->
+            <h4>Instruction: {{ instruction.instructions ? instruction.instructions.instruction : 'No instruction' }}</h4>
 
-    <!-- Loop through the questions within each instruction -->
-    <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
-      <!-- Display the question text -->
-      <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
+            <!-- Loop through the questions within each instruction -->
+            <div v-for="(question, qIndex) in (instruction.instructions ? instruction.instructions.questions : [])" :key="qIndex" class="question-card mb-4">
+              <!-- Display the question text -->
+              <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
 
-      <!-- Display the correct answer -->
-      <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
+              <!-- Display the correct answer -->
+              <p><strong>Correct Answer:</strong> {{ (question.correct_answers && question.correct_answers.length > 0) ? question.correct_answers[0].correct_answer : 'N/A' }}</p>
 
-      <!-- Check if the question type is True/False -->
-      <div v-if="instruction.question_type === 'true-false'">
-        <ul>
-          <li>True</li>
-          <li>False</li>
-        </ul>
-      </div>
+              <!-- Check if the question type is True/False -->
+              <div v-if="instruction.question_type === 'true-false'">
+                <ul>
+                  <li>True</li>
+                  <li>False</li>
+                </ul>
+              </div>
 
-      <!-- Display the choices for other question types -->
-      <ul v-else-if="question.choices && question.choices.length > 0">
-        <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li>
-      </ul>
+              <!-- Display the choices for other question types -->
+              <ul v-else-if="question.choices && question.choices.length > 0">
+                <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li>
+              </ul>
 
-      <!-- Display the points assigned -->
-      <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
+              <!-- Display the points assigned -->
+              <p><strong>Points:</strong> {{ (question.correct_answers && question.correct_answers.length > 0) ? question.correct_answers[0].points : 'N/A' }}</p>
 
-      <!-- Buttons for actions -->
-      <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">Select to Save</button>
-      <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">Edit</button>
-      <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">Delete</button>
-    </div>
-  </div>
-</div>
+              <!-- Buttons for actions -->
+              <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">Select to Save</button>
+              <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">Edit</button>
+              <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">Delete</button>
+            </div>
+          </div>
+        </div>
 
-
-
-        
         <div v-else>
           <p>No questions found.</p>
         </div>
@@ -137,7 +134,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -167,22 +163,22 @@ export default {
   methods: {
     // Fetch the existing questions from the backend
     async fetchQuestions() {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        }
-      );
-      const instructions = response.data.instructions || [];
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          }
+        );
+        const instructions = response.data.instructions || [];
 
-      // Map the structure to existingQuestions, which now includes instructions
-      this.existingQuestions = instructions;
-      this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
-    } catch (error) {
-      console.error('Failed to fetch questions:', error.message);
-    }
-  },
+        // Map the structure to existingQuestions, which now includes instructions
+        this.existingQuestions = instructions;
+        this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
+      } catch (error) {
+        console.error('Failed to fetch questions:', error.message);
+      }
+    },
 
     // Add a new choice to a multiple-choice question
     addChoice(question) {
@@ -222,168 +218,162 @@ export default {
           },
         ];
 
-        // Post the new questions to the backend
         await axios.post(
-          `http://localhost:8000/api/addQuestionsToExam/${this.examId}`,
-          { instructions: instructionsData },
+          'http://localhost:8000/api/addQuestions',
+          {
+            exam_id: this.examId,
+            instructions: instructionsData,
+          },
           {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           }
         );
 
-        // Clear the newQuestions array after saving to avoid duplications
-        this.newQuestions = [
-          {
-            text: '',
-            correctAnswer: '',
-            points: 1,
-            choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
-          },
-        ];
-
-        // Re-fetch the existing questions to update the view
-        await this.fetchQuestions();
-
-        alert('All questions saved successfully!');
+        Swal.fire('Success', 'Questions have been saved successfully!', 'success');
+        this.newQuestions = []; // Clear the form
       } catch (error) {
         console.error('Failed to save questions:', error.message);
-        Swal.fire('Error', 'Failed to save questions. Please try again.', 'error');
+        Swal.fire('Error', 'Failed to save questions.', 'error');
       }
     },
 
-    // Save the selected question to the test bank
+    // Confirm saving a question to the test bank
     confirmSaveToTestBank(question) {
       Swal.fire({
-        title: 'Do you want to save this question to the test bank?',
-        icon: 'question',
+        title: 'Are you sure?',
+        text: 'You want to save this question to the test bank.',
+        icon: 'warning',
         showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, save it!',
-        cancelButtonText: 'No, cancel',
       }).then(async (result) => {
         if (result.isConfirmed) {
-          const preparedQuestion = this.prepareQuestionForSelection(question);
+          try {
+            await axios.post(
+              'http://localhost:8000/api/saveQuestionToTestBank',
+              { question_id: question.id },
+              {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+              }
+            );
 
-          if (preparedQuestion) {
-            await this.saveToTestBank(preparedQuestion);
-          } else {
-            Swal.fire('Error', 'Invalid question data, unable to save.', 'error');
+            Swal.fire('Saved!', 'The question has been saved to the test bank.', 'success');
+          } catch (error) {
+            console.error('Failed to save question to test bank:', error.message);
+            Swal.fire('Error', 'Failed to save question to the test bank.', 'error');
           }
         }
       });
     },
 
-    // Prepare the question data for saving to the test bank
-    prepareQuestionForSelection(question) {
-      const questionId = question.id || question.question_id;
-      const correctAnswerId = question.correct_answers?.[0]?.correct_answer_id || question.correct_answers?.[0]?.id;
-
-      let choices = [];
-
-      if (this.globalQuestionType === 'true-false') {
-        choices = [
-          { choice_id: 1, choices: 'True' },
-          { choice_id: 2, choices: 'False' },
-        ];
-      } else if (this.globalQuestionType === 'multiple-choice') {
-        choices = question.choices.map(choice => ({
-          choice_id: choice.choice_id || choice.id,
-          choices: choice.choices,
-        }));
-      }
-
-      // Identification questions have no choices
-      if (this.globalQuestionType === 'identification') {
-        choices = [];
-      }
-
-      if (!questionId || !correctAnswerId) {
-        console.error('Missing question_id or correct_answer_id');
-        return null;
-      }
-
-      return {
-        question_id: questionId,
-        correct_id: correctAnswerId,
-        choices: choices,
-      };
+    // Edit a specific question by its index
+    editQuestion(index) {
+      const question = this.newQuestions[index];
+      this.$refs[`questionForm_${index}`].scrollIntoView({ behavior: 'smooth' });
+      this.$nextTick(() => {
+        this.newQuestions[index] = { ...question }; // Update the question form with selected question details
+      });
     },
 
-    // Save the question to the test bank
-    async saveToTestBank(questionData) {
+    // Delete a specific question
+    async deleteQuestion(questionId) {
       try {
-        const payload = {
-          schedule_id: this.examId,
-          questions: [questionData], // Save one question at a time
-        };
-
-        await axios.post(
-          `http://localhost:8000/api/storetestbank`,
-          payload,
+        await axios.delete(
+          `http://localhost:8000/api/deleteQuestion/${questionId}`,
           {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           }
         );
 
-        Swal.fire('Success', 'Question saved to test bank successfully!', 'success');
+        Swal.fire('Deleted!', 'The question has been deleted.', 'success');
+        this.fetchQuestions(); // Refresh the list of questions
       } catch (error) {
-        console.error('Error saving to test bank:', error.response.data);
-        Swal.fire('Error', error.response.data.message, 'error');
+        console.error('Failed to delete question:', error.message);
+        Swal.fire('Error', 'Failed to delete the question.', 'error');
       }
     },
 
     // Publish the exam
-    publishExam() {
-      axios.post(
-        `http://localhost:8000/api/exams/publish2/${this.examId}`,
-        {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-      )
-        .then(() => {
-          this.isPublished = true;
-          Swal.fire('Success', 'Exam published successfully!', 'success');
-        })
-        .catch((error) => {
-          console.error('Failed to publish exam:', error.message);
-        });
+    async publishExam() {
+      try {
+        await axios.post(
+          `http://localhost:8000/api/publishExam/${this.examId}`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          }
+        );
+
+        this.isPublished = true; // Update the publish status
+        Swal.fire('Published!', 'The exam has been published.', 'success');
+      } catch (error) {
+        console.error('Failed to publish exam:', error.message);
+        Swal.fire('Error', 'Failed to publish the exam.', 'error');
+      }
     },
 
-    // Redirect to the exam schedule
+    // View the exam schedule
     viewExamSchedule() {
-      alert('Redirecting to exam schedule...');
+      this.$router.push(`/exam-schedule/${this.examId}`);
+    },
+
+    // Change the global question type and reset the form
+    createNewInstruction() {
+      this.newQuestions = [
+        {
+          text: '',
+          correctAnswer: '',
+          points: 1,
+          choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
+        },
+      ];
     },
   },
 };
 </script>
-
 <style scoped>
 .manage-exam-container {
   padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .page-title {
-  font-weight: bold;
-  color: #0b355e;
-  text-align: center;
   margin-bottom: 20px;
 }
 
-.left-section, .right-section {
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+.top-section {
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.instruction-card, .question-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.instruction-card {
+  padding: 10px;
+  background-color: #f9f9f9;
 }
 
 .question-card {
-  background-color: #ffffff;
   padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
 }
 
-input.form-control, textarea.form-control {
-  margin-bottom: 10px;
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+.btn {
+  margin-right: 5px;
 }
 </style>
