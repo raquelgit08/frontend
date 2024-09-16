@@ -16,7 +16,7 @@
       <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
+      <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
       <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
       <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
@@ -32,37 +32,29 @@
         {{ error }}
       </div>
 
-      <!-- Results Table -->
-      <div v-if="Object.keys(results).length">
-        <div v-for="(examData, examTitle) in results" :key="examTitle">
-          <h6>{{ examTitle }}</h6>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>LRN</th>
-                <th>Student Name</th>
-                <th>Total Score</th>
-                <th>Total Exam</th>
-                <th>Exam Start</th>
-                <th>Exam End</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="result in examData.exam_results" :key="result.student_id">
-                <td>{{ result.Lrn_id }}</td>
-                <td>{{ result.Last_name }}, {{ result.First_name }} {{ result.Middle_i }}</td>
-                <td>{{ result.total_score }}</td>
-                <td>{{ result.total_exam }}</td>
-                <td>{{ new Date(result.exam_start).toLocaleString() }}</td>
-                <td>{{ new Date(result.exam_end).toLocaleString() }}</td>
-                <td>{{ result.status }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p>Finished Students: {{ examData.finished_students }}</p>
-          <p>Unfinished Students: {{ examData.unfinished_students }}</p>
-        </div>
+      <!-- Grading Sheet -->
+      <div v-if="results && Object.keys(results).length">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>LRN</th>
+              <th>Student Name</th>
+              <th v-for="(examData, examTitle) in results" :key="examTitle">
+                <div>{{ examTitle }}</div>
+                <div>{{ examData.exam_date }}</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="student in getFlattenResults()" :key="student.id">
+              <td>{{ student.lrn }}</td>
+              <td>{{ student.Last_name }}, {{ student.First_name }} {{ student.Middle_i }}</td>
+              <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
+                {{ student[examTitle] || '-' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div v-else>
         <p>No results available.</p>
@@ -78,24 +70,19 @@ export default {
   name: 'PerformancesTracking',
   data() {
     return {
-      selectedItem: '',
       subject: {
         subjectName: '',
         semester: '',
         schoolYear: ''
       },
-      results: {},
+      results: {}, // Results data, including exams and scores
       error: ''
     };
-  },
-  created() {
-    this.fetchSubject(); // Fetch subject details when the component is created
-    this.fetchStudentResults();
   },
   methods: {
     async fetchSubject() {
       try {
-        const classId = this.$route.params.class_id; // Get class_id from route params
+        const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
 
         if (!token) {
@@ -114,23 +101,12 @@ export default {
           return;
         }
 
-        // Update subject details from the API response
         this.subject.subjectName = response.data.class.subject.subjectname;
         this.subject.semester = response.data.class.semester;
         this.subject.schoolYear = response.data.class.year.addyear;
       } catch (error) {
         console.error('Error fetching subject:', error);
-        if (error.response) {
-          if (error.response.status === 404) {
-            this.error = 'Class not found or you are not authorized to view this class.';
-          } else if (error.response.status === 403) {
-            this.error = 'You are not authorized to view this class.';
-          } else {
-            this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
-          }
-        } else {
-          this.error = 'Failed to fetch subject data. Please try again later.';
-        }
+        this.error = error.response ? error.response.data.message : 'Failed to fetch subject data. Please try again later.';
       }
     },
     async fetchStudentResults() {
@@ -148,8 +124,8 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
-        console.log('Response data:', response.data);
 
+        console.log('Student Results Data:', response.data);
         if (response.data.results) {
           this.results = response.data.results;
         } else {
@@ -157,19 +133,35 @@ export default {
         }
       } catch (error) {
         console.error('Error fetching student results:', error);
-        if (error.response) {
-          this.error = error.response.data.error || 'Failed to fetch student results. Please try again later.';
-        } else {
-          this.error = 'Failed to fetch student results. Please try again later.';
-        }
+        this.error = error.response ? error.response.data.error : 'Failed to fetch student results. Please try again later.';
       }
     },
-    handleLogoutClick() {
-      // Logout logic here
-    },
-    handleItemClick(path) {
-      this.selectedItem = path;
+    getFlattenResults() {
+  // Create a flattened version of the results data to simplify table rendering
+  const results = [];
+  for (const examTitle in this.results) {
+    const examData = this.results[examTitle];
+    for (const result of examData.exam_results) {
+      let student = results.find(r => r.lrn === result.Lrn_id);
+      if (!student) {
+        student = {
+          lrn: result.Lrn_id,
+          Last_name: result.Last_name,
+          First_name: result.First_name,
+          Middle_i: result.Middle_i
+        };
+        results.push(student);
+      }
+      student[examTitle] = result.total_score || '-'; // Handle null scores
     }
+  }
+  return results;
+}
+
+  },
+  created() {
+    this.fetchSubject(); // Fetch subject details when the component is created
+    this.fetchStudentResults();
   }
 };
 </script>
@@ -178,18 +170,17 @@ export default {
 /* Main Container */
 .main-container {
   display: flex;
-  align-items: stretch; /* Ensure both containers stretch to the same height */
-  justify-content: space-between; /* Space out the subject info and nav bar */
+  align-items: stretch;
+  justify-content: space-between;
 }
 
 /* Subject Info Container */
 .subject-info-container {
-  flex: 1; /* Flex value of 1 to take equal height as the nav */
+  flex: 1;
   max-width: 300px;
-  margin-right: 10px;
-  margin-left: 10px;
+  margin: 10px;
   display: flex;
-  align-items: center; /* Center the content vertically */
+  align-items: center;
 }
 
 /* Subject Info Styling */
@@ -215,11 +206,11 @@ export default {
 
 /* Navigation Bar */
 .nav {
-  flex: 2; /* Flex value of 2 to balance the nav width */
+  flex: 2;
   display: flex;
   justify-content: space-around;
   background-color: #ffffff;
-  align-items: center; /* Ensure nav items are centered vertically */
+  align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 10px;
@@ -249,7 +240,7 @@ export default {
   margin-bottom: 40px;
 }
 
-/* Table Styling */
+/* Grading Sheet Table */
 .table {
   width: 100%;
   margin-top: 20px;
@@ -257,10 +248,31 @@ export default {
 
 .table th, .table td {
   text-align: center;
+  vertical-align: middle;
 }
 
+.table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+  color: #343a40;
+  font-weight: 600;
+}
+
+.table tbody td {
+  color: #495057;
+}
+
+.table-bordered {
+  border: 1px solid #dee2e6;
+}
+
+.table-bordered th, .table-bordered td {
+  border: 1px solid #dee2e6;
+}
+
+/* Alert */
 .alert {
   margin-top: 20px;
-  margin-bottom: 20px;
 }
 </style>

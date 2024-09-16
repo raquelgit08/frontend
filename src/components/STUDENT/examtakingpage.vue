@@ -1,9 +1,14 @@
 <template>
   <div class="exam-container">
     <h2 class="text-center exam-title">{{ exam.title }}</h2>
-
+    <div v-if="!examOver">
+      <h3>Time Remaining: {{ formattedTime }}</h3>
+    </div>
+    <div v-else>
+      <h3>Time is up!</h3>
+    </div>
     <!-- Exam Form -->
-    <form v-if="!examSubmitted" @submit.prevent="submitExam" class="exam-form">
+    <form v-if="!examSubmitted && !examOver" @submit.prevent="submitExam" class="exam-form">
       <div v-if="exam.questions && exam.questions.length">
         <div v-for="(question, index) in paginatedQuestions" :key="index" class="question-container">
           <h4 class="question-header">{{ index + 1 }}. {{ question.question }}</h4>
@@ -11,23 +16,29 @@
           <!-- Multiple Choice Questions -->
           <div v-if="question.choices && question.choices.length > 0" class="choice-container">
             <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
-              <input type="radio" :name="'question_' + question.id" :value="choice.id" v-model="selectedAnswers[question.id]" />
+              <input type="radio" :name="'question_' + question.id" :value="choice.id" v-model="selectedAnswers[question.id]" :disabled="examOver" />
               {{ choice.choices }}
             </label>
           </div>
           
           <!-- No Choices Available -->
           <div v-else>
-            <input type="text" v-model="studentTextAnswers[question.id]" placeholder="Your answer here" class="form-control" />
+            <input type="text" v-model="studentTextAnswers[question.id]" placeholder="Your answer here" class="form-control" :disabled="examOver" />
           </div>
         </div>
       </div>
 
       <!-- Pagination Controls -->
       <div class="pagination-controls">
-        <button type="button" class="btn btn-secondary" @click="prevPage" :disabled="currentPage === 1">Previous</button>
+        <button type="button" class="btn btn-secondary" @click="prevPage" :disabled="currentPage === 1 || examOver">Previous</button>
         <span class="pagination-status">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button type="button" class="btn btn-secondary" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+        <button type="button" class="btn btn-secondary" @click="nextPage" :disabled="currentPage === totalPages || examOver">Next</button>
+      </div>
+      <div v-if="!examSubmitted && !examOver && currentPage === totalPages" class="button-group">
+        <button type="submit" @click="submitExam" class="btn btn-primary" :disabled="isSubmitting">
+          <span v-if="isSubmitting">Submitting...</span>
+          <span v-else>Submit Exam</span>
+        </button>
       </div>
 
       <!-- Validation Errors -->
@@ -36,13 +47,13 @@
       </div>
 
       <!-- Form Buttons -->
-      <div class="button-group">
-        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+      <!-- <div class="button-group">
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting || examOver">
           <span v-if="isSubmitting">Submitting...</span>
           <span v-else>Submit Exam</span>
         </button>
-        <button type="button" @click="clearForm" class="btn btn-secondary">Clear form</button>
-      </div>
+        <button type="button" @click="clearForm" class="btn btn-secondary" :disabled="examOver">Clear form</button>
+      </div> -->
     </form>
 
     <!-- Display Results After Submission -->
@@ -55,8 +66,8 @@
               <p><strong>{{ index + 1 }}. Question {{ result.question }}:</strong></p>
               <p>Your Answer: 
                 <span :class="{'correct-answer': result.student_answer === result.correct_answer, 'incorrect-answer': result.student_answer !== result.correct_answer}" class="user-answer">
-                  {{ result.student_answer }}
-                </span>
+              {{ result.student_answer || 'Unanswered' }}
+            </span>
               </p>
               <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p>
               <p>Points: <span class="points">{{ result.points_awarded }}</span></p>
@@ -66,8 +77,10 @@
         </div>
         <div class="col-4">
           <h3 class="feedback-title">Your Feedback</h3>
+          
           <textarea v-model="comment" class="form-control" rows="10" placeholder="Please provide your feedback about the exam..."></textarea>
           <button @click="submitFeedback(exam.id)" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
+
         </div>
       </div>
     </div>
@@ -92,7 +105,11 @@ export default {
       results: [],
       totalScore: 0,
       currentPage: 1,
-      questionsPerPage: 5,
+      questionsPerPage: 1,
+      timeRemaining: 0,
+      timerInterval: null,
+      end: null,
+      examOver: false, // Flag to indicate if the exam is over
     };
   },
   computed: {
@@ -104,15 +121,26 @@ export default {
     totalPages() {
       return this.exam.questions ? Math.ceil(this.exam.questions.length / this.questionsPerPage) : 1;
     },
+    formattedTime() {
+      if (this.timeRemaining < 0) {
+        return 'Time is up!';
+      }
+      const minutes = Math.floor(this.timeRemaining / 60);
+      const seconds = this.timeRemaining % 60;
+      return `${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+      
+    }
   },
   created() {
     this.fetchExam();
   },
   methods: {
     clearForm() {
-      this.selectedAnswers = {};
-      this.studentTextAnswers = {};
-      this.validationError = '';
+      if (!this.examOver) {
+        this.selectedAnswers = {};
+        this.studentTextAnswers = {};
+        this.validationError = '';
+      }
     },
     validateAnswers() {
       if (Object.keys(this.selectedAnswers).length + Object.keys(this.studentTextAnswers).length !== this.exam.questions.length) {
@@ -136,6 +164,11 @@ export default {
         });
         this.exam = response.data.exam;
         this.exam.questions = response.data.exam.instructions.questions;
+
+        const startTime = new Date(this.exam.start);
+        const endTime = new Date(this.exam.end);
+        this.initializeTimer(startTime, endTime);
+
       } catch (error) {
         Swal.fire({
           title: 'Error!',
@@ -147,19 +180,22 @@ export default {
       }
     },
     async submitExam() {
-      if (!this.validateAnswers()) return;
-
+     // if (!this.validateAnswers()) return;
+     clearInterval(this.timerInterval);
       this.isSubmitting = true;
+
       const formattedAnswers = this.exam.questions.map((question) => {
-        const selectedChoice = this.selectedAnswers[question.id];
+        const selectedChoice = this.selectedAnswers[question.id] || null;
         const textAnswer = this.studentTextAnswers[question.id] || null;
+
+        // Submit null or a placeholder if the question is unanswered
         return {
           question_id: question.id,
           addchoices_id: selectedChoice ? selectedChoice : null,
           Student_answer: selectedChoice ? question.choices.find(choice => choice.id === selectedChoice)?.choices : textAnswer,
         };
       });
-      console.log('Formatted answers:', formattedAnswers);
+
       try {
         const examId = this.$route.params.exam_id;
         await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
@@ -185,20 +221,21 @@ export default {
         });
       } finally {
         this.isSubmitting = false;
+        this.examSubmitted = true; //
       }
+
+      // this.timeRemaining=0;
+      // this.minutes=0;
+      // this.seconds=0;
+   
     },
+
     async getResults(examId) {
       try {
         const response = await axios.get(`http://localhost:8000/api/getResultswithtestbank/${examId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        this.results = response.data.results.map((result) => {
-          const studentAnswer = this.selectedAnswers[result.question_id] || this.studentTextAnswers[result.question_id];
-          return {
-            ...result,
-            Student_answer: studentAnswer,
-          };
-        });
+        this.results = response.data.results;
         this.totalScore = response.data.total_score;
         this.examSubmitted = true;
       } catch (error) {
@@ -208,17 +245,6 @@ export default {
           icon: 'error',
           confirmButtonText: 'OK',
         });
-      }
-    },
-
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-      }
-    },
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
       }
     },
     async submitFeedback(examId) {
@@ -244,76 +270,84 @@ export default {
         });
       }
     },
+    initializeTimer(startTime, endTime) {
+      const now = new Date();
+      if (now > endTime) {
+        this.submitExam(); 
+        this.examOver = true;
+        
+        return;
+      }
+
+      this.timeRemaining = Math.floor((endTime - now) / 1000);
+
+      this.timerInterval = setInterval(() => {
+        this.timeRemaining = Math.floor((endTime - new Date()) / 1000);
+        if (this.timeRemaining <= 0) {
+          clearInterval(this.timerInterval);
+          this.examOver = true;
+          this.submitExam(); // Automatically submit when time is up
+        }
+      }, 1000);
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages && !this.examOver) {
+        this.currentPage += 1;
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1 && !this.examOver) {
+        this.currentPage -= 1;
+      }
+    }
+  },
+  beforeMount() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
   },
 };
 </script>
 
 <style scoped>
 .exam-container {
-  max-width: 900px;
-  margin: auto;
   padding: 20px;
 }
-
 .exam-title {
   margin-bottom: 20px;
 }
-
 .exam-form {
-  border: 1px solid #dee2e6;
-  padding: 20px;
-  border-radius: 8px;
-  background: #f8f9fa;
+  margin-top: 20px;
 }
-
 .question-container {
   margin-bottom: 20px;
 }
-
 .choice-container {
   margin-top: 10px;
 }
-
-.choice-label {
-  display: block;
-}
-
 .pagination-controls {
-  margin: 20px 0;
+  margin-top: 20px;
 }
-
 .results-container {
   margin-top: 20px;
 }
-
 .results-title {
   margin-bottom: 20px;
 }
-
 .results-list {
-  list-style: none;
+  list-style-type: none;
   padding: 0;
 }
-
 .result-item {
-  border-bottom: 1px solid #dee2e6;
-  padding-bottom: 10px;
   margin-bottom: 10px;
 }
-
 .correct-answer {
   color: green;
 }
-
 .incorrect-answer {
   color: red;
 }
-
-.points {
-  font-weight: bold;
-}
-
-.feedback-title {
-  margin-bottom: 10px;
+.button-group {
+  margin-top: 20px;
 }
 </style>

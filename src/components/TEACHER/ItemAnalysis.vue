@@ -1,6 +1,5 @@
 <template>
   <div class="main-container">
-    <!-- Subject Information Display on the Left -->
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2>{{ subject.subjectName }}</h2>
@@ -8,24 +7,30 @@
       </div>
     </div>
 
-    <!-- Unified Navigation Bar
-    <nav class="nav nav-pills">
-      <router-link to="/teacheraddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4"></i></span>
-      </router-link>
-      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
-      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
-      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
-    </nav> -->
-  </div>
-
-  <div class="itemanalysis-page">
     <div class="container-fluid">
       <h5>Item Analysis</h5>
+      
+      <!-- Check if analysis is ready -->
+      <div v-if="questionAnalysis.length > 0">
+        <div v-for="(question, index) in questionAnalysis" :key="index" class="question-analysis">
+          <h6>{{ index + 1 }}. {{ question.question }}</h6>
+          
+          <!-- Correct Answer -->
+          <p><strong>Correct Answer:</strong> {{ question.correct_answer }}</p>
+
+          <!-- Choice List with Selection Count and Percentage -->
+          <ul>
+            <li v-for="(choice, choiceIndex) in question.choices" :key="choiceIndex">
+              {{ choice.choice }}: {{ choice.count }} selections ({{ choice.percentage }}%)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Show a message if no analysis is available -->
+      <div v-else>
+        <p>No item analysis data available for this exam.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -37,22 +42,23 @@ export default {
   name: 'ITEManalysis',
   data() {
     return {
-      selectedItem: '',
       subject: {
         subjectName: '',
         semester: '',
         schoolYear: ''
       },
+      questionAnalysis: [], // Stores item analysis data
       error: ''
     };
   },
   created() {
-    this.fetchSubject(); // Fetch subject details when the component is created
+    this.fetchSubject(); // Fetch the subject details
+    this.fetchItemAnalysis(); // Fetch the item analysis data
   },
   methods: {
     async fetchSubject() {
       try {
-        const classId = this.$route.params.class_id; // Get class_id from route params
+        const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
 
         if (!token) {
@@ -71,30 +77,52 @@ export default {
           return;
         }
 
-        // Update subject details from the API response
         this.subject.subjectName = response.data.class.subject.subjectname;
         this.subject.semester = response.data.class.semester;
         this.subject.schoolYear = response.data.class.year.addyear;
       } catch (error) {
         console.error('Error fetching subject:', error);
-        if (error.response) {
-          if (error.response.status === 404) {
-            this.error = 'Class not found or you are not authorized to view this class.';
-          } else if (error.response.status === 403) {
-            this.error = 'You are not authorized to view this class.';
-          } else {
-            this.error = error.response.data.message || 'Failed to fetch subject data. Please try again later.';
-          }
-        } else {
-          this.error = 'Failed to fetch subject data. Please try again later.';
-        }
+        this.handleError(error);
       }
     },
-    handleLogoutClick() {
-      // Logout logic here
+    async fetchItemAnalysis() {
+      try {
+        const examId = this.$route.params.exam_id;
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+          this.error = 'Authorization token is missing. Please log in again.';
+          return;
+        }
+
+        const response = await axios.get('http://localhost:8000/api/itemAnalysis', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          params: {
+            examId: examId,
+          }
+        });
+
+        // Ensure the response aligns with the backend structure
+        this.questionAnalysis = response.data.item_analysis; // Properly access the item_analysis array
+      } catch (error) {
+        console.error('Error fetching item analysis:', error);
+        this.handleError(error);
+      }
     },
-    handleItemClick(path) {
-      this.selectedItem = path;
+    handleError(error) {
+      if (error.response) {
+        if (error.response.status === 404) {
+          this.error = 'Data not found.';
+        } else if (error.response.status === 403) {
+          this.error = 'You are not authorized.';
+        } else {
+          this.error = error.response.data.message || 'Failed to fetch data.';
+        }
+      } else {
+        this.error = 'Failed to fetch data. Please try again later.';
+      }
     }
   }
 };
@@ -104,22 +132,20 @@ export default {
 /* Main Container */
 .main-container {
   display: flex;
-  align-items: stretch; /* Ensure both containers stretch to the same height */
-  justify-content: space-between; /* Space out the subject info and nav bar */
-
+  align-items: stretch;
+  justify-content: space-between;
 }
 
 /* Subject Info Container */
 .subject-info-container {
-  flex: 1; /* Flex value of 1 to take equal height as the nav */
+  flex: 1;
   max-width: 300px;
   margin-right: 10px;
   margin-left: 10px;
   display: flex;
-  align-items: center; /* Center the content vertically */
+  align-items: center;
 }
 
-/* Subject Info Styling */
 .subject-info {
   width: 100%;
   padding: 15px;
@@ -140,136 +166,29 @@ export default {
   color: #6c757d;
 }
 
-/* Navigation Bar */
-.nav {
-  flex: 2; /* Flex value of 2 to balance the nav width */
-  display: flex;
-  justify-content: space-around;
-  background-color: #ffffff;
-  align-items: center; /* Ensure nav items are centered vertically */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.nav-link {
-  color: #343a40 !important;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.nav-link:hover {
-  color: #007bff !important;
-}
-
-.router-link-active {
-  color: #007bff !important;
-  border-bottom: 2px solid #007bff;
-}
-
-/* Page Title */
-.container-fluid h4 {
-  color: #060000;
-  padding: 10px;
-  border-radius: 8px 8px 0 0;
-  font-family: 'Georgia', serif;
-  margin-bottom: 20px; 
-}
-
-.table {
-  font-size: 15px;
-}
-
-.table-info {
-  background-color: #e0ffff;
-}
-
-.btn-danger {
-  margin-right: 10px;
-}
-
+/* Analysis Section */
 .container-fluid {
   margin: auto;
 }
-/* Page Title */
-.itemanalysis-page h5 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #343a40;
-  letter-spacing: 1px;
-  margin-bottom: 40px;
-}
 
-/* Additional Styling for Analysis Page */
-.analysis-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.container-fluid {
-  flex: 1;
-}
-
-.left-column {
-  background-color: white;
+.question-analysis {
+  background-color: #f8f9fa;
   padding: 10px;
-  border-right: 1px solid #ddd;
-  height: 100vh;
-  width: 250px;
-}
-
-.right-column {
-  padding: 20px;
-  background-color: white;
-  flex: 1;
-}
-
-.list-group-container {
-  height: 100%;
-}
-
-.list-group {
-  color: #333;
-  text-decoration: none;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin: 10px 0;
-  padding: 10px;
-  font-family: 'Arial', sans-serif;
-  font-size: 16px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.list-group.active,
-.list-group:hover,
-.logOut:hover {
-  background-color: #50C878;
-  color: white;
-}
-
-.icon-label {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.icon-label i {
-  margin-right: 10px;
-}
-
-.icon-label .label {
-  flex: 1;
-}
-
-.analysis-page h1 {
-  font-family: 'Arial', sans-serif;
-  font-size: 24px;
-  font-weight: bold;
   margin-bottom: 20px;
-  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.question-analysis h6 {
+  font-weight: bold;
+}
+
+.question-analysis ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.question-analysis li {
+  padding: 5px 0;
 }
 </style>

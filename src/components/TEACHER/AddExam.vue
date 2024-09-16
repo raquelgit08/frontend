@@ -8,10 +8,9 @@
           Publish Exam
         </button>
   
-  <button @click="viewItemAnalysis(exam.id)" type="button" class="btn btn-primary">
-    View Item Analysis
-  </button>
-
+        <button @click="viewItemAnalysis(examId)" type="button" class="btn btn-primary">
+          View Item Analysis
+        </button>
       </div>
     </div>
 
@@ -269,8 +268,7 @@ export default {
         }
       });
     },
-     //Redirect to the exam schedule
-     viewItemAnalysis(examId) {
+    viewItemAnalysis(examId) {
       this.$router.push(`/ItemAnalysis/${examId}`);
     },
     // Prepare the question data for saving to the test bank

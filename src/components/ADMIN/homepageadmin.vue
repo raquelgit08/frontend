@@ -29,7 +29,7 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2>Admin Portal</h2>
+          <h2 style="margin-left: 90px;">Admin Portal</h2>
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto" style="margin-right: 20px;">
@@ -41,7 +41,7 @@
           <div class="designations" v-if="userProfile && Object.keys(userProfile).length">ADMIN</div>
           <p v-else>Loading profile...</p>
         </div>
-        <i class="bi bi-box-arrow-left fs-2" id="log_out" @click="handleLogout"></i>
+        <i class="bi bi-box-arrow-right fs-2" id="log_out" @click="handleLogout"></i>
       </div>
     </nav>
 

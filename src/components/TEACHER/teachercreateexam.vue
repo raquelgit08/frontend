@@ -43,15 +43,14 @@
         <thead class="table-info">
           <tr>
             <th style="width: 4%">#</th>
-            <th style="width: 15%">Title</th>
+            <th style="width: 14%">Title</th>
             <th style="width: 9%">Quarter</th>
             <th style="width: 8%">Start Date</th>
             <th style="width: 8%">Start Time</th>
             <th style="width: 8%">End Date</th>
             <th style="width: 8%">End Time</th>
-            <th style="width: 8%">Total Questions</th>
-            <th style="width: 8%">Total Points</th>
-            <th style="width: 8%">No. of Response</th>
+            <th style="width: 10%">Total Points</th>
+            <th style="width: 10%">No. of Response</th>
             <th style="width: 8%">Average Score</th>
             <th style="width: 14%">Actions</th>
             <th style="width: 14%">Status</th>
@@ -66,7 +65,7 @@
             <td>{{ formatTime(exam.start) }}</td>
             <td>{{ formatDate(exam.end) }}</td>
             <td>{{ formatTime(exam.end) }}</td>
-            <td>{{ exam.totalQuestions }}</td>
+      
             <td>{{ exam.points_exam }}</td>
             <td></td>
             <td></td>
@@ -74,7 +73,8 @@
               <div class="d-flex justify-content-center">
                 <button @click="publishExam(exam.id)" class="btn btn-success btn-sm me-2" v-if="!exam.isPublished">Publish</button>
                 <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
-                <button @click="confirmArchive(exam.id)" class="btn btn-danger btn-sm">Archive</button>
+                <!-- <button @click="confirmArchive(exam.id)" class="btn btn-danger btn-sm">Archive</button>
+                 -->
               </div>
             </td>
             <td>
