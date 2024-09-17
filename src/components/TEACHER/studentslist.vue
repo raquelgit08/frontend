@@ -14,12 +14,21 @@
         <span><i class="bi bi-arrow-left fs-4"></i></span>
       </router-link>
       <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
-      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
-      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">
+        <i class="bi bi-file-earmark-plus fs-4"></i> Exams
+      </router-link>
+      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link">
+        <i class="bi bi-chat-dots fs-4"></i> Feedback
+      </router-link>
+      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link">
+        <i class="bi bi-activity fs-4"></i> Performance Tracking
+      </router-link>
+      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link">
+        <i class="bi bi-person-lines-fill fs-4"></i> Students
+      </router-link>
+      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">
+        <i class="bi bi-hourglass-split fs-4"></i> Pending
+      </router-link>
     </nav>
   </div>
 
@@ -31,12 +40,12 @@
       <div class="col-md-8 offset-md-2">
         <input v-model="inviteEmail" type="email" class="form-control" placeholder="Enter student's email" />
         <input v-model="inviteName" type="text" class="form-control mt-2" placeholder="Enter student's name" />
-        <button class="btn btn-primary mt-2" @click="inviteStudentEmail">Invite Student</button>
+        <button class="btn btn-primary mt-2 w-100" @click="inviteStudentEmail">Invite Student</button>
       </div>
     </div>
 
     <div class="row mb-4">
-      <div class="col-md-8 offset-md-2">
+      <div class="col-md-10 offset-md-1">
         <table class="table table-bordered table-hover">
           <thead class="table-info">
             <tr>
@@ -153,46 +162,42 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 .container-fluid {
   background-color: #ffffff;
   border-radius: 10px;
-
 }
+
 /* Main Container */
 .main-container {
   display: flex;
-  align-items: stretch; /* Ensure both containers stretch to the same height */
-  justify-content: space-between; /* Space out the subject info and nav bar */
+  align-items: stretch;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 /* Subject Info Container */
-/* Subject Info Container */
 .subject-info-container {
-  flex: 1; /* Flex value of 1 to take equal height as the nav */
-  max-width: 300px;
-  margin-right: 10px;
-  margin-left: 10px;
+  flex: 1;
+  max-width: 280px;
+  margin-right: 15px;
   display: flex;
-  align-items: center; /* Center the content vertically */
+  align-items: center;
 }
 
 /* Subject Info Styling */
 .subject-info {
   width: 100%;
   padding: 15px;
-  background-color: #ffffff;
-  border-radius: 15px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
 .subject-info h2 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   color: #343a40;
   font-weight: 700;
-  margin-bottom: 8px;
 }
 
 .subject-info p {
@@ -202,11 +207,11 @@ export default {
 
 /* Navigation Bar */
 .nav {
-  flex: 2; /* Flex value of 2 to balance the nav width */
+  flex: 2;
   display: flex;
   justify-content: space-around;
   background-color: #ffffff;
-  align-items: center; /* Ensure nav items are centered vertically */
+  align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 10px;
@@ -214,8 +219,8 @@ export default {
 
 .nav-link {
   color: #343a40 !important;
-  text-decoration: none;
   font-weight: 500;
+  padding: 8px 16px;
 }
 
 .nav-link:hover {
@@ -229,7 +234,7 @@ export default {
 
 /* Table and Title Styling */
 .container-fluid h4 {
-  font-size: 1.75rem;
+  font-size: 1.8rem;
   font-weight: 600;
   color: #343a40;
   margin-bottom: 20px;
@@ -250,5 +255,6 @@ export default {
 
 .btn {
   margin: 0 5px;
+  width: 100%;
 }
 </style>
