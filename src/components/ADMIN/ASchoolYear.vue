@@ -1,3 +1,4 @@
+
 <template>
   <div class="container-fluid">
     <div class="header-container">
@@ -14,14 +15,14 @@
           <input type="text" v-model="searchQuery" class="form-control custom-select" placeholder="Search...">
         </div>
       </div>
-     
+
       <div class="col-md-3 d-flex align-items-center">
         <button class="btn btn-gradient" @click="openAddModal">
           <i class="bi bi-plus"></i> Add School Year
         </button>
       </div>
     </div>
-    
+
     <!-- Loading Indicator -->
     <div v-if="loading" class="text-center mb-3">
       <i class="bi bi-hourglass-split"></i> Loading...
@@ -34,27 +35,23 @@
           <tr>
             <th>#</th>
             <th>School Year</th>
-            <th>Status</th> <!-- Add Status Column -->
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(year, index) in filteredList" :key="year.id">
+          <tr v-for="(item, index) in filteredList" :key="item.id" class="align-middle">
             <td>{{ index + 1 }}</td>
-            <td>{{ year.addyear }}</td>
+            <td>{{ item.addyear }}</td>
             <td>
-              <!-- Display the active status -->
-              <span v-if="year.is_active" class="badge bg-success">Active</span>
+              <span v-if="item.is_active" class="badge bg-success">Active</span>
               <span v-else class="badge bg-secondary">Inactive</span>
             </td>
             <td>
-              <button class="btn btn-md btn-info me-2" @click="toggleActive(year.id)">
-                <i class="bi bi-toggle-on"></i> Toggle Active
-              </button>
-              <button class="btn btn-md edit me-2" @click="openEditModal(year)">
+              <button class="btn edit btn-md me-2" @click="openEditModal(item)">
                 <i class="bi bi-pencil"></i> Edit
               </button>
-              <button class="btn btn-md btn-danger" @click="confirmDeleteYear(year.id)">
+              <button class="btn btn-danger btn-md" @click="confirmDeleteItem(item.id)">
                 <i class="bi bi-trash"></i> Delete
               </button>
             </td>
@@ -63,24 +60,30 @@
       </table>
     </div>
 
-    <!-- Add/Edit Year Modal -->
-    <div class="modal fade" ref="yearModal" tabindex="-1" aria-labelledby="yearModalLabel" aria-hidden="true">
+    <!-- Add/Edit Modal -->
+    <div class="modal fade" id="addEditModal" tabindex="-1" ref="addEditModal">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="modal-title" id="yearModalLabel"><i class="bi bi-calendar-month-fill" style="padding-right: 10px;"></i>{{ isEdit ? 'Edit Year' : 'Add Year' }}</h5>
+            <h5 class="modal-title">
+              <i class="bi bi-calendar-month-fill" style="padding-right: 10px;"></i>
+              {{ isEdit ? 'Edit' : 'Add' }} School Year
+            </h5>
             <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
           </div><br>
-       
+
           <div class="modal-body">
-            <form @submit.prevent="saveYear">
-              <div class="mb-3">
-                <label for="yearInput" class="form-label">School Year</label>
-                <input type="text" id="yearInput" v-model="newYear" class="form-control custom-select" required />
-                <div v-if="error" class="text-danger mt-2">{{ error }}</div>
-              </div>
-              <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update' : 'Save Record' }}</button>
-            </form>
+            <div class="mb-3">
+              <input type="text" v-model="newYear" class="form-control custom-select" placeholder="School Year">
+            </div>
+            <div class="form-check mb-3">
+              <input type="checkbox" class="form-check-input" v-model="isActive" id="activeCheck">
+              <label class="form-check-label" for="activeCheck">Set as Active Year</label>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
+            <button type="button" class="btn btn-primary" @click="checkForDuplicate">{{ isEdit ? 'Update' : 'Save' }}</button>
           </div>
         </div>
       </div>
@@ -94,7 +97,7 @@ import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
 
 export default {
-  name: 'SchoolYear',
+  name: 'SchoolYearManagement',
   data() {
     return {
       searchQuery: '',
@@ -102,86 +105,87 @@ export default {
       newYear: '',
       isEdit: false,
       editYearId: null,
+      isActive: false,
       error: null,
       loading: false,
     };
   },
   computed: {
     filteredList() {
-      const query = this.searchQuery.toLowerCase();
-      return this.years.filter(year => year.addyear.toLowerCase().includes(query));
-    },
+      return this.years.filter(year => {
+        return (
+          this.searchQuery === '' ||
+          year.addyear.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      });
+    }
   },
   methods: {
-    // Fetch all years from the API
     async fetchYears() {
       this.loading = true;
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://localhost:8000/api/viewyear', {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         });
         this.years = response.data.data;
       } catch (error) {
-        this.error = 'Failed to fetch years.';
+        console.error('Error fetching school years:', error);
+        this.error = 'Failed to fetch school years.';
+        Swal.fire('Error', this.error, 'error');
       } finally {
         this.loading = false;
       }
     },
 
-    // Toggle active status of a year
-    async toggleActive(id) {
-      const token = localStorage.getItem('token');
-      try {
-        await axios.put(`http://localhost:8000/api/year/toggle-active/${id}`, {}, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        await this.fetchYears(); // Refresh the list after toggling
-      } catch (error) {
-        this.error = 'Failed to toggle activation status.';
+    async checkForDuplicate() {
+      const duplicate = this.years.find(
+        year =>
+          year.addyear.toLowerCase() === this.newYear.toLowerCase() &&
+          (!this.isEdit || year.id !== this.editYearId)
+      );
+
+      if (duplicate) {
+        this.closeModal(); // Close the modal before showing the SweetAlert
+        Swal.fire('Duplicate Error', 'A school year with this name already exists.', 'error');
+      } else {
+        this.saveYear();
       }
     },
 
-    // Save a new or edited year
     async saveYear() {
-      try {
-        const token = localStorage.getItem('token');
-        const url = this.isEdit
-          ? `http://localhost:8000/api/updateyear/${this.editYearId}`
-          : 'http://localhost:8000/api/addyear';
-        const method = this.isEdit ? 'put' : 'post';
-        
-        await axios({ method, url, data: { addyear: this.newYear, is_active: false }, headers: { Authorization: `Bearer ${token}` } });
-        await this.fetchYears();
-        this.closeModal();
-      } catch (error) {
-        if (error.response && error.response.status === 409) {
-          this.closeModal(); // Close modal before showing SweetAlert
-          this.showDuplicateError(error.response.data.message);
-        } else {
-          this.error = 'Failed to save year.';
-        }
-      }
-    },
+  try {
+    const token = localStorage.getItem('token');
+    const url = this.isEdit
+      ? `http://localhost:8000/api/updateyear/${this.editYearId}`
+      : 'http://localhost:8000/api/addyear';
+    const method = this.isEdit ? 'put' : 'post';
 
-    async deleteYear(id) {
-      const token = localStorage.getItem('token');
-      try {
-        await axios.delete(`http://localhost:8000/api/deleteyear/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        await this.fetchYears();
-      } catch (error) {
-        this.error = 'Failed to delete year.';
-      }
-    },
+    // Send the data to the API
+    await axios({
+      method,
+      url,
+      data: { 
+        addyear: this.newYear, 
+        is_active: this.isActive // Send is_active as boolean
+      },
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-    // Confirm before deleting
-    confirmDeleteYear(id) {
+    await this.fetchYears();
+    this.closeModal();
+  } catch (error) {
+    if (error.response && error.response.status === 409) {
+      // Display conflict error (when trying to set multiple active years)
+      Swal.fire('Error', error.response.data.message, 'error');
+    } else {
+      Swal.fire('Error', 'Failed to save year.', 'error');
+    }
+  }
+},
+    async confirmDeleteItem(id) {
       Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -190,24 +194,27 @@ export default {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          this.deleteYear(id);
-          Swal.fire(
-            'Deleted!',
-            'Your data has been deleted.',
-            'success'
-          );
+          await this.deleteYear(id);
+          Swal.fire('Deleted!', 'Your school year has been deleted.', 'success');
         }
       });
     },
 
-    showDuplicateError(message) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Duplicate Error',
-        text: message,
-      });
+    async deleteYear(id) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:8000/api/deleteyear/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        await this.fetchYears();
+      } catch (error) {
+        console.error('Error deleting school year:', error);
+        Swal.fire('Error', 'Failed to delete school year.', 'error');
+      }
     },
 
     openAddModal() {
@@ -216,20 +223,21 @@ export default {
       this.showModal();
     },
 
-    openEditModal(year) {
+    openEditModal(item) {
       this.isEdit = true;
-      this.editYearId = year.id;
-      this.newYear = year.addyear;
+      this.editYearId = item.id;
+      this.newYear = item.addyear;
+      this.isActive = item.is_active;
       this.showModal();
     },
 
     showModal() {
-      const modal = new Modal(this.$refs.yearModal);
+      const modal = new Modal(this.$refs.addEditModal);
       modal.show();
     },
 
     closeModal() {
-      const modal = Modal.getInstance(this.$refs.yearModal);
+      const modal = Modal.getInstance(this.$refs.addEditModal);
       modal.hide();
       this.resetForm();
     },
@@ -238,14 +246,18 @@ export default {
       this.newYear = '';
       this.isEdit = false;
       this.editYearId = null;
-      this.error = null;
-    },
+      this.isActive = false;
+    }
   },
   mounted() {
     this.fetchYears();
-  },
+  }
 };
 </script>
+
+<style scoped>
+/* Add your styles here (same as your previous component styles) */
+</style>
 
 <style scoped>
 /* Container */

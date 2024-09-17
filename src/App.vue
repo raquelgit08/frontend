@@ -21,7 +21,7 @@
           <form @submit.prevent="handleSubmit" class="login-form">
             <input type="text" v-model="email" placeholder="Enter username" class="form-control" required />
             <div class="password-group">
-              <input :type="showPassword ? 'text' : 'password'"  v-model="password" placeholder="Password"  class="form-control" required/>
+              <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Password" class="form-control" required />
               <i :class="passwordFieldIcon" class="password-toggle" @click="togglePassword"></i>
             </div>
 
@@ -29,24 +29,9 @@
               <a href="#" class="recovery-password" :style="{color: recoveryPasswordColor}" @click="handleRecoveryPassword">Recovery Password</a>
             </div>
 
+            <!-- Sign In button -->
             <button type="submit" class="btn-signin" :style="{ backgroundColor: signInButtonColor }">Sign In</button>
           </form>
-
-        <!--<p class="register-link">Not a member? <router-link to="/register">Register now</router-link></p> -->  
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal for loading spinner -->
-    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-body text-center">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-3">Verifying user, please wait...</p>
-          </div>
         </div>
       </div>
     </div>
@@ -56,7 +41,6 @@
 <script>
 import axios from 'axios';
 import router from '@/router';
-import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2'; // Import SweetAlert
 
 import HomePageAdmin from './components/ADMIN/homepageadmin.vue';
@@ -75,7 +59,11 @@ export default {
       isStudent: false,
       errorMessage: '',
       recoveryPasswordColor: '#007bff', // Initial color for recovery password link
-      signInButtonColor: '#ff5252' // Initial color for the sign in button
+      signInButtonColor: '#ff5252', // Initial color for the sign in button
+      attempts: 0, // Track login attempts
+      remainingTime: 60, // Time to wait before retrying
+      lockoutTimer: null, // Timer for handling lockout period
+      countdownInterval: null // Interval for countdown in SweetAlert
     };
   },
   computed: {
@@ -85,19 +73,28 @@ export default {
   },
   methods: {
     async handleSubmit() {
+      if (this.attempts >= 3) {
+        // Start the countdown and show alert with dynamic timer
+        this.startCountdownAlert();
+        return;
+      }
+
+      // Check if the app is offline
+      if (!navigator.onLine) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Offline',
+          text: 'You are currently offline. Please check your internet connection and try again.'
+        });
+        return;
+      }
+
       try {
-        // Change the Sign In button color to blue on form submission
-        this.signInButtonColor = 'blue';
-
-        // Show loading modal
-        const modalElement = document.getElementById('loadingModal');
-        const modal = new Modal(modalElement);
-        modal.show();
-
         const response = await axios.post('http://127.0.0.1:8000/api/login', {
           email: this.email,
           password: this.password
         });
+
         console.log(response.data);
 
         // Save the token and user type to local storage
@@ -118,16 +115,30 @@ export default {
         } else if (response.data.usertype === 'student') {
           router.push('/student'); // Route to student page
         } else {
-          this.errorMessage = 'Invalid user type.';
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Invalid user type.'
+          });
         }
+
+        // Reset attempts on successful login
+        this.attempts = 0;
+        clearInterval(this.lockoutTimer);
+
       } catch (error) {
         console.error('Login failed:', error);
-        this.errorMessage = 'Login failed. Please check your credentials.';
-      } finally {
-        // Hide loading modal
-        const modalElement = document.getElementById('loadingModal');
-        const modal = Modal.getInstance(modalElement);
-        modal.hide();
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: 'Invalid credentials. Please try again.'
+        });
+
+        // Increment login attempts on failure
+        this.attempts++;
+        if (this.attempts >= 3) {
+          this.startLockoutTimer();
+        }
       }
     },
     updateUserType(usertype) {
@@ -159,6 +170,43 @@ export default {
         title: 'Inform your teacher',
         text: 'Inform your teacher about the recover password',
       });
+    },
+    startLockoutTimer() {
+      this.remainingTime = 60; // Set wait time to 60 seconds
+      this.lockoutTimer = setInterval(() => {
+        this.remainingTime--;
+        if (this.remainingTime <= 0) {
+          clearInterval(this.lockoutTimer);
+          this.attempts = 0; // Reset attempts after lockout
+        }
+      }, 1000);
+    },
+    startCountdownAlert() {
+      let countdown = this.remainingTime;
+      
+      // Initial SweetAlert popup
+      Swal.fire({
+        icon: 'warning',
+        title: 'Too many attempts!',
+        html: `Please wait <b>${countdown}</b> seconds before trying again.`,
+        timer: countdown * 1000, // Automatically close after countdown finishes
+        timerProgressBar: true,
+        allowOutsideClick: false, // Prevent clicking outside to close
+        didOpen: () => {
+          const content = Swal.getHtmlContainer().querySelector('b');
+          this.countdownInterval = setInterval(() => {
+            countdown--;
+            content.textContent = countdown;
+            if (countdown <= 0) {
+              clearInterval(this.countdownInterval); // Stop countdown
+            }
+          }, 1000);
+        },
+        willClose: () => {
+          clearInterval(this.countdownInterval); // Clear interval when the alert closes
+          this.attempts = 0; // Reset login attempts after countdown
+        }
+      });
     }
   },
   components: {
@@ -184,18 +232,18 @@ export default {
 </script>
 
 <style scoped>
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto:wght@300;400;700&display=swap');
-/* The rest of your CSS remains the same */
 
+/* Recovery password styles */
 .recovery-password {
-  color: #007bff; /* Initial color is blue */
+  color: #007bff; /* Initial color */
 }
 
 .recovery-password:hover {
   text-decoration: underline;
 }
 
+/* Sign In button styles */
 .btn-signin {
   background-color: #ff5252; /* Initial color */
   border: none;
@@ -203,24 +251,23 @@ export default {
   color: #fff;
   padding: 15px;
   width: 100%;
-  font-size: 18px; /* Increased font size */
-  font-weight: 600; /* Make font bolder */
+  font-size: 18px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s ease; /* Smooth transition on hover and click */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Added shadow effect */
 }
 
 .btn-signin:hover {
   background-color: #e04848; /* Hover effect */
+  transform: translateY(-2px); /* Slight lift on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
 }
 
-
-.recovery-password {
-  color: #007bff; /* Initial color is blue */
-}
-
-.recovery-password:hover {
-  text-decoration: underline;
+.btn-signin:active {
+  background-color: #d03d3d; /* Darker color when clicked */
+  transform: translateY(1px); /* Button sinks slightly when clicked */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); /* Reduced shadow when clicked */
 }
 
 html, body {
@@ -237,13 +284,13 @@ html, body {
 
 .login-left {
   width: 45%;
-  background-color: #e0e0f8; /* A similar color to match the image's background */
+  background-color: #e0e0f8;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  border-top-right-radius: 50px; /* Curve effect */
-  border-bottom-right-radius: 50px; /* Curve effect */
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
 }
 
 .illustration {
@@ -261,36 +308,36 @@ html, body {
 }
 
 .login-form-container {
-  max-width: 500px; /* Increased width */
+  max-width: 500px;
   width: 100%;
   text-align: center;
-  padding: 30px; /* Added padding for better look */
-  border-radius: 10px; /* Added border radius for softer edges */
-  background-color: #fff; /* Ensure background is white for contrast */
+  padding: 30px;
+  border-radius: 10px;
+  background-color: #fff;
 }
 
 .greeting {
-  font-size: 38px; /* Increased font size */
-  font-weight: 700; /* Make font bolder */
+  font-size: 38px;
+  font-weight: 700;
   margin-bottom: 20px;
   color: #333;
 }
 
 .welcome-message {
-  font-size: 20px; /* Increased font size */
-  font-weight: 500; /* Make font bolder */
+  font-size: 20px;
+  font-weight: 500;
   margin-bottom: 40px;
   color: #666;
 }
 
 .login-form .form-control {
-  font-size: 18px; /* Increased font size */
+  font-size: 18px;
   border-radius: 10px;
   border: 1px solid #ccc;
-  padding: 20px; /* Increased padding */
+  padding: 20px;
   margin-bottom: 20px;
   width: 100%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Added shadow effect */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .password-group {
@@ -311,43 +358,14 @@ html, body {
   margin-bottom: 20px;
 }
 
-.recovery-password {
-  color: #007bff;
-  font-size: 16px; /* Increased font size */
-  font-weight: 500; /* Make font bolder */
-  text-decoration: none;
-}
-
-.recovery-password:hover {
-  text-decoration: underline;
-}
-
-.btn-signin {
-  background-color: #ff5252;
-  border: none;
-  border-radius: 50px;
-  color: #fff;
-  padding: 15px;
-  width: 100%;
-  font-size: 18px; /* Increased font size */
-  font-weight: 600; /* Make font bolder */
-  cursor: pointer;
-  transition: background-color 0.3s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Added shadow effect */
-}
-
-.btn-signin:hover {
-  background-color: #e04848;
-}
-
 .register-link {
   margin-top: 30px;
-  font-size: 16px; /* Increased font size */
-  font-weight: 500; /* Make font bolder */
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .register-link a {
-  color: #007bff; /* Add color to the link */
+  color: #007bff;
   text-decoration: none;
 }
 

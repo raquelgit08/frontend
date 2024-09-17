@@ -169,7 +169,7 @@ export default {
         this.closeModal();
       } catch (error) {
         console.error('Error saving subject:', error);
-        Swal.fire('Error', 'Failed to save subject.', 'error');
+        Swal.fire('Error', 'Failed to save subject.', 'error'); 
       }
     },
 
