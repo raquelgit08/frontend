@@ -21,8 +21,7 @@
           </ul>
         </li>
       </ul>
-      <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button>
-      
+      <!-- <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button> -->
     </div>
     
     <!-- Navbar Component -->

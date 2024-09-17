@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+  <div class="container-fluid">
     <!-- Subject Information Display -->
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
@@ -14,21 +14,21 @@
       <router-link to="/Saddsubject" class="nav-link">
         <span><i class="bi bi-arrow-left fs-4"></i></span> Back to Subjects
       </router-link>
-      <router-link :to="`/mysubject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+     
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-file-earmark-plus fs-4"></i> Exams
       </router-link>
-      <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
+      <!-- <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-chat-dots fs-4"></i> Feedback
-      </router-link>
+      </router-link> -->
       <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-activity fs-4"></i> Performance
+        <i class="bi bi-activity fs-4"></i> Subject Performance 
       </router-link>
     </nav>
 
     <!-- Published Exams List -->
-    <div class="subject-page container mt-5">
-      <h5 class="text-center section-title">Published Exams</h5>
+    <div class="cointainer-fluid" style="margin-top: 20px;">
+     
 
       <!-- Error Handling -->
       <div v-if="error" class="alert alert-danger text-center">
@@ -38,22 +38,29 @@
       <!-- Published Exams Cards -->
       <div class="row g-4" v-if="exams.length">
         <div class="col-md-4" v-for="exam in exams" :key="exam.id">
-          <div class="card h-100 shadow-sm exam-card">
+          <!-- <div class="card h-100 shadow-sm exam-card"></div> -->
+          <div class="card h-100 shadow-sm exam-card" :class="{ 'unavailable-card': !isExamAvailable(exam) }" @click="viewExam(exam)">
             <div class="card-body">
-              <h5 class="card-title">{{ exam.title }}</h5>
-              <p class="card-text">
-                <strong>Quarter:</strong> {{ exam.quarter }}<br>
-                <strong>Start:</strong> {{ formatDateTime(exam.start) }}<br>
-                <strong>End:</strong> {{ formatDateTime(exam.end) }}<br>
-                <strong>Status:</strong>
-                <span v-if="isExamAvailable(exam)" class="status-available">Available</span>
-                <span v-else class="status-unavailable">Unavailable</span>
-              </p>
-              <div class="d-grid gap-2">
-                <button @click="viewExam(exam)" class="btn btn-primary">
-                  View Exam
-                </button>
-              </div>
+              <h5 class="card-title">{{ exam.title }} <b>({{ exam.total_points}} points)</b></h5>
+              <div class="row">
+                <div class="col-8">
+                  <strong>Status:</strong>
+                  <span v-if="isExamAvailable(exam)" class="status-available">Available</span>
+                  <span v-else class="status-unavailable">Unavailable</span>
+                  <br>
+
+                  <strong>TOTAL QUESTIONS: {{ exam.total_questions }}</strong><br>
+
+                  <!-- Displaying the score and aligning it to the right -->
+                  
+                </div>
+                <div class="col-4 score-right">
+                  <strong>{{ exam.total_score }} / {{ exam.total_points }}</strong>
+                </div>
+              </div>       <!-- <div class="d-flex gap-2 container-fluid">
+                <button @click="viewExam(exam)" class="btn btn-primary "> View Exam </button>
+                <button @click="viewScore(exam)" class="btn btn-primary"> View Score</button>
+              </div> -->
             </div>
           </div>
         </div>
@@ -76,6 +83,9 @@
           <p><strong>Status:</strong>
             <span v-if="isExamAvailable(modalExam)">Available</span>
             <span v-else>Unavailable</span>
+          </p>
+          <p><strong>SCORE:</strong> 
+            <!-- {{ modalExam.quarter }}  -->
           </p>
           <p v-if="modalExam.description"><strong>Description:</strong> {{ modalExam.description }}</p>
         </div>
@@ -119,7 +129,7 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        console.log("Subject response data:", subjectResponse.data);
         this.subject = {
           subjectName: subjectResponse.data.subject_name,
           classDescription: subjectResponse.data.class_description,
@@ -132,6 +142,7 @@ export default {
           },
         });
 
+        console.log("Exams response data:", examsResponse.data);
         this.exams = examsResponse.data.exams;
 
       } catch (error) {
@@ -143,6 +154,7 @@ export default {
       const now = new Date();
       const startDate = new Date(exam.start);
       const endDate = new Date(exam.end);
+      // const stat = new sta (exam.status);
       return now >= startDate && now <= endDate;
     },
 
@@ -185,18 +197,14 @@ export default {
 </script>
 
 <style scoped>
-/* General Styling */
-.main-container {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  gap: 30px;
-}
+
 
 .subject-info-container {
-  background-color: #f7f9fc;
+  background-color: #FDFFE2;
   border-radius: 10px;
   padding: 15px;
+  margin-bottom: 10px;
+  height: 130px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -213,6 +221,7 @@ export default {
 
 .class-code span {
   color: #007bff;
+  font-weight: 800;
 }
 
 .nav {
@@ -225,7 +234,7 @@ export default {
 }
 
 .nav-link {
-  color: #007bff;
+  color: #000000;
   font-weight: 600;
   padding: 10px 20px;
   border-radius: 5px;
@@ -237,12 +246,7 @@ export default {
   color: white !important;
 }
 
-.subject-page {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-}
+
 
 .section-title {
   font-size: 1.5rem;
@@ -252,11 +256,14 @@ export default {
 .exam-card {
   background-color: white;
   border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .exam-card:hover {
   transform: scale(1.05);
+  cursor: pointer;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -294,4 +301,19 @@ export default {
   font-size: 1.5rem;
   cursor: pointer;
 }
+.unavailable-card {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border: 2px solid #870505; /* Solid 2px border with the #870505 color */
+  background-color: rgba(254, 155, 155, 0.29); /* Semi-transparent white background */
+  padding: 5px; /* Optional: Padding for spacing inside the card */
+  border-radius: 8px; /* Optional: Rounded corners */
+}
+.score-right{
+  border: 2px solid #03730c; /* 2px border with #a90202 color */
+    padding: 10px; /* Add some padding inside the border */
+    text-align: right;
+    border-radius: 10px; 
+    background-color: #fcfffc;
+}
+
 </style>

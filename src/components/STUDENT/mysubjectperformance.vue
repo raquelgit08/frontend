@@ -14,13 +14,13 @@
       <router-link to="/Saddsubject" class="nav-link">
         <span><i class="bi bi-arrow-left fs-4"></i></span>
       </router-link>
-      <router-link :to="`/mysubject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
+     
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-file-earmark-plus fs-4"></i> Exams
       </router-link>
-      <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
+      <!-- <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-chat-dots fs-4"></i> Feedback
-      </router-link>
+      </router-link> -->
       <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-activity fs-4"></i> Subject Performance 
       </router-link>

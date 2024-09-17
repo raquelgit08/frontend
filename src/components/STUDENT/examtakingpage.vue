@@ -181,11 +181,11 @@ export default {
     },
     async submitExam() {
      // if (!this.validateAnswers()) return;
-     clearInterval(this.timerInterval);
+    
       this.isSubmitting = true;
 
       const formattedAnswers = this.exam.questions.map((question) => {
-        const selectedChoice = this.selectedAnswers[question.id] || null;
+        const selectedChoice = this.selectedAnswers[question.id] ;
         const textAnswer = this.studentTextAnswers[question.id] || null;
 
         // Submit null or a placeholder if the question is unanswered
@@ -223,6 +223,7 @@ export default {
         this.isSubmitting = false;
         this.examSubmitted = true; //
       }
+      clearInterval(this.timerInterval);
 
       // this.timeRemaining=0;
       // this.minutes=0;

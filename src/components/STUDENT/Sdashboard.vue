@@ -1,6 +1,6 @@
 
 <template>
-    <h1>DASBURDDDDDDDDDDDD  ng student HEEERRRRREEE</h1>
+    <h1>DASBURDDDDDDDDDDDD  ng ssssssstudent HEEERRRRREEE</h1>
   </template>
   
   <script>

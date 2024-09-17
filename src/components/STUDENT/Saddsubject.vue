@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h3 style="margin-top: 20px;">Enrolled Subjects</h3>
+    <h3 >Enrolled Subjects</h3>
     <button class="bi bi-plus-circle add-button" @click="showModal = true"></button>
 
     <!-- Modal for Adding Subject -->
@@ -8,7 +8,7 @@
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-md" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Add Subject</h5>
+            <h5 class="modal-title">Join in Class</h5>
             <button type="button" class="btn-close" @click="showModal = false" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -17,8 +17,8 @@
                 <label for="gen_code" class="form-label">Subject Code</label>
                 <input type="text" v-model="genCode" class="form-control" id="gen_code" required />
               </div>
-              <button type="submit" class="btn btn-primary">Add Subject</button>
-              <div v-if="message" :class="{'alert': true, 'alert-success': success, 'alert-danger': !success}">
+              <button type="submit" class="btn btn-primary">Join this Class</button>
+              <div v-if="message" :class="['alert', success ? 'alert-success' : 'alert-danger']">
                 {{ message }}
               </div>
             </form>
@@ -28,16 +28,17 @@
     </div>
 
     <!-- Displaying Approved Subjects -->
-    <div v-if="subjects.length" class="mt-4" style="margin: 20px; align-items: center;">
+    <div v-if="subjects.length" class="mt-4">
       <div class="card-container">
-        <div v-for="subject in subjects" :key="subject.class_id" class="card">
+        <div v-for="subject in subjects" :key="subject.class_id" class="card" @click="goToRoom(subject.class_id)">
           <img :src="subject.imageUrl || require('@/assets/newlogo.png')" class="card-img" alt="Subject Image" />
           <div class="card-body">
             <h5 class="card-title">{{ subject.subject_name }}</h5>
-            <p class="card-text"> Class Code: {{ subject.class_gen_code }}</p>
-            <p class="card-text">Subject Descriptions: {{ subject.class_description }}</p>
-            <router-link :to="`/mysubject/${subject.class_id}`" class="btn btn-primary">Go to Room</router-link>
-
+            <div class="d-flex justify-content-between align-items-center">
+            <p class="mb-0 class-code">Class Code: {{ subject.class_gen_code }}</p>
+          </div>
+            
+          
           </div>
         </div>
       </div>
@@ -59,7 +60,7 @@ export default {
       genCode: '',
       message: '',
       success: false,
-      subjects: [], // Ensure subjects is initialized as an array
+      subjects: [],
     };
   },
   methods: {
@@ -75,6 +76,9 @@ export default {
       } catch (error) {
         this.subjects = [];
       }
+    },
+    goToRoom(classId) {
+      this.$router.push(`/myExams/${classId}`);
     },
     async addSubject() {
       const token = localStorage.getItem('token');
@@ -107,8 +111,8 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  margin-top: 20px;
+.container-fluid {
+  padding: 10px;
 }
 
 .add-button {
@@ -121,7 +125,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 50px;
+  font-size: 40px;
   background-color: #87ceeb;
   border: none;
   color: #fff;
@@ -156,56 +160,51 @@ export default {
   border: 2px solid #87ceeb;
 }
 
-.form-control:focus {
-  border-color: #00bfff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 191, 255, 0.25);
-}
-
-.btn-primary {
-  background-color: #87ceeb;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: #00bfff;
-}
-
-.alert {
-  margin-top: 10px;
-}
 
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 30px;
+  justify-content: center;
+  cursor: pointer; 
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  border: 3px solid #2c71c190;
-  border-radius: 8px;
-  width: 250px;
-  background-color: #fff;
+  border-radius: 10px;
+  width: 260px;
+  height: 320px;
+  background-color: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .card-img {
   width: 100%;
-  height: 150px;
+  height: 170px;
   object-fit: cover;
 }
 
 .card-body {
-  padding: 15px;
-  background-color: #00bfff36;
+  padding: 22px;
+  background-color: #A7E6FF;
+  flex-grow: 1;
 }
 
 .card-title {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 18px;
+  margin-bottom: 5px;
+  color: #030202;
+  font-weight: 600;
 }
 
 .card-text {
-  font-size: 1rem;
+  font-size: 15px;
+  color: #000000;
+}
+
+.btn-primary {
+  border-radius: 20px;
 }
 </style>
