@@ -1,10 +1,13 @@
 <template>
   <div class="exam-container">
-    <h2 class="text-center exam-title">{{ exam.title }}</h2>
-    <div v-if="!examOver">
-      <h3>Time Remaining: {{ formattedTime }}</h3>
+    <div class="timer-container">
+      <div v-if="!examOver" class="alert alert-info time-box">
+        <p style="font-size: 20px;">TIME REMAINING:</p>
+        <h1>{{ formattedTime }}</h1>
+      </div>
     </div>
-    <div v-else>
+    <h2 class="text-center exam-title">{{ exam.title }}</h2>
+    <div v-if="examOver">
       <h3>Time is up!</h3>
     </div>
     <!-- Exam Form -->
@@ -313,18 +316,22 @@ export default {
 <style scoped>
 .exam-container {
   padding: 20px;
+  border-radius: 12px;
+  background-color: aliceblue;
 }
 .exam-title {
   margin-bottom: 20px;
 }
 .exam-form {
-  margin-top: 20px;
+  padding-top: 0;
+  padding: 80px;
+  padding-right: 40px;
 }
 .question-container {
-  margin-bottom: 20px;
+  margin-bottom: 70px;
 }
 .choice-container {
-  margin-top: 10px;
+  margin-top: 70px;
 }
 .pagination-controls {
   margin-top: 20px;
@@ -351,4 +358,37 @@ export default {
 .button-group {
   margin-top: 20px;
 }
+.timer-container {
+  position: absolute;
+  top: 120px; /* Adjust as needed */
+  right: 30px; /* Adjust as needed */
+  z-index: 1000; /* Ensure it is above other content */
+}
+
+.time-box {
+  width: 300px;
+  height: 120px;
+  text-align: center;
+  font-size: 50px;
+  background-color: #9cecec;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.choice-container {
+  margin-top: 10px;
+}
+
+.choice-label {
+  display: block; /* Ensures each choice label is on a new line */
+  margin-bottom: 10px; /* Space between choices */
+  padding: 5px; /* Padding around each choice */
+  font-size: 1rem; /* Adjust font size if needed */
+}
+
+.choice-label input[type="radio"] {
+  margin-right: 10px; /* Space between radio button and choice text */
+}
+
 </style>

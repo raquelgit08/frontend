@@ -1,18 +1,18 @@
 <template>
-  <div class="main-container">
-    <!-- Subject Information Display on the Left -->
+  <div class="container-fluid">
+    <!-- Subject Information Display -->
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
-        <h2>{{ subject.subjectName }}</h2>
-        <p>Description: {{ subject.classDescription }}</p>
-        <p>Class Code: {{ subject.classGenCode }}</p>
+        <h2 class="subject-title">{{ subject.subjectName }}</h2>
+        <p class="subject-description">{{ subject.classDescription }}</p>
+        <p class="class-code">Class Code: <span>{{ subject.classGenCode }}</span></p>
       </div>
     </div>
 
     <!-- Navigation Bar Positioned Next to Subject Info -->
     <nav class="nav nav-pills">
       <router-link to="/Saddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4"></i></span>
+        <span><i class="bi bi-arrow-left fs-4"></i></span> Back to Subjects
       </router-link>
      
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
@@ -26,9 +26,9 @@
       </router-link>
     </nav>
 
-    <!-- Subject Page Content -->
-    <div class="subject-page container mt-5">
-      <h5 class="text-center">Subject Performance</h5>
+    <!-- Published Exams List -->
+    <div class="cointainer-fluid" style="margin-top: 20px;">
+     
 
       <!-- Error Handling -->
       <div v-if="error" class="alert alert-danger text-center">
@@ -36,30 +36,33 @@
       </div>
 
       <!-- Performance Table -->
-      <table class="table table-hover" v-if="performances.length">
-        <thead>
-          <tr>
-            <th>Exam Title</th>
-            <th>Total Score</th>
-            <th>Total Exam</th>
-            <th>Status</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="performance in performances" :key="performance.id">
-            <td>{{ performance.exam_title }}</td>
-            <td>{{ performance.total_score }}</td>
-            <td>{{ performance.total_exam }}</td>
-            <td>{{ performance.status }}</td>
-            <td>{{ formatDate(performance.start) }}</td>
-       
-          </tr>
-        </tbody>
-      </table>
-
-      <p v-else class="text-center">No performance data available</p>
+       <div class="table-wrapper">
+        <table class="table table-hover table-custom" v-if="performances.length">
+          <thead>
+            <tr>
+              <th>Exam Title</th>
+              <th>Total Score</th>
+              <th>Total Exam</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="performance in performances" :key="performance.id">
+              <td>{{ performance.exam_title }}</td>
+              <td>{{ performance.total_score }}</td>
+              <td>{{ performance.total_exam }}</td>
+              <td>{{ performance.status }}</td>
+              <td>{{ formatDate(performance.start) }}</td>
+        
+            </tr>
+          </tbody>
+        </table>
+       </div>
+      <!-- <p v-else class="text-center no-exams-message">No performace yet </p> -->
     </div>
+
+ 
   </div>
 </template>
 
@@ -135,95 +138,71 @@ export default {
 </script>
 
 <style scoped>
-/* Main Container */
-.main-container {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  padding: 20px;
-  gap: 20px;
-}
 
-/* Subject Info Container */
 .subject-info-container {
-  flex: 1;
-  min-width: 250px;
-  max-width: 350px;
-  margin-right: 20px;
-}
-
-.subject-info {
-  padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #EEEDED;
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-}
-
-.subject-info:hover {
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
-}
-
-.subject-info h2 {
-  font-size: 1.75rem;
-  color: #212529;
-  font-weight: bold;
+  padding: 15px;
   margin-bottom: 10px;
+  height: 130px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.subject-info p {
-  font-size: 1.1rem;
-  color: #495057;
+.subject-title {
+  font-size: 1.75rem;
+  margin-bottom: 10px;
+  font-weight: 800;
+  color: #333;
 }
 
-/* Navigation Bar */
+.subject-description {
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.class-code span {
+  color: #007bff;
+  font-weight: 800;
+}
+
 .nav {
-  flex: 2;
-  display: flex;
   flex-wrap: wrap;
+  gap: 15px;
   background-color: #ffffff;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 15px;
   border-radius: 10px;
-  gap: 10px;
 }
 
 .nav-link {
-  color: #343a40 !important;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 10px 15px;
+  color: #000000;
+  font-weight: 600;
+  padding: 10px 20px;
   border-radius: 5px;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-link:hover {
+.nav-link:hover :active {
   background-color: #007bff;
   color: white !important;
 }
 
-.router-link-active {
-  color: #007bff !important;
-  background-color: #e9f5ff;
-  padding: 10px 15px;
-  border-radius: 5px;
+.section-title {
+  font-size: 1.5rem;
+  color: #333;
 }
 
-/* Performance Table */
-.table {
-  margin-top: 20px;
+
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 100%;
 }
 
-.table th, .table td {
-  text-align: center;
-}
 
-.table-hover tbody tr:hover {
-  background-color: #f1f1f1;
-}
 
 /* Error Alert */
 .alert {
@@ -252,4 +231,46 @@ export default {
     padding: 8px 10px;
   }
 }
+
+
+.table-wrapper {
+  
+    padding: 0 15px;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Table Styles */
+  .table-custom {
+    background-color: #ffffff;
+    border-radius: 8px;
+    font-size: 22px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #200909;
+    overflow: hidden;
+  }
+
+  .table-custom th {
+    background-color: #0d8eead7;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 25px;
+  }
+  
+  .table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .td{
+    font-size: 28px;
+  }
+
+  .table-custom tbody tr:hover {
+    background-color: #f1f3f5;
+  }
+
+  .table-custom tbody tr {
+    transition: background-color 0.3s ease;
+  }
 </style>

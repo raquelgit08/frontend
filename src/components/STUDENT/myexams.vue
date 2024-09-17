@@ -41,7 +41,7 @@
           <!-- <div class="card h-100 shadow-sm exam-card"></div> -->
           <div class="card h-100 shadow-sm exam-card" :class="{ 'unavailable-card': !isExamAvailable(exam) }" @click="viewExam(exam)">
             <div class="card-body">
-              <h5 class="card-title">{{ exam.title }} <b>({{ exam.total_points}} points)</b></h5>
+              <h5 class="card-title">{{ exam.title }} <b>({{ exam.total_points}} point/s)</b></h5>
               <div class="row">
                 <div class="col-8">
                   <strong>Status:</strong>
@@ -84,7 +84,7 @@
             <span v-if="isExamAvailable(modalExam)">Available</span>
             <span v-else>Unavailable</span>
           </p>
-          <p><strong>SCORE:</strong> 
+          <p><strong>SCORE : {{ modalExam.total_score }} / {{ modalExam.total_points}}</strong> 
             <!-- {{ modalExam.quarter }}  -->
           </p>
           <p v-if="modalExam.description"><strong>Description:</strong> {{ modalExam.description }}</p>
@@ -200,7 +200,7 @@ export default {
 
 
 .subject-info-container {
-  background-color: #FDFFE2;
+  background-color: #EEEDED;
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 10px;
@@ -211,6 +211,7 @@ export default {
 .subject-title {
   font-size: 1.75rem;
   margin-bottom: 10px;
+  font-weight: 800;
   color: #333;
 }
 
