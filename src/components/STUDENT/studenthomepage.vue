@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Sidebar Component -->
-    <div class="sidebar" :class="{ open: isOpen }">
+    <div v-if="!isExamPage" class="sidebar" :class="{ open: isOpen }">
       <div class="logo_details">
         <img :src="profileImage || require('@/assets/logowise.png')" class="icon" style="width: 70px; height: 70px; border-radius: 50%; margin: 10px;" alt="Profile Image">
         <div class="logo_name">WISE-SHS</div>
@@ -94,6 +94,11 @@ export default {
     }
     if (this.$route.path !== this.selectedItem) {
       this.$router.push(this.selectedItem);
+    }
+  },
+  computed: {
+    isExamPage() {
+      return this.$route.path.startsWith('/examtakingpage');
     }
   },
   methods: {
@@ -315,6 +320,10 @@ body {
 
 .sidebar.open .logo_details #btn {
   text-align: right;
+}
+.sidebar[disabled] {
+  display: none;
+  pointer-events: none;
 }
 
 .sidebar i {

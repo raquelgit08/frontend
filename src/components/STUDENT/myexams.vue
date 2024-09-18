@@ -77,6 +77,8 @@
           <button type="button" class="btn-close" @click="closeModal"></button>
         </div>
         <div class="modal-body">
+          <p><b>Instruction/s: </b>{{ instructions?.instruction || 'No instructions available' }}</p>
+
           <p><strong>Quarter:</strong> {{ modalExam.quarter }}</p>
           <p><strong>Start Date:</strong> {{ formatDateTime(modalExam.start) }}</p>
           <p><strong>End Date:</strong> {{ formatDateTime(modalExam.end) }}</p>
@@ -161,6 +163,7 @@ export default {
     takeExam(examId) {
       this.closeModal(); // Close the modal before navigating
       this.$router.push(`/examtakingpage/${examId}`);
+     
     },
 
     async viewExam(exam) {
@@ -174,6 +177,7 @@ export default {
         });
         console.log('Fetched exam data:', this.exam);
         this.modalExam = response.data.exam;
+        this.instructions = response.data.exam.instructions; 
         this.showModal = true;
       } catch (error) {
         this.error = error.response ? error.response.data.error : 'Error fetching exam details';

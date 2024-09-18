@@ -7,6 +7,7 @@
       </div>
     </div>
     <h2 class="text-center exam-title">{{ exam.title }}</h2>
+    <p> {{ instructions.instruction }}</p>
     <div v-if="examOver">
       <h3>Time is up!</h3>
     </div>
@@ -99,6 +100,7 @@ export default {
   data() {
     return {
       exam: {},
+      instructions: {},
       selectedAnswers: {},
       studentTextAnswers: {},
       isSubmitting: false,
@@ -165,7 +167,7 @@ export default {
         const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${examId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        
+        console.log('Exam data retrieved:', response.data);
         this.exam = response.data.exam;
         this.exam.questions = response.data.exam.instructions.questions;
         const startTime = new Date(this.exam.start);
@@ -264,6 +266,7 @@ export default {
           confirmButtonText: 'OK',
         }).then(() => {
           this.comment = '';
+          this.$router.push('/saddsubject');
         });
       } catch (error) {
         Swal.fire({
@@ -272,7 +275,9 @@ export default {
           icon: 'error',
           confirmButtonText: 'OK',
         });
+        
       }
+      
     },
     initializeTimer(startTime, endTime) {
       const now = new Date();
