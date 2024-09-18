@@ -37,7 +37,7 @@
         <img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%;" alt="Profile Image">
         <div class="profile_content2" style="flex: 1; text-align: center;">
           <div class="names" v-if="userProfile && Object.keys(userProfile).length">Welcome {{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div>
-          <div class="designations" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.strand_name }} - {{ userProfile.section_name }}</div>
+          <div class="designations" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.strand_name }} {{ userProfile.grade_level }} - {{ userProfile.section_name }}</div>
           <p v-else>Loading profile...</p>
         </div>
         <i class="bi bi-box-arrow-right fs-2" id="log_out" @click="handleLogout"></i>

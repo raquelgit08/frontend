@@ -165,9 +165,9 @@ export default {
         const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${examId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
+        
         this.exam = response.data.exam;
         this.exam.questions = response.data.exam.instructions.questions;
-
         const startTime = new Date(this.exam.start);
         const endTime = new Date(this.exam.end);
         this.initializeTimer(startTime, endTime);
