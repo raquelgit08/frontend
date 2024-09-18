@@ -41,7 +41,8 @@
               <th>Student Name</th>
               <th v-for="(examData, examTitle) in results" :key="examTitle">
                 <div>{{ examTitle }}</div>
-                <div>{{ examData.exam_date }}</div>
+                <div>{{ examData.exam_results[0]?.exam_start || 'No Date' }}</div> <!-- Display exam date -->
+                <div>Total Points: {{ examData.exam_results[0]?.total_exam || 'N/A' }}</div>
               </th>
             </tr>
           </thead>
