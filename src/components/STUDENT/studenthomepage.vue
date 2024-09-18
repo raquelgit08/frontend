@@ -170,7 +170,7 @@ export default {
     },
   },
   beforeMount() {
-    this.$router.push('/sdashboard');
+  //  this.$router.push('/sdashboard');
     this.selectedItem = '/sdashboard';
   },
 };

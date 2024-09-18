@@ -153,7 +153,7 @@ export default {
     },
   },
   beforeMount() {
-    this.$router.push('/adashboard');
+   // this.$router.push('/adashboard');
     this.selectedItem = '/adashboard';
   },
 };

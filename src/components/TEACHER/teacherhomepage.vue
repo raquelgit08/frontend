@@ -190,7 +190,7 @@ export default {
     },
   },
   beforeMount() {
-    this.$router.push('/teacheraddsubject');
+  //  this.$router.push('/teacheraddsubject');
     this.selectedItem = '/teacheraddsubject';
   },
 };
