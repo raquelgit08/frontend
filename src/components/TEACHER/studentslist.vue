@@ -49,18 +49,27 @@
         <table class="table table-bordered table-hover">
           <thead class="table-info">
             <tr>
+              <th scope="col" class="text-center">No.</th>
+              <th scope="col" class="text-center">LRN</th>
+              <th scope="col" class="text-center">Last Name</th>
+              <th scope="col" class="text-center">First Name</th>
+              <th scope="col" class="text-center">Middle Name</th>
+              <th scope="col" class="text-center">Gender</th>
               <th scope="col" class="text-center">Email</th>
-              <th scope="col" class="text-center">Name</th>
-              <th scope="col" class="text-center">Actions</th>
+              <th scope="col" class="text-center">Strand</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(student) in students" :key="student.id">
-              <td class="text-center">{{ student.email }}</td>
-              <td class="text-center">{{ student.users?.lname }}</td>
-              <td class="text-center">
-                <button class="btn btn-primary" @click="inviteStudent(student.id)">Invite</button>
-              </td>
+            <tr v-for="(student, index) in students" :key="student.id">
+              <td class="text-center">{{ index + 1 }}</td>
+              <td class="text-center">{{ student.user?.idnumber }}</td>
+              <td class="text-center">{{ student.user?.lname }}</td>
+              <td class="text-center">{{ student.user?.fname }}</td>
+              <td class="text-center">{{ student.user?.mname }}</td>
+              <td class="text-center">{{ student.user?.sex }}</td>
+              <td class="text-center">{{ student.user?.email }}</td>
+              <td class="text-center">{{ student.strands?.addstrand }}</td>
+             
             </tr>
           </tbody>
         </table>
