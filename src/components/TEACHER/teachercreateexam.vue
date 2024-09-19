@@ -6,7 +6,7 @@
         <h2>{{ subject.subjectName }}</h2>
         <p>{{ subject.semester }} Semester | {{ subject.schoolYear }}</p>
       </div>
-    </div>
+    </div> 
 
     <!-- Navigation Bar Positioned Next to Subject Info -->
     <nav class="nav nav-pills">
@@ -71,15 +71,15 @@
             <td></td>
             <td>
               <div class="d-flex justify-content-center">
-                <button @click="publishExam(exam.id)" class="btn btn-success btn-sm me-2" v-if="!exam.isPublished">Publish</button>
+             <!--    <button @click="publishExam(exam.id)" class="btn btn-success btn-sm me-2" v-if="!exam.isPublished">Publish</button> -->
                 <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
                 <!-- <button @click="confirmArchive(exam.id)" class="btn btn-danger btn-sm">Archive</button>
                  -->
               </div>
             </td>
-            <td>
-              <span v-if="exam.isPublished" class="badge bg-success">Published</span>
-              <span v-else class="badge bg-warning">Not Published</span>
+             <td>
+              <span v-if="exam.isPublished" class="badge bg-success">Available</span>
+              <span v-else class="badge bg-warning">Not Available </span>  
             </td>
           </tr>
         </tbody>

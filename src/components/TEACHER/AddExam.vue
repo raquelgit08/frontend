@@ -2,8 +2,6 @@
   <div>
     <!-- Subject Information and Navigation Bar at the Top -->
     <div class="main-container">
-     
-
       <!-- Unified Navigation Bar -->
       <nav class="nav nav-pills">
         <router-link to="/teacheraddsubject" class="nav-link">
@@ -20,7 +18,7 @@
           <i class="bi bi-activity fs-4"></i> Performance Tracking
         </router-link>
         <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link">
-          <i class="bi bi-person-lines-fill fs-4"></i> Students
+          <i class="bi bi-person-lines fs-4"></i> Students
         </router-link>
         <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">
           <i class="bi bi-hourglass-split fs-4"></i> Pending
@@ -73,9 +71,16 @@
 
                 <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
-                <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">Save to test bank</button>
-                <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">Edit</button>
-                <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">Delete</button>
+                <!-- Updated Buttons with spacing -->
+                <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">
+                  <i class="bi bi-cloud-upload fs-5"></i> Save to Test Bank
+                </button>
+                <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">
+                  <i class="bi bi-pencil-square fs-5"></i> Edit
+                </button>
+                <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">
+                  <i class="bi bi-trash fs-5"></i> Delete
+                </button>
               </div>
             </div>
           </div>
@@ -103,7 +108,7 @@
               </select>
             </div>
 
-            <button @click="createNewInstruction" class="btn btn-secondary mt-2">Change Question Type and Create New Instruction</button>
+            <button @click="createNewInstruction" class="btn btn-outline-secondary mt-2">Change Question Type and Create New Instruction</button>
           </div>
 
           <div v-for="(question, index) in newQuestions" :key="index" class="question-card mb-4 p-3 border bg-light">
@@ -117,7 +122,7 @@
               <div v-for="(choice, idx) in question.choices" :key="idx" class="input-group mb-2">
                 <input type="text" v-model="question.choices[idx]" class="form-control" placeholder="Choice" />
               </div>
-              <button @click="addChoice(question)" class="btn btn-secondary btn-sm">Add Choice</button>
+              <button @click="addChoice(question)" class="btn btn-outline-secondary btn-sm">Add Choice</button>
             </div>
 
             <div class="mb-3">
@@ -145,8 +150,8 @@
           </div>
 
           <div class="d-flex justify-content-between">
-            <button @click="addNewQuestionForm" class="btn btn-secondary mt-4">Add New Question</button>
-            <button @click="saveAllQuestions" class="btn btn-primary mt-4">Save All</button>
+            <button @click="addNewQuestionForm" class="btn btn-outline-secondary mt-4">Add New Question</button>
+            <button @click="saveAllQuestions" class="btn btn-outline-primary mt-4">Save All</button>
           </div>
         </div>
       </div>
@@ -174,8 +179,6 @@ export default {
       globalQuestionType: 'multiple-choice',
       examInstruction: '',
       isPublished: false,
-      
-      
     };
   },
   created() {
@@ -196,7 +199,15 @@ export default {
         console.error('Failed to fetch questions:', error.message);
       }
     },
-   
+    prepareQuestionForSelection(question) {
+      return {
+        id: question.id || null,
+        text: question.question || '',
+        correctAnswer: question.correct_answers?.[0]?.correct_answer || '',
+        points: question.correct_answers?.[0]?.points || 1,
+        choices: question.choices || [],
+      };
+    },
     addChoice(question) {
       question.choices.push('');
     },
@@ -256,6 +267,27 @@ export default {
           console.error('Failed to publish exam:', error.message);
         });
     },
+    async saveToTestBank(questionData) {
+      try {
+        const payload = {
+          schedule_id: this.examId,
+          questions: [questionData],
+        };
+
+        console.log("Payload being sent to API:", payload); // Debugging: log payload
+
+        await axios.post(
+          `http://localhost:8000/api/storetestbank`,
+          payload,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
+
+        Swal.fire('Success', 'Question saved to test bank successfully!', 'success');
+      } catch (error) {
+        console.error('Error saving to test bank:', error.response?.data || error.message); // Improved error logging
+        Swal.fire('Error', error.response?.data?.message || 'Failed to save to test bank.', 'error');
+      }
+    },
     confirmSaveToTestBank(question) {
       Swal.fire({
         title: 'Do you want to save this question to the test bank?',
@@ -273,25 +305,6 @@ export default {
           }
         }
       });
-    },
-    async saveToTestBank(questionData) {
-      try {
-        const payload = {
-          schedule_id: this.examId,
-          questions: [questionData],
-        };
-
-        await axios.post(
-          `http://localhost:8000/api/storetestbank`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-        );
-
-        Swal.fire('Success', 'Question saved to test bank successfully!', 'success');
-      } catch (error) {
-        console.error('Error saving to test bank:', error.response.data);
-        Swal.fire('Error', error.response.data.message, 'error');
-      }
     },
     viewItemAnalysis(examId) {
       this.$router.push(`/ItemAnalysis/${examId}`);
