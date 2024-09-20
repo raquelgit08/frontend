@@ -28,7 +28,8 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2 style="margin-left: 90px;">Admin Portal</h2>
+          <h2 style="margin-left: 85px;">Echague National High School</h2>
+          <p style="font-size: 12px; color: #888;">SAN FABIAN, ECHAGUE, ISABELA</p>
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto" style="margin-right: 20px;">
