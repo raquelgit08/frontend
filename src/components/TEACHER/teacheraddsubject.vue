@@ -7,11 +7,13 @@
       <!-- Display classes fetched from the backend -->
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
         <div class="card" @click="$router.push(`/subject/${classItem.id}`)">
-          <!-- Dynamically bind the image URL -->
-          <img 
-            :src="classItem.image ? classItem.image : require('@/assets/back1.jpg')" 
-            class="card-img" 
+          <!-- Display user-selected image -->
+          <img
+            v-if="classItem.profile_img"
+            :src="getImageUrl(classItem.profile_img)"
+            class="card-img"
             alt="Class Image"
+            style="width: 250px; height: 143px; margin-left: auto;"
           >
           <div class="card-container">
             <p class="card-subject-name">
@@ -21,7 +23,16 @@
             <p class="card-text"> {{ classItem.strand.addstrand }} {{ classItem.strand.grade_level }} {{ classItem.section.section }}</p>
             <p class="card-text"><strong>CODE:</strong> {{ classItem.gen_code }}</p>
             <p class="card-text">{{ classItem.semester }} <a>semester S.Y. {{ classItem.year.addyear }}</a></p>
-         <!--   <p class="card-text"><strong>Curriculum:</strong> {{ classItem.curriculum.Namecuriculum }}</p>-->
+            
+            <!-- Added Edit and Archive buttons -->
+            <div class="action-buttons">
+              <button class="btn btn-outline-secondary btn-sm" @click="editClass(classItem)">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn btn-outline-danger btn-sm" @click="archiveClass(classItem)">
+                <i class="bi bi-archive"></i> Archive
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -36,7 +47,6 @@
         </div>
       </div>
     </div>
-    
 
     <!-- Modal for creating a new class -->
     <div class="modal fade" id="addClassModal" tabindex="-1" aria-labelledby="addClassModalLabel" aria-hidden="true">
@@ -48,18 +58,8 @@
           </div>
           
           <div class="modal-body">
-            <!-- Form for adding a new class 
-            <div class="form-group">
-              <label for="curriculum" class="form-label">Curriculum:</label>
-              <select v-model="newClass.curiculum_id" id="curriculum" class="form-select" @change="onCurriculumChange" required>
-                <option value="">Select Curriculum</option>
-                <option v-for="curriculum in curriculums" :key="curriculum.id" :value="curriculum.id">
-                  {{ curriculum.Namecuriculum }}
-                </option>
-              </select>
-            </div>-->
-
-            <div class="form-group">
+            <!-- Form for adding a new class -->
+            <div class="form-group" :class="{'has-error': !newClass.strand_id && isFormSubmitted}">
               <label for="strand">Strand:</label>
               <select v-model="newClass.strand_id" id="strand" class="form-select" required>
                 <option value="">Select Strand</option>
@@ -69,7 +69,7 @@
               </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" :class="{'has-error': !newClass.section_id && isFormSubmitted}">
               <label for="section" class="form-label">Section:</label>
               <select v-model="newClass.section_id" id="section" class="form-select" required>
                 <option value="">Select Section</option>
@@ -79,7 +79,7 @@
               </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" :class="{'has-error': !newClass.semester && isFormSubmitted}">
               <label for="semester">Semester</label>
               <select v-model="newClass.semester" id="semester" class="form-select" required>
                 <option value="">Select Semester</option>
@@ -88,7 +88,7 @@
               </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" :class="{'has-error': !newClass.subject_id && isFormSubmitted}">
               <label for="subject">Subjects</label>
               <select v-model="newClass.subject_id" id="subjects" class="form-select" required>
                 <option value="">Select Subjects</option>
@@ -98,7 +98,7 @@
               </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" :class="{'has-error': !newClass.year_id && isFormSubmitted}">
               <label for="year">Year</label>
               <select v-model="newClass.year_id" id="year" class="form-select" required>
                 <option value="">Select Year</option>
@@ -108,19 +108,20 @@
               </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" :class="{'has-error': !newClass.class_desc && isFormSubmitted}">
               <label for="description">Class Description</label>
               <textarea class="form-control" id="description" v-model="newClass.class_desc"></textarea>
             </div>
 
-            <div class="form-group">
-              <label for="picture">Upload Picture</label>
+            <!-- File upload for selecting image -->
+            <div class="form-group" :class="{'has-error': !newClass.profile_img && isFormSubmitted}">
+              <label for="picture">Upload Picture (Required)</label>
               <div class="upload-area" @dragover.prevent @dragenter.prevent @dragleave.prevent @drop.prevent="onFileDrop">
-                <input type="file" class="custom-file-input" id="picture" @change="onFileChange" ref="fileInput">
-                <div class="upload-message" v-if="!newClass.image">Drag and drop an image here, or click to select one</div>
-                <img v-if="newClass.image" :src="newClass.image" class="img-thumbnail" alt="Preview Image" />
+                <input type="file" class="custom-file-input" id="picture" @change="onFileChange" ref="fileInput" required>
+                <div class="upload-message" v-if="!newClass.profile_img">Drag and drop an image here, or click to select one</div>
+                <img v-if="newClass.profile_img" :src="newClass.profile_img" class="img-thumbnail" alt="Preview Image" />
               </div>
-            </div> 
+            </div>
 
             <div class="form-group">
               <label for="code">Generate Code</label>
@@ -143,6 +144,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { Modal } from 'bootstrap';
 
 export default {
@@ -150,27 +152,25 @@ export default {
   data() {
     return {
       newClass: {
-       // curiculum_id: '',
         strand_id: '',
         section_id: '',
         subject_id: '',
         year_id: '',
         semester: '',
         class_desc: '',
-        image: '', // Image for preview and upload
+        profile_img: '', // Image for preview and upload
         gen_code: '',
       },
-      classes: [],
+      classes: [], // List of classes fetched from the backend
       strands: [],
       sections: [],
-    //  curriculums: [],
       subjects: [],
       years: [],
-      filteredSections: []
+      filteredSections: [],
+      isFormSubmitted: false,
     };
   },
   mounted() {
-    //this.fetchCurriculums();
     this.fetchSections();
     this.fetchStrands();
     this.fetchSubjects();
@@ -178,9 +178,13 @@ export default {
     this.fetchClasses();
   },
   watch: {
-    'newClass.strand_id': 'filterSections' // Watch for changes to strand_id
+    'newClass.strand_id': 'filterSections', // Watch for changes to strand_id
   },
   methods: {
+    getImageUrl(imagePath) {
+      const baseUrl = process.env.VUE_APP_BASE_URL || 'http://localhost:8000';
+      return `${baseUrl}${imagePath}?t=${new Date().getTime()}`;  // Appends a timestamp to bypass cache
+    },
     openModal() {
       const modalElement = document.getElementById('addClassModal');
       const modal = new Modal(modalElement);
@@ -189,7 +193,7 @@ export default {
     onFileChange(event) {
       const file = event.target.files[0];
       if (file) {
-        this.newClass.image = URL.createObjectURL(file); // Preview the selected image
+        this.newClass.profile_img = URL.createObjectURL(file); // Preview the selected image
       }
     },
     onFileDrop(event) {
@@ -202,37 +206,113 @@ export default {
     generateCode() {
       this.newClass.gen_code = Math.random().toString(36).substring(2, 8).toUpperCase();
     },
-    fetchCurriculums() {
+    async addClass() {
+      this.isFormSubmitted = true;
+
+      if (!this.validateForm()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Missing Fields',
+          text: 'Please fill out all required fields.',
+        });
+        return;
+      }
+
       const token = localStorage.getItem('token');
-      axios.get('http://localhost:8000/api/viewcuri', {
-        headers: { Authorization: `Bearer ${token}` }
+      const formData = new FormData();
+      formData.append('strand_id', this.newClass.strand_id);
+      formData.append('section_id', this.newClass.section_id);
+      formData.append('subject_id', this.newClass.subject_id);
+      formData.append('year_id', this.newClass.year_id);
+      formData.append('semester', this.newClass.semester);
+      formData.append('class_desc', this.newClass.class_desc);
+      formData.append('gen_code', this.newClass.gen_code);
+
+      const file = this.$refs.fileInput.files[0];
+      if (file) {
+        formData.append('profile_img', file);  // Ensure the image file is appended to the form data
+      }
+
+      try {
+        const response = await axios.post('http://localhost:8000/api/addclass', formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.status === 201) {
+          const newClass = response.data.data;
+          this.classes.push(newClass);
+          this.clearForm();
+          this.isFormSubmitted = false;
+
+          const modalElement = document.getElementById('addClassModal');
+          const modal = Modal.getInstance(modalElement);
+          modal.hide();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Class added successfully!',
+          });
+        } else {
+          throw new Error(response.data.message);
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 409) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Duplicate Class',
+            text: 'This subject is already added for the selected section and strand.',
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.response?.data?.message || 'An error occurred while adding the class.',
+          });
+        }
+      }
+    },
+    validateForm() {
+      const { strand_id, section_id, subject_id, year_id, semester, class_desc, profile_img } = this.newClass;
+      return strand_id && section_id && subject_id && year_id && semester && class_desc && profile_img;
+    },
+    clearForm() {
+      this.newClass = {
+        strand_id: '',
+        section_id: '',
+        subject_id: '',
+        year_id: '',
+        semester: '',
+        class_desc: '',
+        profile_img: '',
+        gen_code: ''
+      };
+    },
+
+    fetchClasses() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewAllClassDetails', {
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then(response => {
-        if (response.data && Array.isArray(response.data.data)) {
-          this.curriculums = response.data.data;
+        if (response.data && response.data.classes) {
+          this.classes = response.data.classes.map(classItem => {
+            return {
+              ...classItem,
+              subject: classItem.subject || {},  // Ensure subject is at least an empty object
+              profile_img: classItem.profile_img ? classItem.profile_img : null
+            };
+          });
         }
       })
       .catch(error => {
-        console.error('Error fetching curriculums:', error);
+        console.error('Error fetching classes:', error);
       });
     },
-    fetchStrands() {
-      const token = localStorage.getItem('token');
-      axios.get('http://localhost:8000/api/viewstrand', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(response => {
-        if (response.data && Array.isArray(response.data.data)) {
-          this.strands = response.data.data.map(strand => ({
-            id: strand.id,
-            label: `${strand.addstrand} ${strand.grade_level}`
-          }));
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching strands:', error);
-      });
-    },
+
     fetchSections() {
       const token = localStorage.getItem('token');
       axios.get('http://localhost:8000/api/viewsection', {
@@ -252,10 +332,22 @@ export default {
         console.error('Error fetching sections:', error);
       });
     },
-    filterSections() {
-      this.filteredSections = this.sections.filter(
-        section => section.strand_id === this.newClass.strand_id
-      );
+    fetchStrands() {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:8000/api/viewstrand', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
+        if (response.data && Array.isArray(response.data.data)) {
+          this.strands = response.data.data.map(strand => ({
+            id: strand.id,
+            label: `${strand.addstrand} ${strand.grade_level}`
+          }));
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching strands:', error);
+      });
     },
     fetchSubjects() {
       const token = localStorage.getItem('token');
@@ -291,74 +383,33 @@ export default {
         console.error('Error fetching years:', error);
       });
     },
-    fetchClasses() {
-      const token = localStorage.getItem('token');
-      axios.get('http://localhost:8000/api/viewAllClassDetails', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(response => {
-        if (response.data && response.data.classes) {
-          this.classes = response.data.classes.map(classItem => ({
-            ...classItem,
-            image: classItem.image ? classItem.image : null // Ensure image is handled
-          }));
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching classes:', error);
+    filterSections() {
+      this.filteredSections = this.sections.filter(
+        section => section.strand_id === this.newClass.strand_id
+      );
+    },
+    editClass() {
+      Swal.fire({
+        icon: 'info',
+        title: 'Edit Class',
+        text: 'Editing class is under development!',
       });
     },
-    async addClass() {
-      const token = localStorage.getItem('token'); 
-      const formData = new FormData();
-    //  formData.append('curiculum_id', this.newClass.curiculum_id);
-      formData.append('strand_id', this.newClass.strand_id);
-      formData.append('section_id', this.newClass.section_id);
-      formData.append('subject_id', this.newClass.subject_id);
-      formData.append('year_id', this.newClass.year_id);
-      formData.append('semester', this.newClass.semester);
-      formData.append('class_desc', this.newClass.class_desc);
-      formData.append('gen_code', this.newClass.gen_code);
-      
-      // Check if there's a file
-      const file = this.$refs.fileInput.files[0];
-      if (file) {
-        formData.append('image', file);
-      }
-
-      try {
-        const response = await axios.post('http://localhost:8000/api/addclass', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 201) {
-          this.fetchClasses(); // Refresh classes list
-          this.clearForm();
-          const modalElement = document.getElementById('addClassModal');
-          const modal = Modal.getInstance(modalElement);
-          modal.hide();
-        } else {
-          console.error('Error creating class:', response.data);
+    archiveClass(classItem) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, archive it!',
+        cancelButtonText: 'No, cancel!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Archive class logic here
+          console.log('Archiving class:', classItem);
+          Swal.fire('Archived!', 'Your class has been archived.', 'success');
         }
-      } catch (error) {
-        console.error('Error adding class:', error);
-        alert('ERROR: Class is already created in this section with this subject.');
-      }
-    },
-    clearForm() {
-      this.newClass = {
-        //curiculum_id: '',
-        strand_id: '',
-        section_id: '',
-        subject_id: '',
-        year_id: '',
-        semester: '',
-        class_desc: '',
-        image: '',
-        gen_code: ''
-      };
+      });
     },
   }
 };
@@ -379,68 +430,73 @@ export default {
   .row {
     padding: 40px;
   }
-.add-class-card {
-  cursor: pointer;
-  border: 2px dashed #ccc;
-  background-color: #f8f9fa;
-}
-
-.plus-icon {
-  color: #007bff;
-}
-
-.upload-area {
-  border: 2px dashed #ccc;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.upload-area:hover {
-  background-color: #f8f9fa;
-}
-
-.upload-message {
-  color: #888;
-  margin-top: 10px;
-}
-.card {
-  display: flex;
-  flex-direction: column;
-  border: 2px solid #ebedf0;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 350px;
-  height: 400px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  margin-bottom: 20px;
-}
-
-.card-img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.card-body {
-  padding: 15px;
-  background-color: #f8f9fa;
-}
-
-.card-subject-name {
-  font-size: 18px;
-  margin-bottom: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-text {
-  margin: 5px 0;
-  font-size: 15px;
-}
-.card-container {
-  padding: 20px;
-}
+  .add-class-card {
+    cursor: pointer;
+    border: 2px dashed #ccc;
+    background-color: #f8f9fa;
+  }
+  .plus-icon {
+    color: #007bff;
+  }
+  .upload-area {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .upload-area:hover {
+    background-color: #f8f9fa;
+  }
+  .upload-message {
+    color: #888;
+    margin-top: 10px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #ebedf0;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 350px;
+    height: 400px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+  }
+  .card-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+  }
+  .card-body {
+    padding: 15px;
+    background-color: #f8f9fa;
+  }
+  .card-subject-name {
+    font-size: 18px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-text {
+    margin: 5px 0;
+    font-size: 15px;
+  }
+  .card-container {
+    padding: 20px;
+  }
+  .action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+  .btn {
+    margin-right: 10px;
+  }
+  .has-error select,
+  .has-error textarea,
+  .has-error input {
+    border-color: red;
+  }
 </style>
