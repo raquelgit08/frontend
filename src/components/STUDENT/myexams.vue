@@ -44,7 +44,7 @@
               <h5 class="card-title">{{ exam.title }} <b>({{ exam.total_points}} point/s)</b></h5>
               <div class="row">
                 <div class="col-8">
-                  <strong>Status:</strong>
+                  <strong>Status: {{ exam.status }}</strong>
                   <span v-if="isExamAvailable(exam)" class="status-available">Available</span>
                   <span v-else class="status-unavailable">Unavailable</span>
                   <br>
@@ -82,17 +82,15 @@
           <p><strong>Quarter:</strong> {{ modalExam.quarter }}</p>
           <p><strong>Start Date:</strong> {{ formatDateTime(modalExam.start) }}</p>
           <p><strong>End Date:</strong> {{ formatDateTime(modalExam.end) }}</p>
-          <p><strong>Status:</strong>
-            <span v-if="isExamAvailable(modalExam)">Available</span>
-            <span v-else>Unavailable</span>
-          </p>
-          <p><strong>SCORE : {{ modalExam.total_score }} / {{ modalExam.total_points}}</strong> 
+          <p><strong>Status:</strong> {{ modalExam.originalExam.status }}</p>
+         
+          <p><strong>SCORE : {{ modalExam.originalExam.total_score }} / {{ modalExam.originalExam.total_points}}</strong> 
             <!-- {{ modalExam.quarter }}  -->
           </p>
           <p v-if="modalExam.description"><strong>Description:</strong> {{ modalExam.description }}</p>
         </div>
         <div class="modal-footer">
-          <button v-if="isExamAvailable(modalExam)" @click="takeExam(modalExam.id)" class="btn btn-success">
+          <button v-if="modalExam.originalExam.status === 'Pending'" @click="takeExam(modalExam.id)" class="btn btn-success">
             Take Exam
           </button>
           <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
@@ -156,8 +154,7 @@ export default {
       const now = new Date();
       const startDate = new Date(exam.start);
       const endDate = new Date(exam.end);
-      // const stat = new sta (exam.status);
-      return now >= startDate && now <= endDate;
+      return now >= startDate && now <= endDate && exam.status === 'Pending';
     },
 
     takeExam(examId) {
@@ -175,8 +172,13 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('Fetched exam data:', this.exam);
-        this.modalExam = response.data.exam;
+        console.log('Full Exam Response Data:', response.data);
+        this.modalExam = {
+            ...response.data.exam,
+            originalExam: exam, // Keep a reference to the original exam kasi ayaw niya ipasa sa modal direct
+
+          };
+        console.log('Modal Exam Data:', this.modalExam); // Log modalExam data
         this.instructions = response.data.exam.instructions; 
         this.showModal = true;
       } catch (error) {
