@@ -71,7 +71,7 @@
             <td></td>
             <td>
               <div class="d-flex justify-content-center">
-             <!--    <button @click="publishExam(exam.id)" class="btn btn-success btn-sm me-2" v-if="!exam.isPublished">Publish</button> -->
+             <button @click="publishExam(exam.id)" class="btn btn-success btn-sm me-2" v-if="!exam.isPublished">Publish</button>
                 <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
                 <!-- <button @click="confirmArchive(exam.id)" class="btn btn-danger btn-sm">Archive</button>
                  -->

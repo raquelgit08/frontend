@@ -4,7 +4,7 @@
     <div class="main-container">
       <!-- Unified Navigation Bar -->
       <nav class="nav nav-pills">
-        <router-link to="/teacheraddsubject" class="nav-link">
+        <router-link to="/teachercreateexam" class="nav-link">
           <span><i class="bi bi-arrow-left fs-4"></i></span>
         </router-link>
         <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
@@ -32,9 +32,9 @@
 
       <div class="top-section d-flex justify-content-between align-items-center mb-4">
         <div class="button-group">
-          <button v-if="newQuestions.length > 0 && !isPublished" @click="publishExam" type="button" class="btn btn-success me-2">
+        <!--  <button v-if="newQuestions.length > 0 && !isPublished" @click="publishExam" type="button" class="btn btn-success me-2">
             Publish Exam
-          </button>
+          </button> -->
 
           <button @click="viewItemAnalysis(examId)" type="button" class="btn btn-primary">
             View Item Analysis
@@ -72,15 +72,19 @@
                 <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
                 <!-- Updated Buttons with spacing -->
+                
                 <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">
-                  <i class="bi bi-cloud-upload fs-5"></i> Save to Test Bank
+                  <i class="bi bi-cloud-upload fs-5"></i> 
                 </button>
+
                 <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">
-                  <i class="bi bi-pencil-square fs-5"></i> Edit
+                  <i class="bi bi-pencil-square fs-5"></i> 
                 </button>
+
                 <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">
-                  <i class="bi bi-trash fs-5"></i> Delete
+                  <i class="bi bi-trash fs-5"></i> 
                 </button>
+
               </div>
             </div>
           </div>
