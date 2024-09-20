@@ -17,12 +17,20 @@
           >
           <div class="card-container">
             <p class="card-subject-name">
-              <b>{{ classItem.subject.subjectname }}</b>
-            </p>
+  <b>{{ classItem.subject?.subjectname || 'No Subject Name Available' }}</b>
+</p>
             <hr>
-            <p class="card-text"> {{ classItem.strand.addstrand }} {{ classItem.strand.grade_level }} {{ classItem.section.section }}</p>
-            <p class="card-text"><strong>CODE:</strong> {{ classItem.gen_code }}</p>
-            <p class="card-text">{{ classItem.semester }} <a>semester S.Y. {{ classItem.year.addyear }}</a></p>
+            <p class="card-text">
+  <b v-if="classItem.strand">{{ classItem.strand.addstrand }}</b> 
+  {{ classItem.strand ? classItem.strand.grade_level : '' }} 
+  {{ classItem.section ? classItem.section.section : '' }}
+</p>
+<p class="card-text">
+  <strong>CODE:</strong> {{ classItem.gen_code }}
+</p>
+<p class="card-text">
+  {{ classItem.semester }} semester S.Y. {{ classItem.year ? classItem.year.addyear : '' }}
+</p>
             
             <!-- Added Edit and Archive buttons -->
             <div class="action-buttons">
@@ -207,78 +215,79 @@ export default {
       this.newClass.gen_code = Math.random().toString(36).substring(2, 8).toUpperCase();
     },
     async addClass() {
-      this.isFormSubmitted = true;
+  this.isFormSubmitted = true;
 
-      if (!this.validateForm()) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Missing Fields',
-          text: 'Please fill out all required fields.',
-        });
-        return;
-      }
+  if (!this.validateForm()) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Missing Fields',
+      text: 'Please fill out all required fields.',
+    });
+    return;
+  }
 
-      const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('strand_id', this.newClass.strand_id);
-      formData.append('section_id', this.newClass.section_id);
-      formData.append('subject_id', this.newClass.subject_id);
-      formData.append('year_id', this.newClass.year_id);
-      formData.append('semester', this.newClass.semester);
-      formData.append('class_desc', this.newClass.class_desc);
-      formData.append('gen_code', this.newClass.gen_code);
+  const token = localStorage.getItem('token');
+  const formData = new FormData();
+  formData.append('strand_id', this.newClass.strand_id);
+  formData.append('section_id', this.newClass.section_id);
+  formData.append('subject_id', this.newClass.subject_id);
+  formData.append('year_id', this.newClass.year_id);
+  formData.append('semester', this.newClass.semester);
+  formData.append('class_desc', this.newClass.class_desc);
+  formData.append('gen_code', this.newClass.gen_code);
 
-      const file = this.$refs.fileInput.files[0];
-      if (file) {
-        formData.append('profile_img', file);  // Ensure the image file is appended to the form data
-      }
+  const file = this.$refs.fileInput.files[0];
+  if (file) {
+    formData.append('profile_img', file);  // Ensure the image file is appended to the form data
+  }
 
-      try {
-        const response = await axios.post('http://localhost:8000/api/addclass', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+  try {
+    const response = await axios.post('http://localhost:8000/api/addclass', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-        if (response.status === 201) {
-          const newClass = response.data.data;
-          this.classes.push(newClass);
-          this.clearForm();
-          this.isFormSubmitted = false;
+    if (response.status === 201) {
+      const newClass = response.data.data;
+      this.classes.push(newClass);
+      this.clearForm();
+      this.isFormSubmitted = false;
 
-          const modalElement = document.getElementById('addClassModal');
-          const modal = Modal.getInstance(modalElement);
-          modal.hide();
+      const modalElement = document.getElementById('addClassModal');
+      const modal = Modal.getInstance(modalElement);
+      modal.hide();
 
-          Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: 'Class added successfully!',
-          });
-        } else {
-          throw new Error(response.data.message);
-        }
-      } catch (error) {
-        if (error.response && error.response.status === 409) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Duplicate Class',
-            text: 'This subject is already added for the selected section and strand.',
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.response?.data?.message || 'An error occurred while adding the class.',
-          });
-        }
-      }
-    },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Class added successfully!',
+      });
+    } else {
+      throw new Error(response.data.message);
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 409) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Duplicate Class',
+        text: 'This subject already exists for the selected strand, section, semester, and year.',
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'An error occurred while adding the class.',
+      });
+    }
+  }
+},
     validateForm() {
       const { strand_id, section_id, subject_id, year_id, semester, class_desc, profile_img } = this.newClass;
       return strand_id && section_id && subject_id && year_id && semester && class_desc && profile_img;
     },
+    
     clearForm() {
       this.newClass = {
         strand_id: '',
