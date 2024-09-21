@@ -2,7 +2,6 @@
   <div>
     <!-- Subject Information and Navigation Bar at the Top -->
     <div class="main-container">
-      <!-- Unified Navigation Bar -->
       <nav class="nav nav-pills">
         <router-link to="/teachercreateexam" class="nav-link">
           <span><i class="bi bi-arrow-left fs-4"></i></span>
@@ -32,10 +31,6 @@
 
       <div class="top-section d-flex justify-content-between align-items-center mb-4">
         <div class="button-group">
-        <!--  <button v-if="newQuestions.length > 0 && !isPublished" @click="publishExam" type="button" class="btn btn-success me-2">
-            Publish Exam
-          </button> -->
-
           <button @click="viewItemAnalysis(examId)" type="button" class="btn btn-primary">
             View Item Analysis
           </button>
@@ -71,20 +66,18 @@
 
                 <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
-                <!-- Updated Buttons with spacing -->
-                
-                <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm">
-                  <i class="bi bi-cloud-upload fs-5"></i> 
+                <!-- Buttons with added spacing -->
+                <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm me-2">
+                  <i class="bi bi-cloud-upload fs-5"></i> Save to Test Bank
                 </button>
 
-                <button @click="editQuestion(qIndex)" class="btn btn-warning btn-sm">
-                  <i class="bi bi-pencil-square fs-5"></i> 
+                <button @click="openEditModal(qIndex, question)" class="btn btn-warning btn-sm me-2">
+                  <i class="bi bi-pencil-square fs-5"></i> Edit
                 </button>
 
-                <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">
-                  <i class="bi bi-trash fs-5"></i> 
+                <button @click="confirmDeleteQuestion(question.id)" class="btn btn-danger btn-sm">
+                  <i class="bi bi-trash fs-5"></i> Delete
                 </button>
-
               </div>
             </div>
           </div>
@@ -160,6 +153,38 @@
         </div>
       </div>
     </div>
+
+    <!-- Custom Edit Modal -->
+    <div v-if="isModalOpen" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Edit Question</h3>
+
+        <div class="mb-3">
+          <label class="form-label">Question</label>
+          <input type="text" v-model="modalQuestion.text" class="form-control" required />
+        </div>
+
+        <div v-if="modalQuestion.type === 'multiple-choice'" class="mb-3">
+          <label class="form-label">Choices</label>
+          <div v-for="(choice, idx) in modalQuestion.choices" :key="idx" class="input-group mb-2">
+            <input type="text" v-model="modalQuestion.choices[idx]" class="form-control" placeholder="Choice" />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Correct Answer</label>
+          <input type="text" v-model="modalQuestion.correctAnswer" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Points</label>
+          <input type="number" v-model="modalQuestion.points" class="form-control" min="1" required />
+        </div>
+
+        <button class="btn btn-primary" @click="saveEditedQuestion">Save</button>
+        <button class="btn btn-secondary" @click="closeModal">Cancel</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -183,6 +208,15 @@ export default {
       globalQuestionType: 'multiple-choice',
       examInstruction: '',
       isPublished: false,
+      isModalOpen: false, // Controls modal visibility
+      modalQuestion: {
+        text: '',
+        choices: [],
+        correctAnswer: '',
+        points: 1,
+        type: ''
+      },
+      editingQuestionIndex: null,
     };
   },
   created() {
@@ -190,38 +224,30 @@ export default {
     this.fetchQuestions();
   },
   methods: {
-    async fetchQuestions() {
-      try {
-        const response = await axios.get(
-          `http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-        );
-        const instructions = response.data.instructions || [];
-        this.existingQuestions = instructions;
-        this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
-      } catch (error) {
-        console.error('Failed to fetch questions:', error.message);
-      }
-    },
-    prepareQuestionForSelection(question) {
-      return {
-        id: question.id || null,
-        text: question.question || '',
-        correctAnswer: question.correct_answers?.[0]?.correct_answer || '',
-        points: question.correct_answers?.[0]?.points || 1,
-        choices: question.choices || [],
+    openEditModal(qIndex, question) {
+      this.editingQuestionIndex = qIndex;
+      this.modalQuestion = {
+        text: question.question,
+        choices: question.choices || ['', '', ''],
+        correctAnswer: question.correct_answers[0]?.correct_answer || '',
+        points: question.correct_answers[0]?.points || 1,
+        type: question.question_type
       };
+      this.isModalOpen = true;
     },
-    addChoice(question) {
-      question.choices.push('');
+    closeModal() {
+      this.isModalOpen = false;
     },
-    addNewQuestionForm() {
-      this.newQuestions.push({
-        text: '',
-        correctAnswer: '',
-        points: 1,
-        choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
-      });
+    saveEditedQuestion() {
+      this.newQuestions = [{
+        text: this.modalQuestion.text,
+        correctAnswer: this.modalQuestion.correctAnswer,
+        points: this.modalQuestion.points,
+        choices: this.modalQuestion.choices
+      }];
+      this.globalQuestionType = this.modalQuestion.type;
+      this.saveAllQuestions();
+      this.closeModal();
     },
     async saveAllQuestions() {
       try {
@@ -230,6 +256,7 @@ export default {
             instruction: this.examInstruction,
             question_type: this.globalQuestionType,
             questions: this.newQuestions.map(question => ({
+              id: this.editingQuestionIndex != null ? this.existingQuestions[this.editingQuestionIndex]?.id : undefined,
               question: question.text,
               choices: this.globalQuestionType === 'multiple-choice'
                 ? question.choices.filter(choice => choice !== '')
@@ -252,24 +279,12 @@ export default {
         ];
 
         await this.fetchQuestions();
+        this.editingQuestionIndex = null;
         alert('All questions saved successfully!');
       } catch (error) {
         console.error('Failed to save questions:', error.message);
         Swal.fire('Error', 'Failed to save questions. Please try again.', 'error');
       }
-    },
-    async publishExam() {
-      axios
-        .post(`http://localhost:8000/api/exams/publish2/${this.examId}`, {}, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        })
-        .then(() => {
-          this.isPublished = true;
-          Swal.fire('Success', 'Exam published successfully!', 'success');
-        })
-        .catch((error) => {
-          console.error('Failed to publish exam:', error.message);
-        });
     },
     async saveToTestBank(questionData) {
       try {
@@ -277,8 +292,6 @@ export default {
           schedule_id: this.examId,
           questions: [questionData],
         };
-
-        console.log("Payload being sent to API:", payload); // Debugging: log payload
 
         await axios.post(
           `http://localhost:8000/api/storetestbank`,
@@ -288,7 +301,7 @@ export default {
 
         Swal.fire('Success', 'Question saved to test bank successfully!', 'success');
       } catch (error) {
-        console.error('Error saving to test bank:', error.response?.data || error.message); // Improved error logging
+        console.error('Error saving to test bank:', error.response?.data || error.message);
         Swal.fire('Error', error.response?.data?.message || 'Failed to save to test bank.', 'error');
       }
     },
@@ -310,6 +323,45 @@ export default {
         }
       });
     },
+    async deleteQuestion(questionId) {
+      try {
+        await axios.delete(
+          `http://localhost:8000/api/deleteQuestion/${questionId}`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
+        await this.fetchQuestions();
+        Swal.fire('Success', 'Question deleted successfully!', 'success');
+      } catch (error) {
+        console.error('Failed to delete question:', error.message);
+        Swal.fire('Error', 'Failed to delete question. Please try again.', 'error');
+      }
+    },
+    confirmDeleteQuestion(questionId) {
+      Swal.fire({
+        title: 'Are you sure you want to delete this question?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await this.deleteQuestion(questionId);
+        }
+      });
+    },
+    async fetchQuestions() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
+        const instructions = response.data.instructions || [];
+        this.existingQuestions = instructions;
+        this.examInstruction = instructions.length > 0 ? instructions[0].instruction : '';
+      } catch (error) {
+        console.error('Failed to fetch questions:', error.message);
+      }
+    },
     viewItemAnalysis(examId) {
       this.$router.push(`/ItemAnalysis/${examId}`);
     }
@@ -318,6 +370,27 @@ export default {
 </script>
 
 <style scoped>
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 500px;
+  max-width: 100%;
+}
+
 .manage-exam-container {
   padding: 20px;
   background-color: #ffffff;
@@ -410,5 +483,9 @@ input.form-control, textarea.form-control {
 .router-link-active {
   color: #007bff !important;
   border-bottom: 2px solid #007bff;
+}
+
+.btn-sm {
+  margin-right: 10px;
 }
 </style>

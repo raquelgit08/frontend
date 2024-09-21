@@ -236,12 +236,11 @@ export default {
       const token = localStorage.getItem("token");
       const formData = new FormData();
 
-      // Append class data to the form
+      
       Object.keys(this.currentClass).forEach((key) => {
         formData.append(key, this.currentClass[key]);
       });
 
-      // Append the selected image file if it exists
       if (this.selectedFile) {
         formData.append("profile_img", this.selectedFile);
       }
@@ -249,8 +248,8 @@ export default {
       try {
         let response;
         if (this.isEditMode) {
-          // If editing, send a PUT request to update the class
-          response = await axios.put(
+       
+          await axios.put(
             `http://localhost:8000/api/updateaddclass/${this.currentClass.id}`,
             formData,
             {
@@ -261,8 +260,8 @@ export default {
             }
           );
         } else {
-          // If adding a new class, send a POST request
-          response = await axios.post("http://localhost:8000/api/addclass", formData, {
+         
+          axios.post("http://localhost:8000/api/addclass", formData, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
@@ -271,7 +270,7 @@ export default {
         }
 
         if (response.status === 200 || response.status === 201) {
-          // Handle the response and update class list
+     
           const updatedClass = response.data.data;
           if (this.isEditMode) {
             const index = this.classes.findIndex((c) => c.id === updatedClass.id);
@@ -280,7 +279,6 @@ export default {
             this.classes.unshift(updatedClass);
           }
 
-          // Clear the form and hide the modal
           this.clearForm();
           const modalElement = document.getElementById("classModal");
           const modal = Modal.getInstance(modalElement);
