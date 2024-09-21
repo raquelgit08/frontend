@@ -1,7 +1,7 @@
 <template>
-  <div class="exam-container">
+  <div class="container-fluid">
     <div class="timer-container">
-      <div v-if="!examOver" class="alert alert-info time-box">
+      <div v-if="!examOver" class=" time-box">
         <p style="font-size: 20px;">TIME REMAINING:</p>
         <h1>{{ formattedTime }}</h1>
       </div>
@@ -12,14 +12,15 @@
       <h3>Time is up!</h3>
     </div>
     <!-- Exam Form -->
-    <form v-if="!examSubmitted && !examOver" @submit.prevent="submitExam" class="exam-form">
+    <!-- <div class="question-box"> -->
+      <form v-if="!examSubmitted && !examOver" @submit.prevent="submitExam" class="question-box">
       <div v-if="exam.questions && exam.questions.length">
         <div v-for="(question, index) in paginatedQuestions" :key="index" class="question-container">
-          <h4 class="question-header">{{ index + 1 }}. {{ question.question }}</h4>
+          <h4 class="question-header"> {{ question.question }}</h4>
           
           <!-- Multiple Choice Questions -->
           <div v-if="question.choices && question.choices.length > 0" class="choice-container">
-            <label v-for="choice in question.choices" :key="choice.id" class="choice-label">
+            <label v-for="choice in question.choices" :key="choice.id" class="choice-box">
               <input type="radio" :name="'question_' + question.id" :value="choice.id" v-model="selectedAnswers[question.id]" :disabled="examOver" />
               {{ choice.choices }}
             </label>
@@ -39,7 +40,7 @@
         <button type="button" class="btn btn-secondary" @click="nextPage" :disabled="currentPage === totalPages || examOver">Next</button>
       </div>
       <div v-if="!examSubmitted && !examOver && currentPage === totalPages" class="button-group">
-        <button type="submit" @click="submitExam" class="btn btn-primary" :disabled="isSubmitting">
+        <button type="submit" @click="submitExam" class="btn btn-primary w-100" :disabled="isSubmitting">
           <span v-if="isSubmitting">Submitting...</span>
           <span v-else>Submit Exam</span>
         </button>
@@ -59,6 +60,7 @@
         <button type="button" @click="clearForm" class="btn btn-secondary" :disabled="examOver">Clear form</button>
       </div> -->
     </form>
+    <!-- </div> -->
 
     <!-- Display Results After Submission -->
     <div v-if="examSubmitted" class="results-container">
@@ -319,30 +321,70 @@ export default {
 </script>
 
 <style scoped>
-.exam-container {
-  padding: 20px;
-  border-radius: 12px;
-  background-color: aliceblue;
-}
+
 .exam-title {
   margin-bottom: 20px;
 }
-.exam-form {
+/* .exam-form {
   padding-top: 0;
   padding: 80px;
-  padding-right: 40px;
+} */
+.question-box {
+  border: 2px solid #ddd; /* Adds border to the entire question box */
+  padding: 40px;
+  border-radius: 10px; /* Rounded corners */
+  width: 60%; /* Adjust width */
+  margin: 20px auto; /* Centers the entire question box */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
-.question-container {
-  margin-bottom: 70px;
+
+.question-header {
+  width: 100%; /* Ensures the text takes full width */
+  text-align: left; /* Keeps the text aligned to the left */
+  margin-bottom: 30px;
+  font-size: 35px;
 }
+
 .choice-container {
-  margin-top: 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px; /* Adds space between choices */
+  font-size: 25px;
+  width: 100%;
 }
+
+.choice-box {
+  border: 1px solid #ccc; /* Adds a border around each choice */
+  padding: 10px;
+  border-radius: 8px; /* Rounded corners for each choice box */
+  background-color: #f9f9f9; /* Slight background color */
+  width: 100%;
+}
+
+.choice-label {
+  width: 100%;
+  text-align: left; /* Ensures the label text is left aligned */
+}
+
+
 .pagination-controls {
+  display: flex;
+  justify-content: center; /* Centers the pagination controls */
+  align-items: center;
   margin-top: 20px;
 }
+
+.pagination-status {
+  margin: 0 10px;
+}
+
+.pagination-status {
+  margin: 0 10px;
+}
+
 .results-container {
   margin-top: 20px;
+ 
 }
 .results-title {
   margin-bottom: 20px;
@@ -350,6 +392,7 @@ export default {
 .results-list {
   list-style-type: none;
   padding: 0;
+  
 }
 .result-item {
   margin-bottom: 10px;
@@ -365,32 +408,22 @@ export default {
 }
 .timer-container {
   position: absolute;
-  top: 120px; /* Adjust as needed */
-  right: 30px; /* Adjust as needed */
+  top: 110px; /* Adjust as needed */
+  right: 40px; /* Adjust as needed */
   z-index: 1000; /* Ensure it is above other content */
 }
 
 .time-box {
-  width: 300px;
-  height: 120px;
+ 
   text-align: center;
   font-size: 50px;
-  background-color: #9cecec;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
 }
 .choice-container {
   margin-top: 10px;
 }
 
-.choice-label {
-  display: block; /* Ensures each choice label is on a new line */
-  margin-bottom: 10px; /* Space between choices */
-  padding: 5px; /* Padding around each choice */
-  font-size: 1rem; /* Adjust font size if needed */
-}
+/*  */
 
 .choice-label input[type="radio"] {
   margin-right: 10px; /* Space between radio button and choice text */
