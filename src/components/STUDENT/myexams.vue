@@ -24,6 +24,17 @@
       <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-activity fs-4"></i> My Performance 
       </router-link>
+      <div class="status ms-auto d-flex align-items-center">
+        <div class="mx-3">
+          <i class="bi bi-check-circle-fill text-success"></i> Finished: {{ totals.number_of_finished_exams }}
+        </div>
+        <div class="mx-3">
+          <i class="bi bi-x-circle-fill text-danger"></i> Missing: {{ totals.total_missing }}
+        </div>
+        <div class="mx-3">
+          <i class="bi bi-hourglass-split text-warning"></i> Pending: {{ totals.total_pending }}
+        </div>
+      </div>
     </nav>
 
     <!-- Published Exams List -->
@@ -55,7 +66,7 @@
                   
                 </div>
                 <div class="col-4 score-right">
-                  <strong>{{ exam.total_score }} / {{ exam.total_points }}</strong>
+                  <strong>{{ exam.total_score }} / {{ exam.points_exam}}  </strong>
                 </div>
               </div>       <!-- <div class="d-flex gap-2 container-fluid">
                 <button @click="viewExam(exam)" class="btn btn-primary "> View Exam </button>
@@ -84,9 +95,10 @@
           <p><strong>End Date:</strong> {{ formatDateTime(modalExam.end) }}</p>
           <p><strong>Status:</strong> {{ modalExam.originalExam.status }}</p>
          
-          <p><strong>SCORE : {{ modalExam.originalExam.total_score }} / {{ modalExam.originalExam.total_points}}</strong> 
+          <p><strong>SCORE : {{ modalExam.originalExam.total_score }} / {{ modalExam.originalExam.points_exam}}</strong> 
             <!-- {{ modalExam.quarter }}  -->
           </p>
+          <p><i>You score is {{ modalExam.originalExam.average }}%  of the total score {{ modalExam.originalExam.points_exam}} points</i></p>
           <p v-if="modalExam.description"><strong>Description:</strong> {{ modalExam.description }}</p>
         </div>
         <div class="modal-footer">
@@ -113,6 +125,11 @@ export default {
         classGenCode: ''
       },
       exams: [],
+      totals: {
+        number_of_finished_exams: 0,
+        total_missing: 0,
+        total_pending: 0
+      },
       modalExam: {},
       error: '',
       showModal: false
@@ -144,6 +161,7 @@ export default {
 
         console.log("Exams response data:", examsResponse.data);
         this.exams = examsResponse.data.exams;
+        this.totals = examsResponse.data.totals; // Extract the totals data
 
       } catch (error) {
         this.error = error.response ? error.response.data.error : 'Error fetching subject and exams';

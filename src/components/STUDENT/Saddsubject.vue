@@ -72,6 +72,8 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Response:', response); // Log the full response
+        console.log('Subjects Data:', response.data); // Log the response data (subjects)
         this.subjects = response.data;
       } catch (error) {
         this.subjects = [];
@@ -83,8 +85,7 @@ export default {
     async addSubject() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.post(
-          'http://localhost:8000/api/jcstudent2',
+        const response = await axios.post('http://localhost:8000/api/jcstudent2',
           { gen_code: this.genCode },
           {
             headers: {

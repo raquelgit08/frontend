@@ -510,6 +510,9 @@ export default {
   margin-right: 20px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
+.feedbackarea{
+  margin-top: 30px;
+}
 .box {
  
   overflow-y: auto; /* Enable vertical scrolling if content overflows */
