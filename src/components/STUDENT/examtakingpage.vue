@@ -35,8 +35,8 @@
 
       <!-- Pagination Controls -->
       <div class="pagination-controls">
-        <button type="button" class="btn btn-secondary" @click="prevPage" :disabled="currentPage === 1 || examOver">Previous</button>
-        <span class="pagination-status">Page {{ currentPage }} of {{ totalPages }}</span>
+        <!-- <button type="button" class="btn btn-secondary" @click="prevPage" :disabled="currentPage === 1 || examOver">Previous</button> -->
+        <span class="pagination-status">Question {{ currentPage }} of {{ totalPages }}</span>
         <button type="button" class="btn btn-secondary" @click="nextPage" :disabled="currentPage === totalPages || examOver">Next</button>
       </div>
       <div v-if="!examSubmitted && !examOver && currentPage === totalPages" class="button-group">
@@ -65,37 +65,43 @@
     <!-- Display Results After Submission -->
     <div v-if="examSubmitted" class="results-container">
       <div class="row">
-        <div class="col-7">
-          <h3 class="results-title">Your Results</h3>
-
-          <div class="donut-chart-container">
-            <canvas id="averageChart"></canvas>
-            <div class="average-text">{{ average }}%</div>
-          </div>
-
-          <ul class="results-list">
-            <li v-for="(result, index) in results" :key="result.question_number" class="result-item">
-              <p><strong>{{ index + 1 }}. Question {{ result.question }}:</strong></p>
-              <p>Your Answer: 
-                <span :class="{'correct-answer': result.student_answer === result.correct_answer, 'incorrect-answer': result.student_answer !== result.correct_answer}" class="user-answer">
-              {{ result.student_answer || 'Unanswered' }}
-            </span>
-              </p>
-              <!-- <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p> -->
-              <p>Points: <span class="points">{{ result.points_awarded }}</span></p>
-            </li>
-          </ul>
-          <p class="total-score"><strong>Total Score: {{ totalScore }}</strong></p>
-          <p>Total Possible Points: {{ totalPossiblePoints }}</p>
+        <div class="col-md-7 ">
+          <div class="result">
+            <h3 class="results-title">Your Results</h3>
+            <p class="total-score"><strong>Total Score: {{ totalScore }} / {{ totalPossiblePoints }}</strong></p>
             <p>Average: {{ average }} %</p>
-
+            
+            <div class="donut-chart-container">
+              <canvas id="averageChart"></canvas>
+              <div class="average-text">{{ average }}%</div>
+              
+            </div>
+            <button @click="showResult" type="button" class="btn btn-primary mt-2">Show Result</button>
+            <div class="box" v-if="showResults">
+              <div class="show">
+                <ul class="results-list">
+                  <li v-for="(result, index) in results" :key="result.question_number" class="result-item">
+                    <p><strong>{{ index + 1 }}. Question {{ result.question }}:</strong></p>
+                    <p>Your Answer: 
+                      <span :class="{'correct-answer': result.student_answer === result.correct_answer, 'incorrect-answer': result.student_answer !== result.correct_answer}" class="user-answer">
+                    {{ result.student_answer || 'Unanswered' }}
+                  </span>
+                    </p>
+                    <!-- <p>Correct Answer: <span class="correct-answer">{{ result.correct_answer }}</span></p> -->
+                    <p>Points: <span class="points">{{ result.points_awarded }}</span></p>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+          </div>
         </div>
-        <div class="col-5">
-          <h3 class="feedback-title">Your Feedback</h3>
-          
-          <textarea v-model="comment" class="form-control" rows="10" placeholder="Please provide your feedback about the exam..."></textarea>
-          <button @click="submitFeedback(exam.id)" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
-
+        <div class="col-md-5 ">
+          <div class="feedbackarea">
+            <h3 class="feedback-title">Your Feedback</h3>
+            <textarea v-model="comment" class="form-control" rows="10" placeholder="Please provide your feedback about the exam..."></textarea>
+            <button @click="submitFeedback(exam.id)" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
+          </div>
         </div>
       </div>
     </div>
@@ -120,6 +126,7 @@ export default {
       validationError: '',
       comment: '',
       examSubmitted: false,
+      showResults: false,
       results: [],
       totalScore: 0,
       totalPossiblePoints: 0,
@@ -161,6 +168,9 @@ export default {
         this.studentTextAnswers = {};
         this.validationError = '';
       }
+    },
+    showResult() {
+      this.showResults = !this.showResults; 
     },
     validateAnswers() {
       if (Object.keys(this.selectedAnswers).length + Object.keys(this.studentTextAnswers).length !== this.exam.questions.length) {
@@ -278,32 +288,31 @@ export default {
       }
     },
     renderAverageChart() {
-  const ctx = document.getElementById('averageChart').getContext('2d');
-  new Chart(ctx, { // Remove the variable if not needed
-    type: 'doughnut',
-    data: {
-      labels: ['Average', 'Remaining'],
-      datasets: [{
-        data: [this.average, 100 - this.average],
-        backgroundColor: ['#0D1282', '#D71313'],
-        borderWidth: 1,
-        hoverOffset: 4,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false,
+      const ctx = document.getElementById('averageChart').getContext('2d');
+      new Chart(ctx, { // Remove the variable if not needed
+        type: 'doughnut',
+        data: {
+          labels: ['Average', 'Remaining'],
+          datasets: [{
+            data: [this.average, 100 - this.average],
+            backgroundColor: ['#36A2EB', '#FF6384'],
+            hoverOffset: 4,
+          }],
         },
-        tooltip: {
-          enabled: false,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              enabled: false,
+            },
+          },
         },
-      },
+      });
     },
-  });
-},
 
     async submitFeedback(examId) {
       try {
@@ -483,11 +492,6 @@ export default {
   width: 300px; /* Adjust width as needed */
   height: 300px; /* Adjust height as needed */
   margin: auto;
-  border: 2px solid #ddd; /* Adds border to the entire question box */
-  padding: 20px;
-  border-radius: 10px; /* Rounded corners */
-
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
 
 .average-text {
@@ -495,8 +499,21 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 27px;
+  font-size: 24px;
   font-weight: bold;
+}
+.result, .feedbackarea, .box {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #ffffff;
+  margin-right: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
+}
+.box {
+ 
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  max-height: 500px; /* Set a maximum height for the box */
 }
 
 </style>

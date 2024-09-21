@@ -261,8 +261,10 @@ export default {
 }
 
 .exam-card {
-  background-color: white;
-  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border: 2px solid #05870e; /* Solid 2px border with the #870505 color */
+  padding: 5px; /* Optional: Padding for spacing inside the card */
+  border-radius: 8px; /* Optional: Rounded corners */
   font-size: 15px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
