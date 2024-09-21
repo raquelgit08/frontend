@@ -4,7 +4,7 @@
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2 class="subject-title">{{ subject.subjectName }}</h2>
-        <p class="subject-description">{{ subject.classDescription }}</p>
+        <p class="subject-description">Description: {{ subject.classDescription }}</p>
         <p class="class-code">Class Code: <span>{{ subject.classGenCode }}</span></p>
       </div>
     </div>
@@ -16,14 +16,25 @@
       </router-link>
      
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-file-earmark-plus fs-4"></i> Exams
+        <i class="bi bi-file-earmark-plus fs-4"></i> Examinations
       </router-link>
       <!-- <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-chat-dots fs-4"></i> Feedback
       </router-link> -->
       <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-activity fs-4"></i> Subject Performance 
+        <i class="bi bi-activity fs-4"></i> My Performance 
       </router-link>
+      <div class="status ms-auto d-flex align-items-center">
+        <div class="mx-3">
+          <i class="bi bi-check-circle-fill text-success"></i> Finished: {{ totals.number_of_finished_exams }}
+        </div>
+        <div class="mx-3">
+          <i class="bi bi-x-circle-fill text-danger"></i> Missing: {{ totals.total_missing }}
+        </div>
+        <div class="mx-3">
+          <i class="bi bi-hourglass-split text-warning"></i> Pending: {{ totals.total_pending }}
+        </div>
+      </div>
     </nav>
 
     <!-- Published Exams List -->
@@ -44,18 +55,18 @@
               <h5 class="card-title">{{ exam.title }} <b>({{ exam.total_points}} point/s)</b></h5>
               <div class="row">
                 <div class="col-8">
-                  <strong>Status: {{ exam.status }}</strong>
+                  <strong>Status: {{ exam.status }} -</strong>
                   <span v-if="isExamAvailable(exam)" class="status-available">Available</span>
                   <span v-else class="status-unavailable">Unavailable</span>
                   <br>
 
-                  <strong>TOTAL QUESTIONS: {{ exam.total_questions }}</strong><br>
+                  <strong>NO. of QUESTIONS: {{ exam.total_questions }}</strong><br>
 
                   <!-- Displaying the score and aligning it to the right -->
                   
                 </div>
                 <div class="col-4 score-right">
-                  <strong>{{ exam.total_score }} / {{ exam.total_points }}</strong>
+                  <strong>{{ exam.total_score }} / {{ exam.points_exam}}  </strong>
                 </div>
               </div>       <!-- <div class="d-flex gap-2 container-fluid">
                 <button @click="viewExam(exam)" class="btn btn-primary "> View Exam </button>
@@ -84,9 +95,10 @@
           <p><strong>End Date:</strong> {{ formatDateTime(modalExam.end) }}</p>
           <p><strong>Status:</strong> {{ modalExam.originalExam.status }}</p>
          
-          <p><strong>SCORE : {{ modalExam.originalExam.total_score }} / {{ modalExam.originalExam.total_points}}</strong> 
+          <p><strong>SCORE : {{ modalExam.originalExam.total_score }} / {{ modalExam.originalExam.points_exam}}</strong> 
             <!-- {{ modalExam.quarter }}  -->
           </p>
+          <p><i>You score is {{ modalExam.originalExam.average }}%  of the total score {{ modalExam.originalExam.points_exam}} points</i></p>
           <p v-if="modalExam.description"><strong>Description:</strong> {{ modalExam.description }}</p>
         </div>
         <div class="modal-footer">
@@ -113,6 +125,11 @@ export default {
         classGenCode: ''
       },
       exams: [],
+      totals: {
+        number_of_finished_exams: 0,
+        total_missing: 0,
+        total_pending: 0
+      },
       modalExam: {},
       error: '',
       showModal: false
@@ -144,6 +161,7 @@ export default {
 
         console.log("Exams response data:", examsResponse.data);
         this.exams = examsResponse.data.exams;
+        this.totals = examsResponse.data.totals; // Extract the totals data
 
       } catch (error) {
         this.error = error.response ? error.response.data.error : 'Error fetching subject and exams';
@@ -261,8 +279,10 @@ export default {
 }
 
 .exam-card {
-  background-color: white;
-  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border: 2px solid #05870e; /* Solid 2px border with the #870505 color */
+  padding: 5px; /* Optional: Padding for spacing inside the card */
+  border-radius: 8px; /* Optional: Rounded corners */
   font-size: 15px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;

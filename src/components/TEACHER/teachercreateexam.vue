@@ -51,7 +51,7 @@
             <th style="width: 8%">End Time</th>
             <th style="width: 10%">Total Points</th>
             <th style="width: 10%">No. of Response</th>
-            <th style="width: 8%">Average Score</th>
+            <th style="width: 8%">Percentage</th>
             <th style="width: 14%">Actions</th>
             <th style="width: 14%">Status</th>
           </tr>
@@ -198,6 +198,7 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Fetched exams:', response.data.exams);
         this.exams = response.data.exams.map(exam => ({
           ...exam,
           isPublished: exam.isPublished || false, // Ensure isPublished is part of each exam

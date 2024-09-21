@@ -4,7 +4,7 @@
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2 class="subject-title">{{ subject.subjectName }}</h2>
-        <p class="subject-description">{{ subject.classDescription }}</p>
+        <p class="subject-description">Description: {{ subject.classDescription }}</p>
         <p class="class-code">Class Code: <span>{{ subject.classGenCode }}</span></p>
       </div>
     </div>
@@ -16,13 +16,13 @@
       </router-link>
      
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-file-earmark-plus fs-4"></i> Exams
+        <i class="bi bi-file-earmark-plus fs-4"></i> Examinations
       </router-link>
       <!-- <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-chat-dots fs-4"></i> Feedback
       </router-link> -->
       <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-activity fs-4"></i> Subject Performance 
+        <i class="bi bi-activity fs-4"></i> My Performance 
       </router-link>
     </nav>
 
@@ -40,21 +40,25 @@
         <table class="table table-hover table-custom" v-if="performances.length">
           <thead>
             <tr>
-              <th>Exam Title</th>
-              <th>Total Score</th>
-              <th>Total Exam</th>
-              <th>Status</th>
-              <th>Date</th>
+              <th>#</th>
+              <th>Quarterly Examinations</th>
+              <th>Total Points</th>
+              <th>Percentage</th>
+              <th>Remarks</th>
+              <th>Date Taken</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="performance in performances" :key="performance.id">
+            <tr v-for="(performance, index) in performances" :key="performance.id">
+              <td>{{ index + 1 }}</td> <!-- Add numbering here -->
               <td>{{ performance.exam_title }}</td>
-              <td>{{ performance.total_score }}</td>
-              <td>{{ performance.total_exam }}</td>
-              <td>{{ performance.status }}</td>
+              <td>{{ performance.total_score }} / {{ performance.total_exam }}</td>
+              <td>{{ performance.average }} %</td>
+              <td :class="{ 'text-danger': performance.status === 'Failed' }">
+                {{ performance.status }}
+              </td>
+
               <td>{{ formatDate(performance.start) }}</td>
-        
             </tr>
           </tbody>
         </table>
@@ -244,7 +248,7 @@ export default {
   .table-custom {
     background-color: #ffffff;
     border-radius: 8px;
-    font-size: 22px;
+    font-size: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid #200909;
     overflow: hidden;
@@ -254,7 +258,7 @@ export default {
     background-color: #0d8eead7;
     color: #ffffff;
     font-weight: 700;
-    font-size: 25px;
+    font-size: 20px;
   }
   
   .table th, .table td {
@@ -263,7 +267,7 @@ export default {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   .td{
-    font-size: 28px;
+    font-size: 19px;
   }
 
   .table-custom tbody tr:hover {
