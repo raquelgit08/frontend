@@ -4,7 +4,7 @@
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2 class="subject-title">{{ subject.subjectName }}</h2>
-        <p class="subject-description">{{ subject.classDescription }}</p>
+        <p class="subject-description">Description: {{ subject.classDescription }}</p>
         <p class="class-code">Class Code: <span>{{ subject.classGenCode }}</span></p>
       </div>
     </div>
@@ -16,13 +16,13 @@
       </router-link>
      
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-file-earmark-plus fs-4"></i> Exams
+        <i class="bi bi-file-earmark-plus fs-4"></i> Examinations
       </router-link>
       <!-- <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-chat-dots fs-4"></i> Feedback
       </router-link> -->
       <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-activity fs-4"></i> Subject Performance 
+        <i class="bi bi-activity fs-4"></i> My Performance 
       </router-link>
     </nav>
 
@@ -44,12 +44,12 @@
               <h5 class="card-title">{{ exam.title }} <b>({{ exam.total_points}} point/s)</b></h5>
               <div class="row">
                 <div class="col-8">
-                  <strong>Status: {{ exam.status }}</strong>
+                  <strong>Status: {{ exam.status }} -</strong>
                   <span v-if="isExamAvailable(exam)" class="status-available">Available</span>
                   <span v-else class="status-unavailable">Unavailable</span>
                   <br>
 
-                  <strong>TOTAL QUESTIONS: {{ exam.total_questions }}</strong><br>
+                  <strong>NO. of QUESTIONS: {{ exam.total_questions }}</strong><br>
 
                   <!-- Displaying the score and aligning it to the right -->
                   

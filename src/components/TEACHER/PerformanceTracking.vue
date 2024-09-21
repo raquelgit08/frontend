@@ -33,25 +33,30 @@
       </div>
 
       <!-- Grading Sheet -->
-      <div v-if="results && Object.keys(results).length">
+      <div v-if="results && Object.keys(results).length" class="table-responsive">
         <table class="table table-bordered">
           <thead>
             <tr>
+              <th>#</th>
               <th>LRN</th>
               <th>Student Name</th>
               <th v-for="(examData, examTitle) in results" :key="examTitle">
-                <div>{{ examTitle }}</div>
-                <div>{{ examData.exam_results[0]?.exam_start || 'No Date' }}</div> <!-- Display exam date -->
-                <div>Total Points: {{ examData.exam_results[0]?.total_exam || 'N/A' }}</div>
+                <div :title="formatDateTime(examData.exam_results[0]?.exam_start)">
+                  {{ examTitle }}
+                </div>
+                <!-- <div>{{ examTitle }}</div>
+                <div>{{ examData.exam_results[0]?.exam_start || 'No Date' }}</div> Display exam date -->
+                <!-- <div>Total Points: {{ examData.exam_results[0]?.total_exam || 'N/A' }}</div> -->
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="student in getFlattenResults()" :key="student.id">
+            <tr v-for="(student, index) in getFlattenResults()" :key="student.id">
+              <td>{{ index + 1 }}</td> <!-- This adds numbering -->
               <td>{{ student.lrn }}</td>
               <td>{{ student.Last_name }}, {{ student.First_name }} {{ student.Middle_i }}</td>
               <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
-                {{ student[examTitle] || '-' }}
+                {{ student[examTitle] || '-' }} /{{ examData.exam_results[0]?.total_exam }}
               </td>
             </tr>
           </tbody>
@@ -137,34 +142,53 @@ export default {
         this.error = error.response ? error.response.data.error : 'Failed to fetch student results. Please try again later.';
       }
     },
-    getFlattenResults() {
-  // Create a flattened version of the results data to simplify table rendering
-  const results = [];
-  for (const examTitle in this.results) {
-    const examData = this.results[examTitle];
-    for (const result of examData.exam_results) {
-      let student = results.find(r => r.lrn === result.Lrn_id);
-      if (!student) {
-        student = {
-          lrn: result.Lrn_id,
-          Last_name: result.Last_name,
-          First_name: result.First_name,
-          Middle_i: result.Middle_i
-        };
-        results.push(student);
-      }
-      student[examTitle] = result.total_score || '-'; // Handle null scores
-    }
-  }
-  return results;
-}
+    formatDateTime(dateTime) {
+      if (!dateTime) return 'N/A';
+      const date = new Date(dateTime);
+      
+      // Format the date
+      const optionsDate = { year: 'numeric', month: 'numeric', day: 'numeric' };
+      const formattedDate = date.toLocaleDateString([], optionsDate);
 
-  },
-  created() {
-    this.fetchSubject(); // Fetch subject details when the component is created
-    this.fetchStudentResults();
-  }
-};
+      // Format the time
+      const optionsTime = {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+      };
+      const formattedTime = date.toLocaleTimeString([], optionsTime);
+
+      return `${formattedDate} ${formattedTime}`;
+    },
+
+    getFlattenResults() {
+      // Create a flattened version of the results data to simplify table rendering
+      const results = [];
+      for (const examTitle in this.results) {
+        const examData = this.results[examTitle];
+        for (const result of examData.exam_results) {
+          let student = results.find(r => r.lrn === result.Lrn_id);
+          if (!student) {
+            student = {
+              lrn: result.Lrn_id,
+              Last_name: result.Last_name,
+              First_name: result.First_name,
+              Middle_i: result.Middle_i
+            };
+            results.push(student);
+          }
+          student[examTitle] = result.total_score || '-'; // Handle null scores
+        }
+      }
+      return results;
+    }
+
+    },
+    created() {
+      this.fetchSubject(); // Fetch subject details when the component is created
+      this.fetchStudentResults();
+    }
+  };
 </script>
 
 <style scoped>
@@ -245,11 +269,15 @@ export default {
 .table {
   width: 100%;
   margin-top: 20px;
+  overflow-x: auto; /* Allow horizontal scrolling */
 }
 
+/* Make sure table cells are responsive */
 .table th, .table td {
   text-align: center;
   vertical-align: middle;
+  padding: 8px; /* Adjust padding as necessary */
+  font-size: 0.9rem; /* Optionally reduce font size */
 }
 
 .table thead th {
@@ -258,12 +286,14 @@ export default {
   background-color: #f8f9fa;
   color: #343a40;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .table tbody td {
   color: #495057;
 }
 
+/* Make the table borders consistent */
 .table-bordered {
   border: 1px solid #dee2e6;
 }
@@ -272,8 +302,9 @@ export default {
   border: 1px solid #dee2e6;
 }
 
-/* Alert */
+/* Ensure the alert and other elements fit as well */
 .alert {
   margin-top: 20px;
 }
+
 </style>

@@ -54,7 +54,7 @@
               <th scope="col" class="text-center">Last Name</th>
               <th scope="col" class="text-center">First Name</th>
               <th scope="col" class="text-center">Middle Name</th>
-              <th scope="col" class="text-center">Gender</th>
+              <th scope="col" class="text-center">Sex</th>
               <th scope="col" class="text-center">Email</th>
               <th scope="col" class="text-center">Strand</th>
             </tr>
