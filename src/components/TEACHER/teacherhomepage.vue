@@ -197,6 +197,12 @@ export default {
 </script>
 
 <style scoped>
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
 h2 {
   font-family: 'Roboto', sans-serif;
   color: rgb(14, 1, 1);
@@ -206,8 +212,9 @@ h2 {
 
 .navbar {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background-color: #0047AB;
+  background-color: #1959b3;
   color: #fff;
+  margin-bottom: 20px;
 }
 
 .welcome-text {
