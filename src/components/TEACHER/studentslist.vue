@@ -1,36 +1,27 @@
 <template>
-  <div class="main-container">
+  <div class="container-fluid">
     <!-- Subject Information Display on the Left -->
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
-        <h2>{{ subject.subjectName }}</h2>
+        <h2 class="subject-title">{{ subject.subjectName }}</h2>
         <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+        <p class="class-code">Class Code: <span>{{ subject.gen_code }}</span></p>
       </div>
     </div>
 
     <!-- Unified Navigation Bar -->
     <nav class="nav nav-pills">
       <router-link to="/teacheraddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4"></i></span>
+        <span><i class="bi bi-arrow-left fs-4">Go Back to Classes</i></span>
       </router-link>
-      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-file-earmark-plus fs-4"></i> Exams
-      </router-link>
-      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-chat-dots fs-4"></i> Feedback
-      </router-link>
-      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-activity fs-4"></i> Performance Tracking
-      </router-link>
-      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-person-lines-fill fs-4"></i> Students
-      </router-link>
-      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-hourglass-split fs-4"></i> Pending
-      </router-link>
+      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
+      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
+      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
+      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
     </nav>
-  </div>
+ 
 
   <div class="container-fluid">
     <h4 class="text-center">Manage Students</h4><br>
@@ -75,6 +66,7 @@
         </table>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -172,98 +164,142 @@ export default {
 </script>
 
 <style scoped>
-.container-fluid {
-  background-color: #ffffff;
-  border-radius: 10px;
-}
-
-/* Main Container */
-.main-container {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-/* Subject Info Container */
 .subject-info-container {
-  flex: 1;
-  max-width: 280px;
-  margin-right: 15px;
-  display: flex;
-  align-items: center;
-}
-
-/* Subject Info Styling */
-.subject-info {
-  width: 100%;
-  padding: 15px;
-  background-color: #f8f9fa;
+  background-color: #EEEDED;
   border-radius: 10px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 10px;
+  height: 130px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.subject-info h2 {
-  font-size: 1.6rem;
-  color: #343a40;
-  font-weight: 700;
+.subject-title {
+  font-size: 1.75rem;
+  margin-bottom: 10px;
+  font-weight: 800;
+  color: #333;
 }
 
-.subject-info p {
-  font-size: 1rem;
-  color: #6c757d;
+.subject-description {
+  color: #555;
+  margin-bottom: 5px;
 }
 
-/* Navigation Bar */
+.class-code span {
+  color: #007bff;
+  font-weight: 800;
+}
+
 .nav {
-  flex: 2;
-  display: flex;
-  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 15px;
   background-color: #ffffff;
-  align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 15px;
   border-radius: 10px;
 }
 
 .nav-link {
-  color: #343a40 !important;
-  font-weight: 500;
-  padding: 8px 16px;
+  color: #000000;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-link:hover {
-  color: #007bff !important;
+.nav-link:hover :active {
+  background-color: #007bff;
+  color: white !important;
 }
 
-.router-link-active {
+.section-title {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 100%;
+}
+
+
+
+/* Error Alert */
+.alert {
+  margin-top: 20px;
+  border-radius: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .nav-link {
+    padding: 8px 10px;
+  }
+}
+
+
+.table-wrapper {
+  
+    padding: 0 15px;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Table Styles */
+  .table-custom {
+    background-color: #ffffff;
+    border-radius: 8px;
+    font-size: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #200909;
+    overflow: hidden;
+  }
+
+  .table-custom th {
+    background-color: #0d8eead7;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  
+  .table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .td{
+    font-size: 19px;
+  }
+
+  .table-custom tbody tr:hover {
+    background-color: #f1f3f5;
+  }
+
+  .table-custom tbody tr {
+    transition: background-color 0.3s ease;
+  }
+  .router-link-active {
   color: #007bff !important;
   border-bottom: 2px solid #007bff;
-}
-
-/* Table and Title Styling */
-.container-fluid h4 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #343a40;
-  margin-bottom: 20px;
-}
-
-.table {
-  margin-top: 20px;
-}
-
-.table th,
-.table td {
-  vertical-align: middle;
-}
-
-.table th {
-  background-color: #f8f9fa;
-}
-
-.btn {
-  margin: 0 5px;
-  width: 100%;
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
   <div class="container-fluid">
+    <!-- Display classes -->
     <div class="header-container">
       <h1><i class="bi bi-easel-fill"></i> My Classes</h1>
     </div>
     <div class="row">
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
         <div class="card" @click="$router.push(`/subject/${classItem.id}`)">
-          <!-- Display user-selected or existing image -->
           <img
             v-if="classItem.profile_img"
             :src="getImageUrl(classItem.profile_img)"
@@ -71,7 +71,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <!-- Form for adding/editing a class -->
+            <!-- Form for class details -->
             <div class="form-group">
               <label for="strand">Strand:</label>
               <select v-model="currentClass.strand_id" id="strand" class="form-select" required @change="filterSections">
@@ -109,7 +109,6 @@
               </select>
             </div>
 
-            <!-- Semester selection -->
             <div class="form-group">
               <label for="semester">Semester:</label>
               <select v-model="currentClass.semester" id="semester" class="form-select" required>
@@ -137,7 +136,7 @@
               <!-- Show existing image if present -->
               <div v-if="currentClass.profile_img">
                 <img
-                  :src="getImageUrl(currentClass.profile_img)"
+                  :src="currentClass.profile_img.startsWith('blob:') ? currentClass.profile_img : getImageUrl(currentClass.profile_img)"
                   class="img-thumbnail mt-2"
                   alt="Preview Image"
                   style="width: 100px; height: 100px"
@@ -182,7 +181,7 @@ export default {
         profile_img: "",
         gen_code: "",
       },
-      classes: [], // Store all classes
+      classes: [],
       strands: [],
       sections: [],
       subjects: [],
@@ -201,7 +200,6 @@ export default {
   },
   methods: {
     getImageUrl(imagePath) {
-      // Handle image URLs, append timestamp to avoid caching issues
       const baseUrl = process.env.VUE_APP_BASE_URL || "http://localhost:8000";
       return `${baseUrl}${imagePath}?t=${new Date().getTime()}`;
     },
@@ -213,7 +211,6 @@ export default {
       modal.show();
     },
     openEditModal(classItem) {
-      // Ensure existing image is loaded when editing
       this.isEditMode = true;
       this.currentClass = { ...classItem };
       this.filterSections();
@@ -225,8 +222,7 @@ export default {
       const file = event.target.files[0];
       if (file) {
         this.selectedFile = file;
-        // Preview the selected image
-        this.currentClass.profile_img = URL.createObjectURL(file);
+        this.currentClass.profile_img = URL.createObjectURL(file); // Show image preview immediately
       }
     },
     generateCode() {
@@ -236,20 +232,24 @@ export default {
       const token = localStorage.getItem("token");
       const formData = new FormData();
 
-      
+      // Append all currentClass data (text fields)
       Object.keys(this.currentClass).forEach((key) => {
-        formData.append(key, this.currentClass[key]);
+        if (this.currentClass[key] !== null && this.currentClass[key] !== undefined) {
+          formData.append(key, this.currentClass[key]);
+        }
       });
 
+      // Append the image file to the FormData
       if (this.selectedFile) {
-        formData.append("profile_img", this.selectedFile);
+        formData.append("profile_img", this.selectedFile); // Key must match backend's 'profile_img'
       }
 
       try {
         let response;
+
+        // If editing mode, send a PUT request, otherwise POST
         if (this.isEditMode) {
-       
-          await axios.put(
+          response = await axios.put(
             `http://localhost:8000/api/updateaddclass/${this.currentClass.id}`,
             formData,
             {
@@ -260,23 +260,26 @@ export default {
             }
           );
         } else {
-         
-          axios.post("http://localhost:8000/api/addclass", formData, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          });
+          response = await axios.post(
+            "http://localhost:8000/api/addclass",
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
         }
 
-        if (response.status === 200 || response.status === 201) {
-     
+        if (response && (response.status === 200 || response.status === 201)) {
           const updatedClass = response.data.data;
+
           if (this.isEditMode) {
             const index = this.classes.findIndex((c) => c.id === updatedClass.id);
-            this.$set(this.classes, index, updatedClass);
+            this.classes[index] = updatedClass; // Update the class in the array
           } else {
-            this.classes.unshift(updatedClass);
+            this.classes.unshift(updatedClass); // Add new class to the array
           }
 
           this.clearForm();
@@ -288,8 +291,11 @@ export default {
             title: "Success",
             text: this.isEditMode ? "Class updated successfully!" : "Class added successfully!",
           });
+        } else {
+          throw new Error("Unexpected response structure");
         }
       } catch (error) {
+        console.error("Error saving class:", error);
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -297,8 +303,6 @@ export default {
         });
       }
     },
-
-    // Clear the form after saving
     clearForm() {
       this.currentClass = {
         strand_id: "",
@@ -312,7 +316,6 @@ export default {
       };
       this.selectedFile = null;
     },
-
     async archiveClass(classItem) {
       const token = localStorage.getItem("token");
       Swal.fire({
@@ -449,7 +452,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
   .container-fluid {
