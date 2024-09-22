@@ -1,4 +1,4 @@
-<template> 
+<template>
   <div>
     <!-- Subject Information and Navigation Bar at the Top -->
     <div class="main-container">
@@ -157,58 +157,57 @@
       </div>
     </div>
 
-    <!-- Modal for Editing Questions -->
     <b-modal v-model="showEditModal" title="Edit Question" @ok="saveEditedQuestion">
-      <div v-if="modalQuestion">
-        <!-- Show instruction in the modal -->
-        <div class="mb-3">
-          <label class="form-label">Instruction</label>
-          <input type="text" v-model="modalInstruction" class="form-control" readonly />
-        </div>
-
-        <!-- Show question type in the modal -->
-        <div class="mb-3">
-          <label class="form-label">Question Type</label>
-          <input type="text" v-model="modalQuestionType" class="form-control" readonly />
-        </div>
-
-        <!-- Question text -->
-        <div class="mb-3">
-          <label class="form-label">Question</label>
-          <input type="text" v-model="modalQuestion.text" class="form-control" required />
-        </div>
-
-        <!-- Conditional rendering based on question type -->
-        <div v-if="modalQuestionType === 'multiple-choice'" class="mb-3">
-          <label class="form-label">Choices</label>
-          <div v-for="(choice, idx) in modalQuestion.choices" :key="idx" class="input-group mb-2">
-            <input type="text" v-model="modalQuestion.choices[idx]" class="form-control" placeholder="Choice" />
-          </div>
-          <button @click="addChoice(modalQuestion)" class="btn btn-outline-secondary btn-sm">Add Choice</button>
-        </div>
-
-        <!-- True/False Answer -->
-        <div v-if="modalQuestionType === 'true-false'" class="mb-3">
-          <label class="form-label">True/False Answer</label>
-          <select v-model="modalQuestion.correctAnswer" class="form-control">
-            <option value="True">True</option>
-            <option value="False">False</option>
-          </select>
-        </div>
-
-        <!-- Identification Answer -->
-        <div v-if="modalQuestionType === 'identification'" class="mb-3">
-          <label class="form-label">Correct Answer</label>
-          <input type="text" v-model="modalQuestion.correctAnswer" class="form-control" placeholder="Enter the correct answer" />
-        </div>
-
-        <!-- Points -->
-        <div class="mb-3">
-          <label class="form-label">Points</label>
-          <input type="number" v-model="modalQuestion.points" class="form-control" min="1" required />
-        </div>
+    <div v-if="modalQuestion">
+      <!-- Show instruction in the modal -->
+      <div class="mb-3">
+        <label class="form-label">Instruction</label>
+        <input type="text" v-model="modalInstruction" class="form-control" readonly />
       </div>
-    </b-modal>
+
+      <!-- Show question type in the modal -->
+      <div class="mb-3">
+        <label class="form-label">Question Type</label>
+        <input type="text" v-model="modalQuestionType" class="form-control" readonly />
+      </div>
+
+      <!-- Question text -->
+      <div class="mb-3">
+        <label class="form-label">Question</label>
+        <input type="text" v-model="modalQuestion.text" class="form-control" required />
+      </div>
+
+      <!-- Conditional rendering based on question type -->
+      <div v-if="modalQuestionType === 'multiple-choice'" class="mb-3">
+        <label class="form-label">Choices</label>
+        <div v-for="(choice, idx) in modalQuestion.choices" :key="idx" class="input-group mb-2">
+          <input type="text" v-model="modalQuestion.choices[idx]" class="form-control" placeholder="Choice" />
+        </div>
+        <button @click="addChoice(modalQuestion)" class="btn btn-outline-secondary btn-sm">Add Choice</button>
+      </div>
+
+      <!-- True/False Answer -->
+      <div v-if="modalQuestionType === 'true-false'" class="mb-3">
+        <label class="form-label">True/False Answer</label>
+        <select v-model="modalQuestion.correctAnswer" class="form-control">
+          <option value="True">True</option>
+          <option value="False">False</option>
+        </select>
+      </div>
+
+      <!-- Identification Answer -->
+      <div v-if="modalQuestionType === 'identification'" class="mb-3">
+        <label class="form-label">Correct Answer</label>
+        <input type="text" v-model="modalQuestion.correctAnswer" class="form-control" placeholder="Enter the correct answer" />
+      </div>
+
+      <!-- Points -->
+      <div class="mb-3">
+        <label class="form-label">Points</label>
+        <input type="number" v-model="modalQuestion.points" class="form-control" min="1" required />
+      </div>
+    </div>
+  </b-modal>
   </div>
 </template>
 
@@ -233,13 +232,12 @@ export default {
       globalQuestionType: 'multiple-choice',
       examInstruction: '',
       isPublished: false,
-      isEditing: false,
-      editingInstructionIndex: null,  // Store index of the instruction being edited
-      editingQuestionIndex: null,     // Store index of the question being edited
-      showEditModal: false,           // Modal visibility state
-      modalQuestion: null,            // Holds the question to be edited in modal
-      modalInstruction: '',           // Instruction associated with modal question
-      modalQuestionType: 'multiple-choice',  // Question type in modal
+      showEditModal: false,
+      modalQuestion: null,
+      modalInstruction: '',
+      modalQuestionType: 'multiple-choice',
+      editingInstructionIndex: null,
+      editingQuestionIndex: null
     };
   },
   created() {
@@ -259,40 +257,81 @@ export default {
       }
     },
     editQuestion(iIndex, qIndex, question, instruction) {
-      this.isEditing = true;
+      // Assign the index of the question and instruction for later use
       this.editingInstructionIndex = iIndex;
       this.editingQuestionIndex = qIndex;
 
+      // Prepare the question data for the modal
       this.modalQuestion = {
         text: question.question || '',
         correctAnswer: question.correct_answers[0]?.correct_answer || '',
         points: question.correct_answers[0]?.points || 1,
-        choices: question.choices || (question.question_type === 'multiple-choice' ? ['', '', ''] : []),
+        choices: question.choices || (instruction.question_type === 'multiple-choice' ? ['', '', ''] : []),
       };
 
-      // Pass the correct instruction and question type to modal
+      // Set the instruction and question type to display in the modal
       this.modalInstruction = instruction.instructions.instruction || '';
-      this.modalQuestionType = question.question_type || 'multiple-choice';
+      this.modalQuestionType = instruction.question_type || 'multiple-choice';
+
+      // Show the edit modal
       this.showEditModal = true;
     },
-    saveEditedQuestion() {
-      if (this.isEditing && this.editingQuestionIndex !== null && this.editingInstructionIndex !== null) {
-        const instruction = this.existingQuestions[this.editingInstructionIndex];
-        const question = instruction.instructions.questions[this.editingQuestionIndex];
-        question.question = this.modalQuestion.text;
-        question.correct_answers[0].correct_answer = this.modalQuestion.correctAnswer;
-        question.correct_answers[0].points = this.modalQuestion.points;
+    async saveEditedQuestion() {
+      try {
+        // Retrieve the question from modal data
+        const question = this.modalQuestion;
+        const updatedQuestions = this.existingQuestions[this.editingInstructionIndex].instructions.questions;
 
-        if (this.modalQuestionType === 'multiple-choice') {
-          question.choices = this.modalQuestion.choices;
-        } else if (this.modalQuestionType === 'true-false') {
-          question.choices = [];  // No choices for true/false questions
-        } else if (this.modalQuestionType === 'identification') {
-          question.choices = [];  // No choices for identification questions
-        }
+        // Update the existing question with the edited data
+        updatedQuestions[this.editingQuestionIndex] = {
+          ...updatedQuestions[this.editingQuestionIndex],
+          question: question.text,
+          correct_answers: [
+            {
+              correct_answer: question.correctAnswer,
+              points: question.points,
+            },
+          ],
+          choices: this.modalQuestionType === 'multiple-choice' ? question.choices : [],
+        };
 
-        this.showEditModal = false;  // Close modal after saving
-        this.isEditing = false;
+        // Prepare the payload for the backend
+        const payload = {
+          instructions: this.existingQuestions.map(inst => ({
+            id: inst.id,
+            instruction: inst.instructions.instruction,
+            question_type: inst.question_type,
+          })),
+          questions: updatedQuestions,
+        };
+
+        // Save the edited question to the backend
+        await axios.post(
+          `http://localhost:8000/api/updateQuestionsInExam/${this.examId}`,
+          payload,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
+
+        // Refresh the questions and close the modal
+        await this.fetchQuestions();
+        this.showEditModal = false;
+        Swal.fire('Success', 'Question updated successfully!', 'success');
+      } catch (error) {
+        console.error('Error updating question:', error.message);
+        Swal.fire('Error', 'Failed to update question.', 'error');
+      }
+    },
+  
+    async deleteQuestion(questionId) {
+      try {
+        await axios.delete(`http://localhost:8000/api/deleteQuestion/${questionId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        this.fetchQuestions();
+        Swal.fire('Success', 'Question deleted successfully!', 'success');
+      } catch (error) {
+        console.error('Error deleting question:', error.message);
+        Swal.fire('Error', 'Failed to delete question.', 'error');
       }
     },
     addChoice(question) {
@@ -313,7 +352,6 @@ export default {
             instruction: this.examInstruction,
             question_type: this.globalQuestionType,
             questions: this.newQuestions.map(question => ({
-              id: this.isEditing ? this.existingQuestions[this.editingQuestionIndex]?.id : undefined,
               question: question.text,
               choices: this.globalQuestionType === 'multiple-choice'
                 ? question.choices.filter(choice => choice !== '')
@@ -336,74 +374,11 @@ export default {
         ];
 
         await this.fetchQuestions();
-        this.isEditing = false;
-        alert('All questions saved successfully!');
+        Swal.fire('Success', 'All questions saved successfully!', 'success');
       } catch (error) {
         console.error('Failed to save questions:', error.message);
         Swal.fire('Error', 'Failed to save questions. Please try again.', 'error');
       }
-    },
-    async publishExam() {
-      try {
-        await axios.post(
-          `http://localhost:8000/api/exams/publish2/${this.examId}`,
-          {},
-          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-        );
-        this.isPublished = true;
-        Swal.fire('Success', 'Exam published successfully!', 'success');
-      } catch (error) {
-        console.error('Failed to publish exam:', error.message);
-      }
-    },
-    async saveToTestBank(questionData) {
-      try {
-        const payload = {
-          schedule_id: this.examId,
-          questions: [questionData],
-        };
-
-        await axios.post(
-          `http://localhost:8000/api/storetestbank`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-        );
-
-        Swal.fire('Success', 'Question saved to test bank successfully!', 'success');
-      } catch (error) {
-        console.error('Error saving to test bank:', error.response?.data || error.message);
-        Swal.fire('Error', error.response?.data?.message || 'Failed to save to test bank.', 'error');
-      }
-    },
-    confirmSaveToTestBank(question) {
-      Swal.fire({
-        title: 'Do you want to save this question to the test bank?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, save it!',
-        cancelButtonText: 'No, cancel',
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          const preparedQuestion = this.prepareQuestionForSelection(question);
-          if (preparedQuestion) {
-            await this.saveToTestBank(preparedQuestion);
-          } else {
-            Swal.fire('Error', 'Invalid question data, unable to save.', 'error');
-          }
-        }
-      });
-    },
-    prepareQuestionForSelection(question) {
-      return {
-        id: question.id || null,
-        text: question.question || '',
-        correctAnswer: question.correct_answers?.[0]?.correct_answer || '',
-        points: question.correct_answers?.[0]?.points || 1,
-        choices: question.choices || [],
-      };
-    },
-    deleteQuestion() {
-      // Implement deletion logic here
     },
     viewItemAnalysis(examId) {
       this.$router.push(`/ItemAnalysis/${examId}`);
@@ -411,7 +386,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 .manage-exam-container {
