@@ -16,57 +16,76 @@
       </router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
       <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
       <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
     </nav>
- 
 
-  <div class="container-fluid">
-    <h4 class="text-center">Manage Students</h4><br>
+    <div class="container-fluid">
+      <h4 class="text-center">Manage Students</h4><br>
 
-    <!-- Invitation Form -->
-    <div class="row mb-4">
-      <div class="col-md-8 offset-md-2">
-        <input v-model="inviteEmail" type="email" class="form-control" placeholder="Enter student's email" />
-        <input v-model="inviteName" type="text" class="form-control mt-2" placeholder="Enter student's name" />
-        <button class="btn btn-primary mt-2 w-100" @click="inviteStudentEmail">Invite Student</button>
+      <!-- Invite Student Button on the Right Side -->
+      <div class="d-flex justify-content-end mb-4">
+        <button class="btn btn-success" @click="openModal">Invite Student</button>
+      </div>
+
+      <!-- Modal for inviting students -->
+      <div class="modal" tabindex="-1" role="dialog" v-if="isModalVisible">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Invite Student</h5>
+              <button type="button" class="close" @click="closeModal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <input v-model="inviteEmail" type="email" class="form-control" placeholder="Enter student's email" />
+              </div>
+              <div class="form-group mt-2">
+                <input v-model="inviteName" type="text" class="form-control" placeholder="Enter student's name" />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" @click="inviteStudentEmail">Invite</button>
+              <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-10 offset-md-1">
+          <table class="table table-bordered table-hover">
+            <thead class="table-info">
+              <tr>
+                <th scope="col" class="text-center">No.</th>
+                <th scope="col" class="text-center">LRN</th>
+                <th scope="col" class="text-center">Last Name</th>
+                <th scope="col" class="text-center">First Name</th>
+                <th scope="col" class="text-center">Middle Name</th>
+                <th scope="col" class="text-center">Sex</th>
+                <th scope="col" class="text-center">Email</th>
+                <th scope="col" class="text-center">Strand</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(student, index) in students" :key="student.id">
+                <td class="text-center">{{ index + 1 }}</td>
+                <td class="text-center">{{ student.user?.idnumber }}</td>
+                <td class="text-center">{{ student.user?.lname }}</td>
+                <td class="text-center">{{ student.user?.fname }}</td>
+                <td class="text-center">{{ student.user?.mname }}</td>
+                <td class="text-center">{{ student.user?.sex }}</td>
+                <td class="text-center">{{ student.user?.email }}</td>
+                <td class="text-center">{{ student.strands?.addstrand }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-
-    <div class="row mb-4">
-      <div class="col-md-10 offset-md-1">
-        <table class="table table-bordered table-hover">
-          <thead class="table-info">
-            <tr>
-              <th scope="col" class="text-center">No.</th>
-              <th scope="col" class="text-center">LRN</th>
-              <th scope="col" class="text-center">Last Name</th>
-              <th scope="col" class="text-center">First Name</th>
-              <th scope="col" class="text-center">Middle Name</th>
-              <th scope="col" class="text-center">Sex</th>
-              <th scope="col" class="text-center">Email</th>
-              <th scope="col" class="text-center">Strand</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(student, index) in students" :key="student.id">
-              <td class="text-center">{{ index + 1 }}</td>
-              <td class="text-center">{{ student.user?.idnumber }}</td>
-              <td class="text-center">{{ student.user?.lname }}</td>
-              <td class="text-center">{{ student.user?.fname }}</td>
-              <td class="text-center">{{ student.user?.mname }}</td>
-              <td class="text-center">{{ student.user?.sex }}</td>
-              <td class="text-center">{{ student.user?.email }}</td>
-              <td class="text-center">{{ student.strands?.addstrand }}</td>
-             
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
   </div>
 </template>
 
@@ -74,7 +93,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'ManageStudentEmails',
+  name: 'StudentsListSubject',
   data() {
     return {
       students: [],
@@ -85,7 +104,8 @@ export default {
       },
       inviteEmail: '',
       inviteName: '',
-      error: ''
+      error: '',
+      isModalVisible: false // Modal visibility state
     };
   },
   methods: {
@@ -116,8 +136,6 @@ export default {
         const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        console.log('Full response:', response);
-
         if (!response.data.class || !response.data.class.subject.subjectname) {
           this.error = 'Class not found or you are not authorized to view this class.';
           return;
@@ -128,20 +146,7 @@ export default {
         this.subject.schoolYear = response.data.class.year.addyear;
         this.subject.gen_code = response.data.class.gen_code;
       } catch (error) {
-        console.error('Error fetching subject:', error);
         this.error = error.response ? error.response.data.message : 'Failed to fetch subject data.';
-      }
-    },
-    async inviteStudent(studentId) {
-      try {
-        const response = await axios.post(`http://localhost:8000/api/inviteStudent`, {
-          student_id: studentId
-        }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        alert(response.data.message || 'Invitation sent successfully');
-      } catch (error) {
-        alert('Error inviting student: ' + error.message);
       }
     },
     async inviteStudentEmail() {
@@ -153,9 +158,26 @@ export default {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         alert(response.data.message || 'Invitation sent successfully');
+        // Add the invited student to the students list (for demonstration purposes)
+        this.students.push({
+          id: this.students.length + 1, // Temporary ID
+          user: {
+            email: this.inviteEmail,
+            fname: this.inviteName,
+          }
+        });
+        this.closeModal(); // Close modal after invitation
       } catch (error) {
         alert('Error inviting student: ' + error.message);
       }
+    },
+    openModal() {
+      this.isModalVisible = true;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+      this.inviteEmail = '';
+      this.inviteName = '';
     }
   },
   mounted() {
@@ -164,6 +186,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .subject-info-container {
