@@ -5,6 +5,16 @@
       <h1><i class="bi bi-easel-fill"></i> My Classes</h1>
     </div>
     <div class="row">
+      <!-- Add Class Button -->
+      <div class="col-md-3">
+        <div class="card add-class-card" @click="openAddClassModal">
+          <div class="card-body d-flex justify-content-center align-items-center">
+            <div class="plus-icon">
+              <i class="fa fa-plus fa-3x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
         <div class="card" @click="$router.push(`/subject/${classItem.id}`)">
           <img
@@ -50,16 +60,7 @@
         </div>
       </div>
 
-      <!-- Add Class Button -->
-      <div class="col-md-3">
-        <div class="card add-class-card" @click="openAddClassModal">
-          <div class="card-body d-flex justify-content-center align-items-center">
-            <div class="plus-icon">
-              <i class="fa fa-plus fa-3x"></i>
-            </div>
-          </div>
-        </div>
-      </div>
+      
     </div>
 
     <!-- Modal for adding/editing a class -->
@@ -192,7 +193,7 @@ export default {
     };
   },
   mounted() {
-    this.fetchSections(); // Ensure this function is called in mounted lifecycle
+    this.fetchSections();
     this.fetchStrands();
     this.fetchSubjects();
     this.fetchYear();
@@ -212,8 +213,8 @@ export default {
     },
     openEditModal(classItem) {
       this.isEditMode = true;
-      this.currentClass = { ...classItem }; // Properly bind data from classItem
-      this.filterSections(); // Ensure sections are filtered by strand
+      this.currentClass = { ...classItem };
+      this.filterSections();
       const modalElement = document.getElementById("classModal");
       const modal = new Modal(modalElement);
       modal.show();
@@ -221,8 +222,8 @@ export default {
     onFileChange(event) {
       const file = event.target.files[0];
       if (file) {
-        this.selectedFile = file; // Store the selected file
-        this.currentClass.profile_img = URL.createObjectURL(file); // Show image preview
+        this.selectedFile = file;
+        this.currentClass.profile_img = URL.createObjectURL(file); // Show image preview immediately
       }
     },
     generateCode() {
@@ -241,11 +242,13 @@ export default {
 
       // Append the image file to the FormData
       if (this.selectedFile) {
-        formData.append("profile_img", this.selectedFile); // Add the image file if selected
+        formData.append("profile_img", this.selectedFile); // Key must match backend's 'profile_img'
       }
 
       try {
         let response;
+
+        // If editing mode, send a PUT request, otherwise POST
         if (this.isEditMode) {
           response = await axios.put(
             `http://localhost:8000/api/updateaddclass/${this.currentClass.id}`,
@@ -275,7 +278,7 @@ export default {
 
           if (this.isEditMode) {
             const index = this.classes.findIndex((c) => c.id === updatedClass.id);
-            this.classes.splice(index, 1, updatedClass); // Directly update the array
+            this.classes[index] = updatedClass; // Update the class in the array
           } else {
             this.classes.unshift(updatedClass); // Add new class to the array
           }
@@ -359,7 +362,7 @@ export default {
           if (response.data && response.data.classes) {
             this.classes = response.data.classes.map((classItem) => ({
               ...classItem,
-              subject: classItem.subject || {}, // Ensure subject is defined
+              subject: classItem.subject || {},
               profile_img: classItem.profile_img ? classItem.profile_img : null,
             }));
           }
@@ -450,8 +453,6 @@ export default {
   },
 };
 </script>
-
-
 
 <style scoped>
   .container-fluid {

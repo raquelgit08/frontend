@@ -9,31 +9,39 @@
 
     <div class="container-fluid">
       <h5>Item Analysis</h5>
-      
+
       <!-- Check if analysis is ready -->
-      <div v-if="questionAnalysis.length > 0">
+      <div v-if="questionAnalysis.length > 0" class="questions-container">
         <div v-for="(question, index) in questionAnalysis" :key="index" class="question-analysis">
-          <h6>{{ index + 1 }}. {{ question.question }}</h6>
-          
-          <!-- Correct Answer -->
+          <div class="question-header">
+            <h6>{{ index + 1 }}. {{ question.question }}</h6>
+            <span class="difficulty-percentage">Difficulty: {{ question.difficulty_percentage }}</span>
+          </div>
+
           <p><strong>Correct Answer:</strong> {{ question.correct_answer }}</p>
 
-          <!-- Choice List with Selection Count and Percentage -->
           <ul>
             <li v-for="(choice, choiceIndex) in question.choices" :key="choiceIndex">
-              {{ choice.choice }}: {{ choice.count }} selections ({{ choice.percentage }}%)
+              {{ choice.choice }}: {{ choice.count }} selections ({{ getPercentage(choice.count, question.totalResponses) }}%)
+              <div class="progress">
+                <div class="progress-bar" :class="{'bg-success': choice.choice === question.correct_answer, 'bg-danger': choice.choice !== question.correct_answer}"
+                  role="progressbar" :style="{ width: getPercentage(choice.count, question.totalResponses) + '%' }"
+                  :aria-valuenow="getPercentage(choice.count, question.totalResponses)" aria-valuemin="0" aria-valuemax="100">
+                  {{ getPercentage(choice.count, question.totalResponses) }}%
+                </div>
+              </div>
             </li>
           </ul>
         </div>
       </div>
 
-      <!-- Show a message if no analysis is available -->
       <div v-else>
         <p>No item analysis data available for this exam.</p>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -71,7 +79,7 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
-
+        console.log('Full API response:', response);
         if (!response.data.class || !response.data.class.subject.subjectname) {
           this.error = 'Class not found or you are not authorized to view this class.';
           return;
@@ -103,13 +111,23 @@ export default {
             examId: examId,
           }
         });
-
-        // Ensure the response aligns with the backend structure
-        this.questionAnalysis = response.data.item_analysis; // Properly access the item_analysis array
+        console.log('Item analysis response:', response);
+        
+        // Calculate total responses for each question
+        this.questionAnalysis = response.data.item_analysis.map((question) => {
+          const totalResponses = question.choices.reduce((sum, choice) => sum + choice.count, 0);
+          return {
+            ...question,
+            totalResponses: totalResponses // Add total responses to each question
+          };
+        });
       } catch (error) {
         console.error('Error fetching item analysis:', error);
         this.handleError(error);
       }
+    },
+    getPercentage(count, totalResponses) {
+      return totalResponses > 0 ? ((count / totalResponses) * 100).toFixed(2) : 0;
     },
     handleError(error) {
       if (error.response) {
@@ -127,7 +145,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 /* Main Container */
 .main-container {
@@ -171,24 +188,57 @@ export default {
   margin: auto;
 }
 
+/* Flex container for questions */
+.questions-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping of items */
+  gap: 20px; /* Space between boxes */
+}
+
 .question-analysis {
-  background-color: #f8f9fa;
+  border: 2px dashed #007bff;
+
+  background-color: #ffffff;
   padding: 10px;
   margin-bottom: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex: 1 1 calc(50% - 20px); /* Take 50% of the width minus the gap */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .question-analysis h6 {
   font-weight: bold;
 }
 
-.question-analysis ul {
-  list-style-type: none;
-  padding-left: 0;
+/* Question Header - Flexbox to Align Question and Difficulty */
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.question-analysis li {
-  padding: 5px 0;
+.difficulty-percentage {
+  background-color: #fff3cd;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: #856404;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Progress Bar Styling */
+.progress {
+  height: 20px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  margin-top: 5px;
+  max-width: 700px;
+  width: 100%;
+}
+
+.progress-bar {
+  transition: width 0.4s ease;
+  height: 100%;
 }
 </style>

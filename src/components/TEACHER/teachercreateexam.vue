@@ -65,8 +65,8 @@
             <td>{{ formatDate(exam.end) }}</td>
             <td>{{ formatTime(exam.end) }}</td>
             <td>{{ exam.points_exam }}</td>
-            <td></td>
-            <td></td>
+            <td>{{ exam.students_completed}}</td>
+            <td>{{ exam.completion_percentage }}</td>
             <td>
               <div class="d-flex justify-content-center">
                 <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>

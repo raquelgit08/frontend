@@ -1,69 +1,86 @@
 <template>
-  <div class="main-container">
+  <div class="container-fluid">
     <!-- Subject Information Display on the Left -->
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
-        <h2>{{ subject.subjectName }}</h2>
+        <h2 class="subject-title">{{ subject.subjectName }}</h2>
         <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+        <p class="class-code">Class Code: <span>{{ subject.gen_code }}</span></p>
       </div>
     </div>
 
     <!-- Unified Navigation Bar -->
     <nav class="nav nav-pills">
       <router-link to="/teacheraddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4"></i></span>
+        <span><i class="bi bi-arrow-left fs-4">Go Back to Classes</i></span>
       </router-link>
-      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link>
+      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
       <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
       <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
     </nav>
-  </div>
 
-  <div class="performance-page">
-    <div class="container-fluid">
-      <h5>Performance Tracking</h5>
+    <div class="performance-page">
+      <div class="container-fluid">
+        
 
-      <!-- Alert for Errors -->
-      <div v-if="error" class="alert alert-danger">
-        {{ error }}
-      </div>
+        <!-- Alert for Errors -->
+        <div v-if="error" class="alert alert-danger">
+          {{ error }}
+        </div>
 
-      <!-- Grading Sheet -->
-      <div v-if="results && Object.keys(results).length" class="table-responsive">
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>LRN</th>
-              <th>Student Name</th>
-              <th v-for="(examData, examTitle) in results" :key="examTitle">
-                <div :title="formatDateTime(examData.exam_results[0]?.exam_start)">
-                  {{ examTitle }}
-                </div>
-                <!-- <div>{{ examTitle }}</div>
-                <div>{{ examData.exam_results[0]?.exam_start || 'No Date' }}</div> Display exam date -->
-                <!-- <div>Total Points: {{ examData.exam_results[0]?.total_exam || 'N/A' }}</div> -->
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(student, index) in getFlattenResults()" :key="student.id">
-              <td>{{ index + 1 }}</td> <!-- This adds numbering -->
-              <td>{{ student.lrn }}</td>
-              <td>{{ student.Last_name }}, {{ student.First_name }} {{ student.Middle_i }}</td>
-              <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
-                {{ student[examTitle] || '-' }} /{{ examData.exam_results[0]?.total_exam }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div v-else>
-        <p>No results available.</p>
+        <!-- Grading Sheet -->
+        <div v-if="results && Object.keys(results).length" class=" table-wrapper">
+          <table class="table table-bordered table-hover table-custom">
+            <thead>
+              <tr>
+                <th >#</th>
+                <th>LRN</th>
+                <th>Student Name</th>
+                <th v-for="(examData, examTitle) in results" :key="examTitle">
+                  <div :title="formatDateTime(examData.exam_results[0]?.exam_start)">
+                    {{ examTitle }}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(student, index) in paginatedStudents" :key="student.lrn">
+                <td>{{ index + 1 + (currentPage - 1) * studentsPerPage }}</td> <!-- Corrected numbering -->
+                <td>{{ student.lrn }}</td>
+                <td :style="{ width: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">
+                  {{ student.Last_name }}, {{ student.First_name }} {{ student.Middle_i }}
+                </td>
+                <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
+                  {{ student[examTitle] || '-' }} / {{ examData.exam_results[0]?.total_exam }}
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3"><strong>Exam Statistics</strong></td>
+                <td v-for="(examData, examTitle) in results" :key="examTitle + '-statistics'">
+                  <div>
+                    <small>Mean: {{ examData.mean_score }}</small><br>
+                    <small>Median: {{ examData.median_score }}</small><br>
+                    <small>Mode: {{ examData.mode_score }}</small><br>
+                    <small>Range: {{ examData.score_range }}</small>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else>
+          <p>No results available.</p>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls">
+          <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+        </div>
       </div>
     </div>
   </div>
@@ -79,11 +96,25 @@ export default {
       subject: {
         subjectName: '',
         semester: '',
-        schoolYear: ''
+        schoolYear: '',
+        gen_code: ''
       },
-      results: {}, // Results data, including exams and scores
-      error: ''
+      results: {},
+      examStatistics: {},
+      error: '',
+      currentPage: 1, // Current page in the pagination
+      studentsPerPage: 10 // Number of students per page
     };
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.getFlattenResults().length / this.studentsPerPage);
+    },
+    paginatedStudents() {
+      const start = (this.currentPage - 1) * this.studentsPerPage;
+      const end = start + this.studentsPerPage;
+      return this.getFlattenResults().slice(start, end);
+    }
   },
   methods: {
     async fetchSubject() {
@@ -110,8 +141,8 @@ export default {
         this.subject.subjectName = response.data.class.subject.subjectname;
         this.subject.semester = response.data.class.semester;
         this.subject.schoolYear = response.data.class.year.addyear;
+        this.subject.gen_code = response.data.class.gen_code;
       } catch (error) {
-        console.error('Error fetching subject:', error);
         this.error = error.response ? error.response.data.message : 'Failed to fetch subject data. Please try again later.';
       }
     },
@@ -130,15 +161,14 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
+        console.log('Student Results API Response:', response.data);
 
-        console.log('Student Results Data:', response.data);
         if (response.data.results) {
           this.results = response.data.results;
         } else {
           this.error = 'No results found for this class.';
         }
       } catch (error) {
-        console.error('Error fetching student results:', error);
         this.error = error.response ? error.response.data.error : 'Failed to fetch student results. Please try again later.';
       }
     },
@@ -159,10 +189,9 @@ export default {
       const formattedTime = date.toLocaleTimeString([], optionsTime);
 
       return `${formattedDate} ${formattedTime}`;
-    },
 
+    },
     getFlattenResults() {
-      // Create a flattened version of the results data to simplify table rendering
       const results = [];
       for (const examTitle in this.results) {
         const examData = this.results[examTitle];
@@ -177,134 +206,196 @@ export default {
             };
             results.push(student);
           }
-          student[examTitle] = result.total_score || '-'; // Handle null scores
+          student[examTitle] = result.total_score || '0';
         }
       }
       return results;
-    }
-
     },
-    created() {
-      this.fetchSubject(); // Fetch subject details when the component is created
-      this.fetchStudentResults();
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
     }
-  };
+  },
+  created() {
+    this.fetchSubject();
+    this.fetchStudentResults();
+  }
+};
 </script>
 
+
 <style scoped>
-/* Main Container */
-.main-container {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-}
 
-/* Subject Info Container */
 .subject-info-container {
-  flex: 1;
-  max-width: 300px;
-  margin: 10px;
-  display: flex;
-  align-items: center;
-}
-
-/* Subject Info Styling */
-.subject-info {
-  width: 100%;
-  padding: 15px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-}
-
-.subject-info h2 {
-  font-size: 1.5rem;
-  color: #343a40;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.subject-info p {
-  font-size: 1rem;
-  color: #6c757d;
-}
-
-/* Navigation Bar */
-.nav {
-  flex: 2;
-  display: flex;
-  justify-content: space-around;
-  background-color: #ffffff;
-  align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  background-color: #EEEDED;
   border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 10px;
+  height: 130px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.subject-title {
+  font-size: 25px;
+  margin-bottom: 10px;
+  font-weight: 800;
+  color: #333;
+}
+
+.subject-description {
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.class-code span {
+  color: #007bff;
+  font-weight: 800;
+}
+
+.nav {
+  flex-wrap: wrap;
+  gap: 15px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
 }
 
 .nav-link {
-  color: #343a40 !important;
-  text-decoration: none;
-  font-weight: 500;
+  color: #000000;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-link:hover {
-  color: #007bff !important;
+.nav-link:hover :active {
+  background-color: #007bff;
+  color: white !important;
 }
-
 .router-link-active {
   color: #007bff !important;
   border-bottom: 2px solid #007bff;
 }
 
-/* Dashboard Title */
-.subject-page h5 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #343a40;
-  letter-spacing: 1px;
-  margin-bottom: 40px;
+.section-title {
+  font-size: 1.5rem;
+  color: #333;
 }
 
-/* Grading Sheet Table */
-.table {
+
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
   width: 100%;
+}
+
+
+
+/* Error Alert */
+.alert {
   margin-top: 20px;
-  overflow-x: auto; /* Allow horizontal scrolling */
+  border-radius: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
-/* Make sure table cells are responsive */
-.table th, .table td {
-  text-align: center;
-  vertical-align: middle;
-  padding: 8px; /* Adjust padding as necessary */
-  font-size: 0.9rem; /* Optionally reduce font size */
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .nav-link {
+    padding: 8px 10px;
+  }
 }
 
-.table thead th {
-  position: sticky;
-  top: 0;
-  background-color: #f8f9fa;
-  color: #343a40;
-  font-weight: 600;
+
+.table-wrapper {
+ 
+    max-width: 100%;
+    overflow-x: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Table Styles */
+  .table-custom {
+    background-color: #ffffff;
+    border-radius: 8px;
+    /* font-size: 20px; */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #200909;
+    overflow: hidden;
+  }
+
+  .table-custom th {
+    background-color: #0d8eead7;
+    color: #080606;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  
+  .table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .td{
+    font-size: 19px;
+  }
+
+  .table-custom tbody tr:hover {
+    background-color: #f1f3f5;
+  }
+
+  .table-custom tbody tr {
+    transition: background-color 0.3s ease;
+  }
+  .pagination-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.pagination-controls button {
+  margin: 0 10px;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.table tbody td {
-  color: #495057;
+.pagination-controls button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
-/* Make the table borders consistent */
-.table-bordered {
-  border: 1px solid #dee2e6;
-}
-
-.table-bordered th, .table-bordered td {
-  border: 1px solid #dee2e6;
-}
-
-/* Ensure the alert and other elements fit as well */
-.alert {
-  margin-top: 20px;
+.pagination-controls span {
+  font-size: 16px;
+  line-height: 32px;
 }
 
 </style>

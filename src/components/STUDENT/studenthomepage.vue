@@ -537,4 +537,7 @@ body {
 .nav-list .section-title:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
+.designations{
+  font-size: 17PX;
+}
 </style>
