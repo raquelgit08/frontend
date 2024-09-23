@@ -116,6 +116,7 @@ export default {
         const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log('Full response:', response);
 
         if (!response.data.class || !response.data.class.subject.subjectname) {
           this.error = 'Class not found or you are not authorized to view this class.';

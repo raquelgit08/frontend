@@ -2,9 +2,15 @@
   <div v-if="isVisible">
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
-        <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2>Teacher Portal</h2>
+        <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']" style="display: flex; align-items: center;">
+          <img :src="profileImage || require('@/assets/enhs logo.jpg')" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 20px;" alt="Profile Image">
+          
+          <div>
+            <h4 style="margin: 0;"> WISEchague National High School</h4>
+            <p style="font-size: 12px; color: white; margin: 0;">SAN FABIAN, ECHAGUE, ISABELA</p>
+          </div>
         </div>
+
       </div>
       <div class="d-flex align-items-center ms-auto">
         <h4 class="mb-0 me-3">WELCOME {{userProfile.fname}}</h4>
@@ -203,12 +209,6 @@ export default {
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
 }
-h2 {
-  font-family: 'Roboto', sans-serif;
-  color: rgb(14, 1, 1);
-  margin-left: 270px;
-  transition: margin-left 0.3s ease;
-}
 
 .navbar {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -304,8 +304,9 @@ h2 {
   transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
-.title-container.collapsed h2 {
-  margin-left: 100px;
+.title-container h2 {
+ 
+  color: white;
 }
 
 .popover {

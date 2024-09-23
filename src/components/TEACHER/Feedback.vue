@@ -24,7 +24,7 @@
     <!-- Feedback Page Content -->
     <div class="feedback-page">
       <div class="container-fluid">
-        <h5>Feedbacks</h5>
+ 
         <div v-if="error" class="alert alert-danger">{{ error }}</div>
         <div v-else>
           <div v-for="feedback in feedbacks" :key="feedback.title" class="feedback-box">
