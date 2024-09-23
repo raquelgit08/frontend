@@ -10,16 +10,14 @@
     </div>
 
     <!-- Unified Navigation Bar -->
-    <nav class="nav nav-pills">
-      <router-link to="/teacheraddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4">Go Back to Classes</i></span>
-      </router-link>
-      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
-      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
-      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+        <!-- Unified Navigation Bar -->
+        <nav class="nav nav-pills">
+      <router-link to="/teacheraddsubject" class="nav-link">Go Back to Classes</router-link>
+      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">Exams</router-link>
+      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link">Feedback</router-link>
+      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link">Performance Tracking</router-link>
+      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link">Students</router-link>
+      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">Pending</router-link>
     </nav>
 
     <div class="performance-page">
@@ -242,7 +240,7 @@ export default {
 }
 
 .subject-title {
-  font-size: 25px;
+  font-size: 1.75rem;
   margin-bottom: 10px;
   font-weight: 800;
   color: #333;
@@ -265,7 +263,6 @@ export default {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 15px;
   border-radius: 10px;
-  margin-bottom: 15px;
 }
 
 .nav-link {
@@ -280,15 +277,12 @@ export default {
   background-color: #007bff;
   color: white !important;
 }
-.router-link-active {
-  color: #007bff !important;
-  border-bottom: 2px solid #007bff;
-}
 
 .section-title {
   font-size: 1.5rem;
   color: #333;
 }
+
 
 
 

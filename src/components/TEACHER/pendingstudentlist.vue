@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+ 
     <!-- Subject Information Display on the Left -->
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
@@ -9,20 +9,15 @@
     </div>
 
     <!-- Unified Navigation Bar -->
-    <nav class="nav nav-pills">
-      <router-link to="/teacheraddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4"></i></span>
-      </router-link>
-      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
-      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
-      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
-      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
-      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
+        <!-- Unified Navigation Bar -->
+        <nav class="nav nav-pills">
+      <router-link to="/teacheraddsubject" class="nav-link">Go Back to Classes</router-link>
+      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">Exams</router-link>
+      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link">Feedback</router-link>
+      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link">Performance Tracking</router-link>
+      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link">Students</router-link>
+      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">Pending</router-link>
     </nav>
-  </div>
-
   <div class="container-fluid">
     <h4 class="text-center">Students to be accepted</h4><br>
 
@@ -143,66 +138,64 @@ export default {
 </script>
 
 <style scoped>
-/* Main Container */
-.main-container {
-  display: flex;
-  align-items: stretch; /* Ensure both containers stretch to the same height */
-  justify-content: space-between; /* Space out the subject info and nav bar */
 
-}
+
 
 /* Subject Info Container */
 .subject-info-container {
-  flex: 1; /* Flex value of 1 to take equal height as the nav */
-  max-width: 300px;
-  margin-right: 10px;
-  margin-left: 10px;
-  display: flex;
-  align-items: center; /* Center the content vertically */
-}
-
-/* Subject Info Styling */
-.subject-info {
-  width: 100%;
+  background-color: #EEEDED;
+  border-radius: 10px;
   padding: 15px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  height: 130px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.subject-info h2 {
-  font-size: 1.5rem;
-  color: #343a40;
-  font-weight: 700;
-  margin-bottom: 8px;
+.subject-title {
+  font-size: 1.75rem;
+  margin-bottom: 10px;
+  font-weight: 800;
+  color: #333;
 }
 
-.subject-info p {
-  font-size: 1rem;
-  color: #6c757d;
+.subject-description {
+  color: #555;
+  margin-bottom: 5px;
 }
 
-/* Navigation Bar */
+.class-code span {
+  color: #007bff;
+  font-weight: 800;
+}
+
 .nav {
-  flex: 2; /* Flex value of 2 to balance the nav width */
-  display: flex;
-  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 15px;
   background-color: #ffffff;
-  align-items: center; /* Ensure nav items are centered vertically */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 15px;
   border-radius: 10px;
 }
 
 .nav-link {
-  color: #343a40 !important;
-  text-decoration: none;
-  font-weight: 500;
+  color: #000000;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-link:hover {
-  color: #007bff !important;
+.nav-link:hover :active {
+  background-color: #007bff;
+  color: white !important;
 }
+
+.section-title {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+
 
 .router-link-active {
   color: #007bff !important;
