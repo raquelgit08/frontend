@@ -96,6 +96,7 @@ export default {
         this.subject.subjectName = response.data.class.subject.subjectname;
         this.subject.semester = response.data.class.semester;
         this.subject.schoolYear = response.data.class.year.addyear;
+        this.subject.gen_code = response.data.class.gen_code;
       } catch (error) {
         console.error('Error fetching subject:', error); // Log error to the console for debugging
         if (error.response) {

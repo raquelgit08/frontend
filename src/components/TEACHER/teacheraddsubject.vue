@@ -5,6 +5,16 @@
       <h1><i class="bi bi-easel-fill"></i> My Classes</h1>
     </div>
     <div class="row">
+      <!-- Add Class Button -->
+      <div class="col-md-3">
+        <div class="card add-class-card" @click="openAddClassModal">
+          <div class="card-body d-flex justify-content-center align-items-center">
+            <div class="plus-icon">
+              <i class="fa fa-plus fa-3x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
         <div class="card" @click="$router.push(`/subject/${classItem.id}`)">
           <img
@@ -50,16 +60,7 @@
         </div>
       </div>
 
-      <!-- Add Class Button -->
-      <div class="col-md-3">
-        <div class="card add-class-card" @click="openAddClassModal">
-          <div class="card-body d-flex justify-content-center align-items-center">
-            <div class="plus-icon">
-              <i class="fa fa-plus fa-3x"></i>
-            </div>
-          </div>
-        </div>
-      </div>
+      
     </div>
 
     <!-- Modal for adding/editing a class -->
@@ -231,6 +232,7 @@ export default {
     async saveClass() {
       const token = localStorage.getItem("token");
       const formData = new FormData();
+      
 
       // Append all currentClass data (text fields)
       Object.keys(this.currentClass).forEach((key) => {
