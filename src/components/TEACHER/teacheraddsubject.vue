@@ -232,7 +232,6 @@ export default {
     async saveClass() {
       const token = localStorage.getItem("token");
       const formData = new FormData();
-      
 
       // Append all currentClass data (text fields)
       Object.keys(this.currentClass).forEach((key) => {

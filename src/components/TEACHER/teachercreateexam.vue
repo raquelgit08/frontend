@@ -64,19 +64,17 @@
             <td>{{ formatTime(exam.start) }}</td>
             <td>{{ formatDate(exam.end) }}</td>
             <td>{{ formatTime(exam.end) }}</td>
-      
             <td>{{ exam.points_exam }}</td>
-            <td></td>
-            <td></td>
+            <td>{{ exam.students_completed}}</td>
+            <td>{{ exam.completion_percentage }}</td>
             <td>
               <div class="d-flex justify-content-center">
-                <button @click="publishExam(exam.id)" class="btn btn-success btn-sm me-2" v-if="!exam.isPublished">Publish</button>
                 <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
               </div>
             </td>
             <td>
-              <span v-if="exam.isPublished" class="badge bg-success">Available</span>
-              <span v-else class="badge bg-warning">Not Available </span>  
+              <span v-if="isAvailable(exam.start, exam.end)" class="badge bg-success">Available</span>
+              <span v-else class="badge bg-warning">Not Available</span>
             </td>
           </tr>
         </tbody>
@@ -146,7 +144,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="isModalVisible = false">Close</button>
-          <button type="button" class="btn btn-primary" @click="saveChanges">SAVE RECORD</button>
+          <button type="button" class="btn btn-primary" @click="saveChanges">Assign to students</button>
         </div>
       </div>
     </div>
@@ -198,7 +196,7 @@ export default {
         console.log('Fetched exams:', response.data.exams);
         this.exams = response.data.exams.map(exam => ({
           ...exam,
-          isPublished: exam.isPublished || false, // Ensure isPublished is part of each exam
+          isPublished: exam.isPublished || false,
         }));
         this.filteredExams = this.exams;
       } catch (error) {
@@ -226,6 +224,12 @@ export default {
         console.error('Error fetching subject:', error);
       }
     },
+    isAvailable(start, end) {
+      const now = moment();
+      const startTime = moment(start);
+      const endTime = moment(end);
+      return now.isBetween(startTime, endTime);
+    },
     async publishExam(examId) {
       try {
         const token = localStorage.getItem('token');
@@ -241,7 +245,7 @@ export default {
           updatedExam.isPublished = true;
         }
 
-        Swal.fire('Success', 'Exam published successfully!', 'success');
+        Swal.fire('Success', 'This has been assign to the students', 'success');
       } catch (error) {
         Swal.fire('Error', 'Failed to publish the exam. Please try again.', 'error');
         console.error('Failed to publish exam:', error.message);
