@@ -7,30 +7,41 @@
           <h2 class="text-center">Masterlist of Students</h2>
           <img src="@/assets/Deped-Logo.png" alt="Right Logo" class="depedlogo">
         </div>
-        <div class="row mb-4 justify-content-end align-items-center">
-          <div class="col-md-2 d-flex align-items-center">
-            <select v-model="selectedGender"  class="form-control custom-select"  id="gender">
-              <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
-            </select>
-          </div>
-          <div class="col-md-3 d-flex align-items-center">
-            <select v-model="formData.strand_id" class="form-control custom-select" id="userStrand">
+
+        <div class="row mb-4 align-items-center">
+    <div class="col-md-2">
+        <select v-model="selectedGender" class="form-control custom-select" id="gender">
+            <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select v-model="formData.strand_id" class="form-control custom-select" id="userStrand">
             <option value="">All Strands</option>
             <option v-for="strand in strands" :key="strand.id" :value="strand.id">
-              {{ strand.label }} 
+                {{ strand.label }} 
             </option>
-          </select>
-        </div>
-        <div class="col-md-3 d-flex align-items-center">
-          <select v-model="formData.section_id" id="section" class="form-select custom-select" style="margin-right: 30px;" required>
+        </select>
+    </div>
+    
+    <div class="col-md-3">
+        <select v-model="formData.section_id" id="section" class="form-select custom-select" required>
             <option value="">Select Section</option>
-                <option v-for="section in filteredSections" :key="section.id" :value="section.id">
-                  {{ section.label }}
-                </option>
-          </select>
-        </div>
-        
-      </div>
+            <option v-for="section in filteredSections" :key="section.id" :value="section.id">
+                {{ section.label }}
+            </option>
+        </select>
+    </div>
+
+    <div class="col-md-2 text-start">
+        <button @click="generateReport" class="btn btn-gradient" style="margin-left: 250px;">
+            Generate Report
+        </button>
+    </div>
+</div>
+
+
+
 
   
         <div class="table-wrapper">
@@ -89,13 +100,7 @@
         </div>
 
         <!-- Add a button to generate the report -->
-        <div class="row ">
-          <div class="col-md-12 text-end">
-            <button @click="generateReport" class="btn btn-gradient">
-              Generate Report
-            </button>
-          </div>
-        </div>
+       
       </div>
     </div>
   </template>

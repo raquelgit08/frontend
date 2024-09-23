@@ -6,22 +6,33 @@
           <h3 class="text-center">Masterlist of Teachers</h3>
           <img src="@/assets/Deped-Logo.png" alt="Right Logo" class="depedlogo">
         </div>
+
         <div class="row mb-4 justify-content-end align-items-center">
-          <div class="col-md-2 d-flex align-items-center">
-            <select v-model="selectedGender"  class="form-control custom-select"  id="gender">
-              <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
-            </select>
-          </div>
-      
-        <div class="col-md-3 d-flex align-items-center">
-          <select v-model="position_id" id="position" class="form-select custom-select" style="margin-right: 30px;"  required>
+
+          <div class="row mb-4 align-items-center">
+    <div class="col-md-2">
+        <select v-model="selectedGender" class="form-control custom-select" id="gender">
+            <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select v-model="position_id" id="position" class="form-select custom-select" required>
             <option value="">Filter by Position</option>
             <option v-for="position in positions" :key="position.id" :value="position.id">
-              {{ position.teacher_postion }}
+                {{ position.teacher_postion }}
             </option>
-          </select>
-        </div>
-        
+        </select>
+    </div>
+
+    <div class="col-md-2 text-start">
+        <button @click="generateReport" class="btn btn-gradient" style="margin-left: 700px;">
+            Generate Report
+        </button>
+    </div>
+</div>
+
+
       </div>
 
   
@@ -81,11 +92,7 @@
         </div>
   
         <!-- Generate Report Button -->
-        <div class="row mb-4">
-          <div class="col-md-12 text-end">
-            <button @click="generateReport" class="btn btn-gradient">Generate Report</button>
-          </div>
-        </div>
+       
   
         <!-- Modal for Editing User -->
       </div>
