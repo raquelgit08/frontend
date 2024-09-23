@@ -28,12 +28,14 @@
             <td>{{ index + 1 }}</td>
             <td>{{ item.glevel }}</td>
             <td>
+
               <button class="btn btn-warning btn-sm me-1" @click="openEditModal(item)">
                 <i class="bi bi-pencil"></i>
               </button>
               <button class="btn btn-danger btn-sm" @click="deleteItem(item.id)">
                 <i class="bi bi-trash"></i>
               </button>
+              
             </td>
           </tr>
         </tbody>

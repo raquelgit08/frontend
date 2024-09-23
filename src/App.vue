@@ -5,33 +5,99 @@
     <Teacher_homepage v-else-if="isTeacher" @logout="handleLogout" />
     <Student_homepage v-else-if="isStudent" @logout="handleLogout" />
 
-    <!-- Login page layout -->
+    <!-- Login and forgot password layout -->
     <div v-else class="login-page">
-      <!-- Left side with image and curve -->
+      <!-- Left side with image and curve (always visible) -->
       <div class="login-left">
-        <img src="./assets/i12.png" alt="Illustration" class="illustration">
+        <img src="./assets/i12.png" alt="Illustration" class="illustration" />
       </div>
 
-      <!-- Right side with login form -->
+      <!-- Right side with dynamic content based on the current step -->
       <div class="login-right">
         <div class="login-form-container">
-          <h1 class="greeting">Hello Again!</h1>
-          <p class="welcome-message">Welcome back, you've been missed!</p>
+          <!-- Conditional rendering of forms -->
+          <template v-if="forgotPasswordStep === 0">
+            <h1 class="greeting">Hello Again!</h1>
+            <p class="welcome-message">Welcome back, you've been missed!</p>
 
-          <form @submit.prevent="handleSubmit" class="login-form">
-            <input type="text" v-model="email" placeholder="Enter username" class="form-control" required />
-            <div class="password-group">
-              <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Password" class="form-control" required />
-              <i :class="passwordFieldIcon" class="password-toggle" @click="togglePassword"></i>
-            </div>
+            <!-- Login form -->
+            <form @submit.prevent="handleSubmit" class="login-form">
+              <input
+                type="text"
+                v-model="email"
+                placeholder="Enter username"
+                class="form-control"
+                required
+              />
+              <div class="password-group">
+                <input
+                  :type="showPassword ? 'text' : 'password'"
+                  v-model="password"
+                  placeholder="Password"
+                  class="form-control"
+                  required
+                />
+                <i :class="passwordFieldIcon" class="password-toggle" @click="togglePassword"></i>
+              </div>
+              <div class="form-options">
+                <a
+                  href="#"
+                  class="recovery-password"
+                  :style="{ color: recoveryPasswordColor }"
+                  @click="startForgotPassword"
+                >Forgot Password</a>
+              </div>
+              <button type="submit" class="btn-signin" :style="{ backgroundColor: signInButtonColor }">Sign In</button>
+            </form>
+          </template>
 
-            <div class="form-options">
-              <a href="#" class="recovery-password" :style="{color: recoveryPasswordColor}" @click="handleRecoveryPassword">Forgot Password</a>
-            </div>
+          <!-- Forgot Password Step 1: Enter email -->
+          <template v-else-if="forgotPasswordStep === 1">
+            <h1 class="greeting">Forgot Password</h1>
+            <p class="welcome-message">Enter your email to receive a verification code.</p>
 
-            <!-- Sign In button -->
-            <button type="submit" class="btn-signin" :style="{ backgroundColor: signInButtonColor }">Sign In</button>
-          </form>
+            <form @submit.prevent="sendVerificationCode" class="login-form">
+              <input
+                type="email"
+                v-model="email"
+                placeholder="Enter your email"
+                class="form-control"
+                required
+              />
+              <button type="submit" class="btn-signin">Send Verification Code</button>
+            </form>
+          </template>
+
+          <!-- Forgot Password Step 2: Enter verification code and reset password -->
+          <template v-else-if="forgotPasswordStep === 2">
+            <h1 class="greeting">Reset Password</h1>
+            <p class="welcome-message">Enter the verification code and your new password.</p>
+
+            <form @submit.prevent="resetPassword" class="login-form">
+              <input
+                type="text"
+                v-model="verificationCode"
+                placeholder="Enter verification code"
+                class="form-control"
+                required
+              />
+              <input
+                type="password"
+                v-model="newPassword"
+                placeholder="Enter new password"
+                class="form-control"
+                required
+              />
+              <input
+                type="password"
+                v-model="confirmPassword"
+                placeholder="Confirm new password"
+                class="form-control"
+                required
+              />
+              <button type="submit" class="btn-signin">Reset Password</button>
+            </form>
+          </template>
         </div>
       </div>
     </div>
@@ -41,7 +107,7 @@
 <script>
 import axios from 'axios';
 import router from '@/router';
-import Swal from 'sweetalert2'; // Import SweetAlert
+import Swal from 'sweetalert2';
 
 import HomePageAdmin from './components/ADMIN/homepageadmin.vue';
 import Teacher_homepage from './components/TEACHER/teacherhomepage.vue';
@@ -58,12 +124,16 @@ export default {
       isTeacher: false,
       isStudent: false,
       errorMessage: '',
-      recoveryPasswordColor: '#007bff', // Initial color for recovery password link
-      signInButtonColor: '#ff5252', // Initial color for the sign in button
-      attempts: 0, // Track login attempts
-      remainingTime: 60, // Time to wait before retrying
-      lockoutTimer: null, // Timer for handling lockout period
-      countdownInterval: null // Interval for countdown in SweetAlert
+      recoveryPasswordColor: '#007bff',
+      signInButtonColor: '#ff5252',
+      attempts: 0,
+      remainingTime: 60,
+      lockoutTimer: null,
+      countdownInterval: null,
+      forgotPasswordStep: 0, // Step 0: login, Step 1: forgot password, Step 2: reset password
+      verificationCode: '',
+      newPassword: '',
+      confirmPassword: '',
     };
   },
   computed: {
@@ -74,12 +144,10 @@ export default {
   methods: {
     async handleSubmit() {
       if (this.attempts >= 3) {
-        // Start the countdown and show alert with dynamic timer
         this.startCountdownAlert();
         return;
       }
 
-      // Check if the app is offline
       if (!navigator.onLine) {
         Swal.fire({
           icon: 'error',
@@ -95,25 +163,18 @@ export default {
           password: this.password
         });
 
-        console.log(response.data);
-
-        // Save the token and user type to local storage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('usertype', response.data.usertype);
-
-        // Save the current route to local storage
         localStorage.setItem('savedRoute', this.$route.fullPath);
 
-        // Set state based on user type
         this.updateUserType(response.data.usertype);
 
-        // Route based on user type
         if (response.data.usertype === 'admin') {
-          router.push('/adminpage'); // Route to admin page
+          router.push('/adminpage');
         } else if (response.data.usertype === 'teacher') {
-          router.push('/teacher'); // Route to teacher page
+          router.push('/teacher');
         } else if (response.data.usertype === 'student') {
-          router.push('/student'); // Route to student page
+          router.push('/student');
         } else {
           Swal.fire({
             icon: 'error',
@@ -122,19 +183,16 @@ export default {
           });
         }
 
-        // Reset attempts on successful login
         this.attempts = 0;
         clearInterval(this.lockoutTimer);
 
       } catch (error) {
-        console.error('Login failed:', error);
         Swal.fire({
           icon: 'error',
           title: 'Login Failed',
           text: 'Invalid credentials. Please try again.'
         });
 
-        // Increment login attempts on failure
         this.attempts++;
         if (this.attempts >= 3) {
           this.startLockoutTimer();
@@ -160,51 +218,70 @@ export default {
       this.password = '';
       this.$router.push('/');
     },
-    handleRecoveryPassword() {
-      // Change the color of the "Recovery Password" link to blue
-      this.recoveryPasswordColor = 'blue';
+    startForgotPassword() {
+      this.forgotPasswordStep = 1;
+    },
+    async sendVerificationCode() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/sendVerificationCode', { email: this.email });
+        Swal.fire('Success', response.data.message, 'success');
+        this.forgotPasswordStep = 2;
+      } catch (error) {
+        Swal.fire('Error', error.response.data.message, 'error');
+      }
+    },
+    async resetPassword() {
+      if (this.newPassword !== this.confirmPassword) {
+        Swal.fire('Error', 'Passwords do not match', 'error');
+        return;
+      }
 
-      // Display SweetAlert message
-      Swal.fire({
-        icon: 'info',
-        title: 'Inform your teacher',
-        text: 'Inform your teacher about the recover password',
-      });
+      try {
+        const response = await axios.post('http://localhost:8000/api/reset-password', {
+          email: this.email,
+          verification_code: this.verificationCode,
+          new_password: this.newPassword,
+          new_password_confirmation: this.confirmPassword,
+        });
+        Swal.fire('Success', response.data.message, 'success');
+        this.forgotPasswordStep = 0;
+      } catch (error) {
+        Swal.fire('Error', error.response.data.message, 'error');
+      }
     },
     startLockoutTimer() {
-      this.remainingTime = 60; // Set wait time to 60 seconds
+      this.remainingTime = 60;
       this.lockoutTimer = setInterval(() => {
         this.remainingTime--;
         if (this.remainingTime <= 0) {
           clearInterval(this.lockoutTimer);
-          this.attempts = 0; // Reset attempts after lockout
+          this.attempts = 0;
         }
       }, 1000);
     },
     startCountdownAlert() {
       let countdown = this.remainingTime;
-      
-      // Initial SweetAlert popup
+
       Swal.fire({
         icon: 'warning',
         title: 'Too many attempts!',
         html: `Please wait <b>${countdown}</b> seconds before trying again.`,
-        timer: countdown * 1000, // Automatically close after countdown finishes
+        timer: countdown * 1000,
         timerProgressBar: true,
-        allowOutsideClick: false, // Prevent clicking outside to close
+        allowOutsideClick: false,
         didOpen: () => {
           const content = Swal.getHtmlContainer().querySelector('b');
           this.countdownInterval = setInterval(() => {
             countdown--;
             content.textContent = countdown;
             if (countdown <= 0) {
-              clearInterval(this.countdownInterval); // Stop countdown
+              clearInterval(this.countdownInterval);
             }
           }, 1000);
         },
         willClose: () => {
-          clearInterval(this.countdownInterval); // Clear interval when the alert closes
-          this.attempts = 0; // Reset login attempts after countdown
+          clearInterval(this.countdownInterval);
+          this.attempts = 0;
         }
       });
     }
@@ -227,7 +304,7 @@ export default {
         this.$router.push('/');
       }
     }
-  }
+  },
 };
 </script>
 
@@ -236,7 +313,7 @@ export default {
 
 /* Recovery password styles */
 .recovery-password {
-  color: #007bff; /* Initial color */
+  color: #007bff;
 }
 
 .recovery-password:hover {
@@ -245,7 +322,7 @@ export default {
 
 /* Sign In button styles */
 .btn-signin {
-  background-color: #ff5252; /* Initial color */
+  background-color: #ff5252;
   border: none;
   border-radius: 50px;
   color: #fff;
@@ -254,20 +331,20 @@ export default {
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s ease; /* Smooth transition on hover and click */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Added shadow effect */
+  transition: background-color 0.3s, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .btn-signin:hover {
-  background-color: #e04848; /* Hover effect */
-  transform: translateY(-2px); /* Slight lift on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
+  background-color: #e04848;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .btn-signin:active {
-  background-color: #d03d3d; /* Darker color when clicked */
-  transform: translateY(1px); /* Button sinks slightly when clicked */
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); /* Reduced shadow when clicked */
+  background-color: #d03d3d;
+  transform: translateY(1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 html, body {

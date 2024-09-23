@@ -42,12 +42,12 @@
             <td>{{ index + 1 }}</td>
             <td>{{ item.subjectname }}</td>
             <td>
-              <button class="btn edit btn-md me-2" @click="openEditModal(item)">
-                <i class="bi bi-pencil"></i> Edit
-              </button>
-              <button class="btn btn-danger btn-md" @click="confirmDeleteItem(item.id)">
-                <i class="bi bi-trash"></i> Delete
-              </button>
+              <button class="btn btn-warning btn-md me-2" @click="openEditModal(item)">
+    <i class="bi bi-pencil"></i> Edit
+</button>
+<button class="btn btn-danger btn-md" @click="confirmDeleteItem(item.id)">
+    <i class="bi bi-trash"></i> Delete
+</button>
             </td>
           </tr>
         </tbody> 
@@ -304,11 +304,7 @@ export default {
     color: #ffffff;
     width: 90px;
 }
-.btn-danger, .edit {
-    font-size: 17px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: #FF0060;
-}
+
 .btn-gradient {
     background: linear-gradient(45deg, #007bff, #00bfff);
     color: #120808;

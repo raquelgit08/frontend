@@ -41,12 +41,14 @@
             <td>{{ section.strand.grade_level }}</td>
             <td>{{ section.section }}</td>
             <td>
-              <button class="btn edit btn-md me-2" @click="openEditModal(section)">
-                <i class="bi bi-pencil"></i>Edit
-              </button>
-              <button class="btn btn-danger btn-md" @click="deleteSection(section.id)">
-                <i class="bi bi-trash"></i>Delete
-              </button>
+
+              <button class="btn btn-warning btn-md me-2" @click="openEditModal(item)">
+    <i class="bi bi-pencil"></i> Edit
+</button>
+<button class="btn btn-danger btn-md" @click="confirmDeleteItem(item.id)">
+    <i class="bi bi-trash"></i> Delete
+</button>
+
             </td>
           </tr>
         </tbody>
