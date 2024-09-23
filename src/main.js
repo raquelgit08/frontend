@@ -8,10 +8,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // Bootstrap Icons CSS
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-// Font Awesome CSS (optional if needed)
+// Font Awesome 
 import '@fortawesome/fontawesome-free/css/all.css';
 
-// Import only necessary Bootstrap JavaScript components
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 // Import BootstrapVue 3

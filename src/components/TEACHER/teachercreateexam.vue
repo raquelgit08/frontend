@@ -16,7 +16,6 @@
       <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
-      <!-- <router-link :to="`/ItemAnalysis/${$route.params.class_id}`" class="nav-link"><i class="bi bi-bar-chart-line fs-4"></i> Item Analysis</router-link> -->
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
       <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
       <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
@@ -65,21 +64,17 @@
             <td>{{ formatTime(exam.start) }}</td>
             <td>{{ formatDate(exam.end) }}</td>
             <td>{{ formatTime(exam.end) }}</td>
-      
             <td>{{ exam.points_exam }}</td>
             <td></td>
             <td></td>
             <td>
               <div class="d-flex justify-content-center">
-             <button @click="publishExam(exam.id)" class="btn btn-success btn-sm me-2" v-if="!exam.isPublished">Publish</button>
                 <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
-                <!-- <button @click="confirmArchive(exam.id)" class="btn btn-danger btn-sm">Archive</button>
-                 -->
               </div>
             </td>
-             <td>
-              <span v-if="exam.isPublished" class="badge bg-success">Available</span>
-              <span v-else class="badge bg-warning">Not Available </span>  
+            <td>
+              <span v-if="isAvailable(exam.start, exam.end)" class="badge bg-success">Available</span>
+              <span v-else class="badge bg-warning">Not Available</span>
             </td>
           </tr>
         </tbody>
@@ -149,7 +144,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="isModalVisible = false">Close</button>
-          <button type="button" class="btn btn-primary" @click="saveChanges">SAVE RECORD</button>
+          <button type="button" class="btn btn-primary" @click="saveChanges">Assign to students</button>
         </div>
       </div>
     </div>
@@ -201,7 +196,7 @@ export default {
         console.log('Fetched exams:', response.data.exams);
         this.exams = response.data.exams.map(exam => ({
           ...exam,
-          isPublished: exam.isPublished || false, // Ensure isPublished is part of each exam
+          isPublished: exam.isPublished || false,
         }));
         this.filteredExams = this.exams;
       } catch (error) {
@@ -229,6 +224,12 @@ export default {
         console.error('Error fetching subject:', error);
       }
     },
+    isAvailable(start, end) {
+      const now = moment();
+      const startTime = moment(start);
+      const endTime = moment(end);
+      return now.isBetween(startTime, endTime);
+    },
     async publishExam(examId) {
       try {
         const token = localStorage.getItem('token');
@@ -237,60 +238,18 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+
         // Find the published exam and update its status in the exams array
         const updatedExam = this.exams.find(exam => exam.id === examId);
         if (updatedExam) {
           updatedExam.isPublished = true;
         }
-        
-        Swal.fire('Success', 'Exam published successfully!', 'success');
+
+        Swal.fire('Success', 'This has been assign to the students', 'success');
       } catch (error) {
         Swal.fire('Error', 'Failed to publish the exam. Please try again.', 'error');
         console.error('Failed to publish exam:', error.message);
       }
-    },
-    filterExams() {
-      this.filteredExams = this.exams.filter((exam) =>
-        exam.title.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    },
-    navigateToAddExam(examId) {
-      this.$router.push(`/AddExam/${examId}`);
-    },
-    showModalHandler() {
-      this.isModalVisible = true;
-    },
-    async archiveExam(examId) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.patch(`http://localhost:8000/api/exam/${examId}/archive`, {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        this.exams = this.exams.filter((exam) => exam.id !== examId);
-        this.filteredExams = this.filteredExams.filter((exam) => exam.id !== examId);
-        Swal.fire('Archived!', 'The exam has been archived.', 'success');
-      } catch (error) {
-        Swal.fire('Error!', 'Failed to archive the exam. Please try again.', 'error');
-        console.error('Failed to archive exam:', error.message);
-      }
-    },
-    confirmArchive(examId) {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, archive it!',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.archiveExam(examId);
-        }
-      });
     },
     saveChanges() {
       if (!this.examTitle || !this.startDate || !this.startTime || !this.endDate || !this.endTime || !this.points_exam) {
@@ -318,13 +277,28 @@ export default {
           }
         )
         .then((response) => {
-          this.isModalVisible = false;
           const examId = response.data.exam.id;
+
+          // Publish the exam after saving it
+          this.publishExam(examId);
+
+          this.isModalVisible = false;
           this.$router.push(`/AddExam/${examId}`);
         })
         .catch((error) => {
           console.error(error);
         });
+    },
+    filterExams() {
+      this.filteredExams = this.exams.filter((exam) =>
+        exam.title.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    },
+    navigateToAddExam(examId) {
+      this.$router.push(`/AddExam/${examId}`);
+    },
+    showModalHandler() {
+      this.isModalVisible = true;
     },
     formatDate(dateTime) {
       return moment(dateTime).format('MM/DD/YYYY');

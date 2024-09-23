@@ -18,12 +18,11 @@
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-file-earmark-plus fs-4"></i> Examinations
       </router-link>
-      <!-- <router-link :to="`/myfeedbacks/${$route.params.class_id}`" class="nav-link">
-        <i class="bi bi-chat-dots fs-4"></i> Feedback
-      </router-link> -->
+      
       <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-activity fs-4"></i> My Performance 
       </router-link>
+
       <div class="status ms-auto d-flex align-items-center">
         <div class="mx-3">
           <i class="bi bi-check-circle-fill text-success"></i> Finished: {{ totals.number_of_finished_exams }}
@@ -38,18 +37,15 @@
     </nav>
 
     <!-- Published Exams List -->
-    <div class="cointainer-fluid" style="margin-top: 20px;">
-     
-
+    <div class="container-fluid" style="margin-top: 20px;">
       <!-- Error Handling -->
       <div v-if="error" class="alert alert-danger text-center">
-        {{ error }}
+        {{ error }} 
       </div>
 
       <!-- Published Exams Cards -->
       <div class="row g-4" v-if="exams.length">
         <div class="col-md-4" v-for="exam in exams" :key="exam.id">
-          <!-- <div class="card h-100 shadow-sm exam-card"></div> -->
           <div class="card h-100 shadow-sm exam-card" :class="{ 'unavailable-card': !isExamAvailable(exam) }" @click="viewExam(exam)">
             <div class="card-body">
               <h5 class="card-title">{{ exam.title }} <b>({{ exam.total_points}} point/s)</b></h5>
@@ -59,19 +55,12 @@
                   <span v-if="isExamAvailable(exam)" class="status-available">Available</span>
                   <span v-else class="status-unavailable">Unavailable</span>
                   <br>
-
                   <strong>NO. of QUESTIONS: {{ exam.total_questions }}</strong><br>
-
-                  <!-- Displaying the score and aligning it to the right -->
-                  
                 </div>
                 <div class="col-4 score-right">
-                  <strong>{{ exam.total_score }} / {{ exam.points_exam}}  </strong>
+                  <strong>{{ exam.total_score }} / {{ exam.points_exam }} </strong>
                 </div>
-              </div>       <!-- <div class="d-flex gap-2 container-fluid">
-                <button @click="viewExam(exam)" class="btn btn-primary "> View Exam </button>
-                <button @click="viewScore(exam)" class="btn btn-primary"> View Score</button>
-              </div> -->
+              </div>
             </div>
           </div>
         </div>
@@ -89,15 +78,11 @@
         </div>
         <div class="modal-body">
           <p><b>Instruction/s: </b>{{ instructions?.instruction || 'No instructions available' }}</p>
-
           <p><strong>Quarter:</strong> {{ modalExam.quarter }}</p>
           <p><strong>Start Date:</strong> {{ formatDateTime(modalExam.start) }}</p>
           <p><strong>End Date:</strong> {{ formatDateTime(modalExam.end) }}</p>
           <p><strong>Status:</strong> {{ modalExam.originalExam.status }}</p>
-         
-          <p><strong>SCORE : {{ modalExam.originalExam.total_score }} / {{ modalExam.originalExam.points_exam}}</strong> 
-            <!-- {{ modalExam.quarter }}  -->
-          </p>
+          <p><strong>SCORE : {{ modalExam.originalExam.total_score }} / {{ modalExam.originalExam.points_exam}}</strong></p>
           <p><i>You score is {{ modalExam.originalExam.average }}%  of the total score {{ modalExam.originalExam.points_exam}} points</i></p>
           <p v-if="modalExam.description"><strong>Description:</strong> {{ modalExam.description }}</p>
         </div>
@@ -124,7 +109,7 @@ export default {
         classDescription: '',
         classGenCode: ''
       },
-      exams: [],
+      exams: [], // List of exams
       totals: {
         number_of_finished_exams: 0,
         total_missing: 0,
@@ -136,38 +121,40 @@ export default {
     };
   },
   methods: {
+    // Fetch the subject and exams from the backend
     async fetchSubjectAndExams() {
       const classId = this.$route.params.class_id;
       const token = localStorage.getItem('token');
 
       try {
+        // Fetch subject info
         const subjectResponse = await axios.get(`http://localhost:8000/api/classroom/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Subject response data:", subjectResponse.data);
         this.subject = {
           subjectName: subjectResponse.data.subject_name,
           classDescription: subjectResponse.data.class_description,
           classGenCode: subjectResponse.data.class_gen_code
         };
 
+        // Fetch published exams for the class
         const examsResponse = await axios.get(`http://localhost:8000/api/tblclass/${classId}/exams2`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        console.log("Exams response data:", examsResponse.data);
-        this.exams = examsResponse.data.exams;
-        this.totals = examsResponse.data.totals; // Extract the totals data
+        this.exams = examsResponse.data.exams;  // Published exams
+        this.totals = examsResponse.data.totals;  // Totals (finished, missing, pending)
 
       } catch (error) {
         this.error = error.response ? error.response.data.error : 'Error fetching subject and exams';
       }
     },
 
+    // Check if an exam is available for the student
     isExamAvailable(exam) {
       const now = new Date();
       const startDate = new Date(exam.start);
@@ -175,12 +162,13 @@ export default {
       return now >= startDate && now <= endDate && exam.status === 'Pending';
     },
 
+    // Navigate to the exam-taking page
     takeExam(examId) {
-      this.closeModal(); // Close the modal before navigating
+      this.closeModal(); // Close modal before navigating
       this.$router.push(`/examtakingpage/${examId}`);
-     
     },
 
+    // View exam details in a modal
     async viewExam(exam) {
       const token = localStorage.getItem('token');
 
@@ -190,13 +178,10 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('Full Exam Response Data:', response.data);
         this.modalExam = {
             ...response.data.exam,
-            originalExam: exam, // Keep a reference to the original exam kasi ayaw niya ipasa sa modal direct
-
-          };
-        console.log('Modal Exam Data:', this.modalExam); // Log modalExam data
+            originalExam: exam, // Keep reference to the original exam
+        };
         this.instructions = response.data.exam.instructions; 
         this.showModal = true;
       } catch (error) {
@@ -204,25 +189,25 @@ export default {
       }
     },
 
+    // Format date and time for display
     formatDateTime(dateTime) {
       const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
       return new Date(dateTime).toLocaleString(undefined, options);
     },
 
+    // Close modal
     closeModal() {
       this.showModal = false;
     }
   },
 
   created() {
-    this.fetchSubjectAndExams();
+    this.fetchSubjectAndExams();  // Fetch data on component creation
   }
 };
 </script>
 
 <style scoped>
-
-
 .subject-info-container {
   background-color: #EEEDED;
   border-radius: 10px;
@@ -271,18 +256,11 @@ export default {
   color: white !important;
 }
 
-
-
-.section-title {
-  font-size: 1.5rem;
-  color: #333;
-}
-
 .exam-card {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  border: 2px solid #05870e; /* Solid 2px border with the #870505 color */
-  padding: 5px; /* Optional: Padding for spacing inside the card */
-  border-radius: 8px; /* Optional: Rounded corners */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); 
+  border: 2px solid #05870e; 
+  padding: 5px; 
+  border-radius: 8px;
   font-size: 15px;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -328,19 +306,20 @@ export default {
   font-size: 1.5rem;
   cursor: pointer;
 }
+
 .unavailable-card {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  border: 2px solid #870505; /* Solid 2px border with the #870505 color */
-  background-color: rgba(254, 155, 155, 0.29); /* Semi-transparent white background */
-  padding: 5px; /* Optional: Padding for spacing inside the card */
-  border-radius: 8px; /* Optional: Rounded corners */
-}
-.score-right{
-  border: 2px solid #03730c; /* 2px border with #a90202 color */
-    padding: 10px; /* Add some padding inside the border */
-    text-align: right;
-    border-radius: 10px; 
-    background-color: #fcfffc;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); 
+  border: 2px solid #870505;
+  background-color: rgba(254, 155, 155, 0.29); 
+  padding: 5px; 
+  border-radius: 8px;
 }
 
+.score-right {
+  border: 2px solid #03730c;
+  padding: 10px; 
+  text-align: right;
+  border-radius: 10px; 
+  background-color: #fcfffc;
+}
 </style>

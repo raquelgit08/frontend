@@ -26,7 +26,7 @@
             </div>
 
             <div class="form-options">
-              <a href="#" class="recovery-password" :style="{color: recoveryPasswordColor}" @click="handleRecoveryPassword">Recovery Password</a>
+              <a href="#" class="recovery-password" :style="{color: recoveryPasswordColor}" @click="handleRecoveryPassword">Forgot Password</a>
             </div>
 
             <!-- Sign In button -->

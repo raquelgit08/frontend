@@ -48,39 +48,42 @@
           <h4>Created Questions</h4>
           <div v-if="existingQuestions.length > 0">
             <div v-for="(instruction, iIndex) in existingQuestions" :key="iIndex" class="instruction-card mb-4">
-              <h4>Instruction: {{ instruction.instructions.instruction }}</h4>
+              <!-- Check if instruction and instruction.instructions exist -->
+              <div v-if="instruction && instruction.instructions">
+                <h4>Instruction: {{ instruction.instructions.instruction }}</h4>
 
-              <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
-                <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
-                <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
+                <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
+                  <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
+                  <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
 
-                <div v-if="instruction.question_type === 'true-false'">
-                  <ul>
-                    <li>True</li>
-                    <li>False</li>
+                  <div v-if="instruction.question_type === 'true-false'">
+                    <ul>
+                      <li>True</li>
+                      <li>False</li>
+                    </ul>
+                  </div>
+
+                  <ul v-else-if="question.choices && question.choices.length > 0">
+                    <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li>
                   </ul>
+
+                  <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
+
+                  <!-- Save to Test Bank Button -->
+                  <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm me-2">
+                    <i class="bi bi-cloud-upload fs-5"></i> Save to Test Bank
+                  </button>
+
+                  <!-- Edit Button triggers modal -->
+                  <button @click="editQuestion(iIndex, qIndex, question, instruction)" class="btn btn-warning btn-sm me-2">
+                    <i class="bi bi-pencil-square fs-5"></i> Edit
+                  </button>
+
+                  <!-- Delete Question Button -->
+                  <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash fs-5"></i> Delete
+                  </button>
                 </div>
-
-                <ul v-else-if="question.choices && question.choices.length > 0">
-                  <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li>
-                </ul>
-
-                <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
-
-                <!-- Save to Test Bank Button -->
-                <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm me-2">
-                  <i class="bi bi-cloud-upload fs-5"></i> Save to Test Bank
-                </button>
-
-                <!-- Edit Button triggers modal -->
-                <button @click="editQuestion(iIndex, qIndex, question, instruction)" class="btn btn-warning btn-sm me-2">
-                  <i class="bi bi-pencil-square fs-5"></i> Edit
-                </button>
-
-                <!-- Delete Question Button -->
-                <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">
-                  <i class="bi bi-trash fs-5"></i> Delete
-                </button>
               </div>
             </div>
           </div>
@@ -106,7 +109,7 @@
                 <option value="true-false">True/False</option>
                 <option value="identification">Identification</option>
               </select>
-            </div>
+            </div> 
 
             <button @click="createNewInstruction" class="btn btn-outline-secondary mt-2">Change Question Type and Create New Instruction</button>
           </div>
@@ -306,7 +309,7 @@ export default {
         };
 
         // Save the edited question to the backend
-        await axios.post(
+        await axios.put(
           `http://localhost:8000/api/updateQuestionsInExam/${this.examId}`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
@@ -324,7 +327,7 @@ export default {
   
     async deleteQuestion(questionId) {
       try {
-        await axios.delete(`http://localhost:8000/api/deleteQuestion/${questionId}`, {
+        await axios.delete(`http://localhost:8000/api/deleteMultipleQuestions/${questionId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         this.fetchQuestions();
