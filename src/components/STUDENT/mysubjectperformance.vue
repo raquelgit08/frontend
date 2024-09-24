@@ -12,7 +12,7 @@
     <!-- Navigation Bar Positioned Next to Subject Info -->
     <nav class="nav nav-pills">
       <router-link to="/Saddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4"></i></span> Back to Subjects
+        <span><i class="bi bi-arrow-left fs-4"></i></span> Back to Classes
       </router-link>
      
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
@@ -24,6 +24,22 @@
       <router-link :to="`/mysubjectperformance/${$route.params.class_id}`" class="nav-link">
         <i class="bi bi-activity fs-4"></i> My Performance 
       </router-link>
+
+      <div class="col-md-2 d-flex align-items-center">
+          <select v-model="selectedGender"  class="form-control custom-select"  id="gender">
+            <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
+          </select>
+        </div> 
+      <div class="status ms-auto d-flex align-items-center">
+        <div class="mx-3">
+          <i class="bi bi-check-circle-fill text-success"></i> Passed: {{ passCount }}
+        </div>
+        <div class="mx-3">
+          <i class="bi bi-x-circle-fill text-danger"></i> Failed: {{ failCount }}
+        </div>
+       
+      </div>
+
     </nav>
 
     <!-- Published Exams List -->
@@ -49,11 +65,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(performance, index) in performances" :key="performance.id">
+            <tr v-for="(performance, index) in filteredPerformances" :key="performance.id">
               <td>{{ index + 1 }}</td> <!-- Add numbering here -->
               <td style="text-align: start;">{{ performance.exam_title }}</td>
               <td>{{ performance.total_score }} / {{ performance.total_exam }}</td>
-              <td>{{ performance.average }} %</td>
+              <td :class="{ 'text-success': performance.average >= 50}"> <b>{{ performance.average }} % </b></td>
               <td :class="{ 'text-danger': performance.status === 'Failed' }">
                 {{ performance.status }}
               </td>
@@ -62,6 +78,7 @@
             </tr>
           </tbody>
         </table>
+      <p style="text-align: center;">. . . . . . . . . . . . . . . . .   Nothing   Follows . . . . . . . . . . . . . . . </p>
        </div>
       <!-- <p v-else class="text-center no-exams-message">No performace yet </p> -->
     </div>
@@ -82,9 +99,21 @@ export default {
         classDescription: '',    // Maps to 'class_description' from backend
         classGenCode: ''         // Maps to 'class_gen_code' from backend
       },
+      selectedGender: 'Filter By Status',
+      gender: ['Filter By Status', 'Passed', 'Failed'],
       performances: [],           // To store the performance list
       error: ''                   // To store any error messages
     };
+  },
+  computed: {
+    filteredPerformances() {
+      if (this.selectedGender === 'Passed') {
+        return this.performances.filter(performance => performance.status === 'Passed');
+      } else if (this.selectedGender === 'Failed') {
+        return this.performances.filter(performance => performance.status === 'Failed');
+      }
+      return this.performances; // Default: return all performances
+    }
   },
   methods: {
     async fetchSubjectAndPerformances() {
@@ -120,11 +149,20 @@ export default {
         });
         console.log('Performances Response:', performancesResponse.data);
 
+        // if (performancesResponse.data) {
+        //   this.performances = performancesResponse.data; // Assuming backend returns the results array
+        // } else {
+        //   this.error = 'No performance data found';
+          
+        // }
         if (performancesResponse.data) {
-          this.performances = performancesResponse.data; // Assuming backend returns the results array
+          this.performances = performancesResponse.data;
+
+          // Count passes and fails
+          this.passCount = this.performances.filter(performance => performance.status === 'Passed').length;
+          this.failCount = this.performances.filter(performance => performance.status === 'Failed').length;
         } else {
           this.error = 'No performance data found';
-          
         }
       } catch (error) {
         this.error = error.response ? error.response.data.error : 'Error fetching subject and performance details';
@@ -277,4 +315,8 @@ export default {
   .table-custom tbody tr {
     transition: background-color 0.3s ease;
   }
+  .router-link-active {
+  color: #007bff !important;
+  border-bottom: 2px solid #007bff;
+}
 </style>

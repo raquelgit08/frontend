@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h3 >Enrolled Subjects</h3>
+    <h3 >Classes</h3>
     <button class="bi bi-plus-circle add-button" @click="showModal = true"></button>
 
     <!-- Modal for Adding Subject -->
@@ -29,22 +29,23 @@
 
     <!-- Displaying Approved Subjects -->
     <div v-if="subjects.length" class="mt-4">
-      <div class="card-container">
-        <div v-for="subject in subjects" :key="subject.class_id" class="card" @click="goToRoom(subject.class_id)">
-          <img :src="subject.imageUrl || require('@/assets/newlogo.png')" class="card-img" alt="Subject Image" />
-          <div class="card-body">
-            <h5 class="card-title">{{ subject.subject_name }}</h5>
-            <div class="d-flex justify-content-between align-items-center">
-            <p class="mb-0 class-code">Class Code: {{ subject.class_gen_code }}</p>
-          </div>
-            
-          
-          </div>
+  <div class="card-container">
+    <div v-for="subject in subjects" :key="subject.class_id" class="card" @click="goToRoom(subject.class_id)">
+      <img :src="subject.imageUrl || require('@/assets/newlogo.png')" class="card-img" alt="Subject Image" />
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">{{ subject.subject_name }}</h5>
+        <div class="mt-auto">
+          <p class="mb-0 class-code">Class Code: {{ subject.class_gen_code }}</p>
+          <p class="mb-0 teacher-name">Teacher: {{ subject.teacher_name }}</p>
+          <p class="mb-0 teacher-name">Teacher: {{ subject.teacher_name }}</p>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
     <div v-else class="mt-4">
-      <p>No subjects available.</p>
+      <p>No Classes enrolled.</p>
     </div>
   </div>
 </template>
@@ -135,7 +136,7 @@ export default {
 
 .add-button:hover {
   background-color: #00bfff;
-}
+  }
 
 .modal-header {
   background-color: #87ceeb;
@@ -175,7 +176,7 @@ export default {
   flex-direction: column;
   border-radius: 10px;
   width: 260px;
-  height: 320px;
+  height: 350px;
   background-color: #ffffff;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);

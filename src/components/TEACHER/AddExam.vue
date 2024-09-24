@@ -53,7 +53,12 @@
                 <h4>Instruction: {{ instruction.instructions.instruction }}</h4>
 
                 <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
-                  <h5>{{ qIndex + 1 }}. {{ question.question }}</h5>
+                  <h5> {{ qIndex + 1 }}. {{ question.question }}
+                    <button @click="editQuestion(question)" class="btn btn-link p-0 ms-2" title="Edit">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </h5>
+
                   <p><strong>Correct Answer:</strong> {{ question.correct_answers[0]?.correct_answer }}</p>
 
                   <div v-if="instruction.question_type === 'true-false'">
@@ -64,7 +69,7 @@
                   </div>
 
                   <ul v-else-if="question.choices && question.choices.length > 0">
-                    <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li>
+                    <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li> <i class="bi bi-pencil-square"></i>
                   </ul>
 
                   <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
@@ -92,6 +97,14 @@
           </div>
         </div>
 
+        <div v-if="showModal" class="modal">
+          <div class="modal-content">
+            <span @click="closeModal" class="close">&times;</span>
+            <h2>Edit Question</h2>
+            <textarea v-model="editableQuestion" rows="4"></textarea>
+            <button @click="saveQuestion">Save</button>
+          </div>
+        </div>
         <!-- Right Section: Add New Question Form -->
         <div class="right-section w-50">
           <h4>Add New Question</h4>
@@ -204,6 +217,10 @@
         <input type="text" v-model="modalQuestion.correctAnswer" class="form-control" placeholder="Enter the correct answer" />
       </div>
 
+      <div class="mb-3">
+    <label class="form-label">Correct Answer</label>
+    <input type="text" v-model="modalQuestion.correctAnswer" class="form-control" required />
+  </div>
       <!-- Points -->
       <div class="mb-3">
         <label class="form-label">Points</label>
@@ -235,6 +252,9 @@ export default {
       globalQuestionType: 'multiple-choice',
       examInstruction: '',
       isPublished: false,
+     
+      showModal: false,
+      editableQuestion: '',
       showEditModal: false,
       modalQuestion: null,
       modalInstruction: '',
@@ -255,11 +275,44 @@ export default {
           { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
         );
         this.existingQuestions = response.data.instructions || [];
+        console.log('Fetched Data Display:', response.data);
       } catch (error) {
         console.error('Failed to fetch questions:', error.message);
       }
     },
-    editQuestion(iIndex, qIndex, question, instruction) {
+    editQuestion(question) {
+      // Set the editable question data for the modal
+      this.modalQuestion = {
+        id: question.id, // Ensure you have the question ID
+        text: question.question,
+      };
+      this.showEditModal = true; // Show the edit modal
+    },
+
+    closeModal() {
+      this.showModal = false; // Hide the modal
+    },
+    async saveEditedQuestion() {
+      try {
+        const payload = {
+          question: this.modalQuestion.text, // Use the updated question text
+        };
+
+        const response = await axios.put(`http://localhost:8000/api/updateQuestion/${this.modalQuestion.id}`, payload, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+
+        // Handle success
+        await this.fetchQuestions(); // Refresh the questions
+        this.showEditModal = false; // Close the modal
+        Swal.fire('Success', response.data.message, 'success');
+      } catch (error) {
+        console.error('Error updating question:', error.message);
+        Swal.fire('Error', 'Failed to update question.', 'error');
+      }
+    },
+
+    editallQuestion(iIndex, qIndex, question, instruction) {
       // Assign the index of the question and instruction for later use
       this.editingInstructionIndex = iIndex;
       this.editingQuestionIndex = qIndex;
@@ -269,61 +322,70 @@ export default {
         text: question.question || '',
         correctAnswer: question.correct_answers[0]?.correct_answer || '',
         points: question.correct_answers[0]?.points || 1,
-        choices: question.choices || (instruction.question_type === 'multiple-choice' ? ['', '', ''] : []),
+        choices: question.choices.map(choice => choice.choices) || (instruction.question_type === 'multiple-choice' ? ['', '', ''] : []),
+  
       };
 
       // Set the instruction and question type to display in the modal
       this.modalInstruction = instruction.instructions.instruction || '';
       this.modalQuestionType = instruction.question_type || 'multiple-choice';
 
+      console.log('Editing Question:', {
+        questionIndex: this.editingQuestionIndex,
+        instructionIndex: this.editingInstructionIndex,
+        modalQuestion: this.modalQuestion,
+        modalInstruction: this.modalInstruction,
+        modalQuestionType: this.modalQuestionType,
+      });
+      console.log('Correct Answers:', this.modalQuestion.correctAnswer);
+      console.log('Choices:', this.modalQuestion.choices);
       // Show the edit modal
       this.showEditModal = true;
     },
-    async saveEditedQuestion() {
-      try {
-        // Retrieve the question from modal data
-        const question = this.modalQuestion;
-        const updatedQuestions = this.existingQuestions[this.editingInstructionIndex].instructions.questions;
+//     async saveEditedQuestion() {
+//   try {
+//     const question = this.modalQuestion;
+//     const updatedQuestions = this.existingQuestions[this.editingInstructionIndex].instructions.questions;
 
-        // Update the existing question with the edited data
-        updatedQuestions[this.editingQuestionIndex] = {
-          ...updatedQuestions[this.editingQuestionIndex],
-          question: question.text,
-          correct_answers: [
-            {
-              correct_answer: question.correctAnswer,
-              points: question.points,
-            },
-          ],
-          choices: this.modalQuestionType === 'multiple-choice' ? question.choices : [],
-        };
+//     // Update the specific question in the list
+//     updatedQuestions[this.editingQuestionIndex] = {
+//       ...updatedQuestions[this.editingQuestionIndex],
+//       question: question.text,
+//       choices: this.modalQuestionType === 'multiple-choice' ? question.choices : [],
+//       correct_answers: [
+//         {
+//           correct_answer: question.correctAnswer,
+//           points: question.points,
+//         },
+//       ],
+//     };
 
-        // Prepare the payload for the backend
-        const payload = {
-          instructions: this.existingQuestions.map(inst => ({
-            id: inst.id,
-            instruction: inst.instructions.instruction,
-            question_type: inst.question_type,
-          })),
-          questions: updatedQuestions,
-        };
+//     // Prepare the payload
+//     const payload = {
+//       instructions: updatedQuestions.map(inst => ({
+//         instruction: inst.instructions.instruction,
+//         question_type: inst.question_type,
+//         questions: updatedQuestions,
+//       })),
+//     };
 
-        // Save the edited question to the backend
-        await axios.put(
-          `http://localhost:8000/api/updateQuestionsInExam/${this.examId}`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-        );
+//     // API call to update the exam
+//     await axios.put(
+//       `http://localhost:8000/api/updateQuestionsInExam/${this.examId}`,
+//       payload,
+//       { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+//     );
 
-        // Refresh the questions and close the modal
-        await this.fetchQuestions();
-        this.showEditModal = false;
-        Swal.fire('Success', 'Question updated successfully!', 'success');
-      } catch (error) {
-        console.error('Error updating question:', error.message);
-        Swal.fire('Error', 'Failed to update question.', 'error');
-      }
-    },
+//     // Refresh questions and close modal
+//     await this.fetchQuestions();
+//     this.showEditModal = false;
+//     Swal.fire('Success', 'Question updated successfully!', 'success');
+//   } catch (error) {
+//     console.error('Error updating question:', error.message);
+//     Swal.fire('Error', 'Failed to update question.', 'error');
+//   }
+// },
+
   
     async deleteQuestion(questionId) {
       try {
@@ -446,5 +508,31 @@ input.form-control, textarea.form-control {
 
 .btn-sm {
   margin-right: 10px;
+}
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 400px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  cursor: pointer;
 }
 </style>

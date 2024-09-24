@@ -12,7 +12,7 @@
     <!-- Navigation Bar Positioned Next to Subject Info -->
     <nav class="nav nav-pills">
       <router-link to="/Saddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4"></i></span> Back to Subjects
+        <span><i class="bi bi-arrow-left fs-4"></i></span> Back to Classes
       </router-link>
      
       <router-link :to="`/myExams/${$route.params.class_id}`" class="nav-link">
@@ -46,9 +46,9 @@
       <!-- Published Exams Cards -->
       <div class="row g-4" v-if="exams.length">
         <div class="col-md-4" v-for="exam in exams" :key="exam.id">
-          <div class="card h-100 shadow-sm exam-card" :class="{ 'unavailable-card': !isExamAvailable(exam) }" @click="viewExam(exam)">
+          <div class="card h-100 shadow-sm exam-card" :class="{ 'unavailable-card': !isExamAvailable(exam),  'bg-success': exam.status === 'Passed' }" @click="viewExam(exam)">
             <div class="card-body">
-              <h5 class="card-title">{{ exam.title }} <b>({{ exam.total_points}} point/s)</b></h5>
+              <h5 class="card-title">{{ exam.title }} <b>({{ exam.points_exam}} point/s)</b></h5>
               <div class="row">
                 <div class="col-8">
                   <strong>Status: {{ exam.status }} -</strong>
@@ -146,7 +146,7 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        console.log('Exams Response:', examsResponse.data);
         this.exams = examsResponse.data.exams;  // Published exams
         this.totals = examsResponse.data.totals;  // Totals (finished, missing, pending)
 
@@ -310,8 +310,8 @@ export default {
 
 .unavailable-card {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); 
-  border: 2px solid #870505;
-  background-color: rgba(254, 155, 155, 0.29); 
+  border: 2px solid rgb(155, 154, 154);
+  background-color: rgba(211, 205, 205, 0.445); 
   padding: 5px; 
   border-radius: 8px;
 }
@@ -324,4 +324,5 @@ export default {
   height: 50px;
   background-color: #fcfffc;
 }
+
 </style>

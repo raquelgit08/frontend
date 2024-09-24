@@ -262,7 +262,7 @@ export default {
     },
 
     async getResults(examId) {
-      try {
+      try {                                                          getResultswithtestbank
         const response = await axios.get(`http://localhost:8000/api/getResultswithtestbank/${examId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
