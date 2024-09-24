@@ -28,7 +28,7 @@
 
     <!-- Exam Creation and Management Section -->
     <div class="manage-exam-container">
-      <h2 class="page-title">Exam Creation and Management</h2>
+      <h2 class="page-title">Exam Management</h2>
 
       <div class="top-section d-flex justify-content-between align-items-center mb-4">
         <div class="button-group">

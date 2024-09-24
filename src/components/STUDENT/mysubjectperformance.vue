@@ -51,7 +51,7 @@
           <tbody>
             <tr v-for="(performance, index) in performances" :key="performance.id">
               <td>{{ index + 1 }}</td> <!-- Add numbering here -->
-              <td>{{ performance.exam_title }}</td>
+              <td style="text-align: start;">{{ performance.exam_title }}</td>
               <td>{{ performance.total_score }} / {{ performance.total_exam }}</td>
               <td>{{ performance.average }} %</td>
               <td :class="{ 'text-danger': performance.status === 'Failed' }">
@@ -250,7 +250,7 @@ export default {
     border-radius: 8px;
     font-size: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border: 1px solid #200909;
+    /* border: 1px solid #200909; */
     overflow: hidden;
   }
 

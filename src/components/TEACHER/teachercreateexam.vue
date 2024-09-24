@@ -51,8 +51,9 @@
             <th style="width: 10%">Total Points</th>
             <th style="width: 10%">No. of Response</th>
             <th style="width: 8%">Percentage</th>
-            <th style="width: 14%">Actions</th>
-            <th style="width: 14%">Status</th>
+            <th style="width: 12%">Actions</th>
+            <th style="width: 12%">Status</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -69,13 +70,14 @@
             <td>{{ exam.completion_percentage }}</td>
             <td>
               <div class="d-flex justify-content-center">
-                <button @click="navigateToAddExam(exam.id)" class="btn btn-info btn-sm me-2">View</button>
+                <button @click="navigateToAddExam(exam.exam_id)" class="btn btn-info btn-sm me-2">View</button>
               </div>
             </td>
             <td>
               <span v-if="isAvailable(exam.start, exam.end)" class="badge bg-success">Available</span>
               <span v-else class="badge bg-warning">Not Available</span>
             </td>
+            <i class="bi bi-chevron-right" @click="editExam(exam)" style="cursor: pointer;"></i>
           </tr>
         </tbody>
       </table>
@@ -149,6 +151,72 @@
       </div>
     </div>
   </div>
+
+   <!-- Modal for Editing Exam -->
+   <div v-if="isEditModalVisible" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Exam Details</h5>
+            <button type="button" class="btn-close" @click="isEditModalVisible = false"></button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="updateExam">
+              <div class="mb-3">
+                <label for="exam-title" class="form-label">Exam Title</label>
+                <input type="text" id="exam-title" v-model="examTitle" class="form-control" required />
+              </div>
+
+              <div class="row">
+                <div class="col-6 mb-3">
+                  <label for="quarter" class="form-label">Quarter</label>
+                  <select id="quarter" v-model="selectedQuarter" class="form-select">
+                    <option value="1st Quarter">1st Quarter</option>
+                    <option value="2nd Quarter">2nd Quarter</option>
+                    <option value="3rd Quarter">3rd Quarter</option>
+                    <option value="4th Quarter">4th Quarter</option>
+                  </select>
+                </div>
+                <div class="col-6 mb-3">
+                  <label for="points_exam" class="form-label">Max. Points</label>
+                  <input type="number" id="points_exam" v-model="points_exam" class="form-control" required />
+                </div>
+              </div>
+
+              <!-- Start Date and Time -->
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="start-date" class="form-label">Start Date</label>
+                  <input type="date" id="start-date" v-model="startDate" class="form-control" required />
+                </div>
+                <div class="col">
+                  <label for="start-time" class="form-label">Start Time</label>
+                  <input type="time" id="start-time" v-model="startTime" class="form-control" required />
+                </div>
+              </div>
+
+              <!-- End Date and Time -->
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="end-date" class="form-label">End Date</label>
+                  <input type="date" id="end-date" v-model="endDate" class="form-control" required />
+                </div>
+                <div class="col">
+                  <label for="end-time" class="form-label">End Time</label>
+                  <input type="time" id="end-time" v-model="endTime" class="form-control" required />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="isEditModalVisible = false">Close</button>
+            <button type="button" class="btn btn-primary" @click="updateExams">Update Exam</button> <!-- Call updateExam here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 </template>
 
 <script>
@@ -175,6 +243,8 @@ export default {
       endDate: '',
       endTime: '',
       points_exam: '',
+      isEditModalVisible: false, // For Edit Modal Visibility
+      selectedExamId: null, // To store selected exam ID for editing
       isModalVisible: false,
       classtable_id: '',
     };
@@ -251,6 +321,8 @@ export default {
         console.error('Failed to publish exam:', error.message);
       }
     },
+    
+
     saveChanges() {
       if (!this.examTitle || !this.startDate || !this.startTime || !this.endDate || !this.endTime || !this.points_exam) {
         Swal.fire('Error!', 'Please fill in all the required fields.', 'error');
@@ -306,6 +378,68 @@ export default {
     formatTime(dateTime) {
       return moment(dateTime).format('hh:mm A');
     },
+    editExam(exam) {
+  console.log('Editing exam:', exam);
+  this.selectedExamId = exam.exam_id; // Change this line
+  console.log('Selected exam ID set to:', this.selectedExamId);
+  this.examTitle = exam.title;
+  this.selectedQuarter = exam.quarter;
+  this.startDate = moment(exam.start).format('YYYY-MM-DD');
+  this.startTime = moment(exam.start).format('HH:mm');
+  this.endDate = moment(exam.end).format('YYYY-MM-DD');
+  this.endTime = moment(exam.end).format('HH:mm');
+  this.points_exam = exam.points_exam;
+
+  this.isEditModalVisible = true;
+},
+
+
+async updateExams() {
+  try {
+    const token = localStorage.getItem('token');
+
+    if (!this.selectedExamId) {
+      console.error('No exam ID provided for update');
+      return; 
+    }
+
+    const payload = {
+      classtable_id: this.classtable_id,
+      title: this.examTitle,
+      quarter: this.selectedQuarter,
+      start: moment(`${this.startDate} ${this.startTime}`).format('YYYY-MM-DD HH:mm:ss'), // Format start date
+      end: moment(`${this.endDate} ${this.endTime}`).format('YYYY-MM-DD HH:mm:ss'), // Format end date
+      points_exam: this.points_exam,
+    };
+
+    const response = await axios.put(
+      `http://localhost:8000/api/updateQuestionsInExam/${this.selectedExamId}`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('Exam schedule updated successfully:', response.data);
+    await this.fetchExams(); // Refresh the exam list after update
+    this.isEditModalVisible = false; // Hide the modal
+    this.resetForm(); // Optional: Reset form fields if needed
+  } catch (error) {
+    console.error('Error updating exam schedule:', error);
+  }
+},
+resetForm() {
+    this.examTitle = '';
+    this.selectedQuarter = '';
+    this.startDate = '';
+    this.startTime = '';
+    this.endDate = '';
+    this.endTime = '';
+    this.points_exam = '';
+  },
+
   },
 };
 </script>

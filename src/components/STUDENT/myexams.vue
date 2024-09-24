@@ -56,6 +56,7 @@
                   <span v-else class="status-unavailable">Unavailable</span>
                   <br>
                   <strong>NO. of QUESTIONS: {{ exam.total_questions }}</strong><br>
+                  <strong>Due Date: {{ formatDateTime(exam.end) }}</strong>
                 </div>
                 <div class="col-4 score-right">
                   <strong>{{ exam.total_score }} / {{ exam.points_exam }} </strong>
@@ -320,6 +321,7 @@ export default {
   padding: 10px; 
   text-align: right;
   border-radius: 10px; 
+  height: 50px;
   background-color: #fcfffc;
 }
 </style>
