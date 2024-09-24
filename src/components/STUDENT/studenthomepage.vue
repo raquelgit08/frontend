@@ -53,6 +53,8 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 export default {
   name: 'Student_homepage',
@@ -138,25 +140,40 @@ export default {
         console.log('Failed to fetch user profile:', error);
       }
     },
+    // 
     async handleLogout() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.post('http://localhost:8000/api/logout', {}, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log(response.data.message);
-        localStorage.removeItem('token');
-        localStorage.removeItem('selectedItem');
-        this.isLoggedIn = false;
-        this.userProfile = {};
-        this.$emit('logout');
-        this.$router.push('/login');
-      } catch (error) {
-        console.error('Logout failed:', error);
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to log out?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, log me out!',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.post('http://localhost:8000/api/logout', {}, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          console.log(response.data.message);
+          localStorage.removeItem('token');
+          localStorage.removeItem('selectedItem');
+          this.isLoggedIn = false;
+          this.userProfile = {};
+          this.$emit('logout');
+          this.$router.push('/login');
+        } catch (error) {
+          console.error('Logout failed:', error);
+        }
       }
     },
+
     togglePopover() {
       this.isPopoverVisible = !this.isPopoverVisible;
     },

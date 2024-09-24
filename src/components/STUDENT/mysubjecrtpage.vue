@@ -70,7 +70,7 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        console.log('Response to this subject received:', response.data);
         if (response.data) {
           // Map the backend response to the frontend's subject object
           this.subject.subjectName = response.data.subject_name;

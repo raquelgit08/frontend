@@ -35,9 +35,9 @@
       <div class="card-body d-flex flex-column">
         <h5 class="card-title">{{ subject.subject_name }}</h5>
         <div class="mt-auto">
-          <p class="mb-0 class-code">Class Code: {{ subject.class_gen_code }}</p>
-          <p class="mb-0 teacher-name">Teacher: {{ subject.teacher_name }}</p>
-          <p class="mb-0 teacher-name">Teacher: {{ subject.teacher_name }}</p>
+          <p class="mb-0 class-code">Class Code: <b> {{ subject.class_gen_code }}</b></p>
+          <p class="mb-0 teacher-name">Teacher: {{ subject.teacher_lname }}, {{ subject.teacher_fname }}</p>
+          <p class="mb-0 teacher-name">S.Y. : {{ subject.year_name }}</p>
         </div>
       </div>
     </div>

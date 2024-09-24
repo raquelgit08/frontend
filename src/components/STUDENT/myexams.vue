@@ -1,13 +1,19 @@
 <template>
   <div class="container-fluid">
     <!-- Subject Information Display -->
-    <div class="subject-info-container">
+    <div class="subject-info-container d-flex justify-content-between">
       <div v-if="subject.subjectName" class="subject-info">
-        <h2 class="subject-title">{{ subject.subjectName }}</h2>
-        <p class="subject-description">Description: {{ subject.classDescription }}</p>
-        <p class="class-code">Class Code: <span>{{ subject.classGenCode }}</span></p>
-      </div>
-    </div>
+  <h2 class="subject-title">{{ subject.subjectName }}</h2>
+  <p class="subject-description">Description: {{ subject.classDescription }}</p>
+  <p class="class-code">
+    Class Code: <span>{{ subject.classGenCode }}</span> | {{ subject.class_semester }} Semester S.Y: {{ subject.class_addyear }}
+  </p>
+  <p>Teacher: {{ subject.teacher_fname }} {{ subject.teacher_mname }} {{ subject.teacher_lname }}</p>
+</div>
+
+
+</div>
+
 
     <!-- Navigation Bar Positioned Next to Subject Info -->
     <nav class="nav nav-pills">
@@ -46,7 +52,7 @@
       <!-- Published Exams Cards -->
       <div class="row g-4" v-if="exams.length">
         <div class="col-md-4" v-for="exam in exams" :key="exam.id">
-          <div class="card h-100 shadow-sm exam-card" :class="{ 'unavailable-card': !isExamAvailable(exam),  'bg-success': exam.status === 'Passed' }" @click="viewExam(exam)">
+          <div class="card h-100 shadow-sm exam-card" :class="{ 'unavailable-card': !isExamAvailable(exam),  'Pasado': exam.status === 'Passed' }" @click="viewExam(exam)">
             <div class="card-body">
               <h5 class="card-title">{{ exam.title }} <b>({{ exam.points_exam}} point/s)</b></h5>
               <div class="row">
@@ -134,10 +140,17 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Subject Response:', subjectResponse.data); // Log subject response
         this.subject = {
           subjectName: subjectResponse.data.subject_name,
           classDescription: subjectResponse.data.class_description,
-          classGenCode: subjectResponse.data.class_gen_code
+          classGenCode: subjectResponse.data.class_gen_code,
+          class_semester: subjectResponse.data.class_semester,
+          class_addyear: subjectResponse.data.class_addyear,
+          teacher_fname: subjectResponse.data.teacher_fname,
+          teacher_lname : subjectResponse.data.teacher_lname,
+          teacher_mname: subjectResponse.data.teacher_mname,
+
         };
 
         // Fetch published exams for the class
@@ -212,10 +225,10 @@ export default {
 .subject-info-container {
   background-color: #EEEDED;
   border-radius: 10px;
-  padding: 15px;
+  padding: 10px;
   margin-bottom: 10px;
-  height: 130px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  height: 150px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .subject-title {
@@ -315,7 +328,13 @@ export default {
   padding: 5px; 
   border-radius: 8px;
 }
-
+.Pasado{
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); 
+  border: 2px solid rgb(2, 151, 2);
+  background-color: rgba(144, 214, 137, 0.445); 
+  padding: 5px; 
+  border-radius: 8px;
+}
 .score-right {
   border: 2px solid #03730c;
   padding: 10px; 

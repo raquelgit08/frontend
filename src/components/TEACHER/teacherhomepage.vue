@@ -88,6 +88,8 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 export default {
   name: 'TeacherHomePage',
@@ -145,39 +147,52 @@ export default {
       this.isLoggedIn = !!token;
     },
     async fetchUserProfile() {
-  try {
-    const response = await axios.get('http://localhost:8000/api/userprofile', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    this.userProfile = response.data.data;
-    if (this.userProfile.teacher) {
-      this.userProfile.teacher_postion = this.userProfile.teacher.teacher_postion;
-    } else {
-      this.userProfile.teacher_postion = ''; // set default value
-    }
-  } catch (error) {
-    this.error = error.response && error.response.data.message ? error.response.data.message : 'Failed to fetch user profile';
-  }
-},
-    async handleLogout() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.post('http://localhost:8000/api/logout', {}, {
+        const response = await axios.get('http://localhost:8000/api/userprofile', {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        console.log(response.data.message);
-        localStorage.removeItem('token');
-        localStorage.removeItem('selectedItem');
-        this.isLoggedIn = false;
-        this.userProfile = null;
-        this.$emit('logout');
-        this.$router.push('/login');
+        this.userProfile = response.data.data;
+        if (this.userProfile.teacher) {
+          this.userProfile.teacher_postion = this.userProfile.teacher.teacher_postion;
+        } else {
+          this.userProfile.teacher_postion = ''; // set default value
+        }
       } catch (error) {
-        console.error('Logout failed:', error);
+        this.error = error.response && error.response.data.message ? error.response.data.message : 'Failed to fetch user profile';
+      }
+    },
+    async handleLogout() {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to log out?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, log me out!',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.post('http://localhost:8000/api/logout', {}, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          console.log(response.data.message);
+          localStorage.removeItem('token');
+          localStorage.removeItem('selectedItem');
+          this.isLoggedIn = false;
+          this.userProfile = {};
+          this.$emit('logout');
+          this.$router.push('/login');
+        } catch (error) {
+          console.error('Logout failed:', error);
+        }
       }
     },
     togglePopover() {

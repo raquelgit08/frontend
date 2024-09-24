@@ -37,7 +37,8 @@
       <div class="pagination-controls">
         <!-- <button type="button" class="btn btn-secondary" @click="prevPage" :disabled="currentPage === 1 || examOver">Previous</button> -->
         <span class="pagination-status">Question {{ currentPage }} of {{ totalPages }}</span>
-        <button type="button" class="btn btn-secondary" @click="nextPage" :disabled="currentPage === totalPages || examOver">Next</button>
+        <button type="button" @click="nextPage" :disabled="currentPage === totalPages || examOver">Next</button>
+
       </div>
       <div v-if="!examSubmitted && !examOver && currentPage === totalPages" class="button-group">
         <button type="submit" @click="submitExam" class="btn btn-primary w-100" :disabled="isSubmitting">
@@ -148,15 +149,19 @@ export default {
     totalPages() {
       return this.exam.questions ? Math.ceil(this.exam.questions.length / this.questionsPerPage) : 1;
     },
+    
+
     formattedTime() {
       if (this.timeRemaining < 0) {
         return 'Time is up!';
       }
-      const minutes = Math.floor(this.timeRemaining / 60);
+      const hours = Math.floor(this.timeRemaining / 3600);
+      const minutes = Math.floor((this.timeRemaining % 3600) / 60);
       const seconds = this.timeRemaining % 60;
-      return `${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
-      
+
+      return `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
     }
+
   },
   created() {
     this.fetchExam();
@@ -360,11 +365,32 @@ export default {
         }
       }, 1000);
     },
+    // nextPage() {
+    //   if (this.currentPage < this.totalPages && !this.examOver) {
+    //     this.currentPage += 1;
+    //   }
+    // },
+
     nextPage() {
-      if (this.currentPage < this.totalPages && !this.examOver) {
+    if (this.currentPage < this.totalPages && !this.examOver) {
+      const currentQuestionId = this.paginatedQuestions[0].id;
+      if (this.validateCurrentAnswer(currentQuestionId)) {
         this.currentPage += 1;
+      } else {
+        // this.validationError = 'Please answer the current question before proceeding.';
+        Swal.fire({
+          title: 'Warning',
+          text: 'Please answer the current question before proceeding.',
+          icon: 'warning',
+          confirmButtonText: 'OK'
+        });
       }
-    },
+    }
+  },
+  
+  validateCurrentAnswer(questionId) {
+    return this.selectedAnswers[questionId] || this.studentTextAnswers[questionId];
+  },
     prevPage() {
       if (this.currentPage > 1 && !this.examOver) {
         this.currentPage -= 1;
@@ -401,14 +427,14 @@ export default {
   width: 100%; /* Ensures the text takes full width */
   text-align: left; /* Keeps the text aligned to the left */
   margin-bottom: 30px;
-  font-size: 35px;
+  font-size: 30px;
 }
 
 .choice-container {
   display: flex;
   flex-direction: column;
   gap: 25px; /* Adds space between choices */
-  font-size: 25px;
+  font-size: 20px;
   width: 100%;
 }
 
