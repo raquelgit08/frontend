@@ -1,17 +1,22 @@
 <template>
   <div class="main-container">
+   
+    
     <div class="subject-info-container">
-      <div v-if="subject.subjectName" class="subject-info">
-        <h2>{{ subject.subjectName }}</h2>
-        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
-      </div>
+      <div class="subject-info">
+        <div class=" d-flex align-items-center">
+          <button @click="$router.go(-1)" class="nav-link" style="border: none; background: none; color: inherit; font-weight: 500; font-size: 20px;">
+            <i class="bi bi-arrow-bar-left" style="font-weight: 800;"></i> Go back
+          </button>
+        </div>
+        <div class="col-12">
+      <h4 class="mb-0" style="text-align: center;">{{ exam_title }}</h4> <!-- Remove default margin -->
+      <p class="mb-1">Instructions: {{ instruction }}</p> <!-- Reduce bottom margin -->
+      <p class="mb-1">Completion Percentage: <b> {{ completion_percentage }}</b></p> <!-- Reduce bottom margin -->
+      <p class="mb-1">Students Completed Exam: <b>  {{ students_completed_exam }} / {{ total_students }} </b></p> <!-- Reduce bottom margin -->
     </div>
 
-    <div class="container-fluid">
-      <h5>Item Analysis</h5>
-      <h3>Total Number of Students Enrolled: {{ total_students }}</h3>
-      <h4>Completion Percentage: {{ completion_percentage }}</h4>
-      <h4>Students Completed Exam: {{ students_completed_exam }} / {{ total_students }}</h4>
+     </div><br><br>
 
       <!-- Check if analysis is ready -->
       <div v-if="questionAnalysis.length > 0" class="questions-container">
@@ -48,7 +53,7 @@
 
 <script>
 import axios from 'axios';
-
+import config from '@/config';
 export default {
   name: 'ITEManalysis',
   data() {
@@ -77,7 +82,7 @@ export default {
           return;
         }
 
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/class/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -106,7 +111,7 @@ export default {
           return;
         }
 
-        const response = await axios.get('http://localhost:8000/api/itemAnalysis', {
+        const response = await axios.get(`${config.apiBaseURL}/itemAnalysis`, {
           headers: {
             Authorization: `Bearer ${token}`
           },
@@ -126,9 +131,12 @@ export default {
           };
         });
         // Add these lines to set completion percentage and counts
-    this.completion_percentage = response.data.completion_percentage;
-    this.students_completed_exam = response.data.students_completed_exam;
-    this.total_students = response.data.total_students;
+        this.completion_percentage = response.data.completion_percentage;
+        this.students_completed_exam = response.data.students_completed_exam;
+        this.total_students = response.data.total_students;
+        this.exam_title = response.data.exam_title;
+        this.instruction = response.data.instruction;
+
         
       } catch (error) {
         console.error('Error fetching item analysis:', error);
@@ -162,34 +170,27 @@ export default {
   justify-content: space-between;
 }
 
-/* Subject Info Container */
 .subject-info-container {
-  flex: 1;
-  max-width: 300px;
-  margin-right: 10px;
-  margin-left: 10px;
-  display: flex;
-  align-items: center;
-}
-
-.subject-info {
-  width: 100%;
+  background-color: #EEEDED;
+  border-radius: 10px;
   padding: 15px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  margin-left: 13px;
+  margin-right: 13px;
+  margin-bottom: 10px;
+  height: 170px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.subject-info h2 {
-  font-size: 1.5rem;
-  color: #343a40;
-  font-weight: 700;
-  margin-bottom: 8px;
+.subject-title {
+  font-size: 1.75rem;
+  margin-bottom: 10px;
+  font-weight: 800;
+  color: #333;
 }
 
-.subject-info p {
-  font-size: 1rem;
-  color: #6c757d;
+.subject-description {
+  color: #555;
+  margin-bottom: 5px;
 }
 
 /* Analysis Section */

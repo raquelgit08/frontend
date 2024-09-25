@@ -85,6 +85,7 @@
 import axios from 'axios';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name: 'SubjectManagement',
@@ -114,7 +115,7 @@ export default {
       this.loading = true;
       try {
         const token = localStorage.getItem('token'); 
-        const response = await axios.get('http://localhost:8000/api/viewsubject', {
+        const response = await axios.get(`${config.apiBaseURL}/viewsubject`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -148,7 +149,7 @@ export default {
       try {
         const token = localStorage.getItem('token'); 
         if (this.isEdit) {
-          await axios.put(`http://localhost:8000/api/updatesubject/${this.editItemId}`, {
+          await axios.put(`${config.apiBaseURL}/updatesubject/${this.editItemId}`, {
             subjectname: this.newSubjectName
           }, {
             headers: {
@@ -156,7 +157,7 @@ export default {
             }
           });
         } else {
-          await axios.post('http://localhost:8000/api/addsubject', {
+          await axios.post(`${config.apiBaseURL}/addsubject`, {
             subjectname: this.newSubjectName
           }, {
             headers: {
@@ -193,7 +194,7 @@ export default {
     async deleteItem(id) {
       try {
         const token = localStorage.getItem('token'); 
-        await axios.delete(`http://localhost:8000/api/deletesubject/${id}`, {
+        await axios.delete(`${config.apiBaseURL}/deletesubject/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

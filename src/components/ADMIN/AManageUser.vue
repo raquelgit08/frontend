@@ -90,6 +90,7 @@
 <script>
 import axios from 'axios';
 import moment from 'moment';
+import config from '@/config';
 
 export default {
   name: 'ManageUser',
@@ -147,7 +148,7 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const response = await axios.get('http://localhost:8000/api/viewallusers', {
+        const response = await axios.get(`${config.apiBaseURL}/viewallusers`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }

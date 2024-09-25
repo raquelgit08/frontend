@@ -102,6 +102,7 @@
   <script>
   import axios from 'axios';
   import moment from 'moment';
+  import config from '@/config';
   
   export default {
     name: 'ManageUserTeachers',
@@ -163,7 +164,7 @@
       },
       async fetchTeachers() {
         try {
-          const response = await axios.get('http://localhost:8000/api/viewAllTeachers', {
+          const response = await axios.get(`${config.apiBaseURL}/viewAllTeachers`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -175,7 +176,7 @@
       },
       async fetchPositions() {
         try {
-          const response = await axios.get('http://localhost:8000/api/viewposition', {
+          const response = await axios.get(`${config.apiBaseURL}/viewposition`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -187,7 +188,7 @@
       },
       async generateReport() {
         try {
-          const response = await axios.post('http://localhost:8000/api/generateTeacherPDF', {
+          const response = await axios.post(`${config.apiBaseURL}/generateTeacherPDF`, {
             gender: this.selectedGender,
             position_id: this.position_id
           }, {

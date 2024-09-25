@@ -105,6 +105,7 @@
 </template>
 
 <script>
+import config from './config';
 import axios from 'axios';
 import router from '@/router';
 import Swal from 'sweetalert2';
@@ -158,7 +159,7 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://localhost:8000/api/login', {
+        const response = await axios.post(`${config.apiBaseURL}/login`, {
           email: this.email,
           password: this.password
         });
@@ -223,7 +224,7 @@ export default {
     },
     async sendVerificationCode() {
       try {
-        const response = await axios.post('http://localhost:8000/api/sendVerificationCode', { email: this.email });
+        const response = await axios.post(`${config.apiBaseURL}/sendVerificationCode`, { email: this.email });
         Swal.fire('Success', response.data.message, 'success');
         this.forgotPasswordStep = 2;
       } catch (error) {
@@ -237,7 +238,7 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://localhost:8000/api/reset-password', {
+        const response = await axios.post(`${config.apiBaseURL}/reset-password`, {
           email: this.email,
           verification_code: this.verificationCode,
           new_password: this.newPassword,

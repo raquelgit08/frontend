@@ -75,6 +75,7 @@
 
 <script>
 import axios from 'axios';
+import config from '@/config';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
@@ -102,7 +103,7 @@ export default {
   },
   methods: {
     fetchCounts() {
-      axios.get('http://localhost:8000/api/counts', {
+      axios.get(`${config.apiBaseURL}/counts`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }

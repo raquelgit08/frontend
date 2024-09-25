@@ -4,7 +4,7 @@
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2 class="subject-title">{{ subject.subjectName }}</h2>
-        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+        <p>{{ subject.semester }} semester  | S.Y. :{{ subject.schoolYear }}</p>
         <p class="class-code">Class Code: <span>{{ subject.gen_code }}</span></p>
       </div>
     </div>
@@ -47,6 +47,7 @@
 
 <script>
 import axios from 'axios';
+import config from '@/config';
 
 export default {
   name: 'FeedbacksofStudent',
@@ -80,7 +81,7 @@ export default {
           return;
         }
 
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/class/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -116,7 +117,7 @@ export default {
       try {
         const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:8000/api/getAllExamsByClass/${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/getAllExamsByClass/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -169,7 +170,7 @@ export default {
           return;
         }
 
-        const response = await axios.get(`http://localhost:8000/api/getComments`, {
+        const response = await axios.get(`${config.apiBaseURL}/getComments`, {
           headers: {
             Authorization: `Bearer ${token}`
           },

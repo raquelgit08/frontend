@@ -52,6 +52,7 @@
 
 <script>
 import axios from 'axios';
+import config from '@/config';
 
 export default {
   name: 'AddSubject',
@@ -68,7 +69,7 @@ export default {
     async fetchSubjects() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get('http://localhost:8000/api/getStudentClassroomDetails', {
+        const response = await axios.get(`${config.apiBaseURL}/getStudentClassroomDetails`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -86,7 +87,7 @@ export default {
     async addSubject() {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.post('http://localhost:8000/api/jcstudent2',
+        const response = await axios.post(`${config.apiBaseURL}/jcstudent2`,
           { gen_code: this.genCode },
           {
             headers: {

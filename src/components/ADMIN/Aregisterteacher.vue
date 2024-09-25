@@ -116,6 +116,7 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name: 'RegisterTeacher',
@@ -177,7 +178,7 @@ export default {
     async fetchStrands() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewstrand', {
+        const response = await axios.get(`${config.apiBaseURL}/viewstrand`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data && Array.isArray(response.data.data)) {
@@ -193,7 +194,7 @@ export default {
     async fetchPositions() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewposition', {
+        const response = await axios.get(`${config.apiBaseURL}/viewposition`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data && Array.isArray(response.data.data)) {
@@ -209,7 +210,7 @@ export default {
     },
     async saveUser() {
       try {
-        await axios.post('http://localhost:8000/api/registerTeacher', this.formData);
+        await axios.post(`${config.apiBaseURL}/registerTeacher`, this.formData);
         Swal.fire({
           icon: 'success',
           title: 'Registration Successful',

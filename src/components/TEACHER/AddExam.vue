@@ -234,6 +234,7 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name: 'AddexaminationsofSHS',
@@ -271,7 +272,7 @@ export default {
     async fetchQuestions() {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/getExamInstructionAndCorrectAnswers/${this.examId}`,
+          `${config.apiBaseURL}/getExamInstructionAndCorrectAnswers/${this.examId}`,
           { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
         );
         this.existingQuestions = response.data.instructions || [];
@@ -298,7 +299,7 @@ export default {
           question: this.modalQuestion.text, // Use the updated question text
         };
 
-        const response = await axios.put(`http://localhost:8000/api/updateQuestion/${this.modalQuestion.id}`, payload, {
+        const response = await axios.put(`${config.apiBaseURL}/updateQuestion/${this.modalQuestion.id}`, payload, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
 
@@ -389,7 +390,7 @@ export default {
   
     async deleteQuestion(questionId) {
       try {
-        await axios.delete(`http://localhost:8000/api/deleteMultipleQuestions/${questionId}`, {
+        await axios.delete(`${config.apiBaseURL}/deleteMultipleQuestions/${questionId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         this.fetchQuestions();
@@ -429,7 +430,7 @@ export default {
         ];
 
         await axios.post(
-          `http://localhost:8000/api/addQuestionsToExam/${this.examId}`,
+          `${config.apiBaseURL}/addQuestionsToExam/${this.examId}`,
           { instructions: instructionsData },
           { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
         );

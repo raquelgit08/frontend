@@ -89,6 +89,7 @@
 import axios from 'axios';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name: 'ManageStrandsinENHS',
@@ -120,7 +121,7 @@ export default {
       this.loading = true;
       try {
         const token = localStorage.getItem('token'); 
-        const response = await axios.get('http://localhost:8000/api/viewstrand', {
+        const response = await axios.get(`${config.apiBaseURL}/viewstrand`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -153,7 +154,7 @@ export default {
         }
 
         if (this.isEdit) {
-          await axios.put(`http://localhost:8000/api/strands/${this.editItemId}`, {
+          await axios.put(`${config.apiBaseURL}/strands/${this.editItemId}`, {
             addstrand: this.newStrand,
             grade_level: this.newGradeLevel
           }, {
@@ -162,7 +163,7 @@ export default {
             }
           });
         } else {
-          await axios.post('http://localhost:8000/api/addstrand', {
+          await axios.post(`${config.apiBaseURL}/addstrand`, {
             addstrand: this.newStrand,
             grade_level: this.newGradeLevel
           }, {
@@ -185,7 +186,7 @@ export default {
     async deleteItem(id) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:8000/api/strands/${id}`, {
+        await axios.delete(`${config.apiBaseURL}/strands/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

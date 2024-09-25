@@ -4,7 +4,7 @@
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2 class="subject-title">{{ subject.subjectName }}</h2>
-        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+        <p>{{ subject.semester }} Semester | {{ subject.schoolYear }}</p>
         <p class="class-code">Class Code: <span>{{ subject.gen_code }}</span></p>
       </div>
     </div>
@@ -53,7 +53,7 @@
                   {{ student.Last_name }}, {{ student.First_name }} {{ student.Middle_i }}
                 </td>
                 <td>{{ student.sex}}</td>
-                <td>{{ student.strand_name }}</td>
+                <td :style="{ width: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ student.strand_name }} - {{ student.gradelevel_name }}</td>
                 <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
                   {{ student[examTitle] || '-' }} / {{ examData.exam_results[0]?.total_exam }}
                 </td>
@@ -95,6 +95,7 @@
 
 <script>
 import axios from 'axios';
+import config from '@/config';
 
 export default {
   name: 'PerformancesTracking',
@@ -134,7 +135,7 @@ export default {
           return;
         }
 
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/class/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -163,7 +164,7 @@ export default {
           return;
         }
 
-        const response = await axios.get(`http://localhost:8000/api/getAllStudentResults?classtable_id=${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/getAllStudentResults?classtable_id=${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -211,7 +212,9 @@ export default {
               First_name: result.First_name,
               Middle_i: result.Middle_i,
               sex : result.sex,
-              strand_name: result.strand_name
+              strand_name: result.strand_name,
+              gradelevel_name : result.gradelevel_name
+
             };
             results.push(student);
           }

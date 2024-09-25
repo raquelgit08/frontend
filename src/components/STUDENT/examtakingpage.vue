@@ -114,6 +114,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
+import config from '@/config';
 
 export default {
   name: 'ExamTakingPages',
@@ -194,7 +195,7 @@ export default {
     async fetchExam() {
       const examId = this.$route.params.exam_id;
       try {
-        const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${examId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/viewExam2updated2/${examId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         console.log('Exam data retrieved:', response.data);
@@ -233,7 +234,7 @@ export default {
 
       try {
         const examId = this.$route.params.exam_id;
-        await axios.post(`http://localhost:8000/api/exam/${examId}/submitExam2`, 
+        await axios.post(`${config.apiBaseURL}/exam/${examId}/submitExam2`, 
           { answers: formattedAnswers },
           { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
         );
@@ -268,7 +269,7 @@ export default {
 
     async getResults(examId) {
       try {                                                         
-        const response = await axios.get(`http://localhost:8000/api/getResultswithtestbank/${examId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/getResultswithtestbank/${examId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         console.log('API Response:', response);
@@ -321,7 +322,7 @@ export default {
 
     async submitFeedback(examId) {
       try {
-        await axios.post(`http://localhost:8000/api/commentfeedback/${examId}`, 
+        await axios.post(`${config.apiBaseURL}/commentfeedback/${examId}`, 
           { comment: this.comment },
           { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
         );

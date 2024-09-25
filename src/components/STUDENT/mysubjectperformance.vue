@@ -92,6 +92,7 @@
 
 <script>
 import axios from 'axios';
+import config from '@/config';
 
 export default {
   name: 'MySubjectPerformance',
@@ -125,7 +126,7 @@ export default {
 
       try {
         // Fetching subject details
-        const subjectResponse = await axios.get(`http://localhost:8000/api/classroom/${classId}`, {
+        const subjectResponse = await axios.get(`${config.apiBaseURL}/classroom/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -146,7 +147,7 @@ export default {
         }
         
         // Fetching performance data
-        const performancesResponse = await axios.get(`http://localhost:8000/api/getResultsallexam`, {
+        const performancesResponse = await axios.get(`${config.apiBaseURL}/getResultsallexam`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

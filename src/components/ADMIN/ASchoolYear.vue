@@ -99,6 +99,7 @@
 import axios from 'axios';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name: 'SchoolYearManagement',
@@ -129,7 +130,7 @@ export default {
       this.loading = true;
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewyear', {
+        const response = await axios.get(`${config.apiBaseURL}/viewyear`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -163,8 +164,8 @@ export default {
   try {
     const token = localStorage.getItem('token');
     const url = this.isEdit
-      ? `http://localhost:8000/api/updateyear/${this.editYearId}`
-      : 'http://localhost:8000/api/addyear';
+      ? `${config.apiBaseURL}/updateyear/${this.editYearId}`
+      : `${config.apiBaseURL}/addyear`;
     const method = this.isEdit ? 'put' : 'post';
 
     // Send the data to the API
@@ -209,7 +210,7 @@ export default {
     async deleteYear(id) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:8000/api/deleteyear/${id}`, {
+        await axios.delete(`${config.apiBaseURL}/deleteyear/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

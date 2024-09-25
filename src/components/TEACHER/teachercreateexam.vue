@@ -223,7 +223,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import Swal from 'sweetalert2';
-
+import config from '@/config';
 export default {
   name: 'TeacherCreateExams',
   data() {
@@ -258,7 +258,7 @@ export default {
       try {
         const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:8000/api/getAllExamsByClass/${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/getAllExamsByClass/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -277,7 +277,7 @@ export default {
       try {
         const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/class/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -303,7 +303,7 @@ export default {
     async publishExam(examId) {
       try {
         const token = localStorage.getItem('token');
-        await axios.post(`http://localhost:8000/api/exams/publish2/${examId}`, {}, {
+        await axios.post(`${config.apiBaseURL}/exams/publish2/${examId}`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -333,7 +333,7 @@ export default {
 
       axios
         .post(
-          'http://localhost:8000/api/createExam',
+          `${config.apiBaseURL}/createExam`,
           {
             classtable_id: this.classtable_id,
             title: this.examTitle,
@@ -413,7 +413,7 @@ async updateExams() {
     };
 
     const response = await axios.put(
-      `http://localhost:8000/api/updateQuestionsInExam/${this.selectedExamId}`,
+      `${config.apiBaseURL}/updateQuestionsInExam/${this.selectedExamId}`,
       payload,
       {
         headers: {

@@ -107,7 +107,7 @@
   
   <script>
 import axios from 'axios';
-
+import config from '@/config';
 
 export default {
   name: 'ManageUserStudents',
@@ -179,7 +179,7 @@ export default {
   methods: {
     async fetchStudents() {
       try {
-        const response = await axios.get('http://localhost:8000/api/viewAllStudents2', {
+        const response = await axios.get(`${config.apiBaseURL}/viewAllStudents2`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -196,7 +196,7 @@ export default {
     async fetchStrands() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewstrand', {
+        const response = await axios.get(`${config.apiBaseURL}/viewstrand`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -218,7 +218,7 @@ export default {
     async fetchSections() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewsection', {
+        const response = await axios.get(`${config.apiBaseURL}/viewsection`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -244,7 +244,7 @@ export default {
     },
     async generateReport() {
       try {
-        const response = await axios.post('http://localhost:8000/api/generatePDF', {
+        const response = await axios.post(`${config.apiBaseURL}/generatePDF`, {
           gender: this.selectedGender,
           strand: this.formData.strand_id,
           section: this.formData.section_id

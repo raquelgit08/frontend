@@ -104,7 +104,7 @@
 
 <script>
 import axios from 'axios';
-
+import config from '@/config';
 export default {
   name: 'MyExams',
   data() {
@@ -133,7 +133,7 @@ export default {
 
       try {
         // Fetch subject info
-        const subjectResponse = await axios.get(`http://localhost:8000/api/classroom/${classId}`, {
+        const subjectResponse = await axios.get(`${config.apiBaseURL}/classroom/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -152,7 +152,7 @@ export default {
         };
 
         // Fetch published exams for the class
-        const examsResponse = await axios.get(`http://localhost:8000/api/tblclass/${classId}/exams2`, {
+        const examsResponse = await axios.get(`${config.apiBaseURL}/tblclass/${classId}/exams2`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -185,7 +185,7 @@ export default {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await axios.get(`http://localhost:8000/api/viewExam2updated2/${exam.id}`, {
+        const response = await axios.get(`${config.apiBaseURL}/viewExam2updated2/${exam.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

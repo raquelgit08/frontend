@@ -112,6 +112,7 @@
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import config from '@/config';
 
 export default {
   name: 'SectioninSHS',
@@ -142,7 +143,7 @@ export default {
       this.loading = true;
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewsection', {
+        const response = await axios.get(`${config.apiBaseURL}/viewsection`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -157,7 +158,7 @@ export default {
     async fetchStrands() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewstrand', {
+        const response = await axios.get(`${config.apiBaseURL}/viewstrand`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -198,7 +199,7 @@ export default {
         const token = localStorage.getItem('token');
         if (this.newSection && this.selectedStrand) {
           if (this.isEdit) {
-            await axios.put(`http://localhost:8000/api/updatesection/${this.editSectionId}`, {
+            await axios.put(`${config.apiBaseURL}/updatesection/${this.editSectionId}`, {
               section: this.newSection,
               grade_level: this.selectedGradeLevel,
               strand_id: this.selectedStrand
@@ -208,7 +209,7 @@ export default {
               }
             });
           } else {
-            await axios.post('http://localhost:8000/api/addsection', {
+            await axios.post(`${config.apiBaseURL}/addsection`, {
               section: this.newSection,
               strand_id: this.selectedStrand
             }, {
@@ -229,7 +230,7 @@ export default {
     async deleteSection(id) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:8000/api/deletesection/${id}`, {
+        await axios.delete(`${config.apiBaseURL}/deletesection/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

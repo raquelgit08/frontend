@@ -57,7 +57,7 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
-
+import config from '@/config';
 
 export default {
   name: 'Student_homepage',
@@ -116,7 +116,7 @@ export default {
     },
     async fetchUserProfile() {
       try {
-        const response = await axios.get('http://localhost:8000/api/userprofile', {
+        const response = await axios.get(`${config.apiBaseURL}/userprofile`, {
           headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')
           }
@@ -159,7 +159,7 @@ export default {
       if (result.isConfirmed) {
         try {
           const token = localStorage.getItem('token');
-          const response = await axios.post('http://localhost:8000/api/logout', {}, {
+          const response = await axios.post(`${config.apiBaseURL}/logout`, {}, {
             headers: {
               Authorization: `Bearer ${token}`
             }

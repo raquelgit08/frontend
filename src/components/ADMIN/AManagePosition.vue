@@ -44,11 +44,11 @@
             <td>
 
               <button class="btn btn-warning btn-md me-2" @click="openEditModal(position)">
-    <i class="bi bi-pencil"></i> Edit
-</button>
-<button class="btn btn-danger btn-md" @click="confirmDeleteItem(position.id)">
-    <i class="bi bi-trash"></i> Delete
-</button>
+                  <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn btn-danger btn-md" @click="confirmDeleteItem(position.id)">
+                  <i class="bi bi-trash"></i> Delete
+              </button>
 
               
             </td>
@@ -85,6 +85,7 @@
 import axios from 'axios';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name: 'ManageTeacherPosition',
@@ -111,7 +112,7 @@ export default {
       this.loading = true;
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewposition', {
+        const response = await axios.get(`${config.apiBaseURL}/viewposition`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -146,7 +147,7 @@ export default {
         const token = localStorage.getItem('token');
         if (this.newPosition) {
           if (this.isEdit) {
-            await axios.put(`http://localhost:8000/api/updateposition/${this.editPositionId}`, {
+            await axios.put(`${config.apiBaseURL}/updateposition/${this.editPositionId}`, {
               teacher_postion: this.newPosition
             }, {
               headers: {
@@ -154,7 +155,7 @@ export default {
               }
             });
           } else {
-            await axios.post('http://localhost:8000/api/addposition', {
+            await axios.post(`${config.apiBaseURL}/addposition`, {
               teacher_postion: this.newPosition
             }, {
               headers: {
@@ -192,7 +193,7 @@ export default {
     async deletePosition(id) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:8000/api/deleteposition/${id}`, {
+        await axios.delete(`${config.apiBaseURL}/deleteposition/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

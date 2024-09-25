@@ -230,6 +230,8 @@
 import axios from 'axios';
 import moment from 'moment';
 import Swal from 'sweetalert2';
+import config from '@/config';
+
 export default {
   name: 'ManageUserStudents',
   data() {
@@ -348,7 +350,7 @@ export default {
         formData.password = this.formData.password;
       }
 
-      axios.put(`http://localhost:8000/api/updateStudentDetails/${userId}`, formData, {
+      axios.put(`${config.apiBaseURL}/updateStudentDetails/${userId}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
@@ -372,7 +374,7 @@ export default {
     },
     async fetchStudents() {
       try {
-        const response = await axios.get('http://localhost:8000/api/viewAllStudents2', {
+        const response = await axios.get(`${config.apiBaseURL}/viewAllStudents2`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -390,7 +392,7 @@ export default {
     async fetchStrands() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewstrand', {
+        const response = await axios.get(`${config.apiBaseURL}/viewstrand`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -412,7 +414,7 @@ export default {
     async fetchSections() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewsection', {
+        const response = await axios.get(`${config.apiBaseURL}/viewsection`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -481,7 +483,7 @@ export default {
       }
 
       try {
-        let response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
+        let response = await axios.put(`${config.apiBaseURL}/user/${userId}/update-password`, {
           new_password: newPassword,
           new_password_confirmation: confirmPassword,
         }, {

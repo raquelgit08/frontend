@@ -53,7 +53,7 @@
 
 <script>
 import axios from 'axios';
-
+import config from '@/config';
 export default {
   name: 'PendingStudent',
   data() {
@@ -71,7 +71,7 @@ export default {
     async fetchStudents() {
   try {
     const classId = this.$route.params.class_id; // Ensure class_id is correct
-    const response = await axios.get(`http://localhost:8000/api/classes/${classId}/students/pending`, {
+    const response = await axios.get(`${config.apiBaseURL}/classes/${classId}/students/pending`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -93,7 +93,7 @@ export default {
           return;
         }
 
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/class/${classId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -114,7 +114,7 @@ export default {
     async updateStudentStatus(studentId, status) {
       try {
         const classId = this.$route.params.class_id;
-        const response = await axios.post('http://localhost:8000/api/approveStudentJoinRequest', {
+        const response = await axios.post(`${config.apiBaseURL}/approveStudentJoinRequest`, {
           class_id: classId,
           user_id: studentId,
           status: status

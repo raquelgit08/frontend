@@ -227,6 +227,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name: 'ManageUserStudents',
@@ -364,7 +365,7 @@ export default {
       }
 
       try {
-        let response = await axios.put(`http://localhost:8000/api/user/${userId}/update-password`, {
+        let response = await axios.put(`${config.apiBaseURL}/user/${userId}/update-password`, {
           new_password: newPassword,
           new_password_confirmation: confirmPassword,
         }, {
@@ -407,7 +408,7 @@ export default {
         formData.password = this.formData.password;
       }
 
-      axios.put(`http://localhost:8000/api/updateTeacher/${userId}`, formData, {
+      axios.put(`${config.apiBaseURL}/updateTeacher/${userId}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
@@ -433,7 +434,7 @@ export default {
    
     async fetchTeachers() {
       try {
-        const response = await axios.get('http://localhost:8000/api/viewAllTeachers', {
+        const response = await axios.get(`${config.apiBaseURL}/viewAllTeachers`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -448,7 +449,7 @@ export default {
     },
     async fetchPositions() {
       try {
-        const response = await axios.get('http://localhost:8000/api/viewposition', {
+        const response = await axios.get(`${config.apiBaseURL}/viewposition`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }

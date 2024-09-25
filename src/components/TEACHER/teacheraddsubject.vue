@@ -167,6 +167,7 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Modal } from "bootstrap";
+import config from '@/config';
 
 export default {
   name: "TeacherAddSubject",
@@ -201,7 +202,7 @@ export default {
   },
   methods: {
     getImageUrl(imagePath) {
-      const baseUrl = process.env.VUE_APP_BASE_URL || "http://localhost:8000";
+      const baseUrl = process.env.VUE_APP_BASE_URL || "http://192.168.137.225:1020";
       return `${baseUrl}${imagePath}?t=${new Date().getTime()}`;
     },
     openAddClassModal() {
@@ -251,7 +252,7 @@ export default {
         // If editing mode, send a PUT request, otherwise POST
         if (this.isEditMode) {
           response = await axios.put(
-            `http://localhost:8000/api/updateaddclass/${this.currentClass.id}`,
+            `${config.apiBaseURL}/updateaddclass/${this.currentClass.id}`,
             formData,
             {
               headers: {
@@ -262,7 +263,7 @@ export default {
           );
         } else {
           response = await axios.post(
-            "http://localhost:8000/api/addclass",
+            `${config.apiBaseURL}/addclass`,
             formData,
             {
               headers: {
@@ -330,7 +331,7 @@ export default {
         if (result.isConfirmed) {
           try {
             const response = await axios.put(
-              `http://localhost:8000/api/updateClassStatus/${classItem.id}`,
+              `${config.apiBaseURL}/updateClassStatus/${classItem.id}`,
               { status: 0 },
               {
                 headers: {
@@ -354,8 +355,7 @@ export default {
     },
     fetchClasses() {
       const token = localStorage.getItem("token");
-      axios
-        .get("http://localhost:8000/api/viewAllClassDetails", {
+      axios .get(`${config.apiBaseURL}/viewAllClassDetails`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
@@ -374,7 +374,7 @@ export default {
     fetchSections() {
       const token = localStorage.getItem("token");
       axios
-        .get("http://localhost:8000/api/viewsection", {
+        .get(`${config.apiBaseURL}/viewsection`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
@@ -394,7 +394,7 @@ export default {
     fetchStrands() {
       const token = localStorage.getItem("token");
       axios
-        .get("http://localhost:8000/api/viewstrand", {
+        .get(`${config.apiBaseURL}/viewstrand`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
@@ -412,7 +412,7 @@ export default {
     fetchSubjects() {
       const token = localStorage.getItem("token");
       axios
-        .get("http://localhost:8000/api/viewsubject", {
+        .get(`${config.apiBaseURL}/viewsubject`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
@@ -429,8 +429,7 @@ export default {
     },
     fetchYear() {
       const token = localStorage.getItem("token");
-      axios
-        .get("http://localhost:8000/api/viewyear", {
+      axios.get(`${config.apiBaseURL}/viewyear`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {

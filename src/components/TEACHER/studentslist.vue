@@ -111,6 +111,7 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name:'StudentsListSubject',
@@ -137,7 +138,7 @@ export default {
           Swal.fire('Error', 'Authorization token is missing. Please log in again.', 'error');
           return;
         }
-        const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
+        const response = await axios.get(`${config.apiBaseURL}/class/${classId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!response.data.class || !response.data.class.subject.subjectname) {
@@ -155,7 +156,7 @@ export default {
     async fetchStudents() {
       try {
         const classId = this.$route.params.class_id;
-        const response = await axios.get(`http://localhost:8000/api/viewAllStudents`, {
+        const response = await axios.get(`${config.apiBaseURL}/viewAllStudents`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           params: { class_id: classId }
         });
@@ -166,7 +167,7 @@ export default {
     },
     async fetchAvailableStudents() {
       try {
-        const response = await axios.get(`http://localhost:8000/api/viewAllStudents2`, {
+        const response = await axios.get(`${config.apiBaseURL}/viewAllStudents2`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         this.availableStudents = response.data.students;
@@ -177,7 +178,7 @@ export default {
     async addSelectedStudents() {
       try {
         const classId = this.$route.params.class_id;
-        await axios.post(`http://localhost:8000/api/addwocode`, {
+        await axios.post(`${config.apiBaseURL}/addwocode`, {
           user_ids: this.selectedStudents,
           class_id: classId
         }, {
