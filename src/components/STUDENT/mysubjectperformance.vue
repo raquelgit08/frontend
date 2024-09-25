@@ -5,7 +5,10 @@
       <div v-if="subject.subjectName" class="subject-info">
         <h2 class="subject-title">{{ subject.subjectName }}</h2>
         <p class="subject-description">Description: {{ subject.classDescription }}</p>
-        <p class="class-code">Class Code: <span>{{ subject.classGenCode }}</span></p>
+        <p class="class-code">
+        Class Code: <span>{{ subject.classGenCode }}</span> | {{ subject.class_semester }} Semester S.Y: {{ subject.class_addyear }}
+      </p>
+      <p>Teacher: {{ subject.teacher_fname }} {{ subject.teacher_mname }} {{ subject.teacher_lname }}</p>
       </div>
     </div>
 
@@ -132,6 +135,11 @@ export default {
           this.subject.subjectName = subjectResponse.data.subject_name;
           this.subject.classDescription = subjectResponse.data.class_description;
           this.subject.classGenCode = subjectResponse.data.class_gen_code;
+          this.subject.class_semester = subjectResponse.data.class_semester,
+          this.subject.class_addyear = subjectResponse.data.class_addyear,
+          this.subject.teacher_fname = subjectResponse.data.teacher_fname,
+          this.subject.teacher_lname = subjectResponse.data.teacher_lname,
+          this. subject.teacher_mname = subjectResponse.data.teacher_mname
         } else {
           this.error = 'Class details not found';
           return;
@@ -180,14 +188,25 @@ export default {
 </script>
 
 <style scoped>
+.nav , .subject-info-container , .table-wrapper{
+  margin-left: 20px;
+}
+
 
 .subject-info-container {
   background-color: #EEEDED;
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 10px;
-  height: 130px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  height: 150px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+.nav , .subject-info-container{
+  margin-left: 20px;
+}
+.container-fluid{
+  margin-left: 15px;
 }
 
 .subject-title {
@@ -215,6 +234,12 @@ export default {
   padding: 15px;
   border-radius: 10px;
 }
+
+.class-code span {
+  color: #007bff;
+  font-weight: 800;
+}
+
 
 .nav-link {
   color: #000000;
@@ -276,10 +301,7 @@ export default {
 
 
 .table-wrapper {
-  
-    padding: 0 15px;
-    max-width: 100%;
-    overflow-x: auto;
+  overflow-x: auto;
   }
 
   /* Table Styles */
@@ -316,7 +338,7 @@ export default {
     transition: background-color 0.3s ease;
   }
   .router-link-active {
-  color: #007bff !important;
-  border-bottom: 2px solid #007bff;
-}
+    color: #007bff !important;
+    border-bottom: 2px solid #007bff;
+  }
 </style>

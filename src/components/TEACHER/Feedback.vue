@@ -12,7 +12,7 @@
     <!-- Unified Navigation Bar -->
     <nav class="nav nav-pills">
       <router-link to="/teacheraddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4">Go Back to Classes</i></span>
+        <span><i class="bi bi-arrow-left fs-5">Go Back to Classes</i></span>
       </router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>

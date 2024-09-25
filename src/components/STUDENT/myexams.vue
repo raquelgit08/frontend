@@ -3,16 +3,14 @@
     <!-- Subject Information Display -->
     <div class="subject-info-container d-flex justify-content-between">
       <div v-if="subject.subjectName" class="subject-info">
-  <h2 class="subject-title">{{ subject.subjectName }}</h2>
-  <p class="subject-description">Description: {{ subject.classDescription }}</p>
-  <p class="class-code">
-    Class Code: <span>{{ subject.classGenCode }}</span> | {{ subject.class_semester }} Semester S.Y: {{ subject.class_addyear }}
-  </p>
-  <p>Teacher: {{ subject.teacher_fname }} {{ subject.teacher_mname }} {{ subject.teacher_lname }}</p>
-</div>
-
-
-</div>
+      <h2 class="subject-title">{{ subject.subjectName }}</h2>
+      <p class="subject-description">Description: {{ subject.classDescription }}</p>
+      <p class="class-code">
+        Class Code: <span>{{ subject.classGenCode }}</span> | {{ subject.class_semester }} Semester S.Y: {{ subject.class_addyear }}
+      </p>
+      <p>Teacher: {{ subject.teacher_fname }} {{ subject.teacher_mname }} {{ subject.teacher_lname }}</p>
+    </div>
+  </div>
 
 
     <!-- Navigation Bar Positioned Next to Subject Info -->
@@ -225,10 +223,17 @@ export default {
 .subject-info-container {
   background-color: #EEEDED;
   border-radius: 10px;
-  padding: 10px;
+  padding: 15px;
   margin-bottom: 10px;
+
   height: 150px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+.nav , .subject-info-container{
+  margin-left: 20px;
+}
+.container-fluid{
+  margin-left: 15px;
 }
 
 .subject-title {
@@ -262,6 +267,7 @@ export default {
   font-weight: 600;
   padding: 10px 20px;
   border-radius: 5px;
+  width: auto;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -343,5 +349,9 @@ export default {
   height: 50px;
   background-color: #fcfffc;
 }
+.router-link-active {
+    color: #007bff !important;
+    border-bottom: 2px solid #007bff;
+  }
 
 </style>

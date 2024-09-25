@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Sidebar Component -->
-    <div v-if="!isExamPage" class="sidebar" :class="{ open: isOpen }">
+    <!-- <div v-if="!isExamPage" class="sidebar" :class="{ open: isOpen }">
       <div class="logo_details">
         <img :src="profileImage || require('@/assets/logowise.png')" class="icon" style="width: 70px; height: 70px; border-radius: 50%; margin: 10px;" alt="Profile Image">
         <div class="logo_name">WISE-SHS</div>
@@ -20,21 +20,24 @@
             </li>
           </ul>
         </li>
-      </ul>
+      </ul> -->
       <!-- <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button> -->
-    </div>
+    <!-- </div> -->
     
     <!-- Navbar Component -->
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
-        <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2 style="margin-left: 90px;">Student Portal</h2>
-        </div>
+        <img :src="profileImage || require('@/assets/enhs logo.jpg')" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; margin-left: 20px;" alt="Profile Image">
+          
+          <div>
+            <h4 style="margin: 0;"> WISEchague National High School</h4>
+            <p style="font-size: 12px; color: white; margin: 0;">SAN FABIAN, ECHAGUE, ISABELA</p>
+          </div>
       </div>
       <div class="d-flex align-items-center ms-auto" style="margin-right: 20px;">
         
         
-        <img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%;" alt="Profile Image">
+        <!-- <img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%;" alt="Profile Image"> -->
         <div class="profile_content2" style="flex: 1; text-align: center;">
           <div class="names" v-if="userProfile && Object.keys(userProfile).length">Welcome {{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div>
           <div class="designations" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.strand_name }} {{ userProfile.grade_level }} - {{ userProfile.section_name }}</div>
@@ -79,10 +82,10 @@ export default {
       //   strand: false,
       // },
       isSidebarCollapsed: false,
-      selectedItem: localStorage.getItem('selectedItem') || '/sdashboard',
+      selectedItem: localStorage.getItem('selectedItem') || '/saddsubject',
       menuItems: [
       { items: [
-          { name: 'Dashboard', path: '/sdashboard', icon: 'bi bi-speedometer2 fs-3' },
+          // { name: 'Dashboard', path: '/sdashboard', icon: 'bi bi-speedometer2 fs-3' },
           { name: 'Classes', path: '/saddsubject', icon: 'bi bi-file-earmark-plus-fill fs-3' }
         ] },
        
@@ -188,7 +191,7 @@ export default {
   },
   beforeMount() {
   //  this.$router.push('/sdashboard');
-    this.selectedItem = '/sdashboard';
+    this.selectedItem = '/saddsubject';
   },
 };
 </script>
@@ -212,7 +215,7 @@ body {
 .sidebar {
   min-height: 100vh;
   width: 85px;
-  padding: 6px 14px;
+
   z-index: 99;
   color: rgb(255, 255, 255);
   transition: all 0.5s ease;
@@ -237,7 +240,7 @@ body {
 
 .content {
   margin-top: 20px;
-  margin-left: 85px; /* Margin when sidebar is closed */
+  margin-left: 20px; /* Margin when sidebar is closed */
   padding: 10px;
   width: calc(100% - 85px); /* Adjust width based on sidebar state */
   transition: margin-left 0.3s ease, width 0.3s ease; /* Adjust transition duration as needed */
@@ -283,6 +286,9 @@ body {
 }
 .navbar {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #1959b3;
+  color: #fff;
+  margin-bottom: 20px;
 }
 
 
@@ -555,6 +561,6 @@ body {
   background-color: rgba(255, 255, 255, 0.2);
 }
 .designations{
-  font-size: 17PX;
+  font-size: 14PX;
 }
 </style>

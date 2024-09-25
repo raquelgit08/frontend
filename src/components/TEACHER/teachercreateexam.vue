@@ -77,7 +77,7 @@
               <span v-if="isAvailable(exam.start, exam.end)" class="badge bg-success">Available</span>
               <span v-else class="badge bg-warning">Not Available</span>
             </td>
-            <i class="bi bi-chevron-right" @click="editExam(exam)" style="cursor: pointer;"></i>
+            <td><i class="bi bi-chevron-right" @click="editExam(exam)" style="cursor: pointer;"></i></td>
           </tr>
         </tbody>
       </table>

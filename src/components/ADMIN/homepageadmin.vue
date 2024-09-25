@@ -28,7 +28,7 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2 style="margin-left: 85px;">Echague National High School</h2>
+          <h2 >Echague National High School</h2>
           <p style="font-size: 12px; color: #888;">SAN FABIAN, ECHAGUE, ISABELA</p>
         </div>
       </div>
@@ -207,9 +207,10 @@ body {
 /* Sidebar and Content */
 
 
-.sidebar.open {
-  width: 320px; /* Width when open */
+.sidebar.open ~ .navbar {
+  margin-left: 300px; /* Adjust margin based on sidebar state */
 }
+
 .profile_content2{
   font-size: 20px;
   padding-left: 10px;
@@ -234,29 +235,16 @@ body {
   transition: margin-left 0.3s ease, width 0.3s ease; /* Ensure navbar transitions smoothly */
 }
 
-.sidebar.open ~ .navbar {
-  margin-left: 320px; /* Adjust margin based on sidebar state */
-  width: calc(100% - 320px); /* Adjust width based on sidebar state */
-}
-
-
 .sidebar::-webkit-scrollbar {
   display: none; /* For Chrome, Safari, and Opera */
 }
-.sidebar.open {
-  width: 320px; /* Width when open */
-}
-
 
 .sidebar.open ~ .content {
   margin-left: 320px; /* Margin when sidebar is open */
   width: calc(100% - 320px); /* Adjust width based on sidebar state */
 }
 
-/* Navbar Adjustments */
-.navbar {
-  transition: margin-left 0.3s ease, width 0.3s ease; /* Ensure navbar transitions smoothly */
-}
+
 
 .sidebar.open ~ .navbar {
   margin-left: 320px; /* Adjust margin based on sidebar state */
@@ -486,6 +474,17 @@ body {
   text-align: center;
   transition: all 0.5s ease;
 }
+.sidebar.open {
+  width: 320px; /* Width when open */
+}
+
+.navbar {
+  position: relative; /* Position relative to keep it in place */
+  margin-left: 85px; /* Margin equal to closed sidebar width */
+  padding-left: 30px;
+  transition: margin-left 0.3s ease; /* Transition effect for margin change */
+}
+
 
 .sidebar.open .profile #log_out {
   width: 50px;

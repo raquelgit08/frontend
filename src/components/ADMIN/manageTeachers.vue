@@ -470,6 +470,8 @@ export default {
 .container-fluid {
   background-color: #ffffff;
   border-radius: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 tbody{
@@ -510,9 +512,10 @@ h4 {
 /* Table Wrapper */
 .table-wrapper {
   margin: 0 auto;
-  padding: 0 15px;
+  /* padding: 0 15px; */
   max-width: 100%;
   overflow-x: auto;
+  
   
 }
 
@@ -520,7 +523,7 @@ h4 {
 .table-custom {
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  box-shadow: 0 5px 8px rgba(5, 4, 4, 0.1);
   border: 1px solid #200909;
   overflow: hidden;
 }

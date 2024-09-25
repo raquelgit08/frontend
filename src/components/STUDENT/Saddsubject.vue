@@ -29,20 +29,20 @@
 
     <!-- Displaying Approved Subjects -->
     <div v-if="subjects.length" class="mt-4">
-  <div class="card-container">
-    <div v-for="subject in subjects" :key="subject.class_id" class="card" @click="goToRoom(subject.class_id)">
-      <img :src="subject.imageUrl || require('@/assets/newlogo.png')" class="card-img" alt="Subject Image" />
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">{{ subject.subject_name }}</h5>
-        <div class="mt-auto">
-          <p class="mb-0 class-code">Class Code: <b> {{ subject.class_gen_code }}</b></p>
-          <p class="mb-0 teacher-name">Teacher: {{ subject.teacher_lname }}, {{ subject.teacher_fname }}</p>
-          <p class="mb-0 teacher-name">S.Y. : {{ subject.year_name }}</p>
+      <div class="card-container">
+        <div v-for="subject in subjects" :key="subject.class_id" class="card" @click="goToRoom(subject.class_id)">
+          <img :src="subject.imageUrl || require('@/assets/newlogo.png')" class="card-img" alt="Subject Image" />
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ subject.subject_name }}</h5>
+            <div class="mt-auto">
+              <p class="mb-0 class-code">Class Code: <b> {{ subject.class_gen_code }}</b></p>
+              <p class="mb-0 teacher-name">Teacher: {{ subject.teacher_lname }}, {{ subject.teacher_fname }}</p>
+              <p class="mb-0 teacher-name">S.Y. : {{ subject.year_name }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
     <div v-else class="mt-4">
       <p>No Classes enrolled.</p>
@@ -115,6 +115,8 @@ export default {
 <style scoped>
 .container-fluid {
   padding: 10px;
+  align-items: center;
+  padding-left: 40px;
 }
 
 .add-button {

@@ -2,14 +2,14 @@
   <div class="container-fluid">
     <!-- Subject Information Display -->
     <div class="subject-info-container">
-      <div v-if="subject && subject.subjectName" class="subject-info">
+      <div v-if="subject.subjectName" class="subject-info">
         <h2 class="subject-title">{{ subject.subjectName }}</h2>
         <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
         <p class="class-code">Class Code: <span>{{ subject.gen_code }}</span></p>
       </div>
     </div>
 
-    <!-- Unified Navigation Bar -->
+    <!-- Navigation Bar -->
     <nav class="nav nav-pills">
       <router-link to="/teacheraddsubject" class="nav-link">Go Back to Classes</router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">Exams</router-link>
@@ -19,109 +19,101 @@
       <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">Pending</router-link>
     </nav>
 
+    <!-- Invite Button -->
+    <div class="d-flex justify-content-end mb-4">
+      <button class="btn btn-primary" @click="openAddStudentModal">Add Students to Class</button>
+    </div>
+
+    <!-- Enrolled Students Table -->
     <div class="container-fluid">
-      <h4 class="text-center">Manage Students</h4><br>
-
-      <!-- Invite Student Button -->
-      <div class="d-flex justify-content-end mb-4">
-        <button class="btn btn-success" @click="openInviteModal">Invite Student via Email</button>
-        <button class="btn btn-primary ml-2" @click="openAddStudentModal">Add Selected Students to Class</button>
-      </div>
-
-      <!-- Table for Student List -->
+      <h4 class="text-center">Enrolled Students</h4><br>
       <div class="row mb-4">
         <div class="col-md-10 offset-md-1">
-          <table class="table table-bordered table-hover">
-            <thead class="table-info">
-              <tr>
-                <th scope="col" class="text-center">Select</th>
-                <th scope="col" class="text-center">No.</th>
-                <th scope="col" class="text-center">LRN</th>
-                <th scope="col" class="text-center">Last Name</th>
-                <th scope="col" class="text-center">First Name</th>
-                <th scope="col" class="text-center">Middle Name</th>
-                <th scope="col" class="text-center">Sex</th>
-                <th scope="col" class="text-center">Email</th>
-                <th scope="col" class="text-center">Strand</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(student, index) in students" :key="student.id">
-                <td class="text-center">
-                  <input type="checkbox" v-model="selectedStudents" :value="student.user?.id" />
-                </td>
-                <td class="text-center">{{ index + 1 }}</td>
-                <td class="text-center">{{ student.user?.idnumber }}</td>
-                <td class="text-center">{{ student.user?.lname }}</td>
-                <td class="text-center">{{ student.user?.fname }}</td>
-                <td class="text-center">{{ student.user?.mname }}</td>
-                <td class="text-center">{{ student.user?.sex }}</td>
-                <td class="text-center">{{ student.user?.email }}</td>
-                <td class="text-center">{{ student.strands?.addstrand }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Modals for Inviting and Adding Students -->
-      <!-- Invite Modal -->
-      <div v-if="isInviteModalVisible" class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Invite Student via Email</h5>
-              <button type="button" class="close" @click="closeInviteModal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                <label for="inviteEmail">Student Email:</label>
-                <input v-model="inviteEmail" type="email" class="form-control" id="inviteEmail" placeholder="Enter student's email" required>
-              </div>
-              <div class="form-group">
-                <label for="inviteName">Student Name:</label>
-                <input v-model="inviteName" type="text" class="form-control" id="inviteName" placeholder="Enter student's name" required>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" @click="inviteStudentByEmail">Send Invitation</button>
-              <button type="button" class="btn btn-secondary" @click="closeInviteModal">Close</button>
-            </div>
+          <div class="table-wrapper">
+            <table class="table table-bordered table-custom">
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>LRN</th>
+                  <th>Last Name</th>
+                  <th>First Name</th>
+                  <th>Middle Name</th>
+                  <th>Sex</th>
+                  <th>Email</th>
+                  <th>Strand</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(student, index) in students" :key="student.id">
+                  <td>{{ index + 1 }}</td>
+                  <td>{{ student.user?.idnumber }}</td>
+                  <td>{{ student.user?.lname }}</td>
+                  <td>{{ student.user?.fname }}</td>
+                  <td>{{ student.user?.mname }}</td>
+                  <td>{{ student.user?.sex }}</td>
+                  <td>{{ student.user?.email }}</td>
+                  <td>{{ student.strands?.addstrand }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-
-      <!-- Add Students Modal -->
-      <div v-if="isAddStudentModalVisible" class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Confirm Adding Students</h5>
-              <button type="button" class="close" @click="closeAddStudentModal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <p>Are you sure you want to add the selected students to this class?</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" @click="addSelectedStudents">Confirm</button>
-              <button type="button" class="btn btn-secondary" @click="closeAddStudentModal">Cancel</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Backdrop -->
-      <div v-if="isModalVisible" class="modal-backdrop fade show"></div>
     </div>
+
+    <!-- Modal for Adding Students -->
+    <div v-if="isAddStudentModalVisible" class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content modal-custom">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Students to Class</h5>
+            <button type="button" class="close-modal-btn" @click="closeAddStudentModal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="table-wrapper">
+              <table class="table table-bordered table-hover">
+                <thead class="table-info">
+                  <tr>
+                    <th scope="col">Select</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Strand</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(student) in availableStudents" :key="student.id" :class="{'selected-row': selectedStudents.includes(student.user_id)}">
+                    <td>
+                      <input type="checkbox" class="custom-checkbox" v-model="selectedStudents" :value="student.user_id" />
+                    </td>
+                    <td>{{ student.user?.lname }}</td>
+                    <td>{{ student.user?.fname }}</td>
+                    <td>{{ student.user?.email }}</td>
+                    <td>{{ student.strands?.addstrand }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" @click="addSelectedStudents">Add Selected Students</button>
+            <button type="button" class="btn btn-secondary" @click="closeAddStudentModal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div v-if="isAddStudentModalVisible" class="modal-backdrop fade show"></div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2';
 
 export default {
-  name: 'StudentsListSubject',
+  name:'StudentsListSubject',
   data() {
     return {
       subject: {
@@ -130,53 +122,28 @@ export default {
         schoolYear: '',
         gen_code: ''
       },
-      students: [], // List of students
-      selectedStudents: [],  // Selected students for adding
-      inviteEmail: '',       // Email for inviting
-      inviteName: '',        // Name for inviting
-      isInviteModalVisible: false,  // Invite modal visibility
-      isAddStudentModalVisible: false, // Add student modal visibility
+      students: [],
+      availableStudents: [],
+      selectedStudents: [],
+      isAddStudentModalVisible: false,
     };
   },
   methods: {
-    // Fetch all students for the class
-    async fetchStudents() {
-      try {
-        const classId = this.$route.params.class_id;
-        const response = await axios.get(`http://localhost:8000/api/viewAllStudents2`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          },
-          params: { class_id: classId }
-        });
-        this.students = response.data.students;
-      } catch (error) {
-        Swal.fire('Error', 'Error fetching students: ' + error.message, 'error');
-      }
-    },
-
-    // Fetch subject information
     async fetchSubject() {
       try {
         const classId = this.$route.params.class_id;
         const token = localStorage.getItem('token');
-
         if (!token) {
           Swal.fire('Error', 'Authorization token is missing. Please log in again.', 'error');
           return;
         }
-
         const response = await axios.get(`http://localhost:8000/api/class/${classId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
-
         if (!response.data.class || !response.data.class.subject.subjectname) {
           Swal.fire('Error', 'Class not found or you are not authorized to view this class.', 'error');
           return;
         }
-
         this.subject.subjectName = response.data.class.subject.subjectname;
         this.subject.semester = response.data.class.semester;
         this.subject.schoolYear = response.data.class.year.addyear;
@@ -185,45 +152,28 @@ export default {
         Swal.fire('Error', error.response ? error.response.data.message : 'Failed to fetch subject data. Please try again later.', 'error');
       }
     },
-
-    // Open and close modals
-    openInviteModal() {
-      this.isInviteModalVisible = true;
-    },
-    closeInviteModal() {
-      this.isInviteModalVisible = false;
-      this.inviteEmail = '';
-      this.inviteName = '';
-    },
-    openAddStudentModal() {
-      if (!this.selectedStudents.length) {
-        Swal.fire('Warning', 'Please select students to add.', 'warning');
-        return;
-      }
-      this.isAddStudentModalVisible = true;
-    },
-    closeAddStudentModal() {
-      this.isAddStudentModalVisible = false;
-    },
-
-    // Invite student by email
-    async inviteStudentByEmail() {
+    async fetchStudents() {
       try {
-        await axios.post(`http://localhost:8000/api/inviteStudentByEmail`, {
-          email: this.inviteEmail,
-          name: this.inviteName
-        }, {
+        const classId = this.$route.params.class_id;
+        const response = await axios.get(`http://localhost:8000/api/viewAllStudents`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          params: { class_id: classId }
+        });
+        this.students = response.data.students;
+      } catch (error) {
+        alert('Error fetching students: ' + error.message);
+      }
+    },
+    async fetchAvailableStudents() {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/viewAllStudents2`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-
-        Swal.fire('Success', 'Invitation sent successfully.', 'success');
-        this.closeInviteModal();
+        this.availableStudents = response.data.students;
       } catch (error) {
-        Swal.fire('Error', error.response.data.message || error.message, 'error');
+        alert('Error fetching available students: ' + error.message);
       }
     },
-
-    // Add selected students to the class
     async addSelectedStudents() {
       try {
         const classId = this.$route.params.class_id;
@@ -233,23 +183,28 @@ export default {
         }, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-
-        Swal.fire('Success', 'Students added successfully.', 'success');
-        this.selectedStudents = [];
+        alert('Students added successfully');
         this.closeAddStudentModal();
         this.fetchStudents();
       } catch (error) {
-        Swal.fire('Error', error.response.data.message || error.message, 'error');
+        alert('Error adding students: ' + error.message);
       }
+    },
+    openAddStudentModal() {
+      this.isAddStudentModalVisible = true;
+      this.fetchAvailableStudents();
+    },
+    closeAddStudentModal() {
+      this.isAddStudentModalVisible = false;
+      this.selectedStudents = [];
     }
   },
   mounted() {
     this.fetchStudents();
-    this.fetchSubject(); // Fetch subject when component is mounted
+    this.fetchSubject();
   }
 };
 </script>
-
 
 <style scoped>
 .subject-info-container {
@@ -266,11 +221,6 @@ export default {
   margin-bottom: 10px;
   font-weight: 800;
   color: #333;
-}
-
-.subject-description {
-  color: #555;
-  margin-bottom: 5px;
 }
 
 .class-code span {
@@ -300,94 +250,63 @@ export default {
   color: white !important;
 }
 
-.section-title {
-  font-size: 1.5rem;
-  color: #333;
+.table-wrapper {
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  font-size: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #200909;
+  overflow: hidden;
+}
 
+.table-custom th {
+  background-color: #0d8eead7;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 20px;
+}
 
-.modal-content {
-  background-color: white;
+.modal-custom {
+  border-radius: 12px;
   padding: 20px;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 100%;
-}
-
-
-
-/* Error Alert */
-.alert {
-  margin-top: 20px;
-  border-radius: 15px;
   max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f8d7da;
-  color: #721c24;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .main-container {
-    flex-direction: column;
-    gap: 10px;
-  }
+.modal-lg {
+  max-width: 700px;
+}
 
+.close-modal-btn {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;
+}
+
+.custom-checkbox {
+  transform: scale(1.2);
+  margin-right: 10px;
+}
+
+.selected-row {
+  background-color: #e8f0fe;
+}
+
+@media (max-width: 768px) {
   .nav {
     flex-direction: row;
-    justify-content: space-between;
   }
-
   .nav-link {
-    padding: 8px 10px;
-  }
-}
-
-
-.table-wrapper {
-  
-    padding: 0 15px;
-    max-width: 100%;
-    overflow-x: auto;
+    padding: 8px 15px;
   }
 
-  /* Table Styles */
-  .table-custom {
-    background-color: #ffffff;
-    border-radius: 8px;
-    font-size: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border: 1px solid #200909;
-    overflow: hidden;
+  .modal-lg {
+    max-width: 90%;
   }
-
-  .table-custom th {
-    background-color: #0d8eead7;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 20px;
-  }
-  
-  .table th, .table td {
-    text-align: center;
-    vertical-align: middle;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  .td{
-    font-size: 19px;
-  }
-
-  .table-custom tbody tr:hover {
-    background-color: #f1f3f5;
-  }
-
-  .table-custom tbody tr {
-    transition: background-color 0.3s ease;
-  }
-  .router-link-active {
-  color: #007bff !important;
-  border-bottom: 2px solid #007bff;
 }
 </style>

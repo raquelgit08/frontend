@@ -9,6 +9,9 @@
 
     <div class="container-fluid">
       <h5>Item Analysis</h5>
+      <h3>Total Number of Students Enrolled: {{ total_students }}</h3>
+      <h4>Completion Percentage: {{ completion_percentage }}</h4>
+      <h4>Students Completed Exam: {{ students_completed_exam }} / {{ total_students }}</h4>
 
       <!-- Check if analysis is ready -->
       <div v-if="questionAnalysis.length > 0" class="questions-container">
@@ -114,6 +117,7 @@ export default {
         console.log('Item analysis response:', response);
         
         // Calculate total responses for each question
+        
         this.questionAnalysis = response.data.item_analysis.map((question) => {
           const totalResponses = question.choices.reduce((sum, choice) => sum + choice.count, 0);
           return {
@@ -121,6 +125,11 @@ export default {
             totalResponses: totalResponses // Add total responses to each question
           };
         });
+        // Add these lines to set completion percentage and counts
+    this.completion_percentage = response.data.completion_percentage;
+    this.students_completed_exam = response.data.students_completed_exam;
+    this.total_students = response.data.total_students;
+        
       } catch (error) {
         console.error('Error fetching item analysis:', error);
         this.handleError(error);
@@ -233,7 +242,7 @@ export default {
   background-color: #e9ecef;
   border-radius: 10px;
   margin-top: 5px;
-  max-width: 700px;
+  /* max-width: 700px; */
   width: 100%;
 }
 

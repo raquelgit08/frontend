@@ -10,9 +10,8 @@
     </div>
 
     <!-- Unified Navigation Bar -->
-        <!-- Unified Navigation Bar -->
-        <nav class="nav nav-pills">
-      <router-link to="/teacheraddsubject" class="nav-link">Go Back to Classes</router-link>
+    <nav class="nav nav-pills">
+      <router-link to="/teacheraddsubject" class="nav-link custom-size">Go Back to Classes</router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link">Feedback</router-link>
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link">Performance Tracking</router-link>
@@ -37,6 +36,8 @@
                 <th >#</th>
                 <th>LRN</th>
                 <th>Student Name</th>
+                <th>Sex</th>
+                <th>strand</th>
                 <th v-for="(examData, examTitle) in results" :key="examTitle">
                   <div :title="formatDateTime(examData.exam_results[0]?.exam_start)">
                     {{ examTitle }}
@@ -51,18 +52,26 @@
                 <td :style="{ width: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">
                   {{ student.Last_name }}, {{ student.First_name }} {{ student.Middle_i }}
                 </td>
+                <td>{{ student.sex}}</td>
+                <td>{{ student.strand_name }}</td>
                 <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
                   {{ student[examTitle] || '-' }} / {{ examData.exam_results[0]?.total_exam }}
                 </td>
               </tr>
               <tr>
-                <td colspan="3"><strong>Exam Statistics</strong></td>
+                <td colspan="5">
+                  <strong>Exam Statistics</strong><br>
+                  <small>Mean : </small> <br>
+                  <small>Median : </small><br>
+                  <small>Mode : </small><br>
+                  <small>Range : </small>
+                </td>
                 <td v-for="(examData, examTitle) in results" :key="examTitle + '-statistics'">
                   <div>
-                    <small>Mean: {{ examData.mean_score }}</small><br>
-                    <small>Median: {{ examData.median_score }}</small><br>
-                    <small>Mode: {{ examData.mode_score }}</small><br>
-                    <small>Range: {{ examData.score_range }}</small>
+                    <small> {{ examData.mean_score }}</small><br>
+                    <small> {{ examData.median_score }}</small><br>
+                    <small>{{ examData.mode_score }}</small><br>
+                    <small> {{ examData.score_range }}</small>
                   </div>
                 </td>
               </tr>
@@ -200,7 +209,9 @@ export default {
               lrn: result.Lrn_id,
               Last_name: result.Last_name,
               First_name: result.First_name,
-              Middle_i: result.Middle_i
+              Middle_i: result.Middle_i,
+              sex : result.sex,
+              strand_name: result.strand_name
             };
             results.push(student);
           }
