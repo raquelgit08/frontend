@@ -538,7 +538,7 @@ export default {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
 .feedbackarea{
-  margin-top: 30px;
+  margin-top: 50px;
 }
 .box {
  

@@ -177,7 +177,7 @@ export default {
   margin-left: 13px;
   margin-right: 13px;
   margin-bottom: 10px;
-  height: 170px;
+  height: 190px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 

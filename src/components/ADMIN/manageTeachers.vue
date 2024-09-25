@@ -46,7 +46,7 @@
               <th scope="col" class="text-center">Email</th>
               <th scope="col" class="text-center">Position</th>
               <th scope="col" class="text-center">Date</th>
-              <th scope="col" class="text-center">Status</th>
+              <!-- <th scope="col" class="text-center">Status</th> -->
               <th scope="col" class="text-center">Actions</th>
             </tr>
           </thead>
@@ -62,7 +62,7 @@
                 <b>Registered :</b>{{ formatDate(teachers.created_at) }}<br>
                 <b>Modified :</b>{{ formatDate(teachers.updated_at) }}
               </td>
-              <td class="text-center">
+              <!-- <td class="text-center">
                 <div class="btn-group" role="group" aria-label="Active and Inactive">
                   <input type="radio" class="btn-check" name="options" id="activeRadio" autocomplete="off" v-model="selectedOption" value="active" :checked="isActive" />
                   <label class="btn" :class="{'btn-success': selectedOption === 'active', 'btn-secondary': selectedOption !== 'active'}" for="activeRadio">Active</label>
@@ -70,7 +70,7 @@
                   <input type="radio" class="btn-check" name="options" id="inactiveRadio" autocomplete="off" v-model="selectedOption" value="inactive" :checked="!isActive" />
                   <label class="btn" :class="{'btn-danger': selectedOption === 'inactive', 'btn-secondary': selectedOption !== 'inactive'}" for="inactiveRadio">Inactive</label>
                 </div>
-              </td>
+              </td> -->
               <td class="text-center">
                 <div class="icon-container">
                   <span class="icon-box reset-box">

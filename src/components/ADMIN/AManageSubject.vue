@@ -40,14 +40,14 @@
         <tbody>
           <tr v-for="(item, index) in filteredList" :key="item.id" class="align-middle">
             <td>{{ index + 1 }}</td>
-            <td>{{ item.subjectname }}</td>
+            <td style="text-align: start;">{{ item.subjectname }}</td>
             <td>
               <button class="btn btn-warning btn-md me-2" @click="openEditModal(item)">
-    <i class="bi bi-pencil"></i> Edit
-</button>
-<button class="btn btn-danger btn-md" @click="confirmDeleteItem(item.id)">
-    <i class="bi bi-trash"></i> Delete
-</button>
+         <i class="bi bi-pencil"></i> Edit
+        </button>
+        <button class="btn btn-danger btn-md" @click="confirmDeleteItem(item.id)">
+            <i class="bi bi-trash"></i> Delete
+        </button>
             </td>
           </tr>
         </tbody> 

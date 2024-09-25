@@ -92,7 +92,7 @@
           <p v-if="modalExam.description"><strong>Description:</strong> {{ modalExam.description }}</p>
         </div>
         <div class="modal-footer">
-          <button v-if="modalExam.originalExam.status === 'Pending'" @click="takeExam(modalExam.id)" class="btn btn-success">
+          <button v-if="modalExam.originalExam.status === 'Pending'" @click="takeExam(modalExam.id)" class="btn btn-success" style="margin-right: 10px;">
             Take Exam
           </button>
           <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>

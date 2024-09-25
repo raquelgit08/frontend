@@ -46,7 +46,7 @@
               <button class="btn btn-warning btn-md me-2" @click="openEditModal(position)">
                   <i class="bi bi-pencil"></i> Edit
               </button>
-              <button class="btn btn-danger btn-md" @click="confirmDeleteItem(position.id)">
+              <button class="btn btn-danger btn-md" @click="confirmDeletePosition(position.id)">
                   <i class="bi bi-trash"></i> Delete
               </button>
 

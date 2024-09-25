@@ -238,7 +238,7 @@ export default {
       }
 
       try {
-        const response = await axios.post(`${config.apiBaseURL}/reset-password`, {
+        const response = await axios.post(`${config.apiBaseURL}/updatePassword`, {
           email: this.email,
           verification_code: this.verificationCode,
           new_password: this.newPassword,

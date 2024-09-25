@@ -1,237 +1,229 @@
 <template>
-    <div>
-      <div class="container-fluid">
-        <div class="header-container">
-          <img src="@/assets/enhs logo.jpg" alt="Left Logo" class="enhslogo">
-          <h3 class="text-center">Masterlist of Teachers</h3>
-          <img src="@/assets/Deped-Logo.png" alt="Right Logo" class="depedlogo">
-        </div>
-
-        <div class="row mb-4 justify-content-end align-items-center">
-
-          <div class="row mb-4 align-items-center">
-    <div class="col-md-2">
-        <select v-model="selectedGender" class="form-control custom-select" id="gender">
+  <div>
+    <div class="container-fluid">
+      <div class="header-container">
+        <img src="@/assets/enhs logo.jpg" alt="Left Logo" class="enhslogo">
+        <h3 class="text-center">Report Generation for List of Teachers</h3>
+        <img src="@/assets/Deped-Logo.png" alt="Right Logo" class="depedlogo">
+      </div>
+      <div class="row mb-4 justify-content-end align-items-center">
+        <div class="col-md-2 d-flex align-items-center">
+          <select v-model="selectedGender"  class="form-control custom-select"  id="gender">
             <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
+          </select>
+        </div>
+    
+      <div class="col-md-3 d-flex align-items-center">
+        <select v-model="position_id" id="position" class="form-select custom-select" style="margin-right: 30px;"  required>
+          <option value="">Filter by Position</option>
+          <option v-for="position in positions" :key="position.id" :value="position.id">
+            {{ position.teacher_postion }}
+          </option>
         </select>
+      </div>
+      
     </div>
 
-    <div class="col-md-3">
-        <select v-model="position_id" id="position" class="form-select custom-select" required>
-            <option value="">Filter by Position</option>
-            <option v-for="position in positions" :key="position.id" :value="position.id">
-                {{ position.teacher_postion }}
-            </option>
-        </select>
-    </div>
 
-    <div class="col-md-2 text-start">
-        <button @click="generateReport" class="btn btn-gradient" style="margin-left: 700px;">
-            Generate Report
-        </button>
-    </div>
-</div>
-
-
+      <!-- Teachers Table -->
+      <div class="table-wrapper">
+        <table class="table table-bordered table-hover table-custom">
+          <thead class="table-info">
+            <tr>
+              <th scope="col" class="text-center">No.</th>
+              <th scope="col" class="text-center">Employee Number</th>
+              <th scope="col" class="text-center">Name</th>
+              <th scope="col" class="text-center">Sex</th>
+              <th scope="col" class="text-center">Email</th>
+              <th scope="col" class="text-center">Position</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(teacher, index) in paginatedItems" :key="teacher.user.idnumber">
+              <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+              <td>{{ teacher.user.idnumber }}</td>
+              <td class="text-center">{{ teacher.user.lname }}, {{ teacher.user.fname }} {{ teacher.user.mname }}</td>
+              <td class="text-center">{{ teacher.user.sex }}</td>
+              <td class="text-center">{{ teacher.user.email }}</td>
+              <td class="text-center">{{ teacher.position.teacher_postion }} </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-  
-        <!-- Teachers Table -->
-        <div class="table-wrapper">
-          <table class="table table-bordered table-hover table-custom">
-            <thead class="table-info">
-              <tr>
-                <th scope="col" class="text-center">No.</th>
-                <th scope="col" class="text-center">Employee Number</th>
-                <th scope="col" class="text-center">Name</th>
-                <th scope="col" class="text-center">Sex</th>
-                <th scope="col" class="text-center">Email</th>
-                <th scope="col" class="text-center">Position</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(teacher, index) in paginatedItems" :key="teacher.user.idnumber">
-                <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                <td>{{ teacher.user.idnumber }}</td>
-                <td class="text-center">{{ teacher.user.lname }}, {{ teacher.user.fname }} {{ teacher.user.mname }}</td>
-                <td class="text-center">{{ teacher.user.sex }}</td>
-                <td class="text-center">{{ teacher.user.email }}</td>
-                <td class="text-center">{{ teacher.position.teacher_postion }} </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Pagination -->
+      <div class="row mb-4">
+        <div class="col-md-2 d-flex align-items-center">
+          <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
+          <h6 >Male : {{ maleCountPerPage }}</h6>
         </div>
-  
-        <!-- Pagination -->
-        <div class="row mb-4">
-          <div class="col-md-2 d-flex align-items-center">
-            <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
-            <h6 >Male : {{ maleCountPerPage }}</h6>
-          </div>
 
-          <div class="col-md-3 d-flex align-items-center">
-            <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
-            <h6>Female : {{ femaleCountPerPage }}</h6>
-          </div>
-
-          <div class="col-md-7">
-            <nav aria-label="Page navigation">
-              <ul class="pagination justify-content-center">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                  <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
-                </li>
-                <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
-                  <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-                </li>
-                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                  <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
-                </li>
-              </ul>
-            </nav>
-          </div>
+        <div class="col-md-3 d-flex align-items-center">
+          <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
+          <h6>Female : {{ femaleCountPerPage }}</h6>
         </div>
-  
-        <!-- Generate Report Button -->
-       
-  
-        <!-- Modal for Editing User -->
+
+        <div class="col-md-7">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+              </li>
+              <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
+                <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+              </li>
+              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
+
+      <!-- Generate Report Button -->
+      <div class="row mb-4">
+        <div class="col-md-12 text-end">
+          <button @click="generateReport" class="btn btn-gradient">Generate Report</button>
+        </div>
+      </div>
+
+      <!-- Modal for Editing User -->
     </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  import moment from 'moment';
-  import config from '@/config';
-  
-  export default {
-    name: 'ManageUserTeachers',
-    data() {
-      return {
-        search: '',
-        showModal: false,
-        selectedGender: 'all',
-        gender: ['all', 'male', 'female'],
-        itemsPerPage: 10,
-        currentPage: 1,
-        serverItems: [],
-        positions: [],
-        position_id: '',
-        currentUser: {}
-      };
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+import moment from 'moment';
+import config from '@/config';
+export default {
+  name: 'ManageUserTeachers',
+  data() {
+    return {
+      search: '',
+      showModal: false,
+      selectedGender: 'all',
+      gender: ['all', 'male', 'female'],
+      itemsPerPage: 10,
+      currentPage: 1,
+      serverItems: [],
+      positions: [],
+      position_id: '',
+      currentUser: {}
+    };
+  },
+  computed: {
+    filteredItems() {
+      const searchLower = this.search.toLowerCase();
+      return this.serverItems.filter(item => {
+        const idnumberStr = item.user.idnumber ? item.user.idnumber.toString().toLowerCase() : '';
+        const lname = item.user.lname ? item.user.lname.toLowerCase() : '';
+        const fname = item.user.fname ? item.user.fname.toLowerCase() : '';
+        const mname = item.user.mname ? item.user.mname.toLowerCase() : '';
+        const positionMatches = !this.position_id || item.position.id === this.position_id;
+        const genderMatches = this.selectedGender === 'all' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
+
+        return (
+          positionMatches &&
+          genderMatches &&
+          (
+            idnumberStr.includes(searchLower) ||
+            lname.includes(searchLower) ||
+            fname.includes(searchLower) ||
+            mname.includes(searchLower)
+          )
+        );
+      });
     },
-    computed: {
-      filteredItems() {
-        const searchLower = this.search.toLowerCase();
-        return this.serverItems.filter(item => {
-          const idnumberStr = item.user.idnumber ? item.user.idnumber.toString().toLowerCase() : '';
-          const lname = item.user.lname ? item.user.lname.toLowerCase() : '';
-          const fname = item.user.fname ? item.user.fname.toLowerCase() : '';
-          const mname = item.user.mname ? item.user.mname.toLowerCase() : '';
-          const positionMatches = !this.position_id || item.position.id === this.position_id;
-          const genderMatches = this.selectedGender === 'all' || item.user.sex.toLowerCase() === this.selectedGender.toLowerCase();
-  
-          return (
-            positionMatches &&
-            genderMatches &&
-            (
-              idnumberStr.includes(searchLower) ||
-              lname.includes(searchLower) ||
-              fname.includes(searchLower) ||
-              mname.includes(searchLower)
-            )
-          );
-        });
-      },
-      paginatedItems() {
-        const start = (this.currentPage - 1) * this.itemsPerPage;
-        const end = start + this.itemsPerPage;
-        return this.filteredItems.slice(start, end);
-      },
-      totalPages() {
-        return Math.ceil(this.filteredItems.length / this.itemsPerPage);
-      },
-      maleCountPerPage() {
-        return this.paginatedItems.filter(item => item.user.sex === 'male').length;
-      },
-      femaleCountPerPage() {
-        return this.paginatedItems.filter(item => item.user.sex === 'female').length;
-      }
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredItems.slice(start, end);
     },
-    methods: {
-      formatDate(date) {
-        return moment(date).format('YYYY/M/D [time] h:mm a');
-      },
-      async fetchTeachers() {
-        try {
-          const response = await axios.get(`${config.apiBaseURL}/viewAllTeachers`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          this.serverItems = response.data.teachers;
-        } catch (error) {
-          alert('Error fetching teachers: ' + (error.response ? error.response.data.message : error.message));
-        }
-      },
-      async fetchPositions() {
-        try {
-          const response = await axios.get(`${config.apiBaseURL}/viewposition`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          this.positions = response.data.data;
-        } catch (error) {
-          console.error('Error fetching positions:', error.response ? error.response.data : error.message);
-        }
-      },
-      async generateReport() {
-        try {
-          const response = await axios.post(`${config.apiBaseURL}/generateTeacherPDF`, {
-            gender: this.selectedGender,
-            position_id: this.position_id
-          }, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            },
-            responseType: 'blob' // Important for handling PDF files
-          });
-  
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'teacher_report.pdf');
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-        } catch (error) {
-          alert('Error generating report: ' + (error.response ? error.response.data.message : error.message));
-        }
-      },
-      changePage(page) {
-        if (page > 0 && page <= this.totalPages) {
-          this.currentPage = page;
-        }
-      },
-      openEditModal(teacher) {
-        this.currentUser = teacher;
-        this.showModal = true;
-      },
-      async saveChanges() {
-        try {
-          // Perform the save operation here, e.g., send an update request to the API
-          this.showModal = false;
-        } catch (error) {
-          console.error('Error saving changes:', error.response ? error.response.data : error.message);
-        }
-      }
+    totalPages() {
+      return Math.ceil(this.filteredItems.length / this.itemsPerPage);
     },
-    mounted() {
-      this.fetchTeachers();
-      this.fetchPositions();
+    maleCountPerPage() {
+      return this.paginatedItems.filter(item => item.user.sex === 'male').length;
+    },
+    femaleCountPerPage() {
+      return this.paginatedItems.filter(item => item.user.sex === 'female').length;
     }
-  };
+  },
+  methods: {
+    formatDate(date) {
+      return moment(date).format('YYYY/M/D [time] h:mm a');
+    },
+    async fetchTeachers() {
+      try {
+        const response = await axios.get(`${config.apiBaseURL}/viewAllTeachers`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        this.serverItems = response.data.teachers;
+      } catch (error) {
+        alert('Error fetching teachers: ' + (error.response ? error.response.data.message : error.message));
+      }
+    },
+    async fetchPositions() {
+      try {
+        const response = await axios.get(`${config.apiBaseURL}/viewposition`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        this.positions = response.data.data;
+      } catch (error) {
+        console.error('Error fetching positions:', error.response ? error.response.data : error.message);
+      }
+    },
+    async generateReport() {
+      try {
+        const response = await axios.post(`${config.apiBaseURL}/generateTeacherPDF`, {
+          gender: this.selectedGender,
+          position_id: this.position_id
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          },
+          responseType: 'blob' // Important for handling PDF files
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'teacher_report.pdf');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } catch (error) {
+        alert('Error generating report: ' + (error.response ? error.response.data.message : error.message));
+      }
+    },
+    changePage(page) {
+      if (page > 0 && page <= this.totalPages) {
+        this.currentPage = page;
+      }
+    },
+    openEditModal(teacher) {
+      this.currentUser = teacher;
+      this.showModal = true;
+    },
+    async saveChanges() {
+      try {
+        // Perform the save operation here, e.g., send an update request to the API
+        this.showModal = false;
+      } catch (error) {
+        console.error('Error saving changes:', error.response ? error.response.data : error.message);
+      }
+    }
+  },
+  mounted() {
+    this.fetchTeachers();
+    this.fetchPositions();
+  }
+};
 </script>
 
 <style scoped>

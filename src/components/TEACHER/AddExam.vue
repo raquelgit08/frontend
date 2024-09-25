@@ -4,26 +4,11 @@
     <div class="main-container">
       <!-- Unified Navigation Bar -->
       <nav class="nav nav-pills">
-        <router-link to="/teachercreateexam" class="nav-link">
-          <span><i class="bi bi-arrow-left fs-4"></i></span>
-        </router-link>
-        <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
-        <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">
-          <i class="bi bi-file-earmark-plus fs-4"></i> Exams
-        </router-link>
-        <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link">
-          <i class="bi bi-chat-dots fs-4"></i> Feedback
-        </router-link>
-        <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link">
-          <i class="bi bi-activity fs-4"></i> Performance Tracking
-        </router-link>
-        <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link">
-          <i class="bi bi-person-lines fs-4"></i> Students
-        </router-link>
-        <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">
-          <i class="bi bi-hourglass-split fs-4"></i> Pending
-        </router-link>
-      </nav>
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-5">Go Back to Classes</i></span>
+      </router-link>
+     
+    </nav>
     </div>
 
     <!-- Exam Creation and Management Section -->
@@ -50,7 +35,7 @@
             <div v-for="(instruction, iIndex) in existingQuestions" :key="iIndex" class="instruction-card mb-4">
               <!-- Check if instruction and instruction.instructions exist -->
               <div v-if="instruction && instruction.instructions">
-                <h4>Instruction: {{ instruction.instructions.instruction }}</h4>
+                <p><b>Instruction:</b> {{ instruction.instructions.instruction }}</p>
 
                 <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
                   <h5> {{ qIndex + 1 }}. {{ question.question }}
@@ -69,7 +54,8 @@
                   </div>
 
                   <ul v-else-if="question.choices && question.choices.length > 0">
-                    <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li> <i class="bi bi-pencil-square"></i>
+                    <li v-for="(choice, cIndex) in question.choices" :key="cIndex">{{ choice.choices }}</li> 
+                    <!-- <i class="bi bi-pencil-square"></i> -->
                   </ul>
 
                   <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
@@ -176,10 +162,10 @@
     <b-modal v-model="showEditModal" title="Edit Question" @ok="saveEditedQuestion">
     <div v-if="modalQuestion">
       <!-- Show instruction in the modal -->
-      <div class="mb-3">
+      <!-- <div class="mb-3">
         <label class="form-label">Instruction</label>
         <input type="text" v-model="modalInstruction" class="form-control" readonly />
-      </div>
+      </div> -->
 
       <!-- Show question type in the modal -->
       <div class="mb-3">
@@ -194,38 +180,38 @@
       </div>
 
       <!-- Conditional rendering based on question type -->
-      <div v-if="modalQuestionType === 'multiple-choice'" class="mb-3">
+      <!-- <div v-if="modalQuestionType === 'multiple-choice'" class="mb-3">
         <label class="form-label">Choices</label>
         <div v-for="(choice, idx) in modalQuestion.choices" :key="idx" class="input-group mb-2">
           <input type="text" v-model="modalQuestion.choices[idx]" class="form-control" placeholder="Choice" />
         </div>
         <button @click="addChoice(modalQuestion)" class="btn btn-outline-secondary btn-sm">Add Choice</button>
-      </div>
+      </div> -->
 
       <!-- True/False Answer -->
-      <div v-if="modalQuestionType === 'true-false'" class="mb-3">
+      <!-- <div v-if="modalQuestionType === 'true-false'" class="mb-3">
         <label class="form-label">True/False Answer</label>
         <select v-model="modalQuestion.correctAnswer" class="form-control">
           <option value="True">True</option>
           <option value="False">False</option>
         </select>
-      </div>
+      </div> -->
 
       <!-- Identification Answer -->
-      <div v-if="modalQuestionType === 'identification'" class="mb-3">
+      <!-- <div v-if="modalQuestionType === 'identification'" class="mb-3">
         <label class="form-label">Correct Answer</label>
         <input type="text" v-model="modalQuestion.correctAnswer" class="form-control" placeholder="Enter the correct answer" />
-      </div>
+      </div> -->
 
-      <div class="mb-3">
+      <!-- <div class="mb-3">
     <label class="form-label">Correct Answer</label>
-    <input type="text" v-model="modalQuestion.correctAnswer" class="form-control" required />
-  </div>
+    <input type="text" v-model="modalQuestion.correctAnswer" class="form-control" required /> -->
+  <!-- </div> -->
       <!-- Points -->
-      <div class="mb-3">
+      <!-- <div class="mb-3">
         <label class="form-label">Points</label>
         <input type="number" v-model="modalQuestion.points" class="form-control" min="1" required />
-      </div>
+      </div> -->
     </div>
   </b-modal>
   </div>

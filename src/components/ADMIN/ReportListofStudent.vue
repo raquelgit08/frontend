@@ -1,109 +1,103 @@
 <template>
-    <div>
-      <div class="container-fluid">
-        <div class="header-container">
-          <img src="@/assets/enhs logo.jpg" alt="Left Logo" class="enhslogo">
-          
-          <h2 class="text-center">Masterlist of Students</h2>
-          <img src="@/assets/Deped-Logo.png" alt="Right Logo" class="depedlogo">
-        </div>
-
-        <div class="row mb-4 align-items-center">
-    <div class="col-md-2">
-        <select v-model="selectedGender" class="form-control custom-select" id="gender">
+  <div>
+    <div class="container-fluid">
+      <div class="header-container">
+        <img src="@/assets/enhs logo.jpg" alt="Left Logo" class="enhslogo">
+        <h3 class="text-center">Report Generation for List of Students</h3>
+        <img src="@/assets/Deped-Logo.png" alt="Right Logo" class="depedlogo">
+      </div>
+      <div class="row mb-4 justify-content-end align-items-center">
+        <div class="col-md-2 d-flex align-items-center">
+          <select v-model="selectedGender"  class="form-control custom-select"  id="gender">
             <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+          <select v-model="formData.strand_id" class="form-control custom-select" id="userStrand">
+          <option value="">All Strands</option>
+          <option v-for="strand in strands" :key="strand.id" :value="strand.id">
+            {{ strand.label }}
+          </option>
         </select>
-    </div>
-
-    <div class="col-md-3">
-        <select v-model="formData.strand_id" class="form-control custom-select" id="userStrand">
-            <option value="">All Strands</option>
-            <option v-for="strand in strands" :key="strand.id" :value="strand.id">
-                {{ strand.label }} 
-            </option>
-        </select>
-    </div>
-    
-    <div class="col-md-3">
-        <select v-model="formData.section_id" id="section" class="form-select custom-select" required>
-            <option value="">Select Section</option>
-            <option v-for="section in filteredSections" :key="section.id" :value="section.id">
+      </div>
+      <div class="col-md-3 d-flex align-items-center">
+        <select v-model="formData.section_id" id="section" class="form-select custom-select" style="margin-right: 30px;" required>
+          <option value="">Select Section</option>
+              <option v-for="section in filteredSections" :key="section.id" :value="section.id">
                 {{ section.label }}
-            </option>
+              </option>
         </select>
+      </div>
+      
     </div>
 
-    <div class="col-md-2 text-start">
-        <button @click="generateReport" class="btn btn-gradient" style="margin-left: 250px;">
+
+      <div class="table-wrapper">
+        <table class="table table-bordered table-hover table-custom">
+          <thead class="table-info">
+            <tr>
+              <th scope="col" class="text-center">No.</th>
+              <th scope="col" class="text-center">LRN</th>
+              <th scope="col" class="text-center">Name</th>
+              <th scope="col" class="text-center">Sex</th>
+              <th scope="col" class="text-center">Email</th>
+              <th scope="col" class="text-center">Strand</th>
+              <th scope="col" class="text-center">Section</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(student, index) in paginatedItems" :key="student.idnumber">
+              <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+              <td>{{ student.user.idnumber }}</td>
+              <td class="text-center">{{ student.user.lname }}, {{ student.user.fname }} {{ student.user.mname }}</td>
+              <td class="text-center">{{ student.user.sex }}</td>
+              <td class="text-center">{{ student.user.email }}</td>
+              <td class="text-center">{{ student.strands.addstrand }} {{ student.strands.grade_level }}</td>
+              <td class="text-center">{{ student.section.section }}</td>
+            </tr>
+          </tbody>
+       </table>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-2 d-flex align-items-center">
+          <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
+          <h6 >Male : {{ maleCountPerPage }}</h6>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-center">
+          <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
+          <h6>Female : {{ femaleCountPerPage }}</h6>
+        </div>
+
+        <div class="col-md-7">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
+              </li>
+              <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
+                <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+              </li>
+              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Add a button to generate the report -->
+      <div class="row ">
+        <div class="col-md-12 text-end">
+          <button @click="generateReport" class="btn btn-gradient">
             Generate Report
-        </button>
-    </div>
-</div>
-
-
-
-
-  
-        <div class="table-wrapper">
-          <table class="table table-bordered table-hover table-custom">
-            <thead class="table-info">
-              <tr>
-                <th scope="col" class="text-center">No.</th>
-                <th scope="col" class="text-center">LRN</th>
-                <th scope="col" class="text-center">Name</th>
-                <th scope="col" class="text-center">Sex</th>
-                <th scope="col" class="text-center">Email</th>
-                <th scope="col" class="text-center">Strand</th>
-                <th scope="col" class="text-center">Section</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(student, index) in paginatedItems" :key="student.idnumber">
-                <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                <td>{{ student.user.idnumber }}</td>
-                <td class="text-center">{{ student.user.lname }}, {{ student.user.fname }} {{ student.user.mname }}</td>
-                <td class="text-center">{{ student.user.sex }}</td>
-                <td class="text-center">{{ student.user.email }}</td>
-                <td class="text-center">{{ student.strands.addstrand }} {{ student.strands.grade_level }}</td>
-                <td class="text-center">{{ student.section.section }}</td>
-              </tr>
-            </tbody>
-         </table>
+          </button>
         </div>
-
-        <div class="row mb-4">
-          <div class="col-md-2 d-flex align-items-center">
-            <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
-            <h6 >Male : {{ maleCountPerPage }}</h6>
-          </div>
-
-          <div class="col-md-3 d-flex align-items-center">
-            <i class="fa fa-venus mr-2 babae" aria-label="Girl"></i>
-            <h6>Female : {{ femaleCountPerPage }}</h6>
-          </div>
-
-          <div class="col-md-7">
-            <nav aria-label="Page navigation">
-              <ul class="pagination justify-content-center">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                  <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">Previous</a>
-                </li>
-                <li class="page-item" :class="{ active: page === currentPage }" v-for="page in totalPages" :key="page">
-                  <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-                </li>
-                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                  <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">Next</a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-
-        <!-- Add a button to generate the report -->
-       
       </div>
     </div>
-  </template>
+  </div>
+</template>
   
   <script>
 import axios from 'axios';

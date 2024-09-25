@@ -16,13 +16,13 @@
         </div>
       </div>
       <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
-        <div class="card" @click="$router.push(`/subject/${classItem.id}`)">
+        <div class="card" @click="$router.push(`/teachercreateexam/${classItem.id}`)">
           <img
             v-if="classItem.profile_img"
             :src="getImageUrl(classItem.profile_img)"
             class="card-img"
             alt="Class Image"
-            style="width: 346px; height: max-content"
+            style="width: auto; height: max-content"
           />
           <div class="card-container">
             <p class="card-subject-name">
@@ -138,7 +138,7 @@
               <div v-if="currentClass.profile_img">
                 <img
                   :src="currentClass.profile_img.startsWith('blob:') ? currentClass.profile_img : getImageUrl(currentClass.profile_img)"
-                  class="img-thumbnail mt-2"
+                  class="card-img mt-2"
                   alt="Preview Image"
                   style="width: 100px; height: 100px"
                 />
@@ -202,7 +202,7 @@ export default {
   },
   methods: {
     getImageUrl(imagePath) {
-      const baseUrl = process.env.VUE_APP_BASE_URL || "http://192.168.137.225:1020";
+      const baseUrl = process.env.VUE_APP_BASE_URL || "http://10.0.0.18:1020";
       return `${baseUrl}${imagePath}?t=${new Date().getTime()}`;
     },
     openAddClassModal() {
@@ -293,6 +293,7 @@ export default {
             title: "Success",
             text: this.isEditMode ? "Class updated successfully!" : "Class added successfully!",
           });
+          this.fetchClasses();
         } else {
           throw new Error("Unexpected response structure");
         }
@@ -504,19 +505,20 @@ export default {
   }
 
   .card {
-    display: flex;
-    flex-direction: column;
-    border: 2px solid #ebedf0;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 350px;
-    height: 430px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    margin-bottom: 85px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-left: 43px
-  }
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #ebedf0;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 350px;
+  height: 430px; /* Fixed height for uniformity */
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 85px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-left: 43px;
+}
+
   
   .card:hover {
     transform: translateY(-5px);
@@ -524,9 +526,10 @@ export default {
   }
 
   .card-img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
+    width: fit-content;
+    height: auto; /* Fixed height for uniformity */
+ object-fit: cover; 
+    overflow: hidden; /* Ensures the image covers the area without distortion */
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
   }

@@ -42,10 +42,10 @@
             <td>{{ section.section }}</td>
             <td>
 
-              <button class="btn btn-warning btn-md me-2" @click="openEditModal(item)">
+              <button class="btn btn-warning btn-md me-2" @click="openEditModal(section)">
     <i class="bi bi-pencil"></i> Edit
 </button>
-<button class="btn btn-danger btn-md" @click="confirmDeleteItem(item.id)">
+<button class="btn btn-danger btn-md" @click="confirmDeleteItem(section.id)">
     <i class="bi bi-trash"></i> Delete
 </button>
 
@@ -112,6 +112,8 @@
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2';
+
 import config from '@/config';
 
 export default {
@@ -194,54 +196,85 @@ export default {
   }
 },
   
-    async saveSection() {
-      try {
-        const token = localStorage.getItem('token');
-        if (this.newSection && this.selectedStrand) {
-          if (this.isEdit) {
-            await axios.put(`${config.apiBaseURL}/updatesection/${this.editSectionId}`, {
-              section: this.newSection,
-              grade_level: this.selectedGradeLevel,
-              strand_id: this.selectedStrand
-            }, {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            });
-          } else {
-            await axios.post(`${config.apiBaseURL}/addsection`, {
-              section: this.newSection,
-              strand_id: this.selectedStrand
-            }, {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            });
-          }
-          await this.fetchSections();
-          this.resetForm();
-          this.closeModal();
-        }
-      } catch (error) {
-        console.error('Error saving section:', error);
-        this.error = 'Failed to save section.';
-      }
-    },
-    async deleteSection(id) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`${config.apiBaseURL}/deletesection/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        await this.fetchSections();
-      } catch (error) {
-        console.error('Error deleting section:', error);
-        this.error = 'Failed to delete section.';
-      }
-    },
+async saveSection() {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: this.isEdit ? 'You are about to update this section.' : 'You are about to add a new section.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, proceed!'
+  });
 
+  if (result.isConfirmed) {
+    try {
+      const token = localStorage.getItem('token');
+      if (this.newSection && this.selectedStrand) {
+        if (this.isEdit) {
+          await axios.put(`${config.apiBaseURL}/updatesection/${this.editSectionId}`, {
+            section: this.newSection,
+            grade_level: this.selectedGradeLevel,
+            strand_id: this.selectedStrand
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+        } else {
+          await axios.post(`${config.apiBaseURL}/addsection`, {
+            section: this.newSection,
+            strand_id: this.selectedStrand
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+        }
+        await this.fetchSections();
+        this.resetForm();
+        this.closeModal();
+        Swal.fire('Success!', 'The section has been saved.', 'success');
+      }
+    } catch (error) {
+      console.error('Error saving section:', error);
+      this.error = 'Failed to save section.';
+      Swal.fire('Error!', 'There was an error saving the section.', 'error');
+    }
+  }
+},
+    async confirmDeleteItem(id) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this section!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      await this.deleteSection(id);
+      Swal.fire('Deleted!', 'Your section has been deleted.', 'success');
+    }
+  },
+
+  async deleteSection(id) {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${config.apiBaseURL}/deletesection/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      await this.fetchSections();
+    } catch (error) {
+      console.error('Error deleting section:', error);
+      this.error = 'Failed to delete section.';
+      Swal.fire('Error!', 'Failed to delete the section.', 'error');
+    }
+  },
     onStrandChange() {
       const selectedStrand = this.strands.find(strand => strand.id === this.selectedStrand);
       if (selectedStrand) {

@@ -1,19 +1,19 @@
-<template>
-  <div class="main-container">
+<template> 
+  <div class="container-fluid">
     <!-- Subject Information Display on the Left -->
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
-        <h2>{{ subject.subjectName }}</h2>
-        <p>{{ subject.semester }} Semester | {{ subject.schoolYear }}</p>
+        <h2 class="subject-title">{{ subject.subjectName }}</h2>
+        <p>{{ subject.semester }} semester  | S.Y. :{{ subject.schoolYear }}</p>
+        <p class="class-code">Class Code: <span>{{ subject.gen_code }}</span></p>
       </div>
-    </div> 
+    </div>
 
-    <!-- Navigation Bar Positioned Next to Subject Info -->
+    <!-- Unified Navigation Bar -->
     <nav class="nav nav-pills">
       <router-link to="/teacheraddsubject" class="nav-link">
-        <span><i class="bi bi-arrow-left fs-4"></i></span>
+        <span><i class="bi bi-arrow-left fs-5">Go Back to Classes</i></span>
       </router-link>
-      <router-link :to="`/subject/${$route.params.class_id}`" class="nav-link">Dashboard</router-link>
       <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
       <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
       <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
@@ -23,7 +23,7 @@
   </div>
 
   <div class="container-fluid">
-    <h2 class="text-center">Examinations</h2>
+    <!-- <h2 class="text-center">Examinations</h2> -->
 
     <!-- Search Bar and Exam Schedule Button -->
     <div class="d-flex justify-content-between mb-3">
@@ -66,7 +66,7 @@
             <td>{{ formatDate(exam.end) }}</td>
             <td>{{ formatTime(exam.end) }}</td>
             <td>{{ exam.points_exam }}</td>
-            <td>{{ exam.students_completed}}</td>
+            <td>{{ exam.students_completed }}</td>
             <td>{{ exam.completion_percentage }}</td>
             <td>
               <div class="d-flex justify-content-center">
@@ -142,11 +142,16 @@
                 <input type="time" id="end-time" v-model="endTime" class="form-control" required />
               </div>
             </div>
+              <!-- Message to Students -->
+              <div class="mb-3">
+              <label for="message" class="form-label">Message to Students</label>
+              <textarea id="message" v-model="examMessage" class="form-control" placeholder="Enter message to notify students about the exam schedule..." rows="4"></textarea>
+            </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="isModalVisible = false">Close</button>
-          <button type="button" class="btn btn-primary" @click="saveChanges">Assign to students</button>
+          <button type="button" class="btn btn-primary" @click="confirmSaveChanges">Assign to students</button>
         </div>
       </div>
     </div>
@@ -161,7 +166,7 @@
             <button type="button" class="btn-close" @click="isEditModalVisible = false"></button>
           </div>
           <div class="modal-body">
-            <form @submit.prevent="updateExam">
+            <form @submit.prevent="updateExams">
               <div class="mb-3">
                 <label for="exam-title" class="form-label">Exam Title</label>
                 <input type="text" id="exam-title" v-model="examTitle" class="form-control" required />
@@ -206,17 +211,20 @@
                   <input type="time" id="end-time" v-model="endTime" class="form-control" required />
                 </div>
               </div>
+               <!-- Message to Students (in Edit Modal) -->
+               <div class="mb-3">
+                <label for="message" class="form-label">Message to Students</label>
+                <textarea id="message" v-model="examMessage" class="form-control" placeholder="Edit the message to notify students about the exam schedule..." rows="4"></textarea>
+              </div>
             </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="isEditModalVisible = false">Close</button>
-            <button type="button" class="btn btn-primary" @click="updateExams">Update Exam</button> <!-- Call updateExam here -->
+            <button type="button" class="btn btn-primary" @click="confirmUpdateExam">Update Exam</button> <!-- Call updateExam here -->
           </div>
         </div>
       </div>
     </div>
-
-
 </template>
 
 <script>
@@ -224,6 +232,7 @@ import axios from 'axios';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 import config from '@/config';
+
 export default {
   name: 'TeacherCreateExams',
   data() {
@@ -243,6 +252,7 @@ export default {
       endDate: '',
       endTime: '',
       points_exam: '',
+      examMessage: '', // The custom message for the students (added to edit and create modals)
       isEditModalVisible: false, // For Edit Modal Visibility
       selectedExamId: null, // To store selected exam ID for editing
       isModalVisible: false,
@@ -263,11 +273,7 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('Fetched exams:', response.data.exams);
-        this.exams = response.data.exams.map(exam => ({
-          ...exam,
-          isPublished: exam.isPublished || false,
-        }));
+        this.exams = response.data.exams;
         this.filteredExams = this.exams;
       } catch (error) {
         console.error('Error fetching exams:', error);
@@ -282,14 +288,11 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!response.data.class || !response.data.class.subject.subjectname) {
-          console.error('Class not found or you are not authorized to view this class.');
-          return;
-        }
         this.subject.subjectName = response.data.class.subject.subjectname;
         this.subject.semester = response.data.class.semester;
         this.subject.schoolYear = response.data.class.year.addyear;
         this.classtable_id = response.data.class.id;
+        this.subject.gen_code = response.data.class.gen_code;
       } catch (error) {
         console.error('Error fetching subject:', error);
       }
@@ -303,7 +306,9 @@ export default {
     async publishExam(examId) {
       try {
         const token = localStorage.getItem('token');
-        await axios.post(`${config.apiBaseURL}/exams/publish2/${examId}`, {}, {
+        await axios.post(`${config.apiBaseURL}/exam/${examId}/publish`, {
+          name: this.examMessage // Send the custom message to the backend
+        }, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -315,51 +320,65 @@ export default {
           updatedExam.isPublished = true;
         }
 
-        Swal.fire('Success', 'This has been assign to the students', 'success');
+        Swal.fire('Success', 'Exam has been assigned to students and the message has been sent.', 'success');
       } catch (error) {
         Swal.fire('Error', 'Failed to publish the exam. Please try again.', 'error');
         console.error('Failed to publish exam:', error.message);
       }
     },
-    
-
     saveChanges() {
       if (!this.examTitle || !this.startDate || !this.startTime || !this.endDate || !this.endTime || !this.points_exam) {
         Swal.fire('Error!', 'Please fill in all the required fields.', 'error');
         return;
       }
-      const startDateTime = moment(`${this.startDate} ${this.startTime}`).format('YYYY-MM-DD HH:mm:ss');
-      const endDateTime = moment(`${this.endDate} ${this.endTime}`).format('YYYY-MM-DD HH:mm:ss');
 
-      axios
-        .post(
-          `${config.apiBaseURL}/createExam`,
-          {
-            classtable_id: this.classtable_id,
-            title: this.examTitle,
-            quarter: this.selectedQuarter,
-            start: startDateTime,
-            end: endDateTime,
-            points_exam: this.points_exam,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          }
-        )
-        .then((response) => {
-          const examId = response.data.exam.id;
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to assign the exam to students. Please confirm.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, assign it!',
+        cancelButtonText: 'Cancel',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const startDateTime = moment(`${this.startDate} ${this.startTime}`).format('YYYY-MM-DD HH:mm:ss');
+          const endDateTime = moment(`${this.endDate} ${this.endTime}`).format('YYYY-MM-DD HH:mm:ss');
 
-          // Publish the exam after saving it
-          this.publishExam(examId);
-
-          this.isModalVisible = false;
-          this.$router.push(`/AddExam/${examId}`);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+          axios
+            .post(
+              `${config.apiBaseURL}/createExam`,
+              {
+                classtable_id: this.classtable_id,
+                title: this.examTitle,
+                quarter: this.selectedQuarter,
+                start: startDateTime,
+                end: endDateTime,
+                points_exam: this.points_exam,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+              }
+            )
+            .then((response) => {
+              const examId = response.data.exam.id;
+              this.publishExam(examId);
+              this.isModalVisible = false;
+              this.$router.push(`/AddExam/${examId}`);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
+      });
+    },
+    confirmSaveChanges() {
+      if (!this.examTitle || !this.startDate || !this.startTime || !this.endDate || !this.endTime || !this.points_exam) {
+        Swal.fire('Error!', 'Please fill in all the required fields.', 'error');
+        return;
+      }
+      this.saveChanges();
     },
     filterExams() {
       this.filteredExams = this.exams.filter((exam) =>
@@ -379,135 +398,129 @@ export default {
       return moment(dateTime).format('hh:mm A');
     },
     editExam(exam) {
-  console.log('Editing exam:', exam);
-  this.selectedExamId = exam.exam_id; // Change this line
-  console.log('Selected exam ID set to:', this.selectedExamId);
-  this.examTitle = exam.title;
-  this.selectedQuarter = exam.quarter;
-  this.startDate = moment(exam.start).format('YYYY-MM-DD');
-  this.startTime = moment(exam.start).format('HH:mm');
-  this.endDate = moment(exam.end).format('YYYY-MM-DD');
-  this.endTime = moment(exam.end).format('HH:mm');
-  this.points_exam = exam.points_exam;
+      console.log('Editing exam:', exam);
+      this.selectedExamId = exam.exam_id;
+      this.examTitle = exam.title;
+      this.selectedQuarter = exam.quarter;
+      this.startDate = moment(exam.start).format('YYYY-MM-DD');
+      this.startTime = moment(exam.start).format('HH:mm');
+      this.endDate = moment(exam.end).format('YYYY-MM-DD');
+      this.endTime = moment(exam.end).format('HH:mm');
+      this.points_exam = exam.points_exam;
+      this.examMessage = exam.message || ''; // Load the existing message for the exam
+      this.isEditModalVisible = true;
+    },
 
-  this.isEditModalVisible = true;
-},
-
-
-async updateExams() {
-  try {
-    const token = localStorage.getItem('token');
-
-    if (!this.selectedExamId) {
-      console.error('No exam ID provided for update');
-      return; 
-    }
-
-    const payload = {
-      classtable_id: this.classtable_id,
-      title: this.examTitle,
-      quarter: this.selectedQuarter,
-      start: moment(`${this.startDate} ${this.startTime}`).format('YYYY-MM-DD HH:mm:ss'), // Format start date
-      end: moment(`${this.endDate} ${this.endTime}`).format('YYYY-MM-DD HH:mm:ss'), // Format end date
-      points_exam: this.points_exam,
-    };
-
-    const response = await axios.put(
-      `${config.apiBaseURL}/updateQuestionsInExam/${this.selectedExamId}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    async updateExams() {
+      if (!this.examTitle || !this.startDate || !this.startTime || !this.endDate || !this.endTime || !this.points_exam) {
+        Swal.fire('Error!', 'Please fill in all the required fields.', 'error');
+        return;
       }
-    );
 
-    console.log('Exam schedule updated successfully:', response.data);
-    await this.fetchExams(); // Refresh the exam list after update
-    this.isEditModalVisible = false; // Hide the modal
-    this.resetForm(); // Optional: Reset form fields if needed
-  } catch (error) {
-    console.error('Error updating exam schedule:', error);
-  }
-},
-resetForm() {
-    this.examTitle = '';
-    this.selectedQuarter = '';
-    this.startDate = '';
-    this.startTime = '';
-    this.endDate = '';
-    this.endTime = '';
-    this.points_exam = '';
-  },
+      try {
+        const token = localStorage.getItem('token');
+        const payload = {
+          classtable_id: this.classtable_id,
+          title: this.examTitle,
+          quarter: this.selectedQuarter,
+          start: moment(`${this.startDate} ${this.startTime}`).format('YYYY-MM-DD HH:mm:ss'),
+          end: moment(`${this.endDate} ${this.endTime}`).format('YYYY-MM-DD HH:mm:ss'),
+          points_exam: this.points_exam,
+        };
 
+         await axios.put(
+          `${config.apiBaseURL}/updateQuestionsInExam/${this.selectedExamId}`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        Swal.fire('Success', 'Exam schedule updated successfully.', 'success');
+        await this.fetchExams();
+        this.isEditModalVisible = false;
+        this.resetForm();
+      } catch (error) {
+        console.error('Error updating exam schedule:', error);
+        Swal.fire('Error!', 'Failed to update the exam. Please try again.', 'error');
+      }
+    },
+
+    confirmUpdateExam() {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to update the exam details. Please confirm.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, update it!',
+        cancelButtonText: 'Cancel',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.updateExams();
+        }
+      });
+    },
+
+    resetForm() {
+      this.examTitle = '';
+      this.selectedQuarter = '1st Quarter';
+      this.startDate = '';
+      this.startTime = '';
+      this.endDate = '';
+      this.endTime = '';
+      this.points_exam = '';
+      this.examMessage = '';
+    },
   },
 };
 </script>
 
+
 <style scoped>
-.main-container {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-}
-
-/* Subject Info Container */
 .subject-info-container {
-  flex: 1;
-  max-width: 300px;
-  margin-right: 10px;
-  display: flex;
-  align-items: center;
-}
-
-/* Subject Info Styling */
-.subject-info {
-  width: 100%;
+  background-color: #EEEDED;
+  border-radius: 10px;
   padding: 15px;
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  height: 130px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.subject-info h2 {
-  font-size: 1.5rem;
-  color: #343a40;
-  font-weight: 700;
-  margin-bottom: 8px;
+.subject-title {
+  font-size: 25px;
+  margin-bottom: 10px;
+  font-weight: 800;
+  color: #333;
 }
 
-.subject-info p {
-  font-size: 1rem;
-  color: #6c757d;
-}
-.container-fluid{
-  margin-top: 10px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+.class-code span {
+  color: #007bff;
+  font-weight: 800;
 }
 
-/* Navigation Bar */
 .nav {
-  flex: 2;
-  display: flex;
-  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 15px;
   background-color: #ffffff;
-  align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 15px;
   border-radius: 10px;
+  margin-bottom: 15px;
 }
 
 .nav-link {
-  color: #343a40 !important;
-  text-decoration: none;
-  font-weight: 500;
+  color: #000000;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-link:hover {
-  color: #007bff !important;
+.nav-link:hover :active {
+  background-color: #007bff;
+  color: white !important;
 }
 
 .router-link-active {
@@ -537,7 +550,8 @@ resetForm() {
   color: #000000;
   font-weight: 700;
 }
-.table th, .table td {
+.table th,
+.table td {
   text-align: center;
   vertical-align: middle;
   border-bottom: 1px solid #dee2e6;
@@ -560,5 +574,4 @@ resetForm() {
   background-color: #007bff;
   color: white;
 }
-
 </style>

@@ -1,24 +1,25 @@
 <template>
   <div class="container-fluid">
-    <!-- Subject Information Display -->
+    <!-- Subject Information Display on the Left -->
     <div class="subject-info-container">
       <div v-if="subject.subjectName" class="subject-info">
         <h2 class="subject-title">{{ subject.subjectName }}</h2>
-        <p>{{ subject.semester }} | {{ subject.schoolYear }}</p>
+        <p>{{ subject.semester }} semester  | S.Y. :{{ subject.schoolYear }}</p>
         <p class="class-code">Class Code: <span>{{ subject.gen_code }}</span></p>
       </div>
     </div>
 
-    <!-- Navigation Bar -->
+    <!-- Unified Navigation Bar -->
     <nav class="nav nav-pills">
-      <router-link to="/teacheraddsubject" class="nav-link">Go Back to Classes</router-link>
-      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link">Exams</router-link>
-      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link">Feedback</router-link>
-      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link">Performance Tracking</router-link>
-      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link">Students</router-link>
-      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link">Pending</router-link>
+      <router-link to="/teacheraddsubject" class="nav-link">
+        <span><i class="bi bi-arrow-left fs-5">Go Back to Classes</i></span>
+      </router-link>
+      <router-link :to="`/teachercreateexam/${$route.params.class_id}`" class="nav-link"><i class="bi bi-file-earmark-plus fs-4"></i> Exams</router-link>
+      <router-link :to="`/Feedback/${$route.params.class_id}`" class="nav-link"><i class="bi bi-chat-dots fs-4"></i> Feedback</router-link>
+      <router-link :to="`/PerformanceTracking/${$route.params.class_id}`" class="nav-link"><i class="bi bi-activity fs-4"></i> Performance Tracking</router-link>
+      <router-link :to="`/studentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-person-lines-fill fs-4"></i> Students</router-link>
+      <router-link :to="`/pendingstudentslist/${$route.params.class_id}`" class="nav-link"><i class="bi bi-hourglass-split fs-4"></i> Pending</router-link>
     </nav>
-
     <!-- Invite Button -->
     <div class="d-flex justify-content-end mb-4">
       <button class="btn btn-primary" @click="openAddStudentModal">Add Students to Class</button>
@@ -184,7 +185,12 @@ export default {
         }, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-        alert('Students added successfully');
+        Swal.fire({
+          title: 'Success!',
+          text: 'Students added successfully',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
         this.closeAddStudentModal();
         this.fetchStudents();
       } catch (error) {
@@ -218,7 +224,7 @@ export default {
 }
 
 .subject-title {
-  font-size: 1.75rem;
+  font-size: 25px;
   margin-bottom: 10px;
   font-weight: 800;
   color: #333;
@@ -236,6 +242,7 @@ export default {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 15px;
   border-radius: 10px;
+  margin-bottom: 15px;
 }
 
 .nav-link {
@@ -250,6 +257,12 @@ export default {
   background-color: #007bff;
   color: white !important;
 }
+
+.router-link-active {
+  color: #007bff !important;
+  border-bottom: 2px solid #007bff;
+}
+
 
 .table-wrapper {
   padding: 0 15px;
