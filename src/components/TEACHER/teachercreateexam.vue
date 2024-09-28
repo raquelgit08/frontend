@@ -66,7 +66,7 @@
             <td>{{ formatDate(exam.end) }}</td>
             <td>{{ formatTime(exam.end) }}</td>
             <td>{{ exam.points_exam }}</td>
-            <td>{{ exam.students_completed }}</td>
+            <td>{{ exam.students_completed }} / {{ exam.total_students }}</td>
             <td>{{ exam.completion_percentage }}</td>
             <td>
               <div class="d-flex justify-content-center">

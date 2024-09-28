@@ -39,7 +39,7 @@
           <td>{{ student.fname }}</td>
           <td>{{ student.email }}</td>
           <td>
-            <button class="btn btn-success" @click="updateStudentStatus(student.id, 1)">Approve</button>
+            <button class="btn btn-success" @click="updateStudentStatus(student.id, 1)" style="margin-right: 10px;">Approve</button>
             <button class="btn btn-danger" @click="updateStudentStatus(student.id, 0)">Decline</button>
           </td>
         </tr>

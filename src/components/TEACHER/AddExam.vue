@@ -61,19 +61,19 @@
                   <p><strong>Points:</strong> {{ question.correct_answers[0]?.points }}</p>
 
                   <!-- Save to Test Bank Button -->
-                  <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm me-2">
+                  <!-- <button @click="confirmSaveToTestBank(question)" class="btn btn-info btn-sm me-2">
                     <i class="bi bi-cloud-upload fs-5"></i> Save to Test Bank
-                  </button>
+                  </button> -->
 
                   <!-- Edit Button triggers modal -->
-                  <button @click="editQuestion(iIndex, qIndex, question, instruction)" class="btn btn-warning btn-sm me-2">
+                  <!-- <button @click="editQuestion(iIndex, qIndex, question, instruction)" class="btn btn-warning btn-sm me-2">
                     <i class="bi bi-pencil-square fs-5"></i> Edit
-                  </button>
+                  </button> -->
 
                   <!-- Delete Question Button -->
-                  <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">
+                  <!-- <button @click="deleteQuestion(question.id)" class="btn btn-danger btn-sm">
                     <i class="bi bi-trash fs-5"></i> Delete
-                  </button>
+                  </button> -->
                 </div>
               </div>
             </div>
