@@ -573,7 +573,7 @@ h4 {
 }
 
 .table-custom th {
-  background-color: #0d8eead7;
+  background-color: #c1c1c1d7;
   color: #000000;
   font-weight: 700;
 }

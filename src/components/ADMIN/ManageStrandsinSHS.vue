@@ -44,7 +44,7 @@
             <td>{{ item.grade_level }}</td>
             <td>
 
-              <button class="btn btn-warning btn-md me-2" @click="openEditModal(item)">
+              <button class="btn edit btn-md me-2" @click="openEditModal(item)">
     <i class="bi bi-pencil"></i> Edit
 </button>
 <button class="btn btn-danger btn-md" @click="confirmDeleteItem(item.id)">
@@ -291,7 +291,7 @@ export default {
   }
 
   .table-custom th {
-    background-color: #0d8eead7;
+    background-color: #c1c1c1d7;
     color: #000000;
     font-weight: 700;
     font-size: 20px;
@@ -314,8 +314,8 @@ export default {
     transition: background-color 0.3s ease;
   }
   .edit{
-    background-color: rgb(12, 170, 12);
-    color: #ffffff;
+    background-color: #FFEE63;
+    color: #000000;
     width: 90px;
   }
   .btn-danger, .edit{
@@ -323,7 +323,7 @@ export default {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   .btn-gradient {
-  background: linear-gradient(45deg, #007bff, #00bfff);
+  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
   color: #120808;
   transition: background 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -336,11 +336,11 @@ export default {
   font-size: 20px;
 }
 .edit:hover{
-  background-color: green;
+  background-color: rgb(163, 155, 4);
 }
 
 .btn-gradient:hover {
-  background: linear-gradient(45deg, #0056b3, #0080ff);
+  background: linear-gradient(45deg, #b2b3b4, #eff0f0);
 }
 
 .custom-select {

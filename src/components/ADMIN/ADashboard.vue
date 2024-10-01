@@ -4,7 +4,7 @@
     <div class="row">
       <div class="col-12 col-sm-6 col-md-3 mb-3">
         <div class="boxes box1 d-flex align-items-center p-3" @click="$router.push('/manage_teachers')">
-          <i class="bi bi-person-lines-fill icon icon1"></i>
+          <i class="bi bi-person-video3 icon icon1"></i>
           <div class="content">
             <h4>{{ counts.teacher_count }}</h4>
             <span class="label">Total Number Of Teachers</span>
@@ -13,7 +13,7 @@
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
         <div class="boxes d-flex align-items-center p-3" @click="$router.push('/manage_students')">
-          <i class="bi bi-person-fill icon icon2"></i>
+          <i class="bi bi-person icon icon2"></i>
           <div class="content">
             <h4>{{ counts.student_count }}</h4>
             <span class="label">Total Number Of Students</span>
@@ -31,7 +31,7 @@
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
         <div class="boxes d-flex align-items-center p-3" @click="$router.push('/AManageSubject')">
-          <i class="bi bi-file-earmark-text-fill icon icon4"></i>
+          <i class="bi bi-file-earmark-text icon icon4"></i>
           <div class="content">
             <h4>{{ counts.subject_count }}</h4>
             <span class="label">Total Number Of Subjects</span>
@@ -173,8 +173,8 @@ export default {
             label: 'Teacher Gender Distribution',
             data: [this.counts.male_teacher_count, this.counts.female_teacher_count],
             backgroundColor: [
-              '#3572EF',
-              '#3ABEF9'
+              '#C21010',
+              '#EAD196'
             ],
             borderColor: [
               '#F5F5F5',
@@ -226,8 +226,8 @@ export default {
             label: 'Student Gender Distribution',
             data: [this.counts.male_student_count, this.counts.female_student_count],
             backgroundColor: [
-              '#3572EF',
-              '#A7E6FF'
+              '#FFAD60',
+              '#C21010'
             ],
             borderColor: [
               '#F5F5F5',
@@ -276,7 +276,7 @@ export default {
           datasets: [{
             label: 'Number of Students',
             data: this.strandChartData.map(strand => strand.value),
-            backgroundColor: '#3ABEF9',
+            backgroundColor: '#E64848',
             borderColor: '#1A2130',
             borderWidth: 1
           }]
@@ -336,14 +336,14 @@ export default {
             {
               label: 'Male Students',
               data: this.studentsGrouped.map(data => data.male_count),
-              backgroundColor: '#4942E4',
+              backgroundColor: '#C21010',
               borderColor: '#1A2130',
               borderWidth: 1
             },
             {
               label: 'Female Students',
               data: this.studentsGrouped.map(data => data.female_count),
-              backgroundColor: '#E6B9DE',
+              backgroundColor: '#EE4E4E',
               borderColor: '#1A2130',
               borderWidth: 1
             }
@@ -441,20 +441,10 @@ h6{
 .icon {
   font-size: 60px;
   padding: 20px;
+  color: #BF3131;
 }
 
-.icon1{
-  color: #3572EF;
-}
-.icon2{
-  color: #3572EF;
-}
-.icon3{
-  color: #3572EF;
-}
-.icon4{
-  color: #3572EF;
-}
+
 
 .content {
   flex: 1;
