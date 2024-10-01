@@ -260,9 +260,6 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Add your styles here (same as your previous component styles) */
-</style>
 
 <style scoped>
 /* Container */
@@ -292,7 +289,7 @@ export default {
 .table-custom {
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   border: 1px solid #200909;
   overflow: hidden;
   margin-bottom: 120px;
@@ -326,19 +323,20 @@ export default {
 .edit {
   background-color: #FFEE63;
   color: #000000;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   width: 90px;
 }
 
 .btn-danger, .edit {
   font-size: 17px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .btn-gradient {
   background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
   color: #120808;
   transition: background 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   border-radius: 5px ;
   margin: 20px;
   padding: 5px;
@@ -354,6 +352,7 @@ export default {
 
 .btn-gradient:hover {
   background: linear-gradient(45deg, #b2b3b4, #eff0f0);
+  
 }
 
 .custom-select {
@@ -370,7 +369,7 @@ export default {
 
 .custom-select:focus {
   border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   outline: none;
 }
 
@@ -381,6 +380,7 @@ export default {
 /* Search Bar Styles */
 .input-group {
   padding-left: 32px;
+  
 }
 
 .modal-dialog {

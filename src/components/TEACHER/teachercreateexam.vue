@@ -27,14 +27,8 @@
 
     <!-- Search Bar and Exam Schedule Button -->
     <div class="d-flex justify-content-between mb-3">
-      <input
-        type="text"
-        v-model="searchTerm"
-        placeholder="Search Exam..."
-        class="form-control w-50"
-        @input="filterExams"
-      />
-      <button @click="showModalHandler" class="btn btn-primary">Exam Schedule</button>
+      <input type="text" v-model="searchTerm" placeholder="Search Exam..."  class="form-control " style="width: 85%;" @input="filterExams" />
+      <button @click="showModalHandler" class="btn btnadd ">Exam Schedule</button>
     </div>
 
     <div class="table-wrapper">
@@ -42,7 +36,7 @@
         <thead class="table-info">
           <tr>
             <th style="width: 4%">#</th>
-            <th style="width: 14%">Title</th>
+            <th style="width: 20%">Title</th>
             <th style="width: 9%">Quarter</th>
             <th style="width: 8%">Start Date</th>
             <th style="width: 8%">Start Time</th>
@@ -51,8 +45,8 @@
             <th style="width: 10%">Total Points</th>
             <th style="width: 10%">No. of Response</th>
             <th style="width: 8%">Percentage</th>
-            <th style="width: 12%">Actions</th>
-            <th style="width: 12%">Status</th>
+            <th style="width: 9%">Actions</th>
+            <th style="width: 9%">Status</th>
             <th></th>
           </tr>
         </thead>
@@ -540,13 +534,13 @@ export default {
 .table-custom {
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   border: 1px solid #200909;
   overflow: hidden;
 }
 
 .table-custom th {
-  background-color: #0d8eead7;
+  background-color: #c1c1c1d7;
   color: #000000;
   font-weight: 700;
 }
@@ -573,5 +567,10 @@ export default {
 .d-flex .btn:hover {
   background-color: #007bff;
   color: white;
+}
+.btnadd{
+  width: 200px;
+  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
+
 }
 </style>

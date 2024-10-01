@@ -23,11 +23,11 @@
         </div>
         <div class="col-md-3 d-flex align-items-center">
           <select v-model="selectedStrand"  class="form-control custom-select"  id="userStrand">
-          <option value="">All Strands</option>
-          <option v-for="strand in strands" :key="strand.id" :value="strand.id">
-            {{ strand.label }}
-          </option>
-        </select>
+            <option value="">All Strands</option>
+            <option v-for="strand in strands" :key="strand.id" :value="strand.id">
+              {{ strand.label }}
+            </option>
+          </select>
         </div>
         
       </div>
@@ -567,7 +567,9 @@ h4 {
 .table-custom {
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  color: white; /* White icon color */
+
   border: 1px solid #200909;
   overflow: hidden;
 }
@@ -592,7 +594,7 @@ h4 {
 
 .custom-icon {
   cursor: pointer;
-  color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
   font-size: 22px;
   
 }
@@ -617,13 +619,14 @@ h4 {
   cursor: pointer;
 }
 .reset-box {
-  background-color: #efd305; 
-  color: white; /* White icon color */
+  background-color:  #B9EBC5; 
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   width: 40px;
 }
 .edit-box {
-  background-color: #0f64dc; 
-  color: white; /* White icon color */
+  background-color: #FFEE63; 
+  color: rgb(0, 0, 0); /* White icon color */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   width: 40px;
 }
 
@@ -695,7 +698,8 @@ h4 {
 }
 /* Button Styles */
 .btn-gradient {
-  background: linear-gradient(45deg, #007bff, #00bfff);
+  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   color: #120808;
   font-size: 17px;
   transition: background 0.3s ease;
@@ -707,7 +711,7 @@ h4 {
 }
 
 .btn-gradient:hover {
-  background: linear-gradient(45deg, #0056b3, #0080ff);
+  background: linear-gradient(45deg, #b2b3b4, #eff0f0);
 }
 .custom-select {
   width: 100%; /* Make select full width of its container */

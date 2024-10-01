@@ -312,13 +312,13 @@ export default {
   .table-custom {
     background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     border: 1px solid #200909;
     overflow: hidden;
   }
 
   .table-custom th {
-    background-color: #0d8eead7;
+    background-color: #c1c1c1d7;
     color: #000000;
     font-weight: 700;
   }
@@ -346,7 +346,8 @@ export default {
     padding-right: 12px;
   }
   .btn-gradient {
-  background: linear-gradient(45deg, #007bff, #00bfff);
+  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   color: #120808;
   transition: background 0.3s ease;
   border-radius: 5px ;
@@ -359,7 +360,7 @@ export default {
 }
 
 .btn-gradient:hover {
-  background: linear-gradient(45deg, #0056b3, #0080ff);
+  background: linear-gradient(45deg, #b2b3b4, #eff0f0);
 }
 .custom-select {
   width: 100%; /* Make select full width of its container */

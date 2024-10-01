@@ -227,7 +227,7 @@ export default {
 
 .navbar {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background-color: #1959b3;
+  background-color: #A02334;
   color: #fff;
   margin-bottom: 20px;
 }

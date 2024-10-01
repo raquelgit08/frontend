@@ -29,10 +29,10 @@
 
     <!-- Table for Strand Curriculums -->
     <div class="table-wrapper">
-      <table class="table table-hover table-custom">
-        <thead>
+      <table class="table table-bordered table-striped">
+        <thead class="table-light">
           <tr>
-            <th>#</th>
+            <th>No.</th>
             <th>Strand Curriculum Name</th>
             <th>Actions</th>
           </tr>
@@ -40,13 +40,13 @@
         <tbody>
           <tr v-for="(strandCurriculum, index) in filteredList" :key="strandCurriculum.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ strandCurriculum.Namecuriculum }}</td>
+            <td>{{ strandCurriculum.addstrand }}</td>
             <td>
-              <button class="btn edit btn-md me-2" @click="openEditModal(strandCurriculum)">
-                <i class="bi bi-pencil"></i> Edit
+              <button class="btn btn-warning btn-sm me-1" @click="openEditModal(strandCurriculum)">
+                <i class="bi bi-pencil"></i>
               </button>
-              <button class="btn btn-danger btn-md" @click="confirmDeleteStrandCurriculum(strandCurriculum.id)">
-                <i class="bi bi-trash"></i> Delete
+              <button class="btn btn-danger btn-sm" @click="deleteStrandCurriculum(strandCurriculum.id)">
+                <i class="bi bi-trash"></i>
               </button>
             </td>
           </tr>
@@ -62,18 +62,52 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="d-flex justify-content-between align-items-center">
-            <h5 class="modal-title"><i class="bi bi-grid-fill" style="padding-right: 10px;"></i>{{ isEdit ? 'Edit Strand Curriculum' : 'Add Strand Curriculum' }}</h5>
+            <h5 class="modal-title">
+              <i class="bi bi-grid-fill" style="padding-right: 10px;"></i>{{ isEdit ? 'Edit Strand Curriculum' : 'Add Strand Curriculum' }}
+            </h5>
             <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
           </div><br>
          
           <div class="modal-body">
-            <div class="mb-3">
-              <input type="text" v-model="newStrandCurriculum" class="form-control custom-select" placeholder="Strand Curriculum Name">
+            <div class="col-md-12 mb-3">
+              <label for="strand" class="form-label">Strand:</label>
+              <select v-model="formData.strand_id" :class="{'is-invalid': !formData.strand_id && validationAttempted}" id="strand" class="form-select" required>
+                <option value="">Select Strand</option>
+                <option v-for="strand in strands" :key="strand.id" :value="strand.id">
+                  {{ strand.label }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-12 mb-3">
+              <label for="subjects" class="form-label">Subjects:</label>
+              <div>
+                <div v-for="subject in items" :key="subject.id" class="form-check">
+                  <input 
+                    type="checkbox" 
+                    :value="subject.id" 
+                    v-model="formData.subject_ids" 
+                    class="form-check-input" 
+                    :id="'subject_' + subject.id"
+                  />
+                  <label :for="'subject_' + subject.id" class="form-check-label">
+                    {{ subject.subjectname }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="semester">Semester:</label>
+              <select v-model="formData.semester" id="semester" class="form-select" required>
+                <option value="">Select Semester</option>
+                <option value="First">First Semester</option>
+                <option value="Second">Second Semester</option>
+              </select>
             </div>
           </div>
           <div class="d-flex justify-content-end gap-2 mt-3">
             <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-            <button type="button" class="btn btn-primary" @click="checkForDuplicate">{{ isEdit ? 'Update' : 'Save' }}</button>
+            <button type="button" class="btn btn-primary" @click="saveStrandCurriculum">SAve</button>
           </div>
         </div>
       </div>
@@ -82,156 +116,180 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
+import config from '@/config';
 
 export default {
   name: 'ManageStrandCurriculum',
   data() {
     return {
       searchQuery: '',
-      strandCurriculums: [],
-      newStrandCurriculum: '',
+      strandCurriculums: [], 
+      strandCurriculumsshow: {}, 
+      items: [],
+      strands: [],
+      formData: {
+        strand_id: '',  // Selected strand ID from the dropdown
+        subject_ids: [], // Array of selected subject IDs
+        semester: '',    // Selected semester (First or Second)
+      },
+
       isEdit: false,
       editStrandCurriculumId: null,
       loading: false,
-      duplicateErrorMessage: '',
+      validationAttempted: false,
     };
   },
-  computed: {
-    filteredList() {
-      return this.strandCurriculums.filter(strandCurriculum =>
-        strandCurriculum.Namecuriculum.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    }
-  },
+
   methods: {
-    async fetchStrandCurriculums() {
-      this.loading = true;
+    async fetchStrands() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8000/api/viewcuri', {
+        const response = await axios.get(`${config.apiBaseURL}/viewstrand`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (response.data && Array.isArray(response.data.data)) {
+          this.strands = response.data.data.map(strand => ({
+            id: strand.id,
+            label: `${strand.addstrand} ${strand.grade_level}`
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching strands:', error);
+      }
+    },
+    async fetchSubjects() {
+      try {
+        const token = localStorage.getItem('token'); 
+        const response = await axios.get(`${config.apiBaseURL}/viewsubject`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        this.strandCurriculums = response.data.data;
+        this.items = response.data.data;
       } catch (error) {
-        console.error('Error fetching strand curriculums:', error);
-        Swal.fire('Error', 'Failed to fetch strand curriculums.', 'error');
+        console.error('Error fetching subjects:', error);
+        Swal.fire('Error', 'Failed to fetch subjects.', 'error');
       } finally {
         this.loading = false;
       }
     },
+  
+  async fetchStrandCurriculums() {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${config.apiBaseURL}/viewcuriculum2`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    this.strandCurriculumsshow = response.data.data;
 
-    async checkForDuplicate() {
-      const duplicate = this.strandCurriculums.find(
-        strandCurriculum =>
-          strandCurriculum.Namecuriculum.toLowerCase() === this.newStrandCurriculum.toLowerCase() &&
-          (!this.isEdit || strandCurriculum.id !== this.editStrandCurriculumId)
-      );
-
-      if (duplicate) {
-        this.closeModal(); // Ensure modal is closed before SweetAlert
-        Swal.fire('Duplicate Error', 'A curriculum with this name already exists.', 'error');
-      } else {
-        this.saveStrandCurriculum();
-      }
-    },
+    // Log the fetched data to the console
+    console.log('Fetched strandCurriculums:', this.strandCurriculumsshow);
+  } catch (error) {
+    console.error('Error fetching strand curriculums:', error);
+    Swal.fire('Error', 'Failed to fetch strand curriculums.', 'error');
+  }
+},
 
     async saveStrandCurriculum() {
       try {
         const token = localStorage.getItem('token');
-        if (this.newStrandCurriculum) {
-          if (this.isEdit) {
-            await axios.put(`http://localhost:8000/api/updatecuri/${this.editStrandCurriculumId}`, {
-              Namecuriculum: this.newStrandCurriculum
-            }, {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            });
-          } else {
-            await axios.post('http://localhost:8000/api/addcuri', {
-              Namecuriculum: this.newStrandCurriculum
-            }, {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            });
-          }
-          await this.fetchStrandCurriculums();
-          this.closeModal(); // Close modal after successful save
+        const data = {
+          strand_id: this.formData.strand_id,
+          subject_ids: this.formData.subject_ids,  // Sending multiple subject IDs
+          semester: this.formData.semester
+        };
+
+        if (this.isEdit) {
+          await axios.put(`${config.apiBaseURL}/updatecuri/${this.editStrandCurriculumId}`, data, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        } else {
+          await axios.post(`${config.apiBaseURL}/addcuriculum`, data, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
         }
+
+        this.fetchStrandCurriculums();
+        this.closeModal();
+        Swal.fire('Success', `Strand curriculum ${this.isEdit ? 'updated' : 'added'} successfully!`, 'success');
       } catch (error) {
         console.error('Error saving strand curriculum:', error);
         Swal.fire('Error', 'Failed to save strand curriculum.', 'error');
       }
     },
 
-    async confirmDeleteStrandCurriculum(id) {
+
+    confirmDeleteStrandCurriculum(id) {
       Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        text: 'Do you want to delete this strand curriculum?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-      }).then(async (result) => {
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+      }).then(async result => {
         if (result.isConfirmed) {
-          await this.deleteStrandCurriculum(id);
-          Swal.fire('Deleted!', 'The strand curriculum has been deleted.', 'success');
+          this.deleteStrandCurriculum(id);
         }
       });
     },
-
     async deleteStrandCurriculum(id) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:8000/api/deletecuri/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+        await axios.delete(`${config.apiBaseURL}/deletecuriculum/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        await this.fetchStrandCurriculums();
+        this.fetchStrandCurriculums();
+        Swal.fire('Deleted!', 'Strand curriculum has been deleted.', 'success');
       } catch (error) {
         console.error('Error deleting strand curriculum:', error);
         Swal.fire('Error', 'Failed to delete strand curriculum.', 'error');
       }
     },
-
     openAddModal() {
       this.isEdit = false;
-      this.newStrandCurriculum = '';
+      this.editStrandCurriculumId = null;
+      this.formData = {
+        strand_id: '',
+        subject_ids: [],
+        semester: "",
+      };
       this.showModal();
     },
-
     openEditModal(strandCurriculum) {
       this.isEdit = true;
       this.editStrandCurriculumId = strandCurriculum.id;
-      this.newStrandCurriculum = strandCurriculum.Namecuriculum;
+      this.formData = {
+        strand_id: strandCurriculum.strand_id,
+        subject_ids: strandCurriculum.subjects.map(subject => subject.id),
+        semester: strandCurriculum.semester,
+      };
       this.showModal();
     },
-
     showModal() {
-      const modal = new Modal(this.$refs.strandCurriculumModal);
-      modal.show();
+      const modalElement = this.$refs.strandCurriculumModal;
+      this.modalInstance = new Modal(modalElement);
+      this.modalInstance.show();
     },
-
     closeModal() {
-      const modal = Modal.getInstance(this.$refs.strandCurriculumModal);
-      modal.hide();
+      this.modalInstance.hide();
     },
   },
 
   mounted() {
     this.fetchStrandCurriculums();
+    this.fetchStrands();
+    this.fetchSubjects();
   }
 };
 </script>
+
 
 <style scoped>
 /* Container */

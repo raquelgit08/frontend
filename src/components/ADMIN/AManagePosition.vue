@@ -245,121 +245,133 @@ export default {
 <style scoped>
 /* Container */
 .container-fluid {
-    background-color: #ffffff;
-    border-radius: 10px;
+  background-color: #ffffff;
+  border-radius: 10px;
 }
 .header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px;
-    padding-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+  padding-top: 20px;
 }
 .form-select {
-    width: 200px;
+  width: 200px;
 }
-
 /* Table Wrapper */
 .table-wrapper {
-    margin: 10px;
-    padding: 0 15px;
-    max-width: 100%;
-    overflow-x: auto;
+  margin: 10px;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 /* Table Styles */
 .table-custom {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
-    border: 1px solid #200909;
-    overflow: hidden;
-    margin-bottom: 120px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid #200909;
+  overflow: hidden;
+  margin-bottom: 120px;
 }
 
 .table-custom th {
-     background-color: #c1c1c1d7;
-    color: #000000;
-    font-weight: 700;
-    font-size: 20px;
+  background-color: #c1c1c1d7;
+  color: #000000;
+  font-weight: 700;
+  font-size: 20px;
 }
-  
+
 .table th, .table td {
-    text-align: center;
-    vertical-align: middle;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  vertical-align: middle;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.td {
+  font-size: 18px;
 }
 
 .table-custom tbody tr:hover {
-    background-color: #f1f3f5;
+  background-color: #f1f3f5;
 }
 
 .table-custom tbody tr {
-    transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease;
 }
+
 .edit {
-  background-color:#FFEE63;
+  background-color: #FFEE63;
   color: #000000;
-    width: 90px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  width: 90px;
 }
+
 .btn-danger, .edit {
-    font-size: 17px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    
+  font-size: 17px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
+
 .btn-gradient {
-    background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
-    color: #120808;
-    transition: background 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    margin: 20px;
-    padding: 5px;
-    width: 300px;
-    text-align: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 20px;
+  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
+  color: #120808;
+  transition: background 0.3s ease;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border-radius: 5px ;
+  margin: 20px;
+  padding: 5px;
+  width: 300px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
 }
+
 .edit:hover {
   background-color: rgb(163, 155, 4);
 }
+
 .btn-gradient:hover {
   background: linear-gradient(45deg, #b2b3b4, #eff0f0);
+  
 }
+
 .custom-select {
-    height: 45px;
-    border-radius: 8px;
-    border: 1px solid #ced4da;
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
-    font-family: Arial, sans-serif;
-    color: #495057;
-    transition: border-color 0.3s, box-shadow 0.3s;
+  height: 45px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  color: #495057;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .custom-select:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
-    outline: none;
+  border-color: #007bff;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  outline: none;
 }
 
 .custom-select::placeholder {
-    color: #6c757d;
+  color: #6c757d;
 }
 
 /* Search Bar Styles */
 .input-group {
-    padding-left: 32px;
+  padding-left: 32px;
+  
 }
+
 .modal-dialog {
-    width: 40%;
+  width: 40%;
 }
 
 /* Modal Styles */
 .modal-content {
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 </style>
