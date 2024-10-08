@@ -64,7 +64,7 @@
             <td>{{ exam.completion_percentage }}</td>
             <td>
               <div class="d-flex justify-content-center">
-                <button @click="navigateToAddExam(exam.exam_id)" class="btn btn-info btn-sm me-2">View</button>
+                <button @click="navigateToAddExam(exam.exam_id)" class="btn btn-sm me-2" style="background-color:  #87CEEB;">View</button>
               </div>
             </td>
             <td>
@@ -562,6 +562,7 @@ export default {
 .d-flex .btn {
   min-width: 80px;
   transition: background-color 0.3s ease;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .d-flex .btn:hover {

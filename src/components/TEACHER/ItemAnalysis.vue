@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+  <div class="container-fluid">
    
     
     <div class="subject-info-container">
@@ -18,29 +18,27 @@
 
      </div><br><br>
 
-      <!-- Check if analysis is ready -->
-      <div v-if="questionAnalysis.length > 0" class="questions-container">
-        <div v-for="(question, index) in questionAnalysis" :key="index" class="question-analysis">
-          <div class="question-header">
-            <h6>{{ index + 1 }}. {{ question.question }}</h6>
-            <span class="difficulty-percentage">Difficulty: {{ question.difficulty_percentage }}</span>
-          </div>
-
-          <p><strong>Correct Answer:</strong> {{ question.correct_answer }}</p>
-
-          <ul>
-            <li v-for="(choice, choiceIndex) in question.choices" :key="choiceIndex">
-              {{ choice.choice }}: {{ choice.count }} selections ({{ getPercentage(choice.count, question.totalResponses) }}%)
-              <div class="progress">
-                <div class="progress-bar" :class="{'bg-success': choice.choice === question.correct_answer, 'bg-danger': choice.choice !== question.correct_answer}"
-                  role="progressbar" :style="{ width: getPercentage(choice.count, question.totalResponses) + '%' }"
-                  :aria-valuenow="getPercentage(choice.count, question.totalResponses)" aria-valuemin="0" aria-valuemax="100">
-                  {{ getPercentage(choice.count, question.totalResponses) }}%
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
+     <div v-if="questionAnalysis.length > 0" class="questions-container">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th>Correct Answer</th>
+              <th>Correct Selections</th>
+              <th>Incorrect Selections</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(question, index) in questionAnalysis" :key="index">
+              <td>{{ index + 1 }}</td>
+              <td>{{ question.question }}</td>
+              <td>{{ question.correct_answer }}</td>
+              <td>{{ question.choices.find(choice => choice.choice === question.correct_answer).count }}</td>
+              <td>{{ question.totalResponses - question.choices.find(choice => choice.choice === question.correct_answer).count }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div v-else>

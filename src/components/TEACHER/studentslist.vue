@@ -26,8 +26,9 @@
     </div>
 
     <!-- Enrolled Students Table -->
+    <h4 class="text-center">Enrolled Students</h4><br>
     <div class="container-fluid">
-      <h4 class="text-center">Enrolled Students</h4><br>
+      
       <div class="row mb-4">
         <div class="col-md-10 offset-md-1">
           <div class="table-wrapper">
@@ -274,14 +275,14 @@ export default {
   background-color: #ffffff;
   border-radius: 8px;
   font-size: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   border: 1px solid #200909;
   overflow: hidden;
 }
 
 .table-custom th {
-  background-color: #0d8eead7;
-  color: #ffffff;
+  background-color: #c1c1c1d7;
+  color: #000000;
   font-weight: 700;
   font-size: 20px;
 }

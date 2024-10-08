@@ -27,35 +27,44 @@
       <i class="bi bi-hourglass-split"></i> Loading...
     </div>
 
-    <!-- Table for Strand Curriculums -->
     <div class="table-wrapper">
       <table class="table table-bordered table-striped">
         <thead class="table-light">
           <tr>
             <th>No.</th>
-            <th>Strand Curriculum Name</th>
-            <th>Actions</th>
+            <th>Strand & Grade Level</th>
+            <th>Subjects</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(strandCurriculum, index) in filteredList" :key="strandCurriculum.id">
-            <td>{{ index + 1 }}</td>
-            <td>{{ strandCurriculum.addstrand }}</td>
-            <td>
-              <button class="btn btn-warning btn-sm me-1" @click="openEditModal(strandCurriculum)">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-danger btn-sm" @click="deleteStrandCurriculum(strandCurriculum.id)">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </tr>
-          <tr v-if="strandCurriculums.length === 0">
-            <td colspan="3" class="text-center">No Strand Curriculums Found</td>
-          </tr>
+          <template v-for="(gradeLevels, strand, strandIndex) in filteredCurriculums" :key="strandIndex">
+            <template v-for="(subjects, gradeLevel, gradeIndex) in gradeLevels" :key="gradeLevel">
+              <tr>
+                <td>{{ (strandIndex * Object.keys(gradeLevels).length) + (gradeIndex + 1) }}</td> <!-- Numbering -->
+                <td>{{ strand }} <small>{{ gradeLevel }}</small></td>
+                <td>
+                  <ul>
+                    <li v-for="(subjectArray, subjectName) in subjects" :key="subjectName">
+                      <span v-if="subjectArray.length > 0">
+                        <span v-for="subject in subjectArray" :key="subject.subject_id" >{{ subject.subjectname }}</span>
+                      </span>
+                      <span v-else>No subjects available</span>
+                    </li>
+                  </ul>
+                </td>
+                <td>
+                  <button class="btn btn-primary btn-sm" @click="openEditModal(strand, gradeLevel, subjects)">Edit</button>
+                  <!-- <button class="btn btn-danger btn-sm" @click="confirmDeleteStrandCurriculum(subjects[0].subject_id)">Delete</button> -->
+                </td>
+              </tr>
+            </template>
+          </template>
         </tbody>
       </table>
+
     </div>
+
 
     <!-- Add/Edit Modal -->
     <div class="modal fade" id="strandCurriculumModal" tabindex="-1" ref="strandCurriculumModal">
@@ -82,13 +91,7 @@
               <label for="subjects" class="form-label">Subjects:</label>
               <div>
                 <div v-for="subject in items" :key="subject.id" class="form-check">
-                  <input 
-                    type="checkbox" 
-                    :value="subject.id" 
-                    v-model="formData.subject_ids" 
-                    class="form-check-input" 
-                    :id="'subject_' + subject.id"
-                  />
+                  <input  type="checkbox"  :value="subject.id"  v-model="formData.subject_ids"  class="form-check-input"  :id="'subject_' + subject.id" />
                   <label :for="'subject_' + subject.id" class="form-check-label">
                     {{ subject.subjectname }}
                   </label>
@@ -129,7 +132,7 @@ export default {
     return {
       searchQuery: '',
       strandCurriculums: [], 
-      strandCurriculumsshow: {}, 
+      curriculums: {}, 
       items: [],
       strands: [],
       formData: {
@@ -145,6 +148,75 @@ export default {
     };
   },
 
+  computed: {
+    filteredCurriculums() {
+      if (!this.searchQuery) {
+        return this.curriculums;
+      }
+
+      const query = this.searchQuery.toLowerCase();
+      const result = {};
+
+      // Iterate over each Strand in curriculums
+      for (let strand in this.curriculums) {
+        const gradeLevels = this.curriculums[strand];
+        const filteredGradeLevels = {};
+
+        // Check if Strand matches the search query
+        const strandMatches = strand.toLowerCase().includes(query);
+
+        // Iterate over each Grade Level within the Strand
+        for (let gradeLevel in gradeLevels) {
+          const subjects = gradeLevels[gradeLevel];
+          const filteredSubjects = {};
+
+          // If Strand matches, include all grade levels and subjects
+          if (strandMatches) {
+            filteredGradeLevels[gradeLevel] = subjects;
+            continue;
+          }
+
+          // Iterate over each Subject Category within the Grade Level
+          for (let subjectName in subjects) {
+            const subjectArray = subjects[subjectName];
+            const subjectNameMatches = subjectName.toLowerCase().includes(query);
+            const matchedSubjects = [];
+
+            // Check if Subject Name matches the search query
+            if (subjectNameMatches) {
+              filteredSubjects[subjectName] = subjectArray;
+              continue; // If Subject Name matches, include all subjects under this category
+            }
+
+            // Otherwise, check individual subjects within the category
+            for (let i = 0; i < subjectArray.length; i++) {
+              const subject = subjectArray[i];
+              if (subject.subjectname.toLowerCase().includes(query)) {
+                matchedSubjects.push(subject);
+              }
+            }
+
+            // If any subjects match, include them under the subject category
+            if (matchedSubjects.length > 0) {
+              filteredSubjects[subjectName] = matchedSubjects;
+            }
+          }
+
+          // If any subjects match within the Grade Level, include the Grade Level
+          if (Object.keys(filteredSubjects).length > 0) {
+            filteredGradeLevels[gradeLevel] = filteredSubjects;
+          }
+        }
+
+        // If Strand matches or any Grade Levels have matching subjects, include the Strand
+        if (strandMatches || Object.keys(filteredGradeLevels).length > 0) {
+          result[strand] = strandMatches ? gradeLevels : filteredGradeLevels;
+        }
+      }
+
+      return result;
+    },
+  },
   methods: {
     async fetchStrands() {
       try {
@@ -180,21 +252,27 @@ export default {
       }
     },
   
-  async fetchStrandCurriculums() {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${config.apiBaseURL}/viewcuriculum2`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    this.strandCurriculumsshow = response.data.data;
+    async fetchStrandCurriculums() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${config.apiBaseURL}/viewcuriculum2`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        // Log the response
+          console.log('Response data:', response.data);
 
-    // Log the fetched data to the console
-    console.log('Fetched strandCurriculums:', this.strandCurriculumsshow);
-  } catch (error) {
-    console.error('Error fetching strand curriculums:', error);
-    Swal.fire('Error', 'Failed to fetch strand curriculums.', 'error');
-  }
-},
+      // Set the fetched data to the `curriculums` data property
+      this.curriculums = response.data.data;
+
+      // Optionally log the curriculums to see the structure
+      console.log('Curriculums data:', this.curriculums);
+      } catch (error) {
+        console.error('Error fetching strand curriculums:', error);
+      }
+    },
+  
 
     async saveStrandCurriculum() {
       try {
@@ -223,7 +301,7 @@ export default {
         Swal.fire('Error', 'Failed to save strand curriculum.', 'error');
       }
     },
-
+    
 
     confirmDeleteStrandCurriculum(id) {
       Swal.fire({
@@ -262,16 +340,32 @@ export default {
       };
       this.showModal();
     },
-    openEditModal(strandCurriculum) {
-      this.isEdit = true;
-      this.editStrandCurriculumId = strandCurriculum.id;
-      this.formData = {
-        strand_id: strandCurriculum.strand_id,
-        subject_ids: strandCurriculum.subjects.map(subject => subject.id),
-        semester: strandCurriculum.semester,
-      };
-      this.showModal();
-    },
+    openEditModal(strand, gradeLevel, subjects) {
+      console.log('Opening edit modal...');
+  console.log('Strand:', strand);
+  console.log('Grade Level:', gradeLevel);
+  console.log('Subjects:', subjects); // To debug the structure of subjects
+
+  this.isEdit = true;
+
+  // Assuming subjects is an object, map through its values to collect subject IDs
+  const subjectIds = [];
+  for (const subjectCategory in subjects) {
+    if (Array.isArray(subjects[subjectCategory])) {
+      subjectIds.push(...subjects[subjectCategory].map(subject => subject.subject_id));
+    }
+  }
+
+  this.formData = {
+    strand_id: strand,  // Assuming strand is the ID
+    subject_ids: subjectIds,  // Collected subject IDs
+    semester: subjects[Object.keys(subjects)[0]][0]?.semester || '',  // Assuming the first subject has the semester data
+  };
+
+  this.showModal();
+},
+
+
     showModal() {
       const modalElement = this.$refs.strandCurriculumModal;
       this.modalInstance = new Modal(modalElement);
@@ -336,12 +430,18 @@ export default {
 .table-custom th {
     background-color: #0d8eead7;
     color: #000000;
+    
     font-weight: 700;
     font-size: 20px;
 }
 
-.table th, .table td {
-    text-align: center;
+.table td {
+    /* text-align: center; */
+    vertical-align: middle;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.table th {
+   text-align: center; 
     vertical-align: middle;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

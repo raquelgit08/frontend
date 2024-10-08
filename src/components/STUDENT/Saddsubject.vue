@@ -178,7 +178,7 @@ export default {
   display: flex;
   flex-direction: column;
   border-radius: 10px;
-  width: 260px;
+  width: 280px;
   height: 350px;
   background-color: #ffffff;
   overflow: hidden;

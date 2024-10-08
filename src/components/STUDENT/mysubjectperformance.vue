@@ -310,14 +310,14 @@ export default {
     background-color: #ffffff;
     border-radius: 8px;
     font-size: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     /* border: 1px solid #200909; */
     overflow: hidden;
   }
 
   .table-custom th {
-    background-color: #0d8eead7;
-    color: #ffffff;
+    background-color: #add3efd7;
+    color: #151414;
     font-weight: 700;
     font-size: 20px;
   }

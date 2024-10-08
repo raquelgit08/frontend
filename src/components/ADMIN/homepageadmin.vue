@@ -80,7 +80,7 @@ export default {
           { name: 'Manage Strand', path: '/ManageStrandsinSHS', icon: 'bi-book-half fs-3' },
           { name: 'Manage Section', path: '/ASection', icon: 'bi bi-folder2-open fs-3' },
           { name: 'Manage Subjects', path: '/AManageSubject', icon: 'bi bi-file-earmark-text-fill fs-3' },
-          { name: 'Manage Curriculum', path: '/ManageCuricculuminSHS', icon: 'bi bi-grid-fill fs-3' },
+         { name: 'Manage Curriculum', path: '/ManageCuricculuminSHS', icon: 'bi bi-grid-fill fs-3' },
           { name: 'Manage Position', path: '/AManagePosition', icon: 'bi bi-file-person fs-3' }
         ] },
         { section: 'Manage Users', items: [

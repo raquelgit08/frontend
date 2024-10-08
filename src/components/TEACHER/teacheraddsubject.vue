@@ -3,6 +3,14 @@
     <!-- Display classes -->
     <div class="header-container">
       <h1><i class="bi bi-easel-fill"></i> My Classes</h1>
+      <div class="form-group">
+        <label for="semester">SORT BY SEMESTER:</label>
+        <select v-model="selectedSemester" id="semester" class="form-select" required>
+          <option value="">Select Semester</option>
+          <option value="First">First Semester</option>
+          <option value="Second">Second Semester</option>
+        </select>
+      </div>
     </div>
     <div class="row">
       <!-- Add Class Button -->
@@ -15,7 +23,7 @@
           </div>
         </div>
       </div>
-      <div v-for="(classItem, index) in classes" :key="index" class="col-md-3">
+      <div v-for="(classItem, index) in filteredClasses" :key="index" class="col-md-3">
         <div class="card" @click="$router.push(`/teachercreateexam/${classItem.id}`)">
           <img
             v-if="classItem.profile_img"
@@ -92,14 +100,23 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="subject">Subjects:</label>
-              <select v-model="currentClass.subject_id" id="subject" class="form-select" required>
-                <option value="">Select Subjects</option>
-                <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
-                  {{ subject.label }}
-                </option>
+              <label for="semester">Semester:</label>
+              <select v-model="currentClass.semester" id="semester" class="form-select" required>
+                <option value="">Select Semester</option>
+                <option value="First">First Semester</option>
+                <option value="Second">Second Semester</option>
               </select>
             </div>
+            <div class="form-group">
+  <label for="subject">Subjects:</label>
+  <select v-model="currentClass.subject_id" id="subject" class="form-select" required>
+    <option value="">Select Subjects</option>
+    <option v-for="subject in filteredSubjects" :key="subject.id" :value="subject.id">
+      {{ subject.label }}
+    </option>
+  </select>
+</div>
+
             <div class="form-group">
               <label for="year">Year:</label>
               <select v-model="currentClass.year_id" id="year" class="form-select" required>
@@ -110,14 +127,7 @@
               </select>
             </div>
 
-            <div class="form-group">
-              <label for="semester">Semester:</label>
-              <select v-model="currentClass.semester" id="semester" class="form-select" required>
-                <option value="">Select Semester</option>
-                <option value="First">First Semester</option>
-                <option value="Second">Second Semester</option>
-              </select>
-            </div>
+            
 
             <div class="form-group">
               <label for="class_desc">Class Description:</label>
@@ -185,10 +195,13 @@ export default {
       },
       classes: [],
       strands: [],
+      selectedSemester: "",  // This holds the selected semester
       sections: [],
+      allSubjects: [],  // All subjects
       subjects: [],
       years: [],
       filteredSections: [],
+      filteredSubjects: [],
       isEditMode: false,
       selectedFile: null, // Store the selected image file for upload
     };
@@ -200,9 +213,17 @@ export default {
     this.fetchYear();
     this.fetchClasses();
   },
+  computed: {
+    filteredClasses() {
+      if (this.selectedSemester) {
+        return this.classes.filter(classItem => classItem.semester === this.selectedSemester);
+      }
+      return this.classes; // Return all classes if no semester is selected
+    },
+  },
   methods: {
     getImageUrl(imagePath) {
-      const baseUrl = process.env.VUE_APP_BASE_URL || "http://10.0.0.23:1020";
+      const baseUrl = process.env.VUE_APP_BASE_URL || "http://10.0.0.9:1020";
       return `${baseUrl}${imagePath}?t=${new Date().getTime()}`;
     },
     openAddClassModal() {
@@ -394,8 +415,7 @@ export default {
     },
     fetchStrands() {
       const token = localStorage.getItem("token");
-      axios
-        .get(`${config.apiBaseURL}/viewstrand`, {
+      axios.get(`${config.apiBaseURL}/viewstrand`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
@@ -411,23 +431,45 @@ export default {
         });
     },
     fetchSubjects() {
-      const token = localStorage.getItem("token");
-      axios
-        .get(`${config.apiBaseURL}/viewsubject`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          if (response.data && Array.isArray(response.data.data)) {
-            this.subjects = response.data.data.map((subject) => ({
-              id: subject.id,
-              label: subject.subjectname,
-            }));
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching subjects:", error);
-        });
-    },
+    const token = localStorage.getItem("token");
+    axios.get(`${config.apiBaseURL}/viewcuriculum2`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        console.log("Fetched response data:", response.data);
+
+        // Check if data exists
+        if (response.data && response.data.data) {
+          const groupedSubjects = response.data.data;
+
+          // Flatten the data structure for dropdown display
+          this.subjects = [];
+          Object.entries(groupedSubjects).forEach(([strand, gradeLevels]) => {
+            Object.entries(gradeLevels).forEach(([grade, subjects]) => {
+              Object.entries(subjects).forEach(([subjectName, subjectDetails]) => {
+                subjectDetails.forEach((subject) => {
+                  this.subjects.push({
+                    id: subject.subject_id,
+                    strand_id: subject.strand_id, // Include strand_id
+                    
+                    label: `${strand} - ${grade} - ${subjectName}-- ${subject.semester}`, // Customize label as needed
+                  });
+                });
+              });
+            });
+          });
+
+          console.log("Formatted subjects for dropdown:", this.subjects);
+        } else {
+          console.warn("No valid data found in response.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching subjects:", error);
+      });
+  },
+
+
     fetchYear() {
       const token = localStorage.getItem("token");
       axios.get(`${config.apiBaseURL}/viewyear`, {
@@ -446,10 +488,17 @@ export default {
         });
     },
     filterSections() {
-      this.filteredSections = this.sections.filter(
-        (section) => section.strand_id === this.currentClass.strand_id
-      );
-    },
+    this.filteredSections = this.sections.filter(
+      (section) => section.strand_id === this.currentClass.strand_id
+    );
+    this.filterSubjects(); // Call the method to filter subjects when strand is selected
+  },
+
+  filterSubjects() {
+    this.filteredSubjects = this.subjects.filter(
+      (subject) => subject.strand_id === this.currentClass.strand_id
+    );
+  },
   },
 };
 </script>

@@ -3,6 +3,12 @@
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between">
         <h4><i class="bi bi-person-fill"></i> List of Students Accounts</h4>
+
+        <!-- <button class="btn btn-success d-flex align-items-center" @click="triggerFileInput">
+            <i class="bi bi-upload me-2"></i> Import Excel
+          </button>
+          <input type="file" ref="fileInput" @change="handleFileUpload" accept=".xlsx, .xls" style="display: none;" /> -->
+
         <router-link to="/aregisterstudent" title="Add Record" class="btn-gradient d-flex align-items-center">
           <i class="bi bi-clipboard2-plus-fill register me-2"></i> Add Record
         </router-link>

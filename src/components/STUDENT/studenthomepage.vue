@@ -220,7 +220,7 @@ body {
   color: rgb(255, 255, 255);
   transition: all 0.5s ease;
   position: fixed;
-  background-color: #0047AB;
+  background-color: #A02334;
   overflow-y: overlay;
   max-height: 100vh;
   top: 0;
@@ -286,7 +286,7 @@ body {
 }
 .navbar {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background-color: #1959b3;
+  background-color: #A02334;
   color: #fff;
   margin-bottom: 20px;
 }
