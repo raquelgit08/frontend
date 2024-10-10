@@ -1,4 +1,4 @@
-const apiBaseURL = process.env.VUE_APP_API_URL || 'http://10.0.0.9:1020/api';
+const apiBaseURL = process.env.VUE_APP_API_URL || 'http://10.0.0.57:1020/api';
 
 export default {
     apiBaseURL,

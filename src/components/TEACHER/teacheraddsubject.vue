@@ -108,14 +108,14 @@
               </select>
             </div>
             <div class="form-group">
-  <label for="subject">Subjects:</label>
-  <select v-model="currentClass.subject_id" id="subject" class="form-select" required>
-    <option value="">Select Subjects</option>
-    <option v-for="subject in filteredSubjects" :key="subject.id" :value="subject.id">
-      {{ subject.label }}
-    </option>
-  </select>
-</div>
+              <label for="subject">Subjects:</label>
+              <select v-model="currentClass.subject_id" id="subject" class="form-select" required>
+                <option value="">Select Subjects</option>
+                <option v-for="subject in filteredSubjects" :key="subject.id" :value="subject.id">
+                  {{ subject.label }}
+                </option>
+              </select>
+            </div>
 
             <div class="form-group">
               <label for="year">Year:</label>
@@ -223,7 +223,7 @@ export default {
   },
   methods: {
     getImageUrl(imagePath) {
-      const baseUrl = process.env.VUE_APP_BASE_URL || "http://10.0.0.9:1020";
+      const baseUrl = process.env.VUE_APP_BASE_URL || "http://10.0.0.57:1020";
       return `${baseUrl}${imagePath}?t=${new Date().getTime()}`;
     },
     openAddClassModal() {
@@ -451,6 +451,7 @@ export default {
                   this.subjects.push({
                     id: subject.subject_id,
                     strand_id: subject.strand_id, // Include strand_id
+                    semester: subject.semester,
                     
                     label: `${strand} - ${grade} - ${subjectName}-- ${subject.semester}`, // Customize label as needed
                   });
@@ -496,8 +497,9 @@ export default {
 
   filterSubjects() {
     this.filteredSubjects = this.subjects.filter(
-      (subject) => subject.strand_id === this.currentClass.strand_id
+      (subject) => subject.strand_id === this.currentClass.strand_id 
     );
+    
   },
   },
 };

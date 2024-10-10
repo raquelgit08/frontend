@@ -18,8 +18,8 @@
 
      </div><br><br>
 
-     <div v-if="questionAnalysis.length > 0" class="questions-container">
-        <table class="table table-striped">
+     <div v-if="questionAnalysis.length > 0" class="questions-container ">
+        <table class="table table-striped table-custom">
           <thead>
             <tr>
               <th>#</th>
@@ -34,10 +34,10 @@
               <td>{{ index + 1 }}</td>
               <td>{{ question.question }}</td>
               <td>{{ question.correct_answer }}</td>
-              <td>{{ question.choices.find(choice => choice.choice === question.correct_answer).count }}</td>
-              <td>{{ question.totalResponses - question.choices.find(choice => choice.choice === question.correct_answer).count }}</td>
+              <td style="text-align: center; cursor: pointer;">{{ question.choices.find(choice => choice.choice === question.correct_answer).count }}</td>
+              <td style="text-align: center; cursor: pointer;">{{ question.totalResponses - question.choices.find(choice => choice.choice === question.correct_answer).count }}</td>
             </tr>
-          </tbody>
+          </tbody><br>
         </table>
       </div>
 
@@ -167,6 +167,32 @@ export default {
   align-items: stretch;
   justify-content: space-between;
 }
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid #200909;
+  overflow: hidden;
+}
+.table-custom th {
+  background-color: #c1c1c1d7;
+  color: #000000;
+  font-weight: 700;
+}
+.table th,
+.table td {
+ 
+  border-bottom: 1px solid #dee2e6;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
+}
+
 
 .subject-info-container {
   background-color: #EEEDED;
