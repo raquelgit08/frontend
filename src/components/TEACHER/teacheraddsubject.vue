@@ -223,7 +223,7 @@ export default {
   },
   methods: {
     getImageUrl(imagePath) {
-      const baseUrl = process.env.VUE_APP_BASE_URL || "http://10.0.0.57:1020";
+      const baseUrl = process.env.VUE_APP_BASE_URL || "http://192.168.100.15:1020";
       return `${baseUrl}${imagePath}?t=${new Date().getTime()}`;
     },
     openAddClassModal() {
@@ -471,14 +471,19 @@ export default {
   },
 
 
-    fetchYear() {
+  fetchYear() {
       const token = localStorage.getItem("token");
       axios.get(`${config.apiBaseURL}/viewyear`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
           if (response.data && Array.isArray(response.data.data)) {
-            this.years = response.data.data.map((year) => ({
+            const activeYears = response.data.data.filter(year => year.is_active === 1);
+
+            console.log("Active years:", activeYears);
+
+            console.log("Years data:", response.data.data);
+            this.years = activeYears.map((year) => ({
               id: year.id,
               label: year.addyear,
             }));
@@ -488,6 +493,7 @@ export default {
           console.error("Error fetching years:", error);
         });
     },
+
     filterSections() {
     this.filteredSections = this.sections.filter(
       (section) => section.strand_id === this.currentClass.strand_id

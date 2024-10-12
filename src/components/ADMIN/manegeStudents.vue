@@ -445,34 +445,39 @@ export default {
       }
     },
     generatePassword() {
-      const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
-      const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      const digits = "0123456789";
-      const specialChars = "!@#$%^&*()";
+        const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+        const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const digits = "0123456789";
+        // const specialChars = "!@#$%^&*()";
 
-      let password = "";
+        let password = "";
 
-      // Ensure at least one character from each category
-      password += lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)];
-      password += uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)];
-      password += digits[Math.floor(Math.random() * digits.length)];
-      password += specialChars[Math.floor(Math.random() * specialChars.length)];
+        // Ensure at least one character from each category
+        password += lowercaseChars[Math.floor(Math.random() * lowercaseChars.length)];
+        password += uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)];
+        password += digits[Math.floor(Math.random() * digits.length)];
+        // password += specialChars[Math.floor(Math.random() * specialChars.length)];
 
-      // Fill the rest of the password with random characters
-      const charset = lowercaseChars + uppercaseChars + digits + specialChars;
-      for (let i = 0; i < 4; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        password += charset[randomIndex];
-      }
+        // Fill the rest of the password with random characters
+        const charset = lowercaseChars + uppercaseChars + digits;
 
-      // Shuffle the password to ensure randomness
-      password = password.split('').sort(function() {
-        return 0.5 - Math.random();
-      }).join('');
+        // Set the desired password length (10 characters)
+        const passwordLength = 10;
 
-      this.form.newPassword = password;
-      this.form.confirmPassword = password; // Set confirm password to the generated password
+        for (let i = 0; i < passwordLength - 3; i++) { // Subtract 3 because we already added 3 characters
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset[randomIndex];
+        }
+
+        // Shuffle the password to ensure randomness
+        password = password.split('').sort(function() {
+            return 0.5 - Math.random();
+        }).join('');
+
+        this.form.newPassword = password;
+        this.form.confirmPassword = password; // Set confirm password to the generated password
     },
+
     async resetPassword() {
       const userId = this.currentUser.user.id;
       const newPassword = this.form.newPassword;

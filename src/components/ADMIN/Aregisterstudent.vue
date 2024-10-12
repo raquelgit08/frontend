@@ -22,7 +22,7 @@
 
         <div class="col-md-3">
           <label for="mname" class="form-label">Middle Name:</label>
-          <input v-model="formData.mname" :class="{'is-invalid': !formData.mname && validationAttempted}" type="text" id="mname" class="form-control" required>
+          <input v-model="formData.mname" type="text" id="mname" class="form-control" >
         </div>
       </div>
 
@@ -42,7 +42,7 @@
 
         <div class="col-md-4">
           <label for="email" class="form-label">Email Address:</label>
-          <input v-model="formData.email" :class="{'is-invalid': !formData.email && validationAttempted}" type="email" id="email" class="form-control" required>
+          <input v-model="formData.email"  type="email" id="email" class="form-control">
         </div>
 
         <div class="col-md-5">
@@ -77,10 +77,10 @@
           </select>
         </div>
 
-        <div class="col-md-5">
+        <!-- <div class="col-md-5">
           <label for="Mobile_no" class="form-label">Mobile Number:</label>
-          <input v-model="formData.Mobile_no" :class="{'is-invalid': !formData.Mobile_no && validationAttempted}" type="tel" id="Mobile_no" class="form-control" required>
-        </div>
+          <input v-model="formData.Mobile_no"  type="tel" id="Mobile_no" class="form-control">
+        </div> -->
       </div>
 
       <div class="text-center mt-4">
@@ -174,7 +174,7 @@ export default {
       }
     },
     validateForm() {
-      const requiredFields = ['idnumber', 'lname', 'fname', 'mname', 'sex', 'email', 'password', 'strand_id', 'section_id', 'Mobile_no'];
+      const requiredFields = ['idnumber', 'lname', 'fname', 'sex',  'password', 'strand_id', 'section_id'];
       for (const field of requiredFields) {
         if (!this.formData[field]) {
           return false;
@@ -229,6 +229,17 @@ export default {
       }
     },
     async saveUser() {
+      // Set mname to "NA" if it is null or empty
+      if (!this.formData.mname ) {
+            this.formData.mname = "NA";
+        }
+      if (!this.formData.email ) {
+            this.formData.email = "no email";
+        }
+        // Set Mobile_no to "00000000000" if it is null or empty
+    if (!this.formData.Mobile_no) {
+        this.formData.Mobile_no = "00000000000";
+    }
       try {
         await axios.post(`${config.apiBaseURL}/registerstudent`, this.formData);
         Swal.fire({

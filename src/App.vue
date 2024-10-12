@@ -24,7 +24,7 @@
             <form @submit.prevent="handleSubmit" class="login-form">
               <input
                 type="text"
-                v-model="email"
+                v-model="idnumber"
                 placeholder="Enter username"
                 class="form-control"
                 required
@@ -44,11 +44,34 @@
                   href="#"
                   class="recovery-password"
                   :style="{ color: recoveryPasswordColor }"
-                  @click="startForgotPassword"
+                  @click="verifyifAdmin"
                 >Forgot Password</a>
               </div>
               <button type="submit" class="btn-signin" :style="{ backgroundColor: signInButtonColor }">Sign In</button>
             </form>
+            <div v-if="verificationCodeAdmin" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content rounded-3 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Verification Number</h5>
+        <button type="button" class="btn-close btn-close-white" @click="verificationCodeAdmin = false" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form @submit.prevent="verifyAdminId">
+          <div class="mb-3">
+            <label for="adminidnumber" class="form-label">Admin ID Number</label>
+            <input type="text" class="form-control" id="adminidnumber" v-model="form.idnumber" placeholder="Enter Admin ID Number" required>
+          </div>
+          <div v-if="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+          <button type="submit" class="btn btn-success w-100">Verify</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
           </template>
 
           <!-- Forgot Password Step 1: Enter email -->
@@ -118,9 +141,11 @@ export default {
   name: 'App',
   data() {
     return {
+      idnumber: '',
       email: '',
       password: '',
       showPassword: false,
+      verificationCodeAdmin: false,
       isAdmin: false,
       isTeacher: false,
       isStudent: false,
@@ -135,6 +160,9 @@ export default {
       verificationCode: '',
       newPassword: '',
       confirmPassword: '',
+      form: { // Initialize the form object
+        idnumber: '', // This will hold the admin ID number
+      },
     };
   },
   computed: {
@@ -160,7 +188,7 @@ export default {
 
       try {
         const response = await axios.post(`${config.apiBaseURL}/login`, {
-          email: this.email,
+          idnumber: this.idnumber,
           password: this.password
         });
 
@@ -200,6 +228,33 @@ export default {
         }
       }
     },
+    verifyifAdmin() {
+    
+     this.verificationCodeAdmin = true;
+   
+    },
+    async verifyAdminId() {
+    this.errorMessage = ''; // Clear previous error messages
+
+    try {
+      const response = await axios.post(`${config.apiBaseURL}/check-id`, {
+        idnumber: this.form.idnumber, // Ensure this matches your API's expected format
+      });
+
+      if (response.status === 200) {
+        // Handle successful verification
+        console.log(response.data.message);
+        this.startForgotPassword(); // Call the method to proceed to forgot password UI
+      }
+    } catch (error) {
+      if (error.response) {
+        this.errorMessage = error.response.data.message; // Display error message
+      } else {
+        this.errorMessage = 'An unexpected error occurred. Please try again.'; // Fallback error message
+      }
+    }
+  },
+
     updateUserType(usertype) {
       this.isAdmin = usertype === 'admin';
       this.isTeacher = usertype === 'teacher';
@@ -215,7 +270,7 @@ export default {
       this.isAdmin = false;
       this.isTeacher = false;
       this.isStudent = false;
-      this.email = '';
+      this.idnumber = '';
       this.password = '';
       this.$router.push('/');
     },
