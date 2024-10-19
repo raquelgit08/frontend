@@ -29,15 +29,15 @@
         <tr>
           <th>ID Number</th>
           <th>First Name</th>
-          <th>Email</th>
+          
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="student in students" :key="student.id">
           <td>{{ student.idnumber }}</td>
-          <td>{{ student.fname }}</td>
-          <td>{{ student.email }}</td>
+          <td>{{student.lname}}, {{ student.fname }} {{ student.mname }}</td>
+       
           <td>
             <button class="btn btn-success" @click="updateStudentStatus(student.id, 1)" style="margin-right: 10px;">Approve</button>
             <button class="btn btn-danger" @click="updateStudentStatus(student.id, 0)">Decline</button>
@@ -79,6 +79,8 @@ export default {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    // Log the API response
+    console.log('Fetched students response:', response.data);
     this.students = response.data;
   } catch (error) {
     this.error = 'Error fetching students: ' + (error.response ? error.response.data.error : error.message);
@@ -170,6 +172,8 @@ export default {
   background-color: #ffffff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 15px;
+  margin-left: 10px;
+  margin-right: 10px;
   border-radius: 10px;
   margin-bottom: 15px;
 }

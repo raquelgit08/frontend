@@ -34,7 +34,6 @@
               <th scope="col" class="text-center">Employee Number</th>
               <th scope="col" class="text-center">Name</th>
               <th scope="col" class="text-center">Sex</th>
-              <th scope="col" class="text-center">Email</th>
               <th scope="col" class="text-center">Position</th>
             </tr>
           </thead>
@@ -44,7 +43,6 @@
               <td>{{ teacher.user.idnumber }}</td>
               <td class="text-center">{{ teacher.user.lname }}, {{ teacher.user.fname }} {{ teacher.user.mname }}</td>
               <td class="text-center">{{ teacher.user.sex }}</td>
-              <td class="text-center">{{ teacher.user.email }}</td>
               <td class="text-center">{{ teacher.position.teacher_postion }} </td>
             </tr>
           </tbody>

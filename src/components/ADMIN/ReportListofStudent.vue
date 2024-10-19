@@ -40,9 +40,9 @@
               <th scope="col" class="text-center">LRN</th>
               <th scope="col" class="text-center">Name</th>
               <th scope="col" class="text-center">Sex</th>
-              <th scope="col" class="text-center">Email</th>
               <th scope="col" class="text-center">Strand</th>
               <th scope="col" class="text-center">Section</th>
+              <th scope="col" class="text-center">4Ps member</th>
             </tr>
           </thead>
           <tbody>
@@ -51,9 +51,9 @@
               <td>{{ student.user.idnumber }}</td>
               <td class="text-center">{{ student.user.lname }}, {{ student.user.fname }} {{ student.user.mname }}</td>
               <td class="text-center">{{ student.user.sex }}</td>
-              <td class="text-center">{{ student.user.email }}</td>
               <td class="text-center">{{ student.strands.addstrand }} {{ student.strands.grade_level }}</td>
               <td class="text-center">{{ student.section.section }}</td>
+              <td class="text-center">{{ student.fourp == 1 ? 'Yes' : 'No' }}</td>
             </tr>
           </tbody>
        </table>

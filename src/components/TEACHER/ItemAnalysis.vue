@@ -1,57 +1,171 @@
 <template>
   <div class="container-fluid">
-   
-    
     <div class="subject-info-container">
       <div class="subject-info">
-        <div class=" d-flex align-items-center">
-          <button @click="$router.go(-1)" class="nav-link" style="border: none; background: none; color: inherit; font-weight: 500; font-size: 20px;">
+        <div class="d-flex align-items-center">
+          <button
+            @click="$router.go(-1)"
+            class="nav-link"
+            style="border: none; background: none; color: inherit; font-weight: 500; font-size: 20px;"
+          >
             <i class="bi bi-arrow-bar-left" style="font-weight: 800;"></i> Go back
           </button>
         </div>
         <div class="col-12">
-      <h4 class="mb-0" style="text-align: center;">{{ exam_title }}</h4> <!-- Remove default margin -->
-      <p class="mb-1">Instructions: {{ instruction }}</p> <!-- Reduce bottom margin -->
-      <p class="mb-1">Completion Percentage: <b> {{ completion_percentage }}</b></p> <!-- Reduce bottom margin -->
-      <p class="mb-1">Students Completed Exam: <b>  {{ students_completed_exam }} / {{ total_students }} </b></p> <!-- Reduce bottom margin -->
-    </div>
+          <h4 class="mb-0" style="text-align: center;">{{ exam_title }}</h4>
+          <p class="mb-1">Instructions: {{ instruction }}</p>
+          <p class="mb-1">Completion Percentage: <b>{{ completion_percentage }}</b></p>
+          <p class="mb-1">Students Completed Exam: <b>{{ students_completed_exam }} / {{ total_students }}</b></p>
+        </div>
+      </div><br><br>
 
-     </div><br><br>
-
-     <div v-if="questionAnalysis.length > 0" class="questions-container ">
+      <div v-if="questionAnalysis.length > 0" class="questions-container">
         <table class="table table-striped table-custom">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Question</th>
-              <th>Correct Answer</th>
-              <th>Correct Selections</th>
-              <th>Incorrect Selections</th>
+              <th style="width: 5%; text-align: center;">#</th>
+              <th style="width: 35%; ">Question</th>
+              <th style="width: 30%; ">Correct Answer</th>
+              <th style="width: 9%; text-align: center;">Correct Selections</th>
+              <th style="width: 9%; text-align: center;">Incorrect Selections</th>
+              <th style="width: 12%; text-align: center;">Category</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(question, index) in questionAnalysis" :key="index">
-              <td>{{ index + 1 }}</td>
+            <tr v-for="(question, index) in paginatedQuestions" :key="index">
+              <td style="text-align: center;">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
               <td>{{ question.question }}</td>
               <td>{{ question.correct_answer }}</td>
-              <td style="text-align: center; cursor: pointer;">{{ question.choices.find(choice => choice.choice === question.correct_answer).count }}</td>
-              <td style="text-align: center; cursor: pointer;">{{ question.totalResponses - question.choices.find(choice => choice.choice === question.correct_answer).count }}</td>
+              <td style="text-align: center; cursor: pointer;" @click="showCorrectStudents(question)">
+                {{ question.choices.find(choice => choice.choice === question.correct_answer).count }}
+              </td>
+              <td style="text-align: center; cursor: pointer;" @click="showIncorrectStudents(question)">
+                {{ question.totalResponses - question.choices.find(choice => choice.choice === question.correct_answer).count }}
+              </td>
+              <td style="text-align: center;">
+                <div :class="getDifficultyClass(question.difficulty_category)">
+  <b> {{ question.difficulty_percentage }}</b>
+</div>
+                <small style="font-size: 15px;">{{ question.difficulty_category }}</small>
+              </td>
             </tr>
-          </tbody><br>
+          </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" href="#" @click.prevent="currentPage--">Previous</a>
+            </li>
+            <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+              <a class="page-link" href="#" @click.prevent="currentPage = page">{{ page }}</a>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <a class="page-link" href="#" @click.prevent="currentPage++">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
 
       <div v-else>
         <p>No item analysis data available for this exam.</p>
       </div>
+
+      <b-modal id="correctStudentsModal" v-model="isModalVisibleCorrect" title="Students Who Answered Correctly" class="custom-modal">
+  <div>
+    <div v-if="correctStudents.length > 0">
+      <table class="table table-striped table-custom">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ID Number</th>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Middle Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(student, index) in paginatedCorrectStudents" :key="index">
+            <td>{{ (currentCorrectPage - 1) * itemsPerPage + index + 1 }}</td>
+            <td>{{ student.idnumber }}</td>
+            <td>{{ student.lname }}</td>
+            <td>{{ student.fname }}</td>
+            <td>{{ student.mname }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination Controls -->
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" :class="{ disabled: currentCorrectPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="currentCorrectPage--">Previous</a>
+          </li>
+          <li v-for="page in totalCorrectPages" :key="page" class="page-item" :class="{ active: currentCorrectPage === page }">
+            <a class="page-link" href="#" @click.prevent="currentCorrectPage = page">{{ page }}</a>
+          </li>
+          <li class="page-item" :class="{ disabled: currentCorrectPage === totalCorrectPages }">
+            <a class="page-link" href="#" @click.prevent="currentCorrectPage++">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <p v-else>No students answered correctly for this question.</p>
+  </div>
+</b-modal>
+
+<b-modal id="incorrectStudentsModal" v-model="isModalVisibleIncorrect" title="Students Who Answered Incorrectly" class="custom-modal">
+  <div>
+    <div v-if="incorrectStudents.length > 0">
+      <table class="table table-striped table-custom">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ID Number</th>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Middle Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(student, index) in paginatedIncorrectStudents" :key="index">
+            <td>{{ (currentIncorrectPage - 1) * itemsPerPage + index + 1 }}</td>
+            <td>{{ student.idnumber }}</td>
+            <td>{{ student.lname }}</td>
+            <td>{{ student.fname }}</td>
+            <td>{{ student.mname }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination Controls -->
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" :class="{ disabled: currentIncorrectPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="currentIncorrectPage--">Previous</a>
+          </li>
+          <li v-for="page in totalIncorrectPages" :key="page" class="page-item" :class="{ active: currentIncorrectPage === page }">
+            <a class="page-link" href="#" @click.prevent="currentIncorrectPage = page">{{ page }}</a>
+          </li>
+          <li class="page-item" :class="{ disabled: currentIncorrectPage === totalIncorrectPages }">
+            <a class="page-link" href="#" @click.prevent="currentIncorrectPage++">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <p v-else>No students answered incorrectly for this question.</p>
+  </div>
+</b-modal>
+
     </div>
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
 import config from '@/config';
+
 export default {
   name: 'ITEManalysis',
   data() {
@@ -61,14 +175,52 @@ export default {
         semester: '',
         schoolYear: ''
       },
-      questionAnalysis: [], // Stores item analysis data
-      error: ''
+      questionAnalysis: [],
+      correctStudents: [],
+      incorrectStudents: [],
+      currentPage: 1, // Current page number
+      currentCorrectPage: 1, // Current page for correct students
+    currentIncorrectPage: 1, // Current page for incorrect students
+      itemsPerPage: 10, // Number of items per page
+      error: '',
+      isModalVisibleCorrect: false,
+      isModalVisibleIncorrect: false,
+      completion_percentage: 0,
+      students_completed_exam: 0,
+      total_students: 0,
+      exam_title: '',
+      instruction: ''
     };
   },
   created() {
-    this.fetchSubject(); // Fetch the subject details
-    this.fetchItemAnalysis(); // Fetch the item analysis data
+    this.fetchSubject();
+    this.fetchItemAnalysis();
   },
+  computed: {
+    paginatedQuestions() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      return this.questionAnalysis.slice(start, start + this.itemsPerPage);
+    },
+    totalPages() {
+      return Math.ceil(this.questionAnalysis.length / this.itemsPerPage);
+    },
+
+    paginatedCorrectStudents() {
+    const start = (this.currentCorrectPage - 1) * this.itemsPerPage;
+    return this.correctStudents.slice(start, start + this.itemsPerPage);
+  },
+  paginatedIncorrectStudents() {
+    const start = (this.currentIncorrectPage - 1) * this.itemsPerPage;
+    return this.incorrectStudents.slice(start, start + this.itemsPerPage);
+  },
+  totalCorrectPages() {
+    return Math.ceil(this.correctStudents.length / this.itemsPerPage);
+  },
+  totalIncorrectPages() {
+    return Math.ceil(this.incorrectStudents.length / this.itemsPerPage);
+  }
+  },
+ 
   methods: {
     async fetchSubject() {
       try {
@@ -99,6 +251,15 @@ export default {
         this.handleError(error);
       }
     },
+    getDifficultyClass(difficultyCategory) {
+    if (difficultyCategory === 'Easy') {
+      return 'easy-color';
+    } else if (difficultyCategory === 'Moderately Difficult') {
+      return 'moderate-color';
+    } else {
+      return 'difficult-color';
+    }
+  },
     async fetchItemAnalysis() {
       try {
         const examId = this.$route.params.exam_id;
@@ -119,30 +280,40 @@ export default {
         });
         console.log('Item analysis response:', response);
         
-        // Calculate total responses for each question
-        
         this.questionAnalysis = response.data.item_analysis.map((question) => {
           const totalResponses = question.choices.reduce((sum, choice) => sum + choice.count, 0);
           return {
             ...question,
-            totalResponses: totalResponses // Add total responses to each question
+            totalResponses: totalResponses
           };
         });
-        // Add these lines to set completion percentage and counts
+        
         this.completion_percentage = response.data.completion_percentage;
         this.students_completed_exam = response.data.students_completed_exam;
         this.total_students = response.data.total_students;
         this.exam_title = response.data.exam_title;
         this.instruction = response.data.instruction;
-
         
       } catch (error) {
         console.error('Error fetching item analysis:', error);
         this.handleError(error);
       }
     },
-    getPercentage(count, totalResponses) {
-      return totalResponses > 0 ? ((count / totalResponses) * 100).toFixed(2) : 0;
+    
+    showCorrectStudents(question) {
+      const correctChoice = question.choices.find(choice => choice.choice === question.correct_answer);
+      this.correctStudents = correctChoice ? correctChoice.students : [];
+      this.isModalVisibleCorrect = true; // Open the modal for correct students
+    },
+    showIncorrectStudents(question) {
+      const incorrectChoice = question.choices.filter(choice => choice.choice !== question.correct_answer);
+      this.incorrectStudents = [];
+      
+      incorrectChoice.forEach(choice => {
+        this.incorrectStudents.push(...choice.students);
+      });
+      
+      this.isModalVisibleIncorrect = true; // Open the modal for incorrect students
     },
     handleError(error) {
       if (error.response) {
@@ -160,13 +331,17 @@ export default {
   }
 };
 </script>
-<style scoped>
-/* Main Container */
-.main-container {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
+
+<style>
+.custom-modal .modal-dialog {
+  max-width: 70%; /* Adjust the width percentage as needed */
+  width: auto; /* Allows the modal to size based on its content */
 }
+
+.custom-modal .modal-content {
+  padding: 20px; /* Optional: Add padding for aesthetics */
+}
+
 .table-custom {
   background-color: #ffffff;
   border-radius: 8px;
@@ -275,4 +450,16 @@ export default {
   transition: width 0.4s ease;
   height: 100%;
 }
+.easy-color {
+  color: rgb(19, 160, 19);
+}
+
+.moderate-color {
+  color: rgb(239, 189, 64); /* A better representation for dark yellow */
+}
+
+.difficult-color {
+  color: rgb(198, 19, 19);
+}
+
 </style>

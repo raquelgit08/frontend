@@ -158,10 +158,13 @@ export default {
     async fetchStudents() {
       try {
         const classId = this.$route.params.class_id;
+        console.log('Fetching students for class:', classId);
+
         const response = await axios.get(`${config.apiBaseURL}/viewAllStudents`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           params: { class_id: classId }
         });
+        console.log('Response data:', response.data);
         this.students = response.data.students;
       } catch (error) {
         alert('Error fetching students: ' + error.message);
@@ -169,9 +172,11 @@ export default {
     },
     async fetchAvailableStudents() {
       try {
+        console.log('Fetching all available students');
         const response = await axios.get(`${config.apiBaseURL}/viewAllStudents2`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
+        console.log('Response data:', response.data);
         this.availableStudents = response.data.students;
       } catch (error) {
         alert('Error fetching available students: ' + error.message);
@@ -242,6 +247,8 @@ export default {
   background-color: #ffffff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 15px;
+  margin-right: 10px;
+  margin-left: 10px;
   border-radius: 10px;
   margin-bottom: 15px;
 }

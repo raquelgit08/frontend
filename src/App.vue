@@ -75,7 +75,7 @@
           </template>
 
           <!-- Forgot Password Step 1: Enter email -->
-          <template v-else-if="forgotPasswordStep === 1">
+          <!-- <template v-else-if="forgotPasswordStep === 1">
             <h1 class="greeting">Forgot Password</h1>
             <p class="welcome-message">Enter your email to receive a verification code.</p>
 
@@ -89,10 +89,10 @@
               />
               <button type="submit" class="btn-signin">Send Verification Code</button>
             </form>
-          </template>
+          </template> -->
 
           <!-- Forgot Password Step 2: Enter verification code and reset password -->
-          <template v-else-if="forgotPasswordStep === 2">
+          <template v-else-if="forgotPasswordStep === 1">
             <h1 class="greeting">Reset Password</h1>
             <p class="welcome-message">Enter the verification code and your new password.</p>
 

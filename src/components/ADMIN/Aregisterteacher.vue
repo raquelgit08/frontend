@@ -40,10 +40,6 @@
           <div v-if="!formData.sex && validationAttempted" class="text-danger">Please select a gender.</div>
         </div>
 
-        <div class="col-md-4">
-          <label for="email" class="form-label">Email Address:</label>
-          <input v-model="formData.email" :class="{'is-invalid': !formData.email && validationAttempted}" type="email" id="email" class="form-control" required>
-        </div>
 
         <div class="col-md-5">
           <label for="password" class="form-label">Password:</label>
@@ -100,7 +96,6 @@
             <p><strong>Last Name:</strong> {{ formData.lname }}</p>
             <p><strong>First Name:</strong> {{ formData.fname }}</p>
             <p><strong>Middle Name:</strong> {{ formData.mname }}</p>
-            <p><strong>Email:</strong> {{ formData.email }}</p>
             <p><strong>Position:</strong> {{ formData.position_id }}</p>
           </div>
           <div class="modal-footer">
@@ -164,7 +159,7 @@ export default {
       }
     },
     validateForm() {
-      const requiredFields = ['idnumber', 'lname', 'fname', 'mname', 'sex', 'email', 'password', 'position_id'];
+      const requiredFields = ['idnumber', 'lname', 'fname', 'mname', 'sex', 'password', 'position_id'];
       for (const field of requiredFields) {
         if (!this.formData[field]) {
           return false;

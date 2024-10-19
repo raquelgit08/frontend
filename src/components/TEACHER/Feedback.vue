@@ -238,6 +238,8 @@ export default {
   background-color: #ffffff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 15px;
+  margin-right: 10px;
+  margin-left: 10px;
   border-radius: 10px;
   margin-bottom: 15px;
 }

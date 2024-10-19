@@ -6,8 +6,11 @@
         <h1>{{ formattedTime }}</h1>
       </div>
     </div>
-    <h2 class="text-center exam-title">{{ exam.title }}</h2>
-    <p> {{ instructions.instruction }}</p>
+    <div class="subject-info-container d-flex justify-content-between">
+      <h2 class="text-center exam-title">{{ exam.title }}</h2>
+      <p> {{ instructions.instruction }}</p>
+    </div>
+    
     <div v-if="examOver">
       <h3>Time is up!</h3>
     </div>
@@ -98,10 +101,12 @@
           </div>
         </div>
         <div class="col-md-5 ">
-          <div class="feedbackarea">
+          <div class="container-fluid">
+            <div class="feedbackarea">
             <h3 class="feedback-title">Your Feedback</h3>
             <textarea v-model="comment" class="form-control" rows="10" placeholder="Please provide your feedback about the exam..."></textarea>
             <button @click="submitFeedback(exam.id)" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
+          </div>
           </div>
         </div>
       </div>
@@ -407,6 +412,16 @@ export default {
 </script>
 
 <style scoped>
+.subject-info-container {
+  background-color: #EEEDED;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 10px;
+  width: 1500px;
+
+  height: 150px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
 
 .exam-title {
   margin-bottom: 20px;
@@ -419,7 +434,7 @@ export default {
   border: 2px solid #ddd; /* Adds border to the entire question box */
   padding: 40px;
   border-radius: 10px; /* Rounded corners */
-  width: 60%; /* Adjust width */
+  width: 1500px; /* Adjust width */
   margin: 20px auto; /* Centers the entire question box */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
@@ -529,7 +544,7 @@ export default {
   font-size: 24px;
   font-weight: bold;
 }
-.result, .feedbackarea, .box {
+.result, .box {
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -538,7 +553,14 @@ export default {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
 .feedbackarea{
-  margin-top: 50px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #ffffff;
+  margin-right: 5px;
+  width: 630px;
+  height: 540px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 .box {
  

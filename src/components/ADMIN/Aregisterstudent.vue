@@ -41,8 +41,16 @@
         </div>
 
         <div class="col-md-4">
-          <label for="email" class="form-label">Email Address:</label>
-          <input v-model="formData.email"  type="email" id="email" class="form-control">
+          <label class="form-label d-block">Are You a 4Ps member? :</label>
+          <div class="form-check form-check-inline">
+            <input v-model="formData.fourp" class="form-check-input" type="radio" name="fourp" id="yes" value="1" required>
+            <label class="form-check-label" for="fourp">YES</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input v-model="formData.fourp" class="form-check-input" type="radio" name="fourp" id="no" value="0" required>
+            <label class="form-check-label" for="fourp">No</label>
+          </div>
+          <div v-if="!formData.fourp && validationAttempted" class="text-danger">Please answer if you are a 4Ps member.</div>
         </div>
 
         <div class="col-md-5">
@@ -105,8 +113,8 @@
             <p><strong>Last Name:</strong> {{ formData.lname }}</p>
             <p><strong>First Name:</strong> {{ formData.fname }}</p>
             <p><strong>Middle Name:</strong> {{ formData.mname }}</p>
-            <p><strong>Email:</strong> {{ formData.email }}</p>
-            <p><strong>Mobile Number:</strong> {{ formData.Mobile_no }}</p>
+     
+            <p><strong>Mobile Number:</strong> {{ formData.fourp }}</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
@@ -133,11 +141,10 @@ export default {
         fname: '',
         mname: '',
         sex: '',
-        email: '',
         password: '',
         section_id: '',
         strand_id: '',
-        Mobile_no: '',
+        fourp: '',
       },
       sections: [],
       strands: [],
@@ -174,7 +181,7 @@ export default {
       }
     },
     validateForm() {
-      const requiredFields = ['idnumber', 'lname', 'fname', 'sex',  'password', 'strand_id', 'section_id'];
+      const requiredFields = ['idnumber', 'lname', 'fname', 'sex',  'password', 'strand_id', 'section_id', 'fourp'];
       for (const field of requiredFields) {
         if (!this.formData[field]) {
           return false;
@@ -233,14 +240,7 @@ export default {
       if (!this.formData.mname ) {
             this.formData.mname = "NA";
         }
-      if (!this.formData.email ) {
-            this.formData.email = "no email";
-        }
-        // Set Mobile_no to "00000000000" if it is null or empty
-    if (!this.formData.Mobile_no) {
-        this.formData.Mobile_no = "00000000000";
-    }
-      try {
+  try {
         await axios.post(`${config.apiBaseURL}/registerstudent`, this.formData);
         Swal.fire({
           icon: 'success',
@@ -267,11 +267,10 @@ export default {
         fname: '',
         mname: '',
         sex: '',
-        email: '',
         password: '',
         section_id: '',
         strand_id: '',
-        Mobile_no: '',
+        fourp: '',
       };
       this.validationAttempted = false; // Reset validation attempts
     }

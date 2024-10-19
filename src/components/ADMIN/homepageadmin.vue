@@ -12,7 +12,7 @@
           <div v-if="section.section !== 'Dashboard'">{{ section.section }}</div>
           <ul>
             <li v-for="(item, itemIndex) in section.items" :key="itemIndex">
-              <a :href="item.path" @click.prevent="handleItemClick(item.path)">
+              <a :href="item.path" @click.prevent="handleItemClick(item.path)" :title="item.name"> <!-- Add title attribute -->
                 <i :class="item.icon"></i>
                 <span class="link_name">{{ item.name }}</span>
               </a>
@@ -21,6 +21,7 @@
           </ul>
         </li>
       </ul>
+
       <!-- <button class="btn btn-danger btn-sm mt-2 logOut" @click="handleLogout">Log Out</button> -->
     </div>
     
@@ -345,6 +346,7 @@ body {
   opacity: 0;
   pointer-events: none;
 }
+
 
 .sidebar li:hover .tooltip {
   opacity: 1;

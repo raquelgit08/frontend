@@ -43,7 +43,6 @@
               <th scope="col" class="text-center">Employee Number</th>
               <th scope="col" class="text-center">Name</th>
               <th scope="col" class="text-center">Sex</th>
-              <th scope="col" class="text-center">Email</th>
               <th scope="col" class="text-center">Position</th>
               <th scope="col" class="text-center">Date</th>
               <!-- <th scope="col" class="text-center">Status</th> -->
@@ -56,7 +55,6 @@
               <td>{{ teachers.user.idnumber }}</td>
               <td class="text-center">{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </td>
               <td class="text-center">{{ teachers.user.sex }}</td>
-              <td>{{ teachers.user.email }}</td>
               <td>{{ teachers.position.teacher_postion }} </td>
               <td class="text-center">
                 <b>Registered :</b>{{ formatDate(teachers.created_at) }}<br>
@@ -164,19 +162,18 @@
               
 
               <div class="row mb-3">
-                <div class="col-md-4">
+                 <label for="idnumber" class="form-label">ID NUMBER:</label>
+                  <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
+                 
                   <label for="lname" class="form-label">Last Name:</label>
                   <input type="text" id="lname" v-model="currentUser.user.lname" class="form-control" >
-                </div>
-                <div class="col-md-4">
+             
                   <label for="fname" class="form-label">First Name:</label>
                   <input type="text" id="fname" v-model="currentUser.user.fname" class="form-control" >
-                </div>
-                <div class="col-md-4">
+               
                   <label for="mname" class="form-label">Middle Name:</label>
                 <input type="text" id="mname" v-model="currentUser.user.mname" class="form-control" >
-                </div>
-            </div>
+       </div>
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label d-block">Gender:</label>
@@ -198,16 +195,15 @@
                   </option>
                 </select>
               </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="idnumber" class="form-label">ID NUMBER:</label>
-                  <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
-                </div>
-                <div class="col-md-6">
+        
+               
+                  
+    
+                <!-- <div class="col-md-6">
                   <label for="email" class="form-label">Email Address:</label>
                   <input type="email" id="email" v-model="currentUser.user.email" class="form-control" >
-                </div>
-              </div>
+                </div> -->
+              
              
             
             </div>    
@@ -611,6 +607,7 @@ h4 {
 
 .modal-body {
   background-color: #f0f8ff; /* Alice blue background for form */
+  padding: 40px;
 }
 
 .input-group-text {

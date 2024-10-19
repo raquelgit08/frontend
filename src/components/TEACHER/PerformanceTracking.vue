@@ -50,9 +50,20 @@
                 <th>Student Name</th>
                 <th>Sex</th>
                 <th>strand</th>
-                <th v-for="(examData, examTitle) in results" :key="examTitle">
+                <th style="width: 5%;" v-for="(examData, examTitle) in results" :key="examTitle">
                   <div :title="formatDateTime(examData.exam_results[0]?.exam_start)">
                     {{ examTitle }}
+                  </div>
+                </th>
+                <th style="width: 10%;">TOTAL</th>
+                <th colspan="2">%
+                  <div class="multiplier-dropdown">
+                    <label for="multiplier">Multiplier:</label>
+                    <select id="multiplier" v-model.number="percentageMultiplier">
+                      <option v-for="option in multiplierOptions" :key="option" :value="option">
+                        {{ option }}
+                      </option>
+                    </select>
                   </div>
                 </th>
               </tr>
@@ -67,8 +78,10 @@
                 <td>{{ student.sex}}</td>
                 <td :style="{ width: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ student.strand_name }} - {{ student.gradelevel_name }}</td>
                 <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
-                  {{ student[examTitle] || '-' }} / {{ examData.exam_results[0]?.total_exam }}
+                  {{ student[examTitle] || '-' }} / {{ examData.exam_results[0]?.points_exam }}
                 </td>
+                <td>{{ student.student_total_scores }} / {{ total_points_exam_across_all_exams }}</td>
+                <td>{{ student.percentage }}</td>
               </tr>
               <tr>
                 <td colspan="5">
@@ -122,6 +135,8 @@ export default {
       results: {},
       examStatistics: {},
       error: '',
+      percentageMultiplier: 0.30, // Default multiplier
+      multiplierOptions: [0.10, 0.20, 0.25, 0.30, 0.35,0.40, 0.45, 0.50],
       currentPage: 1, // Current page in the pagination
       studentsPerPage: 10 // Number of students per page
     };
@@ -185,6 +200,8 @@ export default {
 
         if (response.data.results) {
           this.results = response.data.results;
+          this.student_total_scores = response.data.student_total_scores;
+          this.total_points_exam_across_all_exams = response.data.total_points_exam_across_all_exams; // New Assignment
           console.log('Fetched Student Results:', this.results);
         } else {
           this.error = 'No results found for this class.';
@@ -226,16 +243,28 @@ export default {
               Middle_i: result.Middle_i,
               sex : result.sex,
               strand_name: result.strand_name,
-              gradelevel_name : result.gradelevel_name
+              gradelevel_name : result.gradelevel_name,
+              student_total_scores: 0,
+              percentage: 0 // Initialize percentage
 
             };
+            
             results.push(student);
           }
           student[examTitle] = result.total_score || '0';
+          student.student_total_scores += parseFloat(result.total_score || '0');
         }
       }
-      return results;
-    },
+      results.forEach(student => {
+      if (this.total_points_exam_across_all_exams > 0) {
+        student.percentage = ((student.student_total_scores / this.total_points_exam_across_all_exams) * this.percentageMultiplier * 100).toFixed(2);
+      } else {
+        student.percentage = '0.00';
+      }
+    });
+
+    return results;
+  },
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -283,6 +312,8 @@ export default {
   background-color: #ffffff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 15px;
+  margin-right: 10px;
+  margin-left: 10px;
   border-radius: 10px;
   margin-bottom: 15px;
 }

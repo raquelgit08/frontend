@@ -20,6 +20,7 @@
           <button @click="viewItemAnalysis(examId)" type="button" class="btn btn-primary">
             View Item Analysis
           </button>
+          <!-- <button @click="downloadPDF" >Download Exam Instructions PDF</button> -->
         </div>
       </div>
 
@@ -279,6 +280,32 @@ export default {
     closeModal() {
       this.showModal = false; // Hide the modal
     },
+    // async downloadPDF() {
+    //     try {
+    //         const response = await axios.get(`${config.apiBaseURL}/exam/${this.examId}/download-instructions`, {
+    //             responseType: 'blob', // Important for downloading files
+    //             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    //         });
+            
+    //         // Create a Blob from the response data
+    //         const blob = new Blob([response.data], { type: 'application/pdf' });
+
+    //         // Create a link element
+    //         const link = document.createElement('a');
+    //         link.href = window.URL.createObjectURL(blob);
+    //         link.setAttribute('download', 'exam_instructions.pdf');
+
+    //         // Append to the body and trigger download
+    //         document.body.appendChild(link);
+    //         link.click();
+
+    //         // Clean up
+    //         link.parentNode.removeChild(link);
+    //     } catch (error) {
+    //         console.error('Failed to download PDF:', error.message);
+    //     }
+    // },
+  
     async saveEditedQuestion() {
       try {
         const payload = {
@@ -397,6 +424,7 @@ export default {
         choices: this.globalQuestionType === 'multiple-choice' ? ['', '', ''] : [],
       });
     },
+
     async saveAllQuestions() {
       try {
         const instructionsData = [

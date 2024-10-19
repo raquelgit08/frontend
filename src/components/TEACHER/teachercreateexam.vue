@@ -137,10 +137,10 @@
               </div>
             </div>
               <!-- Message to Students -->
-              <div class="mb-3">
+              <!-- <div class="mb-3">
               <label for="message" class="form-label">Message to Students</label>
               <textarea id="message" v-model="examMessage" class="form-control" placeholder="Enter message to notify students about the exam schedule..." rows="4"></textarea>
-            </div>
+            </div> -->
           </form>
         </div>
         <div class="modal-footer">
@@ -206,10 +206,10 @@
                 </div>
               </div>
                <!-- Message to Students (in Edit Modal) -->
-               <div class="mb-3">
+               <!-- <div class="mb-3">
                 <label for="message" class="form-label">Message to Students</label>
                 <textarea id="message" v-model="examMessage" class="form-control" placeholder="Edit the message to notify students about the exam schedule..." rows="4"></textarea>
-              </div>
+              </div> -->
             </form>
           </div>
           <div class="modal-footer">
@@ -300,9 +300,7 @@ export default {
     async publishExam(examId) {
       try {
         const token = localStorage.getItem('token');
-        await axios.post(`${config.apiBaseURL}/exam/${examId}/publish`, {
-          name: this.examMessage // Send the custom message to the backend
-        }, {
+        await axios.post(`${config.apiBaseURL}/exams/publish2/${examId}`, {}, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -314,12 +312,13 @@ export default {
           updatedExam.isPublished = true;
         }
 
-        Swal.fire('Success', 'Exam has been assigned to students and the message has been sent.', 'success');
+        Swal.fire('Success', 'This has been assign to the students', 'success');
       } catch (error) {
         Swal.fire('Error', 'Failed to publish the exam. Please try again.', 'error');
         console.error('Failed to publish exam:', error.message);
       }
     },
+    
     saveChanges() {
       if (!this.examTitle || !this.startDate || !this.startTime || !this.endDate || !this.endTime || !this.points_exam) {
         Swal.fire('Error!', 'Please fill in all the required fields.', 'error');
@@ -500,6 +499,8 @@ export default {
   background-color: #ffffff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 15px;
+  margin-right: 10px;
+  margin-left: 10px;
   border-radius: 10px;
   margin-bottom: 15px;
 }

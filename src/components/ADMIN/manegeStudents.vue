@@ -46,9 +46,9 @@
             <th scope="col" class="text-center">LRN</th>
             <th scope="col" class="text-center">Name</th>
             <th scope="col" class="text-center">Sex</th>
-            <th scope="col" class="text-center">Email</th>
             <th scope="col" class="text-center">Strand</th>
             <th scope="col" class="text-center">Section</th>
+            <th scope="col" class="text-center">4Ps member</th>
             <th scope="col" class="text-center">Date </th>
             <th scope="col" class="text-center">Actions</th>
           </tr>
@@ -59,9 +59,9 @@
             <td><b>{{ students.user.idnumber }}</b></td>
             <td class="text-center">{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</td>
             <td class="text-center">{{ students.user.sex }}</td>
-            <td class="text-center">{{ students.user.email }}</td>
             <td class="text-center">{{ students.strands.addstrand }} {{ students.strands.grade_level }}</td>
             <td class="text-center"> {{ students.section.section }}</td>
+            <td class="text-center">{{ students.fourp == 1 ? 'Yes' : 'No' }}</td>
             <td class="text-center">
               <b>Registered :</b>{{ formatDate(students.created_at) }}<br>
               <b>Modified :</b>{{ formatDate(students.updated_at) }}
@@ -165,9 +165,17 @@
                 <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
               </div>
               <div class="col-md-6">
-                <label for="email" class="form-label">Email Address:</label>
-                <input type="email" id="email" v-model="currentUser.user.email" class="form-control" >
+                <label class="form-label d-block">Are You a 4Ps member? :</label>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" id="yes" value="1" v-model.number="currentUser.fourp">
+                  <label class="form-check-label" for="yes">Yes</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" id="no" value="0" v-model.number="currentUser.fourp">
+                  <label class="form-check-label" for="no">No</label>
+                </div>
               </div>
+
             </div>
 
               <div class="row mb-3">
@@ -267,11 +275,11 @@ export default {
         mname: '',
         sex: '',
         // usertype: 'student',
-        email: '',
+
         password: '',
         section_id: '',
         strand_id: '',
-        Mobile_no: '',
+        fourp: '',
       },
       
       sections: [],
@@ -346,7 +354,7 @@ export default {
         fname: this.currentUser.user.fname,
         mname: this.currentUser.user.mname,
         sex: this.currentUser.user.sex,
-        email: this.currentUser.user.email,
+        fourp: this.currentUser.fourp ? 1 : 0,
         strand_id: this.formData.strand_id,
         section_id: this.formData.section_id,
         // Mobile_no: this.currentUser.user.Mobile_no,
@@ -385,6 +393,7 @@ export default {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
+        console.log('Fetched students:', response.data);
         this.serverItems = response.data.students;
         this.strands = response.data.strands; // Assuming strands are also fetched here
         this.sections = response.data.sections; 
