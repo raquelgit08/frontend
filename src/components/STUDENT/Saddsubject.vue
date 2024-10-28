@@ -18,9 +18,9 @@
                 <input type="text" v-model="genCode" class="form-control" id="gen_code" required />
               </div>
               <button type="submit" class="btn btn-primary">Join this Class</button>
-              <div v-if="message" :class="['alert', success ? 'alert-success' : 'alert-danger']">
+              <!-- <div v-if="message" :class="['alert', success ? 'alert-success' : 'alert-danger']">
                 {{ message }}
-              </div>
+              </div> -->
             </form>
           </div>
         </div>
@@ -53,6 +53,7 @@
 <script>
 import axios from 'axios';
 import config from '@/config';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'AddSubject',
@@ -86,6 +87,17 @@ export default {
     },
     async addSubject() {
       const token = localStorage.getItem('token');
+      const isAlreadyJoined = this.subjects.some(subject => subject.class_gen_code === this.genCode);
+      if (isAlreadyJoined) {
+        // Show SweetAlert error if subject is already joined
+        Swal.fire({
+          icon: 'error',
+          title: 'Already Joined',
+          text: 'You have already joined this class.',
+        });
+        return;
+      }
+
       try {
         const response = await axios.post(`${config.apiBaseURL}/jcstudent2`,
           { gen_code: this.genCode },
@@ -101,9 +113,20 @@ export default {
         this.genCode = '';
         this.showModal = false;
         this.fetchSubjects(); // Refresh the subjects list after adding a new subject
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Request Successfully Sumitted ',
+          text: 'Please inform your teacher ',
+        });
       } catch (error) {
         this.message = error.response ? error.response.data.error : 'An error occurred';
         this.success = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.response ? error.response.data.error : 'An error occurred',
+        });
       }
     },
   },

@@ -22,15 +22,15 @@
     </nav>
     <!-- Invite Button -->
     <div class="d-flex justify-content-end mb-4">
-      <button class="btn btn-primary" @click="openAddStudentModal">Add Students to Class</button>
+      <button class="btn-gradient" @click="openAddStudentModal">Add Students to Class</button>
     </div>
 
     <!-- Enrolled Students Table -->
-    <h4 class="text-center">Enrolled Students</h4><br>
+    <!-- <h4 class="text-center">Enrolled Students</h4><br> -->
     <div class="container-fluid">
       
       <div class="row mb-4">
-        <div class="col-md-10 offset-md-1">
+        <div class="col-md-12 ">
           <div class="table-wrapper">
             <table class="table table-bordered table-custom">
               <thead>
@@ -41,67 +41,104 @@
                   <th>First Name</th>
                   <th>Middle Name</th>
                   <th>Sex</th>
-                  <th>Email</th>
                   <th>Strand</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(student, index) in students" :key="student.id">
-                  <td>{{ index + 1 }}</td>
-                  <td>{{ student.user?.idnumber }}</td>
-                  <td>{{ student.user?.lname }}</td>
-                  <td>{{ student.user?.fname }}</td>
-                  <td>{{ student.user?.mname }}</td>
-                  <td>{{ student.user?.sex }}</td>
-                  <td>{{ student.user?.email }}</td>
-                  <td>{{ student.strands?.addstrand }}</td>
-                </tr>
-              </tbody>
+            <tr v-for="(student, index) in paginatedStudents" :key="student.id">
+              <td style="text-align: center">{{ (currentPage - 1) * studentsPerPage + index + 1 }}</td>
+              <td style="text-align: center">{{ student.user?.idnumber }}</td>
+              <td>{{ student.user?.lname }}</td>
+              <td>{{ student.user?.fname }}</td>
+              <td>{{ student.user?.mname }}</td>
+              <td style="text-align: center">{{ student.user?.sex }}</td>
+              <td style="text-align: center">{{ student.strands?.addstrand }} {{ student.strands?.grade_level }}</td>
+            </tr>
+          </tbody>
             </table>
           </div>
         </div>
+        <!-- Pagination Controls -->
+        <nav>
+          <ul class="pagination justify-content-center">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <button class="page-link" @click="changePage(currentPage - 1)">Previous</button>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: page === currentPage }"
+            >
+              <button class="page-link" @click="changePage(page)">{{ page }}</button>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <button class="page-link" @click="changePage(currentPage + 1)">Next</button>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
 
     <!-- Modal for Adding Students -->
     <div v-if="isAddStudentModalVisible" class="modal fade show" tabindex="-1" role="dialog" style="display: block;">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content modal-custom">
-          <div class="modal-header">
-            <h5 class="modal-title">Add Students to Class</h5>
-            <button type="button" class="close-modal-btn" @click="closeAddStudentModal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <div class="table-wrapper">
-              <table class="table table-bordered table-hover">
-                <thead class="table-info">
-                  <tr>
-                    <th scope="col">Select</th>
-                    <th scope="col">Last Name</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Strand</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(student) in availableStudents" :key="student.id" :class="{'selected-row': selectedStudents.includes(student.user_id)}">
-                    <td>
-                      <input type="checkbox" class="custom-checkbox" v-model="selectedStudents" :value="student.user_id" />
-                    </td>
-                    <td>{{ student.user?.lname }}</td>
-                    <td>{{ student.user?.fname }}</td>
-                    <td>{{ student.user?.email }}</td>
-                    <td>{{ student.strands?.addstrand }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" @click="addSelectedStudents">Add Selected Students</button>
-            <button type="button" class="btn btn-secondary" @click="closeAddStudentModal">Cancel</button>
-          </div>
-        </div>
+      <div class="modal-dialog modal-lg custom-modal-dialog" role="document">
+        <div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Add Students to Class</h5>
+    <button type="button" class="close-modal-btn" @click="closeAddStudentModal">&times;</button>
+  </div>
+
+  <!-- Search Input -->
+  <div class="modal-body">
+    <input
+      type="text"
+      class="form-control mb-3"
+      placeholder="Search by student name..."
+      v-model="searchQuery"
+    />
+
+    <div class="table-wrapper">
+      <table class="table table-bordered table-hover table-custom">
+        <thead class="table-info">
+          <tr>
+            <th scope="col" style="width: 5%;">Select</th>
+            <th scope="col" style="width: 15%;">ID Number</th>
+            <th scope="col" style="width: 55%;">Name</th>
+            <th scope="col" style="width: 25%;">Strand</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="student in filteredStudents"
+            :key="student.id"
+            :class="{ 'selected-row': selectedStudents.includes(student.user_id) }"
+          >
+            <td style="text-align: center;">
+              <input
+                type="checkbox"
+                class="custom-checkbox"
+                v-model="selectedStudents"
+                :value="student.user_id"
+              />
+            </td>
+            <td style="font-size: 18px;">{{ student.user?.idnumber }}</td>
+            <td style="font-size: 18px;">
+              {{ student.user?.lname }}, {{ student.user?.fname }} {{ student.user?.mname }}
+            </td>
+            <td>{{ student.strands?.addstrand }} {{ student.strands?.grade_level }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" @click="addSelectedStudents">Add Selected Students</button>
+    <button type="button" class="btn btn-secondary" @click="closeAddStudentModal">Cancel</button>
+  </div>
+</div>
+
       </div>
     </div>
 
@@ -126,12 +163,38 @@ export default {
         gen_code: ''
       },
       students: [],
+      currentPage: 1,
+      studentsPerPage: 10,
       availableStudents: [],
       selectedStudents: [],
+      searchQuery: "", // Stores the user's search input
       isAddStudentModalVisible: false,
     };
   },
+  computed: {
+    paginatedStudents() {
+      const start = (this.currentPage - 1) * this.studentsPerPage;
+      const end = start + this.studentsPerPage;
+      return this.students.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.students.length / this.studentsPerPage);
+    },
+    filteredStudents() {
+      // Filter students by search query
+      const query = this.searchQuery.toLowerCase();
+      return this.availableStudents.filter((student) => {
+        const fullName = `${student.user?.lname}, ${student.user?.fname} ${student.user?.mname}`;
+        return fullName.toLowerCase().includes(query);
+      });
+    }
+  },
   methods: {
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+      }
+    },
     async fetchSubject() {
       try {
         const classId = this.$route.params.class_id;
@@ -220,6 +283,31 @@ export default {
 </script>
 
 <style scoped>
+.btn-gradient {
+  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
+  color: #120808;
+  transition: background 0.3s ease;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border-radius: 5px ;
+  padding: 5px;
+  width: 250px;
+  
+  border-color: white;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
+}
+
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #b2b3b4, #eff0f0);
+  
+}
+.custom-modal-dialog {
+    width: 600px; /* Set your desired max width */
+    width: 80%; /* Set your desired default width */
+    height: 30px;
+}
 .subject-info-container {
   background-color: #EEEDED;
   border-radius: 10px;
@@ -292,7 +380,11 @@ export default {
   color: #000000;
   font-weight: 700;
   font-size: 20px;
+  text-align: center;
+  vertical-align: middle;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
 
 .modal-custom {
   border-radius: 12px;

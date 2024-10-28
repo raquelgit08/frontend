@@ -38,10 +38,10 @@
           <tbody>
           <tr v-for="(item, index) in paginatedItems" :key="item.idnumber">
             <td class="text-center">{{ index + 1 }}</td>
-            <td class="text-center">{{ item.idnumber }}</td>
-            <td class="text-center">
+            <td style="text-align: start;">{{ item.idnumber }}</td>
+            <td style="text-align: start;">
               <b>{{ item.lname }}, {{ item.fname }} {{ item.mname }}</b><br>
-              <i>{{ item.email }}</i>
+              <!-- <i>{{ item.email }}</i> -->
             </td>
             <td class="text-center">{{ item.sex }}</td>
             <td class="text-center">{{ item.usertype }}</td>

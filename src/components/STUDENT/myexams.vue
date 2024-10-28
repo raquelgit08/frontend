@@ -190,11 +190,13 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('Response received:', response.data); 
         this.modalExam = {
             ...response.data.exam,
             originalExam: exam, // Keep reference to the original exam
         };
         this.instructions = response.data.exam.instructions; 
+        console.log('Exam details set:', this.modalExam); 
         this.showModal = true;
       } catch (error) {
         this.error = error.response ? error.response.data.error : 'Error fetching exam details';
@@ -231,6 +233,8 @@ export default {
 }
 .nav , .subject-info-container{
   margin-left: 20px;
+  margin-right: 10px;
+  width: 100%;
 }
 .container-fluid{
   margin-left: 15px;

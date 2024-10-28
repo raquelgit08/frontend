@@ -3,9 +3,15 @@
     <div class="container-fluid">
       <div class="d-flex align-items-center justify-content-between">
         <h4><i class="bi bi-person-bounding-box"></i> List of Teachers Accounts</h4>
-        <router-link to="/aregisterteacher" title="Add Record" class="btn-gradient d-flex align-items-center">
-          <i class="bi bi-clipboard2-plus-fill register me-2"></i> Add Record
-        </router-link>
+        <div class="d-flex">
+          <button class="btn-gradient2 d-flex align-items-center me-0"  @click="showModalExcel = true">
+            <i class="bi bi-upload me-2"></i> Import Excel
+          </button>
+
+          <router-link to="/aregisterteacher" title="Add Record" class="btn-gradient d-flex align-items-center">
+            <i class="bi bi-clipboard2-plus-fill register me-2"></i> Add Record
+          </router-link>
+        </div>
       </div><br>
       <div class="row mb-4 justify-content-end align-items-center">
         <div class="col-md-8">
@@ -53,7 +59,7 @@
             <tr v-for="(teachers, index) in paginatedItems" :key="teachers.idnumber">
               <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
               <td>{{ teachers.user.idnumber }}</td>
-              <td class="text-center">{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </td>
+              <td style="text-align: start;">{{ teachers.user.lname }}, {{ teachers.user.fname }} {{ teachers.user.mname }} </td>
               <td class="text-center">{{ teachers.user.sex }}</td>
               <td>{{ teachers.position.teacher_postion }} </td>
               <td class="text-center">
@@ -114,6 +120,17 @@
       </div>
 
     </div>
+    <!-- Import Excel Modal  -->
+    <b-modal v-model="showModalExcel" title="Import Excel File" hide-footer>
+      <div class="modal-body">
+        <!-- File upload input -->
+        <input type="file" @change="handleFileUpload" class="form-control" accept=".xlsx, .xls" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn" style="background-color: #7d8a9a;"  @click="showModalExcel = false">Close</button>
+        <button class="btn" style="background-color:  #B9EBC5; " @click="importExcel">Upload</button>
+      </div>
+    </b-modal>
     <!-- Reset Password Modal -->
     <div v-if="showResetModal" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
       <div class="modal-dialog modal-dialog-centered" role="document">
@@ -132,7 +149,7 @@
                   <input type="text" class="form-control" id="newPassword" v-model="form.newPassword" required>
                 </div>
                 <div class="mb-3 col-12 col-md-4">
-                  <button type="button" class="btn btn-secondary" @click="generatePassword">Generate New Password</button>
+                  <button type="button" class="btn " style="width: 130px; height: 40px; margin-top: 27px; background-color: cornflowerblue;" @click="generatePassword">Generate </button>
                 </div>
               </div>
               <div class="mb-3">
@@ -141,8 +158,8 @@
               </div>
               <div v-if="errorMessage" class="alert alert-danger">
                 {{ errorMessage }}
-              </div>
-              <button type="submit" class="btn btn-primary">Reset Password</button>
+              </div><center>
+              <button type="submit" class="btn " style="width: 250px; height: 40px; margin-top: 15px; background-color: #B9EBC5;">Reset Password</button></center>
             </form>
           </div>
         </div>
@@ -162,18 +179,27 @@
               
 
               <div class="row mb-3">
-                 <label for="idnumber" class="form-label">ID NUMBER:</label>
-                  <input type="idnumber" id="idnumber" v-model="currentUser.user.idnumber" class="form-control" >
-                 
-                  <label for="lname" class="form-label">Last Name:</label>
-                  <input type="text" id="lname" v-model="currentUser.user.lname" class="form-control" >
-             
-                  <label for="fname" class="form-label">First Name:</label>
-                  <input type="text" id="fname" v-model="currentUser.user.fname" class="form-control" >
-               
-                  <label for="mname" class="form-label">Middle Name:</label>
-                <input type="text" id="mname" v-model="currentUser.user.mname" class="form-control" >
-       </div>
+    <div class="mb-3">
+        <label for="idnumber" class="form-label">ID NUMBER:</label>
+        <input type="text" id="idnumber" v-model="currentUser.user.idnumber" class="form-control">
+    </div>
+    
+    <div class="mb-3">
+        <label for="lname" class="form-label">Last Name:</label>
+        <input type="text" id="lname" v-model="currentUser.user.lname" class="form-control">
+    </div>
+    
+    <div class="mb-3">
+        <label for="fname" class="form-label">First Name:</label>
+        <input type="text" id="fname" v-model="currentUser.user.fname" class="form-control">
+    </div>
+    
+    <div class="mb-3">
+        <label for="mname" class="form-label">Middle Name:</label>
+        <input type="text" id="mname" v-model="currentUser.user.mname" class="form-control">
+    </div>
+</div>
+
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label d-block">Gender:</label>
@@ -210,8 +236,8 @@
           </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
-            <button type="button" class="btn btn-primary" @click="saveChanges">Save changes</button>
+            <button type="button" class="btn " style="background-color: lightgrey;" @click="showModal = false">Close</button>
+            <button type="button" class="btn btn-primary" style="width: 200px; height: 35px;" @click="saveChanges">Save changes</button>
           </div>
         </div>
       </div>
@@ -235,6 +261,8 @@ export default {
       showPassword: false,
       selectedGender: 'Filter By Gender', // Default to 'all'
       gender: ['Filter By Gender', 'male', 'female'],
+      showModalExcel: false, // To control modal visibility
+      selectedFile: null,
       itemsPerPage: 10,
       currentPage: 1,
       form: {
@@ -301,6 +329,48 @@ export default {
   }
   },
   methods: {
+    handleFileUpload(event) {
+      // Capture the selected file
+      this.selectedFile = event.target.files[0];
+    },
+    async importExcel() {
+      if (this.selectedFile) {
+        // Create a FormData object to send the file
+        const formData = new FormData();
+        formData.append('file', this.selectedFile);
+
+        try {
+          // Send the file via Axios to the backend
+          const response = await axios.post(`${config.apiBaseURL}/import_excel_post2`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+
+          // Handle success
+          if (response.data.success) {
+            console.log('Upload successful:', response.data);
+            alert(`Successfully imported ${response.data.records_processed} records.`);
+            this.showModalExcel = false; // Close the modal
+          }
+
+          // Handle failed imports
+          if (response.data.failed_imports.length > 0) {
+            console.warn('Failed imports:', response.data.failed_imports);
+            alert('Some records failed to import. Check the logs for details.');
+          }
+
+        } catch (error) {
+          // Handle errors
+          console.error('Error uploading file:', error.response?.data || error.message);
+          alert('Error uploading file. Please check the console for details.');
+        }
+
+      } else {
+        alert('Please select a file.');
+      }
+    },
+
     formatDate(date) {
       return moment(date).format('YYYY/M/D [time] h:mm a');
     },
@@ -652,19 +722,39 @@ h4 {
   height: 30px;
 }
 /* Button Styles */
+.btn-gradient2 {
+  background-color:  #B9EBC5; 
+ 
+}
 .btn-gradient {
-  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
+  background-color:  #A7B2B8; 
+ 
+}
+.btn{
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   color: #120808;
   font-size: 17px;
   transition: background 0.3s ease;
   border-radius: 5px ;
+  border-color: white;
+ 
+  padding: 5px;
+  width: 100px;
+  height: 35px;
+  text-align: center;
+}
+.btn-gradient2 ,.btn-gradient {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  color: #120808;
+  font-size: 17px;
+  transition: background 0.3s ease;
+  border-radius: 5px ;
+  border-color: white;
   margin: 20px;
   padding: 5px;
   width: 170px;
   text-align: center;
 }
-
 .btn-gradient:hover {
   background: linear-gradient(45deg, #b2b3b4, #eff0f0);
 }

@@ -44,44 +44,60 @@
         <div v-if="results && Object.keys(results).length" class=" table-wrapper">
           <table class="table table-bordered table-hover table-custom">
             <thead>
+              <!-- Main Header Row -->
               <tr>
-                <th >#</th>
-                <th>LRN</th>
+                <th style="width: 5%;">#</th>
+                <th style="width: 100px;">LRN</th>
                 <th>Student Name</th>
                 <th>Sex</th>
-                <th>strand</th>
-                <th style="width: 5%;" v-for="(examData, examTitle) in results" :key="examTitle">
+                <th>Strand</th>
+
+                <!-- Exam Title Headers with Tooltips -->
+                <th v-for="(examData, examTitle) in results" :key="examTitle" style="width: 10%;">
                   <div :title="formatDateTime(examData.exam_results[0]?.exam_start)">
                     {{ examTitle }}
                   </div>
                 </th>
-                <th style="width: 10%;">TOTAL</th>
-                <th colspan="2">%
-                  <div class="multiplier-dropdown">
-                    <label for="multiplier">Multiplier:</label>
-                    <select id="multiplier" v-model.number="percentageMultiplier">
-                      <option v-for="option in multiplierOptions" :key="option" :value="option">
-                        {{ option }}
-                      </option>
-                    </select>
+              </tr>
+
+            <!-- Sub-Header Row for Score, PS, WS under each Exam Title -->
+              <tr>
+                <th colspan="5" style="background-color: white;"></th> <!-- Empty space for non-exam columns -->
+                <!-- Sub-Headers for each Exam Column -->
+                <th v-for="(examData, examTitle) in results" :key="examTitle + '-subheader'">
+                  <div style="display: flex; flex-direction: row; gap: 40px; padding-left: 10px; padding-right: 10px;">
+                    <span>Score</span>
+                    <span>PS</span>
+                    <span>WS</span>
                   </div>
                 </th>
+
+               
               </tr>
             </thead>
+
             <tbody>
               <tr v-for="(student, index) in paginatedStudents" :key="student.lrn">
                 <td>{{ index + 1 + (currentPage - 1) * studentsPerPage }}</td> <!-- Corrected numbering -->
                 <td>{{ student.lrn }}</td>
-                <td :style="{ width: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">
+                <td :style="{ width: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'start' }">
                   {{ student.Last_name }}, {{ student.First_name }} {{ student.Middle_i }}
                 </td>
-                <td>{{ student.sex}}</td>
-                <td :style="{ width: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ student.strand_name }} - {{ student.gradelevel_name }}</td>
+                <td style="width: 70px;">{{ student.sex}}</td>
+                
+                <td :style="{ width: '130px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ student.strand_name }} - {{ student.gradelevel_name }} {{ student.section_name }}</td>
                 <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
-                  {{ student[examTitle] || '-' }} / {{ examData.exam_results[0]?.points_exam }}
+                  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; ">
+                    <!-- Total Score and Points Exam -->
+                    <span>{{ student[examTitle]?.total_score || '-' }} / {{ examData.exam_results[0]?.points_exam }}</span>
+                    <!-- PS (Percentage Score) -->
+                    <span>{{ student[examTitle]?.ps || '-' }}</span>
+                    <!-- WS (Weighted Score) -->
+                    <span>{{ student[examTitle]?.ws || '-' }}</span>
+                  </div>
                 </td>
-                <td>{{ student.student_total_scores }} / {{ total_points_exam_across_all_exams }}</td>
-                <td>{{ student.percentage }}</td>
+
+
               </tr>
               <tr>
                 <td colspan="5">
@@ -251,8 +267,12 @@ export default {
             
             results.push(student);
           }
-          student[examTitle] = result.total_score || '0';
-          student.student_total_scores += parseFloat(result.total_score || '0');
+          student[examTitle] = {
+  total_score: result.total_score || '0',
+  ps: result.ps || '-',
+  ws: result.ws || '-',
+};
+
         }
       }
       results.forEach(student => {

@@ -212,7 +212,7 @@ body {
 .logOut{
   margin: 20px;
 }
-.sidebar {
+/* .sidebar {
   min-height: 100vh;
   width: 85px;
 
@@ -226,7 +226,7 @@ body {
   top: 0;
   left: 0;
 }
-/* Sidebar and Content */
+Sidebar and Content */
 
 
 .sidebar.open {
@@ -239,17 +239,17 @@ body {
 }
 
 .content {
-  margin-top: 20px;
-  margin-left: 20px; /* Margin when sidebar is closed */
+  /* margin-top: 20px;
+  margin-left: 20px; Margin when sidebar is closed */
   padding: 10px;
   width: calc(100% - 85px); /* Adjust width based on sidebar state */
   transition: margin-left 0.3s ease, width 0.3s ease; /* Adjust transition duration as needed */
 }
 
-.sidebar.open ~ .content {
-  margin-left: 320px; /* Margin when sidebar is open */
-  width: calc(100% - 320px); /* Adjust width based on sidebar state */
-}
+/*.sidebar.open ~ .content {
+  margin-left: 320px; Margin when sidebar is open 
+  width: calc(100% - 320px); Adjust width based on sidebar state 
+}*/
 
 /* Navbar Adjustments */
 .navbar {

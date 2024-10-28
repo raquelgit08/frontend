@@ -6,7 +6,7 @@
 
     <!-- Search and Add Button -->
     <div class="row mb-4 justify-content-end align-items-center">
-      <div class="col-md-7">
+      <div class="col-md-6">
         <div class="input-group">
           <span class="input-group-text">
             <i class="bi bi-search"></i>
@@ -14,7 +14,7 @@
           <input type="text" v-model="searchQuery" class="form-control custom-select" placeholder="Search Strand Curriculum...">
         </div>
       </div>
-      <div class="col-md-2 d-flex align-items-center">
+      <div class="col-md-3 d-flex align-items-center">
         <label for="semester">SORT BY SEMESTER:</label>
         <select v-model="selectedSemester" id="semester" class="form-select">
           <option value="">All Semesters</option>
@@ -36,7 +36,7 @@
     </div>
 
     <div class="table-wrapper">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped table-custom">
       <thead class="table-light">
         <tr>
           <th>No.</th>
@@ -49,8 +49,8 @@
         <template v-for="(gradeLevels, strand, strandIndex) in filteredCurriculums" :key="strandIndex">
           <template v-for="(subjects, gradeLevel, gradeIndex) in gradeLevels" :key="gradeLevel">
             <tr>
-              <td>{{ (strandIndex * Object.keys(gradeLevels).length) + (gradeIndex + 1) }}</td> <!-- Numbering -->
-              <td>{{ strand }} <small>{{ gradeLevel }}</small></td>
+              <td style="text-align: center;">{{ (strandIndex * Object.keys(gradeLevels).length) + (gradeIndex + 1) }} .</td> <!-- Numbering -->
+              <td class="strand"><b> {{ strand }} <small>{{ gradeLevel }}</small></b></td>
               <td>
                 <ul>
                   <li v-for="(subjectArray, subjectName) in subjects" :key="subjectName">
@@ -58,7 +58,7 @@
                       <span v-for="subject in subjectArray" :key="subject.subject_id">
                         {{ subject.subjectname }}
                         <small class="text-muted"> ({{ subject.semester }}) <!-- Display semester -->
-                        <button @click="confirmDeleteSubject(subject.curi_id, subject.subject_id)" class="btn btn-sm">Delete</button></small>
+                        <button @click="confirmDeleteSubject(subject.curi_id, subject.subject_id)" class="btn btn-sm" style="color: red;">Delete</button></small>
                       </span>
                     </span>
                     <span v-else>No subjects available</span>
@@ -85,7 +85,7 @@
 
     <!-- Add/Edit Modal -->
     <div class="modal fade" id="strandCurriculumModal" tabindex="-1" ref="strandCurriculumModal" aria-hidden="false">
-      <div class="modal-dialog">
+      <div class="modal-dialog custom-modal-dialog">
         <div class="modal-content">
           <div class="d-flex justify-content-between align-items-center">
             <h5 class="modal-title">
@@ -104,17 +104,33 @@
                 </option>
               </select>
             </div>
+            
             <div class="col-md-12 mb-3">
-              <label for="subjects" class="form-label">Subjects:</label>
-              <div>
-                <div v-for="subject in items" :key="subject.id" class="form-check">
-                  <input  type="checkbox"  :value="subject.id"  v-model="formData.subject_ids"  class="form-check-input"  :id="'subject_' + subject.id" />
-                  <label :for="'subject_' + subject.id" class="form-check-label">
-                    {{ subject.subjectname }}
-                  </label>
-                </div>
-              </div>
-            </div>
+              <div class="d-flex align-items-center">
+                <label for="subjects" class="form-label me-2">Subjects:</label>
+                <input type="text" 
+                            v-model="subjectSearchQuery" 
+                            class="form-control searchsub" 
+                            placeholder="Search subjects..."
+                        />
+                    </div>
+             
+    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ced4da; padding: 10px; border-radius: 5px;">
+        <div v-for="subject in filteredSubjects" :key="subject.id" class="form-check">
+            <input 
+                type="checkbox" 
+                :value="subject.id" 
+                v-model="formData.subject_ids" 
+                class="form-check-input" 
+                :id="'subject_' + subject.id" 
+            />
+            <label :for="'subject_' + subject.id" class="form-check-label">
+                {{ subject.subjectname }}
+            </label>
+        </div>
+    </div>
+</div>
+
 
             <div class="form-group">
               <label for="semester">Semester:</label>
@@ -148,6 +164,7 @@ export default {
   data() {
     return {
       searchQuery: '',
+      subjectSearchQuery: '',
       strandCurriculums: [], 
       curriculums: {}, 
       
@@ -168,6 +185,12 @@ export default {
   },
 
   computed: {
+    filteredSubjects() {
+        const query = this.subjectSearchQuery.toLowerCase();
+        return this.items.filter(subject => 
+            subject.subjectname.toLowerCase().includes(query)
+        );
+    },
     filteredCurriculums() {
     const result = {};
     const query = this.searchQuery.toLowerCase();
@@ -477,49 +500,60 @@ export default {
     width: 200px;
 }
 
-/* Table Wrapper */
 .table-wrapper {
-    margin: 10px;
-    padding: 0 15px;
-    max-width: 100%;
-    overflow-x: auto;
+  margin: 10px;
+  padding: 0 15px;
+  max-width: 100%;
+  overflow-x: auto;
 }
+.searchsub {
+    border: none; /* Remove all borders */
+    border-bottom: 2px solid #818486; /* Add a bottom border */
+    border-radius: 0; /* Remove border radius */
+    outline: none; /* Remove outline on focus */
+    box-shadow: none; /* Remove box shadow */
+    margin-bottom: 10px;
+}
+
+.searchsub:focus {
+    border-bottom: 2px solid #525353; /* Change color on focus */
+}
+
 
 /* Table Styles */
 .table-custom {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(5, 4, 4, 0.1);
-    border: 1px solid #200909;
-    overflow: hidden;
-    margin-bottom: 120px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid #200909;
+  overflow: hidden;
+  margin-bottom: 120px;
 }
 
 .table-custom th {
-    background-color: #0d8eead7;
-    color: #000000;
-    
-    font-weight: 700;
-    font-size: 20px;
+  background-color: #c1c1c1d7;
+  color: #000000;
+  font-weight: 700;
+  font-size: 20px;
 }
 
-.table td {
-    /* text-align: center; */
-    vertical-align: middle;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.table th , .strand {
+  text-align: center;
+  vertical-align: middle;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.table th {
-   text-align: center; 
-    vertical-align: middle;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+.td {
+  font-size: 18px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .table-custom tbody tr:hover {
-    background-color: #f1f3f5;
+  background-color: #f1f3f5;
 }
 
 .table-custom tbody tr {
-    transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .edit {
@@ -534,7 +568,7 @@ export default {
 }
 
 .btn-gradient {
-    background: linear-gradient(45deg, #007bff, #00bfff);
+  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
     color: #120808;
     transition: background 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -547,12 +581,10 @@ export default {
     font-size: 20px;
 }
 
-.edit:hover {
-    background-color: green;
-}
+
 
 .btn-gradient:hover {
-    background: linear-gradient(45deg, #0056b3, #0080ff);
+  background: linear-gradient(45deg, #b2b3b4, #eff0f0);
 }
 
 .custom-select {
@@ -578,8 +610,13 @@ export default {
 }
 
 .modal-dialog {
-    width: 40%;
+    width: 60%;
 }
+.custom-modal-dialog {
+    max-width: 600px; /* Set your desired max width */
+    width: 80%; /* Set your desired default width */
+}
+
 .btn-sm {
     padding-top: 0; 
     padding-bottom: 0; 

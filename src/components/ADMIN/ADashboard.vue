@@ -21,11 +21,11 @@
         </div>
       </div>
       <div class="col-12 col-sm-6 col-md-3 mb-3">
-        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/ManageStrandsinSHS')">
+        <div class="boxes d-flex align-items-center p-3" @click="$router.push('/ASection')">
           <i class="bi bi-book-half icon icon3"></i>
           <div class="content">
-            <h4>{{ counts.strand_count }}</h4>
-            <span class="label">Total Number Of Strands</span>
+            <h4>{{ counts.section_count }}</h4>
+            <span class="label">Total Number Of Sections</span>
           </div>
         </div>
       </div>
@@ -402,6 +402,7 @@ export default {
   max-width: 500px; /* Ensure it doesn't grow too large */
   padding: 10px;
   margin: 10px;
+  border-top: 2px solid maroon;
   border-radius: 15px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
@@ -435,6 +436,7 @@ h6{
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   cursor: pointer; /* Indicates clickable area */
   display: flex;
+  border-left: 2px solid maroon;
   align-items: center;
 }
 

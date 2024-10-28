@@ -22,25 +22,26 @@
     </nav>
   <div class="container-fluid"><br>
     <!-- <h4 class="text-center">Students to be accepted</h4><br> -->
-
+    <input type="text"  v-model="searchQuery"  placeholder="Search by ID Number"  class="form-control mb-3"/>
     <!-- Display students in a table format -->
-    <table class="table table-striped">
+    <table class="table table-striped table-custom">
       <thead>
         <tr>
+          <th>#</th>
           <th>ID Number</th>
-          <th>First Name</th>
+          <th>Name</th>
           
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="student in students" :key="student.id">
+        <tr v-for="(student, index) in filteredStudents" :key="student.id">
+          <td>{{ index + 1 }}</td> <!-- Row numbering -->
           <td>{{ student.idnumber }}</td>
-          <td>{{student.lname}}, {{ student.fname }} {{ student.mname }}</td>
-       
+          <td>{{ student.lname }}, {{ student.fname }} {{ student.mname }}</td>
           <td>
             <button class="btn btn-success" @click="updateStudentStatus(student.id, 1)" style="margin-right: 10px;">Approve</button>
-            <button class="btn btn-danger" @click="updateStudentStatus(student.id, 0)">Decline</button>
+            <!-- <button class="btn btn-danger" @click="updateStudentStatus(student.id, 0)">Decline</button> -->
           </td>
         </tr>
       </tbody>
@@ -57,6 +58,7 @@
 <script>
 import axios from 'axios';
 import config from '@/config';
+import Swal from "sweetalert2";
 export default {
   name: 'PendingStudent',
   data() {
@@ -67,8 +69,17 @@ export default {
         semester: '',
         schoolYear: ''
       },
-      error: ''
+      error: '',
+      searchQuery: '' 
     };
+  },
+  computed: {
+    filteredStudents() {
+      // Filter students based on the search query
+      return this.students.filter(student => {
+        return student.idnumber.toString().includes(this.searchQuery); // Ensure ID number is treated as a string
+      });
+    }
   },
   methods: {
     async fetchStudents() {
@@ -80,7 +91,7 @@ export default {
       }
     });
     // Log the API response
-    console.log('Fetched students response:', response.data);
+    console.log('Fetched studentssssss response:', response.data);
     this.students = response.data;
   } catch (error) {
     this.error = 'Error fetching students: ' + (error.response ? error.response.data.error : error.message);
@@ -129,7 +140,12 @@ export default {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         });
-        alert(response.data.message); // Show success message
+        // Show SweetAlert success message for approval or decline
+        Swal.fire({
+          icon: 'success',
+          title: status === 1 ? 'Approved!' : 'Declined!',
+          text: response.data.message,
+        });
         this.fetchStudents(); // Refresh the student list after action
       } catch (error) {
         this.error = 'Error updating student status: ' + (error.response ? error.response.data.error : error.message);
@@ -223,12 +239,36 @@ export default {
   margin-bottom: 20px;
 }
 
-.table {
-  font-size: 15px;
+/* Table Styles */
+.table-custom {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid #200909;
+  overflow: hidden;
+  margin-bottom: 120px;
 }
 
-.table-info {
-  background-color: #e0ffff;
+.table-custom th {
+  background-color: #c1c1c1d7;
+  color: #000000;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.table-custom tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.table-custom tbody tr {
+  transition: background-color 0.3s ease;
 }
 
 .btn-danger {

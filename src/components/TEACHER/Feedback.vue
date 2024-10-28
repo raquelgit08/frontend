@@ -31,13 +31,15 @@
             <h6>{{ feedback.title }} </h6>
             <ul class="comments-list">
               <li v-if="feedback.comments === 'No comment'" class="comment-item">{{ feedback.comments }}</li>
-              <li v-else v-for="comment in feedback.comments" :key="comment.student_id" class="comment-item">
-                <i class="bi bi-chat-dots-fill me-2"></i>
-                <strong>{{ comment.student_name }} {{ comment.fname }} {{ comment.mname }}</strong>: {{ comment.comment }}
-              </li>
+              <li v-else v-for="(comment, index) in feedback.comments" :key="comment.student_id" class="comment-item">
+  <i class="bi bi-chat-dots-fill me-2"></i>
+  <strong>{{ index + 1 }}. {{ comment.student_name }} {{ comment.fname }} {{ comment.mname }}</strong>: {{ comment.comment }}
+</li>
+
             </ul>
           </div>
 
+          
         </div>
       </div>
     </div>
@@ -270,6 +272,8 @@ export default {
   padding: 15px;
   margin-bottom: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  height: 200px;
+  overflow-x: auto;
 }
 
 .feedback-box h6 {

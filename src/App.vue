@@ -22,51 +22,46 @@
 
             <!-- Login form -->
             <form @submit.prevent="handleSubmit" class="login-form">
-              <input
-                type="text"
-                v-model="idnumber"
-                placeholder="Enter username"
-                class="form-control"
-                required
-              />
+              <input type="text" v-model="idnumber"  placeholder="Enter username"  class="form-control"  required />
               <div class="password-group">
-                <input
-                  :type="showPassword ? 'text' : 'password'"
-                  v-model="password"
-                  placeholder="Password"
-                  class="form-control"
-                  required
-                />
+                <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Password" class="form-control" required/>
                 <i :class="passwordFieldIcon" class="password-toggle" @click="togglePassword"></i>
               </div>
-              <div class="form-options">
+              <!-- <div class="form-options">
                 <a
                   href="#"
                   class="recovery-password"
                   :style="{ color: recoveryPasswordColor }"
                   @click="verifyifAdmin"
                 >Forgot Password</a>
+              </div> -->
+              <div class="form-options">
+                <a href="#"
+                  class="recovery-password"
+                  :style="{ color: recoveryPasswordColor }"
+                  @click="showNotice"
+                >Forgot Password</a>
               </div>
               <button type="submit" class="btn-signin" :style="{ backgroundColor: signInButtonColor }">Sign In</button>
             </form>
             <div v-if="verificationCodeAdmin" class="modal fade show" tabindex="-1" role="dialog" style="display: block; background-color: rgba(0, 0, 0, 0.5);">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content rounded-3 shadow">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Verification Number</h5>
-        <button type="button" class="btn-close btn-close-white" @click="verificationCodeAdmin = false" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form @submit.prevent="verifyAdminId">
-          <div class="mb-3">
-            <label for="adminidnumber" class="form-label">Admin ID Number</label>
-            <input type="text" class="form-control" id="adminidnumber" v-model="form.idnumber" placeholder="Enter Admin ID Number" required>
-          </div>
-          <div v-if="errorMessage" class="alert alert-danger">
-            {{ errorMessage }}
-          </div>
-          <button type="submit" class="btn btn-success w-100">Verify</button>
-        </form>
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content rounded-3 shadow">
+                  <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Verification Number</h5>
+                    <button type="button" class="btn-close btn-close-white" @click="verificationCodeAdmin = false" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form @submit.prevent="verifyAdminId">
+                      <div class="mb-3">
+                        <label for="adminidnumber" class="form-label">Admin ID Number</label>
+                        <input type="text" class="form-control" id="adminidnumber" v-model="form.idnumber" placeholder="Enter Admin ID Number" required>
+                      </div>
+                      <div v-if="errorMessage" class="alert alert-danger">
+                        {{ errorMessage }}
+                  </div>
+              <button type="submit" class="btn btn-success w-100">Verify</button>
+            </form>
       </div>
     </div>
   </div>
@@ -92,7 +87,7 @@
           </template> -->
 
           <!-- Forgot Password Step 2: Enter verification code and reset password -->
-          <template v-else-if="forgotPasswordStep === 1">
+          <!--  <template v-else-if="forgotPasswordStep === 1">
             <h1 class="greeting">Reset Password</h1>
             <p class="welcome-message">Enter the verification code and your new password.</p>
 
@@ -120,7 +115,7 @@
               />
               <button type="submit" class="btn-signin">Reset Password</button>
             </form>
-          </template>
+          </template>-->
         </div>
       </div>
     </div>
@@ -232,6 +227,14 @@ export default {
     
      this.verificationCodeAdmin = true;
    
+    },
+    showNotice() {
+      Swal.fire({
+        title: 'Notice',
+        text: 'Please inform the admin if you want to reset your password. Only ADMIN can do this.',
+        icon: 'info',
+        confirmButtonText: 'Okay'
+      });
     },
     async verifyAdminId() {
     this.errorMessage = ''; // Clear previous error messages

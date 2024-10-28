@@ -573,7 +573,7 @@ export default {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   margin-bottom: 85px;
   transition: transform 0.2s, box-shadow 0.2s;
-  margin-left: 43px;
+ 
 }
 
   

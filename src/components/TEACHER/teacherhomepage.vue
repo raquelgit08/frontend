@@ -10,11 +10,13 @@
             <p style="font-size: 12px; color: white; margin: 0;">SAN FABIAN, ECHAGUE, ISABELA</p>
           </div>
         </div>
+        
 
       </div>
       <div class="d-flex align-items-center ms-auto">
         <h4 class="mb-0 me-3">WELCOME {{userProfile.fname}}</h4>
-        <div @click="togglePopover" class="profile-icon-container">
+        <i class="bi bi-box-arrow-right fs-4" style="margin-right: 20px;" id="log_out" @click="handleLogout"></i>
+        <!-- <div @click="togglePopover" class="profile-icon-container">
           <i class="bi bi-person-lock profile-icon"></i>
           <div v-if="isPopoverVisible" class="popover show" role="tooltip">
             <div class="popover-arrow"></div>
@@ -42,7 +44,7 @@
               <p>User not logged in.</p>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </nav>
     <!-- <div class="d-flex">
@@ -312,7 +314,7 @@ export default {
 }
 
 .content {
-  margin-left: 250px;
+
   background-color: #eaeaea; /* Gray background */
   padding: 20px;
   width: calc(100% - 250px);

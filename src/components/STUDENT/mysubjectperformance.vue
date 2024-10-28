@@ -64,7 +64,7 @@
               <th>Total Points</th>
               <th>Percentage</th>
               <th>Remarks</th>
-              <th>Date Taken</th>
+              <th>Date </th>
             </tr>
           </thead>
           <tbody>
@@ -191,6 +191,8 @@ export default {
 <style scoped>
 .nav , .subject-info-container , .table-wrapper{
   margin-left: 20px;
+  margin-right: 10px;
+  width: 100%;
 }
 
 
@@ -199,7 +201,7 @@ export default {
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 10px;
-
+ 
   height: 150px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
 import HomePageAdmin from './components/ADMIN/homepageadmin.vue';
+import AdminManualPage from './components/ADMIN/manual.vue';
 import AdminDashboard from './components/ADMIN/ADashboard.vue';
 import BarChart from './components/ADMIN/adminbarchart.vue';
 import RegisterUser from './components/ADMIN/Aregisterstudent.vue';
@@ -36,6 +37,7 @@ import ViewExam from './components/TEACHER/viewexam.vue';
 import CreationOfExaminations from './components/TEACHER/CreatingExam.vue';
 import FeedbacksofStudent from './components/TEACHER/Feedback.vue';
 import ITEManalysis from './components/TEACHER/ItemAnalysis.vue';
+import ItemAnalysis2 from './components/TEACHER/Item Analysis2.vue';
 import PendingStudent from './components/TEACHER/pendingstudentlist.vue'
 import PerformancesTracking from './components/TEACHER/PerformanceTracking.vue';
 import ReportGenerating from './components/TEACHER/GenerateReport.vue';
@@ -64,6 +66,7 @@ const routes = [
   { path: '/adminpage', component: HomePageAdmin },
   { path: '/barchart', component: BarChart},
   { path: '/adashboard', component: AdminDashboard },
+  { path: '/manual1', component: AdminManualPage},
   { path: '/aregisterstudent', component: RegisterUser },
   { path: '/aregisterteacher', component: RegisterTeacher},
    { path: '/allusers', component: ManageUser },
@@ -98,6 +101,7 @@ const routes = [
   { path: '/CreatingExam/:class_id', component: CreationOfExaminations},
   { path: '/Feedback/:class_id', component: FeedbacksofStudent },
   { path: '/ItemAnalysis/:exam_id', component: ITEManalysis },
+  { path: '/ItemAnalysis2/:exam_id', component: ItemAnalysis2 },
   { path: '/PerformanceTracking/:class_id', component: PerformancesTracking },
   { path: '/GenerateReport/:class_id', component: ReportGenerating},
 

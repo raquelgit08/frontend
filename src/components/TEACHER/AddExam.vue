@@ -8,6 +8,12 @@
         <span><i class="bi bi-arrow-left fs-5">Go Back to Classes</i></span>
       </router-link>
      
+          <button @click="viewItemAnalysis(examId)" type="button" class="btn" style="background-color:  #87CEEB; margin-left: 1100px;">
+            View Item Analysis
+          </button>
+          <!-- <button @click="downloadPDF" >Download Exam Instructions PDF</button> -->
+
+       
     </nav>
     </div>
 
@@ -15,14 +21,7 @@
     <div class="manage-exam-container">
       <h2 class="page-title">Exam Management</h2>
 
-      <div class="top-section d-flex justify-content-between align-items-center mb-4">
-        <div class="button-group">
-          <button @click="viewItemAnalysis(examId)" type="button" class="btn btn-primary">
-            View Item Analysis
-          </button>
-          <!-- <button @click="downloadPDF" >Download Exam Instructions PDF</button> -->
-        </div>
-      </div>
+      
 
       <div v-if="isPublished" class="alert alert-success">
         The exam has been successfully published.
@@ -116,7 +115,7 @@
 
           <div v-for="(question, index) in newQuestions" :key="index" class="question-card mb-4 p-3 border bg-light">
             <div class="mb-3">
-              <label class="form-label">Question</label>
+              <label class="form-label">Question # {{ index + 1 }}</label>
               <input type="text" v-model="question.text" class="form-control" required />
             </div>
 
@@ -130,7 +129,12 @@
 
             <div class="mb-3">
               <label class="form-label">Correct Answer</label>
-              <input type="text" v-model="question.correctAnswer" class="form-control" required />
+              <!-- <input type="text" v-model="question.correctAnswer" class="form-control" required /> -->
+              <select v-model="question.correctAnswer" class="form-control" required>
+                <option v-for="(choice, idx) in question.choices" :key="idx" :value="choice">
+                  {{ choice }}
+                </option>
+              </select>
             </div>
 
             <div v-if="globalQuestionType === 'true-false'" class="mb-3">
@@ -462,7 +466,8 @@ export default {
     },
     viewItemAnalysis(examId) {
       this.$router.push(`/ItemAnalysis/${examId}`);
-    }
+    },
+   
   }
 };
 </script>

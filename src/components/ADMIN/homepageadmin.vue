@@ -29,20 +29,21 @@
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']">
-          <h2 >Echague National High School</h2>
-          <p style="font-size: 12px; color: #888;">SAN FABIAN, ECHAGUE, ISABELA</p>
+          
+          <h2 ><img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;" alt="Profile Image">Echague National High School</h2>
+          <p style="font-size: 12px; color: #888; padding-left: 50px">SAN FABIAN, ECHAGUE, ISABELA</p>
         </div>
       </div>
       <div class="d-flex align-items-center ms-auto" style="margin-right: 20px;">
         
         
-        <img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%;" alt="Profile Image">
+        
         <div class="profile_content2" style="flex: 1; text-align: center;">
           <!-- <div class="names" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div> -->
           <div class="designations" v-if="userProfile && Object.keys(userProfile).length">Welcome Admin</div>
           <p v-else>Loading profile...</p>
         </div>
-        <i class="bi bi-box-arrow-right fs-2" id="log_out" @click="handleLogout"></i>
+        <i class="bi bi-box-arrow-right fs-4" id="log_out" @click="handleLogout"></i>
       </div>
     </nav>
 
@@ -93,6 +94,10 @@ export default {
         { section: 'Reports', items: [
           { name: 'List of Student', path: '/ReportListofStudent', icon: 'bi bi-person-fill fs-3' },
           { name: 'List of Teacher', path: '/ReportListofTeacher', icon: 'bi bi-person-lines-fill fs-3' }
+        ] },
+        { section: 'HElp', items: [
+          { name: 'System Manual', path: '/manual1', icon: 'bi bi-person-fill fs-3' },
+         
         ] },
       ],
     };

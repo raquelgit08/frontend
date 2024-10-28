@@ -57,7 +57,7 @@
           <label for="password" class="form-label">Password:</label>
           <div class="input-group">
             <input v-model="formData.password" :class="{'is-invalid': !formData.password && validationAttempted}" :type="passwordFieldType" id="password" class="form-control" required>
-            <span class="input-group-text" @click="togglePasswordVisibility">
+            <span class="input-group-text"  style="height: 50px;" @click="togglePasswordVisibility">
               <i :class="passwordIcon"></i>
             </span>
           </div>
@@ -114,7 +114,8 @@
             <p><strong>First Name:</strong> {{ formData.fname }}</p>
             <p><strong>Middle Name:</strong> {{ formData.mname }}</p>
      
-            <p><strong>Mobile Number:</strong> {{ formData.fourp }}</p>
+            <p><strong>Are you a 4Ps? :</strong> {{ formData.fourp == 1 ? 'yes' : 'no' }}</p>
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
@@ -287,6 +288,7 @@ export default {
 }
 .register-form {
   padding: 20px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
 }
 
 .form-label {

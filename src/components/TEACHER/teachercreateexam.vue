@@ -53,7 +53,7 @@
         <tbody>
           <tr v-for="(exam, index) in filteredExams" :key="exam.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ exam.title }}</td>
+            <td style="text-align: start">{{ exam.title }}</td>
             <td>{{ exam.quarter }}</td>
             <td>{{ formatDate(exam.start) }}</td>
             <td>{{ formatTime(exam.start) }}</td>
@@ -71,10 +71,11 @@
               <span v-if="isAvailable(exam.start, exam.end)" class="badge bg-success">Available</span>
               <span v-else class="badge bg-warning">Not Available</span>
             </td>
-            <td><i class="bi bi-chevron-right" @click="editExam(exam)" style="cursor: pointer;"></i></td>
+            <td><i class="bi bi-chevron-right" @click="editExam(exam)" style="cursor: pointer;" title="Edit Exam Schedule"></i></td>
           </tr>
         </tbody>
       </table>
+      <p style="text-align: center;">. . . . . . . . . . . . . . . . .   Nothing   Follows . . . . . . . . . . . . . . . </p>
     </div>
   </div>
 
@@ -145,7 +146,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="isModalVisible = false">Close</button>
-          <button type="button" class="btn btn-primary" @click="confirmSaveChanges">Assign to students</button>
+          <button type="button" class="btn btn-primary" @click="confirmSaveChanges">Save Schedule</button>
         </div>
       </div>
     </div>

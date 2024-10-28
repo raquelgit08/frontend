@@ -354,9 +354,8 @@ export default {
     initializeTimer(startTime, endTime) {
       const now = new Date();
       if (now > endTime) {
-        this.submitExam(); 
-        this.examOver = true;
-        
+        this.examOver = true; // Set the exam to be over
+    this.submitExam(); // Automatically submit when time is up
         return;
       }
 
@@ -435,7 +434,7 @@ export default {
   padding: 40px;
   border-radius: 10px; /* Rounded corners */
   width: 1500px; /* Adjust width */
-  margin: 20px auto; /* Centers the entire question box */
+  margin: 20px ; /* Centers the entire question box */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
 
@@ -485,6 +484,7 @@ export default {
 
 .results-container {
   margin-top: 20px;
+  margin-left: 20px;
  
 }
 .results-title {
@@ -511,6 +511,7 @@ export default {
   position: absolute;
   top: 110px; /* Adjust as needed */
   right: 40px; /* Adjust as needed */
+  margin-right: 20px;
   z-index: 1000; /* Ensure it is above other content */
 }
 
@@ -518,6 +519,7 @@ export default {
  
   text-align: center;
   font-size: 50px;
+
 
 }
 .choice-container {

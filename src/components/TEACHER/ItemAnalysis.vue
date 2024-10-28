@@ -19,16 +19,22 @@
         </div>
       </div><br><br>
 
-      <div v-if="questionAnalysis.length > 0" class="questions-container">
+      <div v-if="questionAnalysis.length > 0" class="questions-container" >
         <table class="table table-striped table-custom">
           <thead>
             <tr>
-              <th style="width: 5%; text-align: center;">#</th>
-              <th style="width: 35%; ">Question</th>
-              <th style="width: 30%; ">Correct Answer</th>
+              <th style="width: 3%; text-align: center;">#</th>
+              <th style="width: 22%; ">Question</th>
+              <th style="width: 22%; ">Correct Answer</th>
               <th style="width: 9%; text-align: center;">Correct Selections</th>
               <th style="width: 9%; text-align: center;">Incorrect Selections</th>
-              <th style="width: 12%; text-align: center;">Category</th>
+              <th style="width: 13%; text-align: center;">
+                 <i class="bi bi-exclamation-triangle" title="Click to show formula" style="cursor: pointer; font-size: 30px; margin-right: 5px; color: #dc3545;" @click="openModal ('Difficulty', '/itemanalysis/difficulty.jpg', 'The Difficulty Index is usually expressed as a percentage or a fraction, representing the proportion of respondents who answer a question correctly. A lower percentage indicates a higher level of difficulty, while a higher percentage suggests that the question is easier.')" >
+                 </i>Difficulty</th>
+              <th style="width: 13%; text-align: center;">
+                <i class="bi bi-sliders" title="Click to show formula" style="cursor: pointer; font-size: 30px;margin-right: 5px; color: #0d6efd;" @click="openModal('Discrimination', '/itemanalysis/discrimination.jpg', 'The Discrimination Index indicates how effectively a question differentiates between students who understand the material well and those who do not. A high Discrimination Index means that high-achieving students are more likely to answer the question correctly than low-achieving students.')" ></i>Discrimination</th>
+              <th style="width: 9%; text-align: center;">
+                <i class="bi bi-check2-square" title="Click show condition" style="cursor: pointer; font-size: 30px;margin-right: 5px; color: #28a745;" @click="openModal('Decision', '/itemanalysis/evaluation.jpg', 'The Decision metric helps educators determine the quality and appropriateness of each test question. It combines insights from various indices, including the Difficulty and Discrimination Indices, to guide decisions on each items effectiveness in a test.')" ></i>Decision</th>
             </tr>
           </thead>
           <tbody>
@@ -43,16 +49,44 @@
                 {{ question.totalResponses - question.choices.find(choice => choice.choice === question.correct_answer).count }}
               </td>
               <td style="text-align: center;">
-                <div :class="getDifficultyClass(question.difficulty_category)">
-  <b> {{ question.difficulty_percentage }}</b>
-</div>
-                <small style="font-size: 15px;">{{ question.difficulty_category }}</small>
+                <!-- <div :class="getDifficultyClass(question.difficulty_category)">
+                  <b> {{ question.difficulty_percentage }}</b>
+                </div> -->
+                <!-- <small style="font-size: 15px;">{{ question.difficulty_category }}</small> -->
+                Index: {{ question.itemdifficulty }}<br>
+                <small> Remarks :{{ question.DifficultyCategory }} </small>
+              </td>
+              <td style="text-align: center;">
+                Index :{{ question.itemdiscrimination }}<br>
+                <small> Remarks :{{ question.DiscriminationCategory }} </small>
+              </td>
+              <td style="text-align: center;">
+                {{ question.Decision }}
               </td>
             </tr>
           </tbody>
         </table>
-
-        <!-- Pagination Controls -->
+        <div v-if="showModal" class="modal" tabindex="-1" role="dialog" style="display: block;">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modalTitle }}</h5>
+            <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            <p>{{ modalContent }}</p>
+            <img :src="modalImage" alt="Image for {{ modalTitle }}" class="img-fluid" />
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-7">
+          <!-- Pagination Controls -->
         <nav aria-label="Page navigation">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
@@ -66,6 +100,7 @@
             </li>
           </ul>
         </nav>
+        </div>
       </div>
 
       <div v-else>
@@ -74,6 +109,11 @@
 
       <b-modal id="correctStudentsModal" v-model="isModalVisibleCorrect" title="Students Who Answered Correctly" class="custom-modal">
   <div>
+    <div v-if="showCardContent" class="info-card">
+      <button class="btn-close" @click="closeCard"></button>
+      <h5>{{ cardTitle }}</h5>
+      <p v-html="cardText"></p> <!-- Use v-html to render HTML -->
+    </div>
     <div v-if="correctStudents.length > 0">
       <table class="table table-striped table-custom">
         <thead>
@@ -170,6 +210,10 @@ export default {
   name: 'ITEManalysis',
   data() {
     return {
+      showModal: false, // Controls modal visibility
+      modalTitle: "", // Title to display in the modal
+      modalContent: "", // Content for the modal
+      modalImage: "", // Image URL to display in the modal
       subject: {
         subjectName: '',
         semester: '',
@@ -251,15 +295,15 @@ export default {
         this.handleError(error);
       }
     },
-    getDifficultyClass(difficultyCategory) {
-    if (difficultyCategory === 'Easy') {
-      return 'easy-color';
-    } else if (difficultyCategory === 'Moderately Difficult') {
-      return 'moderate-color';
-    } else {
-      return 'difficult-color';
-    }
-  },
+  //   getDifficultyClass(difficultyCategory) {
+  //   if (difficultyCategory === 'Easy') {
+  //     return 'easy-color';
+  //   } else if (difficultyCategory === 'Moderately Difficult') {
+  //     return 'moderate-color';
+  //   } else {
+  //     return 'difficult-color';
+  //   }
+  // },
     async fetchItemAnalysis() {
       try {
         const examId = this.$route.params.exam_id;
@@ -270,7 +314,7 @@ export default {
           return;
         }
 
-        const response = await axios.get(`${config.apiBaseURL}/itemAnalysis`, {
+        const response = await axios.get(`${config.apiBaseURL}/itemAnalysis2`, {
           headers: {
             Authorization: `Bearer ${token}`
           },
@@ -327,7 +371,17 @@ export default {
       } else {
         this.error = 'Failed to fetch data. Please try again later.';
       }
+    },
+    openModal(title, image, content) {
+      this.modalTitle = title;
+      this.modalImage = image;
+      this.modalContent = content; // Set the modal content
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
     }
+  
   }
 };
 </script>
