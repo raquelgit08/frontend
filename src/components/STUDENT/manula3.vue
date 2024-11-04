@@ -41,15 +41,14 @@
           <button class="btn btnmanual" @click="showCard('button1')" style="line-height: 1;"><small class="d-block mb-0">PAGE 1</small><i class="bi bi-person-check fs-4"></i> Log In</button>
           <button class="btn btnmanual" @click="showCard('button2')" style="line-height: 1;"><small class="d-block mb-0">PAGE 2</small><i class="bi bi-book-half fs-4"></i> Classes</button>
           <button class="btn btnmanual" @click="showCard('button3')" style="line-height: 1;"><small class="d-block mb-0">PAGE 3</small><i class="bi bi-easel2-fill fs-4"></i> Class Details</button>
-          <button class="btn btnmanual" @click="showCard('button4')" style="line-height: 1;"><small class="d-block mb-0">PAGE 4</small><i class="bi bi-newspaper fs-4"></i> Exam Management</button>
+          
         </div>
   
         <div class="right-buttons">
-          <button class="btn btnmanual" @click="showCard('button5')" style="line-height: 1;"><small class="d-block mb-0">PAGE 5</small><i class="bi bi-file-earmark-bar-graph fs-4"></i> Item Analysis</button>
-          <button class="btn btnmanual" @click="showCard('button6')" style="line-height: 1;"><small class="d-block mb-0">PAGE 6</small><i class="bi bi-chat-dots fs-4"></i> Feedback</button>
-          <button class="btn btnmanual" @click="showCard('button7')" style="line-height: 1;"><small class="d-block mb-0">PAGE 7</small><i class="bi bi-activity fs-4"></i> Performance Tracking</button>
-          <button class="btn btnmanual" @click="showCard('button8')" style="line-height: 1;"><small class="d-block mb-0">PAGE 8</small><i class="bi bi-person-lines-fill fs-4"></i> Students</button>
-          <button class="btn btnmanual" @click="showCard('button9')" style="line-height: 1;"><small class="d-block mb-0">PAGE 9</small><i class="bi bi-hourglass-split fs-4"></i> Pending</button>
+          <button class="btn btnmanual" @click="showCard('button4')" style="line-height: 1;"><small class="d-block mb-0">PAGE 4</small><i class="bi bi-journal-text fs-4"></i> Examination</button>
+          <button class="btn btnmanual" @click="showCard('button5')" style="line-height: 1;"><small class="d-block mb-0">PAGE 5</small><i class="bi bi-bar-chart-line fs-4"></i> Results & Feedback</button>
+          <button class="btn btnmanual" @click="showCard('button6')" style="line-height: 1;"><small class="d-block mb-0">PAGE 6</small><i class="bi bi-activity fs-4"></i> My Performance</button>
+          <button class="btn btnmanual" @click="$router.go(-1)" style="text-align: center;font-weight: bolder; background-color: lightcoral;"><i class="bi bi-x-circle fs-4" ></i>  EXIT</button>
         </div>
       </div>
   
@@ -130,229 +129,137 @@
       }else if (button === 'button3') {
         this.cardTitle = 'Class Details Page'; // Update this title accordingly
         this.cardText = `
-          <b>3.</b> This interface displays all assessment tasks associated with the class.<br>
+          <b>3.</b> Start by accessing the Examinations or My Performance section. This interface displays all tasks associated with the class.<br>
           <ul>
               <li><b> 3.1 : Back to Classes Button </b> 
-                <ul><li>Click on "Go Back to Classes" to return to the main dashboard with all classes.</ul></li></li>
-              <li><b> 3.2 : Search Bar </b> 
-                <ul><li>Use the search bar labeled "Search Exam..." to quickly find specific assessments within this class.</ul></li></li>
-              <li><b> 3.3 : Exam Schedule Button </b> 
-                <ul>
-                  <li>Click "Exam Schedule" to view or manage the exam dates and times for the class.</li>
-                  <li><b>3.3.1 : </b>Click the <b>"X"</b> to close the form without saving.</li>
-                  <li><b>3.3.2 : Exam Title</b> Enter the title for the exam (e.g., "Assessment Task 1").</li>
-                  <li><b>3.3.3 : Quarter</b> Select the quarter in which the exam will be conducted (e.g., "1st Quarter").</li>
-                  <li><b>3.3.4 : Start Date</b> Choose the start date for the exam.</li>
-                  <li><b>3.3.5 : End Date</b> Select the end date for the exam.</li>
-                  <li><b>3.3.6 : Max Points</b> Set the maximum score achievable for this exam (e.g., "10").</li>
-                  <li><b>3.3.7 :Start Time</b> Set the start time of the exam.</li>
-                  <li><b>3.3.8 : End Time</b> Set the end time of the exam.</li>
-                  <li><b>3.3.9 :</b> Click <b>"Save Schedule Button"</b> to save and assign the exam details to the students.</li>
-                  <li><b>3.3.10 :</b> Press <b>"Close Button"</b> to exit the form without saving changes.
+                <ul><li>o go back to the main list of classes, click on Back to Classes. This will return you to the homepage or previous screen showing the list of available classes.</ul></li></li>
+              <li><b> 3.2 : Summary of Task Status </b> 
+                <ul><li>In the top right, there’s a status summary showing the count of :
                     <ul>
-                      <li><b>3.3.10.1 :</b> When saving, a confirmation prompt appears. Choose <b>"Yes, assign it!"</b> to confirm. <br> After successful assignment, an <b>"OK"</b> button appears to acknowledge the completion</li>
-                      <li><b>3.3.10.2 :</b> When saving, a confirmation prompt appears. Choose <b>"Cancel"</b> to abort the process</li>
+                      <li><b>Finished / Completed:</b>Finished assessments (green icon)</li>
+                      <li><b>Missing: </b>Missing assessments (red icon)</li>
+                      <li><b>Pending: </b>Pending assessments (yellow icon)</li>
                     </ul>
+                </li>
+                <li>This overview provides a quick look at how many tasks are completed, overdue, or upcoming.</li>
+                </ul></li>
+              <li><b> 3.3 : Viewing and Managing Individual Task </b> 
+                <ul>
+                  <li>Each Assessment Task is displayed in a separate box with key details:
+                    <li><bTask Title: : </b>The title of the assessment task (e.g., Assessment Task 1, Task 2).</li>
+                    <li><b>Points</b>Total points that can be earned for the task.</li>
+                    <li><b>Status: </b>Indicates if the task is <b>Passed, Pending, or Missing  </b>.</li>
+                    <li><b>Availability: </b>Shows if the task is Available or Unavailable to start.</li>
+                    <li><b>Due Date: </b>The deadline by which the task must be completed</li>
+                    <li><b>Score</b>Displays the student’s score if available, along with the total possible points.</li>
                   </li>
+
                 </ul></li>
               <li><b> 3.4 Data in Table</b>
-                <ul><li>The table lists all assessments for the class, including: Title Exam, Quarter, Schedule of exam (Strat and End), Maximum Points, Response tracking and the Percentage</li></ul>
+                <ul>
+                  <li>To get more information about a specific assessment, click on the assessment box (such as Assessment Task 2).</li>
+                  <li>This action opens a detailed view of the task, showing additional information and options: exam instruction/s, quarter, strat and end date, status  (Pending ,Finished, Missing), and score
+                    <ul>
+                      <li><b>3.4.1</b>If the assessment is available, you can click on <b>Take Exam</b> to begin. It will navigate you to the page 4</li>
+                      <li><b><3.4.2/b>If you decide not to proceed, use the <b>Close button</b> to exit the detailed view and return to the main assessment list.</li>
+                    </ul>
+                  </li>
+                </ul>
               </li>
               <li><b> 3.5 : Edit Exam Details ( ">" )</b> 
-                <ul>
-                  <li><b>3.5.1 : </b>Click the <b>"X"</b> to close the form without saving.</li>
-                  <li><b>3.5.2 : Exam Title</b> Modify the title for the exam (e.g., "Assessment Task 1").</li>
-                  <li><b>3.5.3 : Quarter</b> Adjust the quarter in which the exam will be conducted (e.g., "1st Quarter").</li>
-                  <li><b>3.5.4 : Start Date</b> Modify the start date for the exam.</li>
-                  <li><b>3.5.5 : End Date</b> Adjust the end date for the exam.</li>
-                  <li><b>3.5.6 : Max Points</b> Update the maximum score achievable for this exam (e.g., "10").</li>
-                  <li><b>3.5.7 :Start Time</b> Update the start time of the exam. (if needed)</li>
-                  <li><b>3.5.8 : End Time</b> Adjust the end time of the exam.(if needed)</li>
-                  <li><b>3.5.9 :</b> Click <b>"Update Exam Button"</b> to modified the exam details to the students.</li>
-                  <li><b>3.5.10 :</b> Press <b>"Close Button"</b> to exit the form without saving changes.
-                    <ul>
-                      <li><b>3.5.10.1 :</b> When saving, a confirmation prompt appears. Choose <b>"Yes, assign it!"</b> to confirm. <br> After successful assignment, an <b>"OK"</b> button appears to acknowledge the completion</li>
-                      <li><b>3.5.10.2 :</b> When saving, a confirmation prompt appears. Choose <b>"Cancel"</b> to abort the process</li>
-                    </ul>
-                  </li>
-                </ul>
-              </li><br>
-          </ul>
-          <b>6.</b> Go to <b>"Feedback"</b> to view or provide feedback related to the class.<br>
-          <b>7.</b> Click <b>"Performance Tracking"</b> to analyze students' performance and progress on assessments.<br>
-          <b>8.</b> View the list of students enrolled in the class by clicking "Students."<br>
-          <b>9.</b> Access any pending tasks or actions related to this class."<br>
+          <b>6.</b> Click <b>"Performance Tracking"</b> to analyze students' performance and progress on assessments.<br>
         `;
       }else if (button === 'button4') {
-        this.cardTitle = 'Exam Management'; // Update this title accordingly
+        this.cardTitle = 'Exam Taking Page'; // Update this title accordingly
         this.cardText = `
-          <b>4.</b>This section outlines the functionalities with regards to the formulation of exam, detailing key operations related to this section.<br>
+          <b>4.</b>This guide should help you navigate the task interface effectively. <br>
             <ul>
-              <b>3. Go Back to Classes (Page)</b> Click this link button to return to the main classes page. This allows you to exit the current exam management section and go back to the list of classes.<br>
-             
-              <li><b> 4.1 : Created Questions Panel </b> Displays the list of questions that have been created for the exam. It shows each question along with the correct answer and possible choices.
-                <ul><li><b>4.1.1 Edit Icon</b>Click this icon to edit an existing question. This allows you to make changes to the question text only </li></ul>
+              <li><b> 4.1 : Timer </b> 
+                <ul><li>countdown at the top right displays how much time is left to complete the assessment. Keep an eye on this timer to ensure you submit all answers within the allotted time.</li></ul>
               </li>
-              <li><b> 4.2 : Exam Instruction Field </b> Enter the exam instructions here. This text will appear at the beginning of the exam to guide students on how to proceed.</li>
-              <li><b> 4.3 : Question Type Dropdown </b> Select the type of question from the dropdown. By default, it’s set to “Multiple Choice.”</li>
-              <li><b> 4.4 : Question and Answer Input Fields </b> </li>
+              <li><b> 4.2 : Answering Questions </b> 
                 <ul>
-                  <li><b>4.4.1 :  Question Text Field</b> Enter the question text here.</li>
-                  <li><b>4.4.2 : Choices Fields</b> Input the answer choices here. You can enter multiple options for each question.</li>
-                  <li><b>4.4.3 : Add Choice Button</b> Click this button to add a new choice field if the question requires more options.</li>
-                  <li><b>4.4.4 : Correct Answer Field</b> Specify the correct answer for the question in this field. Choose from the dropdown that displays all available choices.</li>
-                  <li><b>4.4.5 : Points Field</b>Enter the number of points that this question is worth.</li>
-                </ul>
-              <li><b> 4.5 : Save All Button </b> <br>After filling in the question, choices, correct answer, and points, click this button to save all the questions you’ve added.
-                <ul>
-                  <li><b>4.5.1 </b> Once you save the questions, a <b>“Success”</b> message will appear confirming that all questions were saved successfully. Click OK to dismiss this message.</li>
+                  <li>The main section displays each question, along with answer options. To select an answer:
+                    <ul></li>Click on the option you believe is correct. Selected answers will be highlighted.</li></ul>
+                  </li>
+                  <li>Make sure to carefully read the question and all options before choosing an answer.</li>
                 </ul>
               </li>
-              <li><b> 4.6 : Add New Question Button: </b> <br>Click this button to add another question to the exam. This will clear the fields and allow you to start entering a new question.</li>
-            <b>5. View Item Analysis Button </b> Click this button to view a detailed analysis of each exam question. This provides insights on student responses and performance.<br>
+              <li><b> 4.3 : Proceed to the Next Question</b> 
+                <ul>
+                  <li>Once you’ve selected an answer, click the <b>Next</b> button to proceed to the following question.The submit button is only available at the end of the examination, navigating the user to page 5</li>
+                  <li>Ensure an answer is selected before clicking Next to avoid a warning.
+                    <ul>
+                      <b>Warning for Unanswered Questions</b>
+                      <li>If you try to proceed without selecting an answer, a Warning message will pop up, prompting you to answer the question first.</li>
+                      <li>To close the warning, click <b>OK</b> and ensure you select an answer before moving forward.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
           </ul>`;
       }else if (button === 'button5') {
-        this.cardTitle = 'Item Analysis'; // Update this title accordingly
+        this.cardTitle = 'Results and Feedback'; // Update this title accordingly
         this.cardText = `
-          <b>5.</b>This manual serves as a quick reference to understanding the elements of the Exam Item Analysis, including how to interpret the performance analytics and take actions based on the recommendations provided.<br>
+          <b>5.</b>This manual serves as a guide for viewing results and submitting feedback after completing a task/examination<br>
             <ul>
-              <b>4. Go Back to Classes (Page)</b> Click this link button to return to the main classes page. This allows you to exit the current exam management section and go back to the list of classes.<br>
-              <li><b> 5.1 : Question Analysis Table </b> This table provides a detailed breakdown of each question in the assessment, helping instructors understand performance metrics and decide whether to retain or revise each item.</li>
-                <ul>
-                  <li><b>5.1.1 : Correct Selections</b> 
-                    <ul>
-                      <li><b>5.1.1.1 :</b> A table is displayed showing the students' answers, the correct answer, and the question, with data displayed in sets of 10 entries per page. This helps teachers or admins quickly see which question was answered correctly by the listed students.</li>
-                      <li><b>5.1.1.2 :</b>These buttons allow users to navigate through multiple pages if there are many entries.</li>
-                      <li><b>5.1.1.3 :  Buttons</b>
-                        <ul>
-                          <li><b>Cancel Button : </b>Clicking this button will close the modal without saving any changes.</li>
-                          <li><b>OK Button :</b>Clicking OK will confirm any changes or simply exit the modal, saving the view state.</li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-                  <li><b>5.1.2 : Incorrect Selections</b> 
-                    <ul>
-                      <li><b>5.1.2.1 :</b> This table lists students who answered the question incorrectly, showing their ID Number, Last Name, First Name, Middle Name, and Answer (with their incorrect choice).<br>This allows the teacher to identify students who need more support or review on the topic.</li>
-                      <li><b>5.1.2.2 :</b> Use these buttons to move between pages if there are many entries.</li>
-                      <li><b>5.1.2.3 :  Buttons</b>
-                        <ul>
-                          <li><b>Cancel Button : </b>Clicking this button will close the modal without saving any changes.</li>
-                          <li><b>OK Button :</b>Clicking OK will confirm any changes or simply exit the modal, saving the view state.</li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-                  <li><b>5.1.3 : Difficulty Index</b> A measure of how difficult each question is, represented as a percentage with remarks such as "Average item" or "Easy." (<i>Click  this icon for reference</i>)</li>
-                  <li><b>5.1.4 : Discrimination Index</b> Measures how well each question distinguishes between high and low scorers. Higher values indicate good discrimination, with remarks like "Very Good item" or "Poor item." (<i>Click  this icon for reference</i>)</li>
-                  <li><b>5.1.5 : Decision</b> Provides recommendations on whether to Retain or Revise each question based on its difficulty and discrimination indices. (<i>Click  this icon for reference</i>)</li>
-                </ul>
-              <li><b> 5.2 : Page Control</b> </li>
-                 <ul>
-                  <li> Use the <b>"Previous"</b> and <b>"Next"</b> buttons to navigate through multiple pages of questions. This is useful for assessments with many questions, allowing easy navigation without overwhelming the screen with information.</li>
-                </ul>
+              <b>View of Exam task result</b>
+              <li><b>5.1</b>
+                <ul></li>The main section shows a visual representation of your score, including <b>Total Score</b> and <b>Average</b>.</li></ul>
+              </li>
+              <li><b>5.2 : Show Result Button</b>
+                <ul></li>This may display a breakdown of your answers, correct responses, and other performance metrics.</li></ul>
+              </li><br>
+              <b>Your Feedback Section</b>
+              <li><b>5.3</b>
+                <ul></li> Use this space to share any thoughts or suggestions.</li></ul>
+              </li>
+              <li><b>5.4 : Submit Feedback Button</b>
+                <ul></li> After entering your feedback, click the Submit Feedback button to send it. This can help improve future assessments.
+                  <ul><li><b>5.4.1 : </b>Once submitted, a Success message appears, confirming that your feedback was received. Click OK to close this notification and will directly navigate you to Page 3 .</li></ul>
+                </li></ul>
+              </li>
             </ul>`;
       }else if (button === 'button6') {
-        this.cardTitle = 'Student`s Feedbacks Section'; // Update this title accordingly
+        this.cardTitle = 'My Performance Section'; // Update this title accordingly
         this.cardText = `
-          <b>6.</b>This interface is designed to help teachers view student feedback and responses for each assessment task. <br>
-          Select the Feedback tab (Label 5) to view students' feedback on the specific tasks.<br><br>
+          <b>6.</b>This guide should help you efficiently review and analyze your academic progress, using the performance table and filters to focus on specific assessments as needed. <br>
             <ul>
-              <li><b>Student Comments</b>
+              <li><b>6.1 : Back to Classes</b>
                   <ul>
-                      <li><b>Student's Name</b> Each entry shows the student’s full name and their unique identifier.</li>
-                      <li><b>Feedback or Comment</b> Each student’s response or feedback on the assessment task is displayed to the right of their name</li>
+                      <li>Click on the Back to Classes button to return to the main class overview page. This is helpful if you need to navigate to a different subject or course.</li>
                   </ul>
               </li>
-            </ul>`;
-          }else if (button === 'button7') {
-          this.cardTitle = 'Performance Tracking'; // Update this title accordingly
-          this.cardText = `
-          <b>7.</b>Go to the Performance Tracking section by clicking the <b>Performance Tracking button</b> on the top navigation bar. This opens the performance data for the selected class.<br>
-            <ul>
-              <b>2.</b>If you want to return to the main class list, click the <b>Go Back to Classes button</b> on the left. This takes you back to the list of classes you manage, without saving any data.<br>
-              <li><b>7.1:  Download the Exam Results Button</b>
+              <li><b>6.2 : Detailed Performance Table</b>
                   <ul>
-                    <li>To download a summary of the students' results for offline use, click the Download Exam Results button on the right. This provides a file (usually in CSV or Excel format) containing all students' scores </li>
-                  </ul>
-              </li><br>
-              <li><b>7.2:  Student Performance Table</b>
-                  <ul>
-                    <li>The main section of the screen shows a Student Performance Table with detailed performance data for each student. <br>Each column in this table provides specific information:<br>
-                      <ul>
-                        <li><b># : Serial number for easy reference.</b></li>
-                        <li><b>LRN (Learner Reference Number): </b>The unique ID for each student.</li>
-                        <li><b>Student Name: </b>The full name of each student.</li>
-                        <li><b>Sex: </b>Gender of each student.</li>
-                        <li><b>Strand: </b>The academic track or strand the student belongs to (e.g., HUMSS - 12).</li>
-                        <li><b>EXAM</b>
-                          <ul>
-                            <li><b>Score: </b>The student's score for each task (e.g., 3/5).</li>
-                            <li><b>PS (Percentage Score): </b>The student’s score as a percentage of the total possible score.</li>
-                            <li><b>WS (Weighted Score): </b>The score's weight in the final grade (calculated based on task importance).</li>
-                          </ul>
-                        </li>
-                        <li><b>Exam Statistics: </b>At the bottom of the table, view the Exam Statistics for each assessment. These statistics summarize the overall class performance for each assessment task:
-                          <ul>
-                            <li><b>Mean: </b>Average score for each task.</li>
-                            <li><b>Median: </b>Middle score value.</li>
-                            <li><b>Mode: </b>Most frequently occurring score.</li>
-                            <li><b>Range: </b>Difference between the highest and lowest scores.</li>
-                          </ul>
-                        </li>
-                        
-                      </ul>
-                    </li>
-                    
-                  </ul>
-                  <li><b>7.3 : Page Control </b>(Navigate Through Pages)
-                    <ul><li>If there are multiple pages of student data, use the <b>Previous</b> and <b>Next</b> buttons at the bottom of the table to go between pages.</li></ul>
-                  </li>
-              </li>
-            </ul>`;
-          }else if (button === 'button8') {
-          this.cardTitle = 'Students to a Class'; // Update this title accordingly
-          this.cardText = `
-          <b>8.</b>Click on the Students tab to access the student management section for this class.<br>
-            <ul>
-              <b>2.</b>If you want to return to the main class list, click the <b>Go Back to Classes button</b> on the left. This takes you back to the list of classes you manage<br>
-              <li><b>8.1: Add Students to Class</b>  Click to open the pop-up window for adding students.
-                  <ul>
-                      <li><b>8.1.1</b>To close the pop-up without adding students, click the <b>"X"</b> in the top-right or the Cancel button.</li>
-                      <li><b>8.1.2 : Search Bar</b> In the pop-up, use the search bar to find a specific student by typing their name or ID.</li>
-                      <li><b>8.1.3 : Select Students to Add</b> Use the checkboxes next to each student's information to select the students you want to add.</li>
-                      <li><b>8.1.3 : Close Button</b>To close the pop-up without adding students, click the <b>"X"</b> in the top-right or the Cancel button.</li>
-                      <li><b>8.1.4 : Add Selected Student</b> Click this to confirm the process.
-                        <ul><li>Once you save the questions, a <b>“Success”</b> message will appear confirming that all questions were saved successfully. Click <b>OK</b> to dismiss this message.</li></ul>
-                      </li>
+                      <li>The performance table displays your scores across different assessments. It includes:
+                        <ul>
+                          <li>Assessment Name (e.g., Assessment Task 1, Task 2, etc.)</li>
+                          <li>Quarter (e.g., 1st Quarter)</li>
+                          <li>Total Points (e.g., 4/5)</li>
+                          <li>Percentage (e.g., 80%)</li>
+                          <li>Remarks (e.g., Passed or Failed)</li>
+                          <li>Date of completion</li>
+                        </ul>
+                       </li>
+                      <li>This table summarizes your overall progress and highlights areas where improvement may be needed.</li>
                   </ul>
               </li>
-              <li><b>8.2: Students Table</b>
-                  <ul><li>The newly added students will appear in the Students table in the class page.</li></ul>
+              <li><b>6.3 : Filter By Status</b>
+                  <ul>
+                      <li>Allows you to filter assessments based on their completion status (e.g., Passed, Failed). Use this to quickly locate assessments you may need to review.</li>
+                  </ul>
               </li>
-              <li><b>8.3: Page Control</b>
-                  <ul><li>Use the pagination controls to view other pages.</li></ul>
+              <li><b>6.4 : Filter By Quarter</b>
+                  <ul>
+                      <li> Lets you filter assessments by the academic quarter. This is useful for tracking performance on a quarterly basis.</li>
+                  </ul>
               </li>
-            </ul>`;
-          }else if (button === 'button9') {
-          this.cardTitle = 'Approve Student Join Request'; // Update this title accordingly
-          this.cardText = `
-          <b>9.</b>Click on the Pending tab to view join requests from students.<br>
-            <ul>
-              <b>2.</b>If you want to return to the main class list, click the <b>Go Back to Classes button</b> on the left. This takes you back to the list of classes you manage<br></li>
-              <li><b>9.1: Search Bar</b> Use the <b>Search by ID Number </b> field to find a specific student if needed.</li>
-              <li><b>9.2: List of Students Submitted their Request</b>
-                  <ul><li>In the list, locate the student you want to approve.</li></ul>
+              <li><b>6.5 : Overall Pass/Fail Status</b>
+                  <ul>
+                      <li>This summary provides a quick overview of your performance by showing the total number of Passed and Failed assessments. This helps you get a quick sense of your overall progress at a glance.</li>
+                  </ul>
               </li>
-              <li><b>9.3: Approve Button</b>
-                  <ul><li>Click the Approve button next to the student's name.
-                    <ul><li>A confirmation message will appear stating that the student join request was approved successfully.</li>
-                        <li><b>9.3.1 : </b>Click <b>OK</b> on this confirmation to complete the approval.</li>
-                    </ul>
-                    </li></ul>
-              </li>
-              
-             
             </ul>`;
           }
       // Add conditions for other buttons here

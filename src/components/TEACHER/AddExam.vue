@@ -10,24 +10,10 @@
       
      
       <div class="d-flex justify-content-start" style="margin-left: 980px;">
-    <button 
-        @click="viewItemAnalysis(examId)" 
-        type="button" 
-        class="btn" 
-        style="background-color: #87CEEB;">
-        View Item Analysis
-    </button>
+        <button  @click="viewItemAnalysis(examId)"  type="button" class="btn"  style="background-color: #87CEEB;">  View Item Analysis</button>
+        <button  class="btn bg-danger text-white ms-2" @click="downloadPDF">Download PDF </button>
+      </div>
 
-    <button 
-        class="btn bg-danger text-white ms-2" 
-        @click="downloadPDF">
-        Download PDF
-    </button>
-</div>
-
-          <!-- <button @click="downloadPDF" >Download Exam Instructions PDF</button> -->
-
-       
     </nav>
     </div>
 
