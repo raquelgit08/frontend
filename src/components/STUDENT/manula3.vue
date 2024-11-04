@@ -130,7 +130,7 @@
       }else if (button === 'button3') {
         this.cardTitle = 'Class Details Page'; // Update this title accordingly
         this.cardText = `
-          <b>3.</b> This consolidates and displays key information and metrics in a concise, easily digestible format. It typically serves as a centralized location for monitoring exams schedule, tracking progress, and analyzing data across various domains. <br>
+          <b>3.</b> This interface displays all assessment tasks associated with the class.<br>
           <ul>
               <li><b> 3.1 : Back to Classes Button </b> 
                 <ul><li>Click on "Go Back to Classes" to return to the main dashboard with all classes.</ul></li></li>

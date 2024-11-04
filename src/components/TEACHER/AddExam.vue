@@ -7,10 +7,24 @@
       <router-link to="/teacheraddsubject" class="nav-link">
         <span><i class="bi bi-arrow-left fs-5">Go Back to Classes</i></span>
       </router-link>
+      
      
-          <button @click="viewItemAnalysis(examId)" type="button" class="btn" style="background-color:  #87CEEB; margin-left: 1100px;">
-            View Item Analysis
-          </button>
+      <div class="d-flex justify-content-start" style="margin-left: 980px;">
+    <button 
+        @click="viewItemAnalysis(examId)" 
+        type="button" 
+        class="btn" 
+        style="background-color: #87CEEB;">
+        View Item Analysis
+    </button>
+
+    <button 
+        class="btn bg-danger text-white ms-2" 
+        @click="downloadPDF">
+        Download PDF
+    </button>
+</div>
+
           <!-- <button @click="downloadPDF" >Download Exam Instructions PDF</button> -->
 
        
@@ -309,7 +323,31 @@ export default {
     //         console.error('Failed to download PDF:', error.message);
     //     }
     // },
-  
+    async downloadPDF() {
+      try {
+        // GET request to download the PDF from backend
+        const response = await axios.get( `${config.apiBaseURL}/downloadExamInstructionsPDF/${this.examId}`, // Ensure this matches the defined Laravel route
+        {
+            responseType: 'blob',
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }
+    );
+
+
+        // Create a Blob and trigger the file download
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.setAttribute('download', `exam_instructions_${this.examId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Failed to download PDF:', error.message);
+        Swal.fire('Error', 'Failed to download PDF. Please try again later.', 'error');
+      }
+    },
+
     async saveEditedQuestion() {
       try {
         const payload = {
