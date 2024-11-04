@@ -1,5 +1,6 @@
 <template>
   <div v-if="isVisible">
+    
     <nav class="navbar navbar-expand-lg">
       <div class="d-flex align-items-center">
         <div :class="['title-container', isSidebarCollapsed ? 'collapsed' : '']" style="display: flex; align-items: center;">
@@ -14,8 +15,10 @@
 
       </div>
       <div class="d-flex align-items-center ms-auto">
+        <i class="bi bi-info-circle fs-5" @click="navigateToPage" style="margin: 5px;"></i>
         <h4 class="mb-0 me-3">WELCOME {{userProfile.fname}}</h4>
         <i class="bi bi-box-arrow-right fs-4" style="margin-right: 20px;" id="log_out" @click="handleLogout"></i>
+        
         <!-- <div @click="togglePopover" class="profile-icon-container">
           <i class="bi bi-person-lock profile-icon"></i>
           <div v-if="isPopoverVisible" class="popover show" role="tooltip">
@@ -46,6 +49,7 @@
           </div>
         </div> -->
       </div>
+     
     </nav>
     <!-- <div class="d-flex">
       <div :class="['sidebar', isSidebarCollapsed ? 'collapsed' : '']">
@@ -165,6 +169,7 @@ export default {
         this.error = error.response && error.response.data.message ? error.response.data.message : 'Failed to fetch user profile';
       }
     },
+    
     async handleLogout() {
       const result = await Swal.fire({
         title: 'Are you sure?',
@@ -211,6 +216,10 @@ export default {
     toggleSidebar() {
       this.isSidebarCollapsed = !this.isSidebarCollapsed;
     },
+    async navigateToPage() {
+      // Navigate to the desired route
+      this.$router.push('/manual2');
+    }
   },
   beforeMount() {
   //  this.$router.push('/teacheraddsubject');

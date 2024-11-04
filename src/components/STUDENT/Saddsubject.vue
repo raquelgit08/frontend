@@ -14,10 +14,10 @@
           <div class="modal-body">
             <form @submit.prevent="addSubject">
               <div class="mb-3">
-                <label for="gen_code" class="form-label">Subject Code</label>
+                <label for="gen_code" class="form-label">Class Code</label>
                 <input type="text" v-model="genCode" class="form-control" id="gen_code" required />
               </div>
-              <button type="submit" class="btn btn-primary">Join this Class</button>
+              <button type="submit" class="btn " style="background-color: antiquewhite;box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);"><b>  Join this Class </b></button>
               <!-- <div v-if="message" :class="['alert', success ? 'alert-success' : 'alert-danger']">
                 {{ message }}
               </div> -->
@@ -91,7 +91,7 @@ export default {
       if (isAlreadyJoined) {
         // Show SweetAlert error if subject is already joined
         Swal.fire({
-          icon: 'error',
+          icon: 'Request Not Submitted.',
           title: 'Already Joined',
           text: 'You have already joined this class.',
         });
@@ -116,7 +116,7 @@ export default {
 
         Swal.fire({
           icon: 'success',
-          title: 'Request Successfully Sumitted ',
+          title: 'Request Successfully Submitted ',
           text: 'Please inform your teacher ',
         });
       } catch (error) {
@@ -124,7 +124,7 @@ export default {
         this.success = false;
         Swal.fire({
           icon: 'error',
-          title: 'Error',
+          title: 'Request Submission Failed',
           text: error.response ? error.response.data.error : 'An error occurred',
         });
       }
@@ -154,19 +154,20 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 40px;
-  background-color: #87ceeb;
+  background-color: #c1a398;
   border: none;
-  color: #fff;
+  color: #ffffff;
   cursor: pointer;
 }
 
 .add-button:hover {
-  background-color: #00bfff;
+  background-color: #deb5a7;
+
   }
 
 .modal-header {
-  background-color: #87ceeb;
-  color: #fff;
+  background-color: #eed3c9;
+  color: #000000;
   border-bottom: 1px solid #ddd;
 }
 
@@ -185,7 +186,7 @@ export default {
 
 .form-control {
   border-radius: 5px;
-  border: 2px solid #87ceeb;
+  border: 2px solid #d2c0ba;
 }
 
 
@@ -216,7 +217,7 @@ export default {
 
 .card-body {
   padding: 22px;
-  background-color: #A7E6FF;
+  background-color: #f4e5df;
   flex-grow: 1;
 }
 

@@ -29,6 +29,9 @@
         </div>
        
       </div> -->
+      <button @click="downloadExcel" class="btn btn-primary download-button">
+      <i class="bi bi-file-earmark-arrow-down"></i> Download Exam Results
+    </button>
     </nav>
 
     <div class="performance-page">
@@ -85,7 +88,8 @@
                 </td>
                 <td style="width: 70px;">{{ student.sex}}</td>
                 
-                <td :style="{ width: '130px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ student.strand_name }} - {{ student.gradelevel_name }} {{ student.section_name }}</td>
+                <td :style="{ width: '130px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }">{{ student.strand_name }}  {{ student.gradelevel_name }} - {{ student.section }}</td>
+                
                 <td v-for="(examData, examTitle) in results" :key="examTitle + student.lrn">
                   <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; ">
                     <!-- Total Score and Points Exam -->
@@ -148,11 +152,11 @@ export default {
         schoolYear: '',
         gen_code: ''
       },
+     
       results: {},
       examStatistics: {},
       error: '',
       percentageMultiplier: 0.30, // Default multiplier
-      multiplierOptions: [0.10, 0.20, 0.25, 0.30, 0.35,0.40, 0.45, 0.50],
       currentPage: 1, // Current page in the pagination
       studentsPerPage: 10 // Number of students per page
     };
@@ -245,6 +249,44 @@ export default {
       return `${formattedDate} ${formattedTime}`;
 
     },
+    async downloadExcel() {
+  try {
+    const classId = this.$route.params.class_id;
+    const token = localStorage.getItem('token');
+
+    // Trigger the download request with class_id from route params
+    const response = await axios.get(`${config.apiBaseURL}/export_result`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      responseType: 'blob', // Important for downloading binary files
+      params: {
+        classtable_id: classId // Passing the class_id directly here
+      }
+    });
+
+    // Extract filename from Content-Disposition header
+    const contentDisposition = response.headers['content-disposition'];
+    const filename = contentDisposition
+      ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+      : `Student_Results_Class_${classId}.xlsx`;
+
+    // Create a link element to download the file
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Failed to download file:', error);
+    alert('An error occurred while downloading the file.');
+  }
+},
     getFlattenResults() {
       const results = [];
       for (const examTitle in this.results) {
@@ -260,6 +302,7 @@ export default {
               sex : result.sex,
               strand_name: result.strand_name,
               gradelevel_name : result.gradelevel_name,
+              section: result.section,
               student_total_scores: 0,
               percentage: 0 // Initialize percentage
 
@@ -268,10 +311,10 @@ export default {
             results.push(student);
           }
           student[examTitle] = {
-  total_score: result.total_score || '0',
-  ps: result.ps || '-',
-  ws: result.ws || '-',
-};
+          total_score: result.total_score || '0',
+          ps: result.ps || '-',
+          ws: result.ws || '-',
+        };
 
         }
       }
@@ -324,6 +367,19 @@ export default {
 .class-code span {
   color: #007bff;
   font-weight: 800;
+}
+.btn {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  color: #120808;
+  font-size: 17px;
+  transition: background 0.3s ease;
+  border-radius: 5px ;
+  border-color: white;
+height: 40px;
+margin-left: 65px;
+  background-color:  #B9EBC5; 
+  width: 250px;
+  text-align: center;
 }
 
 .nav {

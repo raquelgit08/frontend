@@ -7,8 +7,10 @@
       </div>
     </div>
     <div class="subject-info-container d-flex justify-content-between">
-      <h2 class="text-center exam-title">{{ exam.title }}</h2>
-      <p> {{ instructions.instruction }}</p>
+      <h2 class="text-center exam-title" style="padding: 20px;">{{ exam.title }}
+        <p> {{ exam.quarter }}</p>
+      </h2><br>
+      
     </div>
     
     <div v-if="examOver">
@@ -40,7 +42,7 @@
       <div class="pagination-controls">
         <!-- <button type="button" class="btn btn-secondary" @click="prevPage" :disabled="currentPage === 1 || examOver">Previous</button> -->
         <span class="pagination-status">Question {{ currentPage }} of {{ totalPages }}</span>
-        <button type="button" @click="nextPage" :disabled="currentPage === totalPages || examOver">Next</button>
+        <button type="button" @click="nextPage" :disabled="currentPage === totalPages || examOver" class="btnnext">Next</button>
 
       </div>
       <div v-if="!examSubmitted && !examOver && currentPage === totalPages" class="button-group">
@@ -105,7 +107,7 @@
             <div class="feedbackarea">
             <h3 class="feedback-title">Your Feedback</h3>
             <textarea v-model="comment" class="form-control" rows="10" placeholder="Please provide your feedback about the exam..."></textarea>
-            <button @click="submitFeedback(exam.id)" type="button" class="btn btn-primary mt-2">Submit Feedback</button>
+            <button @click="submitFeedback(exam.id)" type="button" class="btn btn-primary mt-2" style="margin-top: 10px;">Submit Feedback</button>
           </div>
           </div>
         </div>
@@ -417,8 +419,8 @@ export default {
   padding: 15px;
   margin-bottom: 10px;
   width: 1500px;
-
-  height: 150px;
+  height: 130px;
+  margin-left: 20px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -486,6 +488,16 @@ export default {
   margin-top: 20px;
   margin-left: 20px;
  
+}
+.btnnext{
+  width: 95px;
+  height: 40px;
+  border-radius: 7px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 20px;
+  font-weight: bolder;
+  background-color: seashell;
+  border: 3px solid #b1adac;
 }
 .results-title {
   margin-bottom: 20px;

@@ -22,6 +22,7 @@
     </nav>
     <!-- Invite Button -->
     <div class="d-flex justify-content-end mb-4">
+      <!-- <input type="text"  v-model="searchQuery"  placeholder="Search by ID Number" style="margin-right: 10px; margin-left: "  class="form-control "/> -->
       <button class="btn-gradient" @click="openAddStudentModal">Add Students to Class</button>
     </div>
 
@@ -42,6 +43,7 @@
                   <th>Middle Name</th>
                   <th>Sex</th>
                   <th>Strand</th>
+                  <th>Section</th>
                 </tr>
               </thead>
               <tbody>
@@ -53,6 +55,7 @@
               <td>{{ student.user?.mname }}</td>
               <td style="text-align: center">{{ student.user?.sex }}</td>
               <td style="text-align: center">{{ student.strands?.addstrand }} {{ student.strands?.grade_level }}</td>
+              <td style="text-align: center">{{ student.section?.section }} </td>
             </tr>
           </tbody>
             </table>
@@ -105,7 +108,8 @@
             <th scope="col" style="width: 5%;">Select</th>
             <th scope="col" style="width: 15%;">ID Number</th>
             <th scope="col" style="width: 55%;">Name</th>
-            <th scope="col" style="width: 25%;">Strand</th>
+            <th scope="col" style="width: 15%;">Strand</th>
+            <th scope="col" style="width: 15%;">Section</th>
           </tr>
         </thead>
         <tbody>
@@ -127,6 +131,7 @@
               {{ student.user?.lname }}, {{ student.user?.fname }} {{ student.user?.mname }}
             </td>
             <td>{{ student.strands?.addstrand }} {{ student.strands?.grade_level }}</td>
+            <td>{{ student.section?.section }} </td>
           </tr>
         </tbody>
       </table>

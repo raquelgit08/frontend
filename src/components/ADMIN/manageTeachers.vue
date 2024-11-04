@@ -631,7 +631,6 @@ h4 {
   font-size: 20px;
   color: #ffffff;
 
-
 }
 .icon-box {
   display: inline-flex;
@@ -728,7 +727,7 @@ h4 {
 }
 .btn-gradient {
   background-color:  #A7B2B8; 
- 
+  text-decoration: none;
 }
 .btn{
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);

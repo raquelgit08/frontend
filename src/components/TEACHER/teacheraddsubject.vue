@@ -223,7 +223,7 @@ export default {
   },
   methods: {
     getImageUrl(imagePath) {
-      const baseUrl = process.env.VUE_APP_BASE_URL || "http://192.168.100.15:1020";
+      const baseUrl = process.env.VUE_APP_BASE_URL || "http://10.0.0.7:1020";
       return `${baseUrl}${imagePath}?t=${new Date().getTime()}`;
     },
     openAddClassModal() {

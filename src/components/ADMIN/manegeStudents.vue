@@ -59,7 +59,7 @@
           <tr v-for="(students, index) in paginatedItems" :key="students.idnumber">
             <td class="text-center">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
             <td><b>{{ students.user.idnumber }}</b></td>
-            <td class="text-center">{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</td>
+            <td style="text-align: start;">{{ students.user.lname }}, {{ students.user.fname }} {{ students.user.mname }}</td>
             <td class="text-center">{{ students.user.sex }}</td>
             <td class="text-center">{{ students.strands.addstrand }} {{ students.strands.grade_level }}</td>
             <td class="text-center"> {{ students.section.section }}</td>
@@ -368,7 +368,13 @@ export default {
           // Handle success
           if (response.data.success) {
             console.log('Upload successful:', response.data);
-            alert(`Successfully imported ${response.data.records_processed} records.`);
+            Swal.fire({
+              title: 'Import Successful',
+              text: `Successfully imported ${response.data.records_processed} records.`,
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+
             this.fetchStudents();
             this.showModalExcel = false; // Close the modal
             
@@ -686,8 +692,7 @@ h4 {
 .register{
   font-size: 20px;
   color: #ffffff;
-
-
+  
 }
 .icon-box {
   display: inline-flex;
@@ -783,7 +788,7 @@ h4 {
 }
 .btn-gradient {
   background-color:  #A7B2B8; 
- 
+  text-decoration: none;
 }
 .btn-gradient2 ,.btn-gradient  {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);

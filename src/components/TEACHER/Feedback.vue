@@ -32,9 +32,9 @@
             <ul class="comments-list">
               <li v-if="feedback.comments === 'No comment'" class="comment-item">{{ feedback.comments }}</li>
               <li v-else v-for="(comment, index) in feedback.comments" :key="comment.student_id" class="comment-item">
-  <i class="bi bi-chat-dots-fill me-2"></i>
-  <strong>{{ index + 1 }}. {{ comment.student_name }} {{ comment.fname }} {{ comment.mname }}</strong>: {{ comment.comment }}
-</li>
+                <i class="bi bi-chat-dots-fill me-2"></i>
+                <strong>{{ index + 1 }}. {{ comment.student_name }} {{ comment.fname }} {{ comment.mname }}</strong>: {{ comment.comment }}
+              </li>
 
             </ul>
           </div>

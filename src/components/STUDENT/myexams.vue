@@ -29,7 +29,7 @@
 
       <div class="status ms-auto d-flex align-items-center">
         <div class="mx-3">
-          <i class="bi bi-check-circle-fill text-success"></i> Finished: {{ totals.number_of_finished_exams }}
+          <i class="bi bi-check-circle-fill text-success"></i> Completed: {{ totals.number_of_finished_exams }}
         </div>
         <div class="mx-3">
           <i class="bi bi-x-circle-fill text-danger"></i> Missing: {{ totals.total_missing }}

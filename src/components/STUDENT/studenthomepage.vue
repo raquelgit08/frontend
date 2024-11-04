@@ -39,7 +39,10 @@
         
         <!-- <img :src="profileImage || require('@/assets/enhs logo.jpg')" @click="togglePopover" style="width: 50px; height: 50px; border-radius: 50%;" alt="Profile Image"> -->
         <div class="profile_content2" style="flex: 1; text-align: center;">
-          <div class="names" v-if="userProfile && Object.keys(userProfile).length">Welcome {{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div>
+          
+          <div class="names" v-if="userProfile && Object.keys(userProfile).length">
+            <i class="bi bi-info-circle fs-5" @click="navigateToPage" style="margin: 5px;"></i>
+            Welcome {{ userProfile.lname ? `${userProfile.lname}, ${userProfile.fname} ${userProfile.mname}` : 'No Name' }}</div>
           <div class="designations" v-if="userProfile && Object.keys(userProfile).length">{{ userProfile.strand_name }} {{ userProfile.grade_level }} - {{ userProfile.section_name }}</div>
           <p v-else>Loading profile...</p>
         </div>
@@ -188,6 +191,10 @@ export default {
       localStorage.setItem('selectedItem', path);
       this.$router.push(path);
     },
+    async navigateToPage() {
+      // Navigate to the desired route
+      this.$router.push('/manual3');
+    }
   },
   beforeMount() {
   //  this.$router.push('/sdashboard');

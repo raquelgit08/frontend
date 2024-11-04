@@ -28,9 +28,10 @@
       <thead>
         <tr>
           <th>#</th>
-          <th>ID Number</th>
+          <th>LRN</th>
           <th>Name</th>
-          
+          <th>Strand</th>
+          <th>Section</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -39,6 +40,8 @@
           <td>{{ index + 1 }}</td> <!-- Row numbering -->
           <td>{{ student.idnumber }}</td>
           <td>{{ student.lname }}, {{ student.fname }} {{ student.mname }}</td>
+          <td>{{ student.addstrand }} - {{ student.grade_level }}</td>
+          <td>{{ student.section }}</td>
           <td>
             <button class="btn btn-success" @click="updateStudentStatus(student.id, 1)" style="margin-right: 10px;">Approve</button>
             <!-- <button class="btn btn-danger" @click="updateStudentStatus(student.id, 0)">Decline</button> -->

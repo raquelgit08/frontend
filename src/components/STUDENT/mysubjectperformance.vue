@@ -33,6 +33,11 @@
             <option v-for="type in gender" :key="type" :value="type">{{ type }}</option>
           </select>
         </div> 
+        <div class="col-md-2 d-flex align-items-center">
+          <select v-model="selectedQuarter"  class="form-control custom-select"  id="quarter">
+            <option v-for="type in quarter" :key="type" :value="type">{{ type }}</option>
+          </select>
+        </div> 
       <div class="status ms-auto d-flex align-items-center">
         <div class="mx-3">
           <i class="bi bi-check-circle-fill text-success"></i> Passed: {{ passCount }}
@@ -60,7 +65,8 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>Quarterly Examinations</th>
+              <th>Quarterly Examinations</th> 
+              <th>Quarter</th>
               <th>Total Points</th>
               <th>Percentage</th>
               <th>Remarks</th>
@@ -71,6 +77,7 @@
             <tr v-for="(performance, index) in filteredPerformances" :key="performance.id">
               <td>{{ index + 1 }}</td> <!-- Add numbering here -->
               <td style="text-align: start;">{{ performance.exam_title }}</td>
+              <td>{{ performance.quarter }}</td>
               <td>{{ performance.total_score }} / {{ performance.total_exam }}</td>
               <td :class="{ 'text-success': performance.average >= 50}"> <b>{{ performance.average }} % </b></td>
               <td :class="{ 'text-danger': performance.status === 'Failed' }">
@@ -105,18 +112,19 @@ export default {
       },
       selectedGender: 'Filter By Status',
       gender: ['Filter By Status', 'Passed', 'Failed'],
+      selectedQuarter: 'Filter By Quarter',
+      quarter: ['Filter By Quarter', '1st Quarter', '2nd Quarter'],
       performances: [],           // To store the performance list
       error: ''                   // To store any error messages
     };
   },
   computed: {
     filteredPerformances() {
-      if (this.selectedGender === 'Passed') {
-        return this.performances.filter(performance => performance.status === 'Passed');
-      } else if (this.selectedGender === 'Failed') {
-        return this.performances.filter(performance => performance.status === 'Failed');
-      }
-      return this.performances; // Default: return all performances
+      return this.performances.filter(performance => {
+        const statusMatch = this.selectedGender === 'Filter By Status' || performance.status === this.selectedGender;
+        const quarterMatch = this.selectedQuarter === 'Filter By Quarter' || performance.quarter === this.selectedQuarter;
+        return statusMatch && quarterMatch;
+      });
     }
   },
   methods: {
@@ -156,6 +164,7 @@ export default {
             classtable_id: classId // Send classtable_id as a query parameter
           }
         });
+        console.log('Full Performances Response:', performancesResponse);
         console.log('Performances Response:', performancesResponse.data);
 
         // if (performancesResponse.data) {

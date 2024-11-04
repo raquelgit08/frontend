@@ -29,12 +29,13 @@
               <th style="width: 9%; text-align: center;">Correct Selections</th>
               <th style="width: 9%; text-align: center;">Incorrect Selections</th>
               <th style="width: 13%; text-align: center;">
-                 <i class="bi bi-exclamation-triangle" title="Click to show formula" style="cursor: pointer; font-size: 30px; margin-right: 5px; color: #dc3545;" @click="openModal ('Difficulty', '/itemanalysis/difficulty.jpg', 'The Difficulty Index is usually expressed as a percentage or a fraction, representing the proportion of respondents who answer a question correctly. A lower percentage indicates a higher level of difficulty, while a higher percentage suggests that the question is easier.')" >
+                 <i class="bi bi-question-octagon" title="Click to show formula" style="cursor: pointer; font-size: 30px; margin-right: 5px; color: #dc3545;" @click="openModal ('Difficulty', '/itemanalysis/difficulty.jpg', 'The Difficulty Index is usually expressed as a percentage or a fraction, representing the proportion of respondents who answer a question correctly. A lower percentage indicates a higher level of difficulty, while a higher percentage suggests that the question is easier.')" >
                  </i>Difficulty</th>
               <th style="width: 13%; text-align: center;">
                 <i class="bi bi-sliders" title="Click to show formula" style="cursor: pointer; font-size: 30px;margin-right: 5px; color: #0d6efd;" @click="openModal('Discrimination', '/itemanalysis/discrimination.jpg', 'The Discrimination Index indicates how effectively a question differentiates between students who understand the material well and those who do not. A high Discrimination Index means that high-achieving students are more likely to answer the question correctly than low-achieving students.')" ></i>Discrimination</th>
               <th style="width: 9%; text-align: center;">
-                <i class="bi bi-check2-square" title="Click show condition" style="cursor: pointer; font-size: 30px;margin-right: 5px; color: #28a745;" @click="openModal('Decision', '/itemanalysis/evaluation.jpg', 'The Decision metric helps educators determine the quality and appropriateness of each test question. It combines insights from various indices, including the Difficulty and Discrimination Indices, to guide decisions on each items effectiveness in a test.')" ></i>Decision</th>
+                <i class="bi bi-check2-square" title="Click show condition" style="cursor: pointer; font-size: 30px;margin-right: 5px; color: #28a745;" @click="openModal('Decision', '/itemanalysis/evaluation.jpg', 'The Decision matrix helps educators determine the quality and appropriateness of each test question. It combines insights from various indixes, including the Difficulty and Discrimination Indixes, to guide decisions on each items effectiveness in a test.')" ></i>Decision</th>
+
             </tr>
           </thead>
           <tbody>
@@ -42,10 +43,10 @@
               <td style="text-align: center;">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
               <td>{{ question.question }}</td>
               <td>{{ question.correct_answer }}</td>
-              <td style="text-align: center; cursor: pointer;" @click="showCorrectStudents(question)">
+              <td style="text-align: center; cursor: pointer;" @click="showCorrectStudents(question)" title="View Student's Answered Correctly">
                 {{ question.choices.find(choice => choice.choice === question.correct_answer).count }}
               </td>
-              <td style="text-align: center; cursor: pointer;" @click="showIncorrectStudents(question)">
+              <td style="text-align: center; cursor: pointer;" @click="showIncorrectStudents(question)" title="View Student's Answered Wrong">
                 {{ question.totalResponses - question.choices.find(choice => choice.choice === question.correct_answer).count }}
               </td>
               <td style="text-align: center;">
@@ -115,23 +116,29 @@
       <p v-html="cardText"></p> <!-- Use v-html to render HTML -->
     </div>
     <div v-if="correctStudents.length > 0">
+      <div class="question-display">
+        <p style="margin-bottom: 0;"><b>Question:</b> {{ questionText }}</p>
+        <p style="margin-top: 0;"><b>Correct Answer:</b> {{ correctAnswerText }}</p>
+      </div>
       <table class="table table-striped table-custom">
         <thead>
           <tr>
-            <th>#</th>
-            <th>ID Number</th>
-            <th>Last Name</th>
-            <th>First Name</th>
-            <th>Middle Name</th>
+            <th style="text-align: center;">#</th>
+            <th style="text-align: center;">ID Number</th>
+            <th style="text-align: center;">Last Name</th>
+            <th style="text-align: center;">First Name</th>
+            <th style="text-align: center;">Middle Name</th>
+            <th style="text-align: center;">Answer</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(student, index) in paginatedCorrectStudents" :key="index">
-            <td>{{ (currentCorrectPage - 1) * itemsPerPage + index + 1 }}</td>
+            <td style="text-align: center;">{{ (currentCorrectPage - 1) * itemsPerPage + index + 1 }}</td>
             <td>{{ student.idnumber }}</td>
             <td>{{ student.lname }}</td>
             <td>{{ student.fname }}</td>
             <td>{{ student.mname }}</td>
+            <td>{{ student.answer }}</td>
           </tr>
         </tbody>
       </table>
@@ -158,6 +165,9 @@
 <b-modal id="incorrectStudentsModal" v-model="isModalVisibleIncorrect" title="Students Who Answered Incorrectly" class="custom-modal">
   <div>
     <div v-if="incorrectStudents.length > 0">
+      <p style="margin-bottom: 0;"><b>Question:</b> {{ questionText }}</p>
+      <p style="margin-top: 0;"><b>Correct Answer:</b> {{ correctAnswerText }}</p>
+
       <table class="table table-striped table-custom">
         <thead>
           <tr>
@@ -166,6 +176,7 @@
             <th>Last Name</th>
             <th>First Name</th>
             <th>Middle Name</th>
+            <th>Answer</th>
           </tr>
         </thead>
         <tbody>
@@ -175,6 +186,7 @@
             <td>{{ student.lname }}</td>
             <td>{{ student.fname }}</td>
             <td>{{ student.mname }}</td>
+            <td>{{ student.answer }}</td> 
           </tr>
         </tbody>
       </table>
@@ -210,6 +222,7 @@ export default {
   name: 'ITEManalysis',
   data() {
     return {
+      questionText : "",
       showModal: false, // Controls modal visibility
       modalTitle: "", // Title to display in the modal
       modalContent: "", // Content for the modal
@@ -224,7 +237,7 @@ export default {
       incorrectStudents: [],
       currentPage: 1, // Current page number
       currentCorrectPage: 1, // Current page for correct students
-    currentIncorrectPage: 1, // Current page for incorrect students
+      currentIncorrectPage: 1, // Current page for incorrect students
       itemsPerPage: 10, // Number of items per page
       error: '',
       isModalVisibleCorrect: false,
@@ -346,19 +359,34 @@ export default {
     
     showCorrectStudents(question) {
       const correctChoice = question.choices.find(choice => choice.choice === question.correct_answer);
-      this.correctStudents = correctChoice ? correctChoice.students : [];
+      this.correctStudents = correctChoice ? correctChoice.students.map(student => ({
+            ...student,
+            answer: question.correct_answer    // Assign correct answer as the student's answer
+          })) : [];
+      
+      this.questionText = question.question;
+      this.correctAnswerText = question.correct_answer;
       this.isModalVisibleCorrect = true; // Open the modal for correct students
     },
+
     showIncorrectStudents(question) {
-      const incorrectChoice = question.choices.filter(choice => choice.choice !== question.correct_answer);
+      const incorrectChoices = question.choices.filter(choice => choice.choice !== question.correct_answer);
       this.incorrectStudents = [];
-      
-      incorrectChoice.forEach(choice => {
-        this.incorrectStudents.push(...choice.students);
+      this.questionText = question.question;
+      this.correctAnswerText = question.correct_answer;
+
+      incorrectChoices.forEach(choice => {
+        choice.students.forEach(student => {
+          this.incorrectStudents.push({
+            ...student,
+            answer: choice.choice  // Capture the student's answer choice
+          });
+        });
       });
-      
+
       this.isModalVisibleIncorrect = true; // Open the modal for incorrect students
     },
+
     handleError(error) {
       if (error.response) {
         if (error.response.status === 404) {
