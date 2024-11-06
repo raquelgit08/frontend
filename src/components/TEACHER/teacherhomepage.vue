@@ -15,7 +15,7 @@
 
       </div>
       <div class="d-flex align-items-center ms-auto">
-        <i class="bi bi-info-circle fs-5" @click="navigateToPage" style="margin: 5px;"></i>
+        <i class="bi bi-info-circle fs-5" title="About the system" @click="navigateToPage" style="margin: 5px;"></i>
         <h4 class="mb-0 me-3">WELCOME {{userProfile.fname}}</h4>
         <i class="bi bi-box-arrow-right fs-4" style="margin-right: 20px;" id="log_out" @click="handleLogout"></i>
         
@@ -88,6 +88,9 @@
       <div :class="['container-fluid', isSidebarCollapsed ? 'collapsed' : '']">
         <router-view></router-view>
       </div>
+      <footer class="footer">
+        <p>© 2024 ISU Echague - Developed by R. Agcaoili, J. Gumabon & J. Romero. All rights reserved.</p>
+    </footer>
     </div>
   <!-- </div> -->
 </template>
@@ -241,6 +244,20 @@ export default {
   background-color: #A02334;
   color: #fff;
   margin-bottom: 20px;
+}
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.2);
+  height: 50px;
+  background-color: #fefefe;
+  color: rgb(0, 0, 0);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }
 
 .welcome-text {

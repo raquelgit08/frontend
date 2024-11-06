@@ -9,7 +9,7 @@
     <div v-else class="login-page">
       <!-- Left side with image and curve (always visible) -->
       <div class="login-left">
-        <img src="./assets/i12.png" alt="Illustration" class="illustration" />
+        <img src="./assets/wiseshs.png" alt="Illustration" class="illustration" />
       </div>
 
       <!-- Right side with dynamic content based on the current step -->
@@ -430,7 +430,7 @@ html, body {
 }
 
 .illustration {
-  max-width: 80%;
+  width: 1000px;
   height: auto;
 }
 

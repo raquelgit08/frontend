@@ -51,7 +51,7 @@
     </nav>
 
     <!-- Published Exams List -->
-    <div class="cointainer-fluid" style="margin-top: 20px;">
+    <div class="cointainer-fluid" style="margin-top: 20px;margin-bottom: 60px;">
      
 
       <!-- Error Handling -->

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-bottom: 45px;">
         <div class="d-flex align-items-center justify-content-between">
         <h4><i class="bi bi-person-fill"></i> List of Students Accounts</h4>
 
@@ -145,7 +145,7 @@
                   <input type="text" class="form-control" id="newPassword" v-model="form.newPassword" required>
                 </div>
                 <div class="mb-3 col-12 col-md-4">
-                  <button type="button" class="btn " style="width: 130px; height: 40px; margin-top: 27px; background-color: cornflowerblue;" @click="generatePassword">Generate </button>
+                  <button type="button" class="btn " style="width: 130px; height: 40px; margin-top: 27px; background-color: antiquewhite;box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);;" @click="generatePassword">Generate </button>
                 </div>
               </div>
               <div class="mb-3">
@@ -155,7 +155,7 @@
               <div v-if="errorMessage" class="alert alert-danger">
                 {{ errorMessage }}
               </div><center>
-              <button type="submit" class="btn " style="width: 250px; height: 40px; margin-top: 15px; background-color: #B9EBC5;">Reset Password</button></center>
+              <button type="submit" class="btn " style="width: 250px; height: 40px; margin-top: 15px; background-color: antiquewhite;box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">Reset Password</button></center>
             </form>
           </div>
         </div>
@@ -245,7 +245,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn " style="background-color: lightgrey;" @click="showModal = false">Close</button>
-            <button type="button" class="btn btn-primary" style="width: 200px;" @click="saveChanges">Save changes</button>
+            <button type="button" class="btn " style="background-color: antiquewhite;box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); width: 220px;" @click="saveChanges">Save changes</button>
           </div>
         </div>
       </div>
@@ -720,12 +720,12 @@ h4 {
 }
 
 .modal-content {
-  border: 2px solid #87CEFA; /* Sky blue border */
+  border: 2px solid #d2c0ba;
   border-radius: 10px; /* Rounded corners */
 }
 
 .modal-header {
-  background-color: #00BFFF; /* Deep sky blue header background */
+  background-color: #eed3c9;
   color: #130404; /* Dark text color */
   border-bottom: 1px solid #ddd; /* Light border below header */
 }

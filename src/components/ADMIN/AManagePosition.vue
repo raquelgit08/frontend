@@ -72,8 +72,8 @@
             </div>
           </div>
           <div class="d-flex justify-content-end gap-2 mt-3">
-            <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-            <button type="button" class="btn btn-primary" @click="checkForDuplicate">{{ isEdit ? 'Update' : 'Save' }}</button>
+            <button type="button" class="btn " style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);" @click="closeModal">Cancel</button>
+            <button type="button" class="btn " style="background-color: antiquewhite;box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);" @click="checkForDuplicate">{{ isEdit ? 'Update' : 'Save' }}</button>
           </div>
         </div>
       </div>

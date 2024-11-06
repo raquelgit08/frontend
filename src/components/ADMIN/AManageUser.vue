@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-bottom: 45px;">
       <h4 >List of All Users</h4>
       <div class="row mb-4 justify-content-end align-items-center">
         <div class="col-md-8">
@@ -52,7 +52,7 @@
 
         </table>
       </div>
-      <div class="row mb-4">
+      <div class="row mb-4" >
         <div class="col-md-2 d-flex align-items-center">
           <i class="fa fa-mars mr-2 lalaki" aria-label="Boy"></i>
            <h6 >Male : {{ maleCountPerPage }}</h6>

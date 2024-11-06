@@ -45,7 +45,7 @@
           <label for="password" class="form-label">Password:</label>
           <div class="input-group">
             <input v-model="formData.password" :class="{'is-invalid': !formData.password && validationAttempted}" :type="passwordFieldType" id="password" class="form-control" required>
-            <span class="input-group-text"  style="height: 50px;" @click="togglePasswordVisibility">
+            <span class="input-group-text"  style="height: 50px;box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);" @click="togglePasswordVisibility">
               <i :class="passwordIcon"></i>
             </span>
           </div>
@@ -262,6 +262,7 @@ export default {
 }
 
 .form-control, .form-select {
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
   border-radius: 5px;
   height: 50px;
   margin-bottom: 20px;
@@ -278,7 +279,7 @@ export default {
 }
 
 .btn-gradient {
-  background: linear-gradient(45deg, #007bff, #00bfff);
+  background-color: antiquewhite;
   color: #120808;
   transition: background 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

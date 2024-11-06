@@ -41,7 +41,7 @@
     </nav>
 
     <!-- Published Exams List -->
-    <div class="container-fluid" style="margin-top: 20px;">
+    <div class="container-fluid" style="margin-top: 20px;margin-bottom: 60px;">
       <!-- Error Handling -->
       <div v-if="error" class="alert alert-danger text-center">
         {{ error }} 
@@ -72,7 +72,7 @@
       </div>
 
       <p v-else class="text-center no-exams-message">No exams available</p>
-    </div>
+    </div >
 
     <!-- Exam Details Modal -->
     <div v-if="showModal" class="modal-backdrop" @click="closeModal">

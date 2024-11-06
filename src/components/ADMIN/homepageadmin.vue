@@ -51,6 +51,10 @@
     <div class="content">
       <router-view></router-view>
     </div>
+    <footer class="footer">
+      <p>© 2024 ISU Echague - Developed by R. Agcaoili, J. Gumabon & J. Romero. All rights reserved.</p>
+
+    </footer>
   </div>
 </template>
 
@@ -198,6 +202,21 @@ body {
 .logOut{
   margin: 20px;
 }
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.2);
+  height: 50px;
+  background-color: #fefefe;
+  color: rgb(0, 0, 0);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
 .sidebar {
   min-height: 100vh;
   width: 85px;

@@ -29,6 +29,7 @@
         </select>
       </div>
       
+      
     </div>
 
 
@@ -346,12 +347,13 @@ export default {
     padding-right: 12px;
   }
   .btn-gradient {
-  background: linear-gradient(45deg, #c4c5c5, #9fa0a0);
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    background-color: #c1c1c1d7;
+  box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.3);
   color: #120808;
   transition: background 0.3s ease;
   border-radius: 5px ;
-  margin: 20px;
+  margin-bottom: 60px;
+  margin-right: 25px;
   padding: 5px;
   width: 300px;
   text-align: center;
