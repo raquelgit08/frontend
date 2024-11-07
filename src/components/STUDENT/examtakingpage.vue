@@ -21,7 +21,7 @@
       <form v-if="!examSubmitted && !examOver" @submit.prevent="submitExam" class="question-box">
       <div v-if="exam.questions && exam.questions.length">
         <div v-for="(question, index) in paginatedQuestions" :key="index" class="question-container">
-          <h4 class="question-header"> {{ question.question }}</h4>
+          <h4  style="font-size: 18px" class="question-header"> {{ question.question }}</h4>
           
           <!-- Multiple Choice Questions -->
           <div v-if="question.choices && question.choices.length > 0" class="choice-container">
@@ -437,6 +437,7 @@ export default {
   border-radius: 10px; /* Rounded corners */
   width: 1500px; /* Adjust width */
   margin: 20px ; /* Centers the entire question box */
+  margin-bottom: 60px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
 
@@ -564,6 +565,7 @@ export default {
   border-radius: 10px;
   background-color: #ffffff;
   margin-right: 20px;
+  margin-bottom: 60px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
 }
 .feedbackarea{

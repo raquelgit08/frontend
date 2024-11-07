@@ -88,7 +88,7 @@
         <div class="col-md-2"></div>
         <div class="col-md-7">
           <!-- Pagination Controls -->
-        <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation" style="margin-bottom: 65px;">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
               <a class="page-link" href="#" @click.prevent="currentPage--">Previous</a>

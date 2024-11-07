@@ -38,7 +38,7 @@
                 <p><b>Instruction:</b> {{ instruction.instructions.instruction }}</p>
 
                 <div v-for="(question, qIndex) in instruction.instructions.questions" :key="qIndex" class="question-card mb-4">
-                  <h5> {{ qIndex + 1 }}. {{ question.question }}
+                  <h5 style="font-size: 18px; text-align: justify"> {{ qIndex + 1 }}. {{ question.question }}
                     <button @click="editQuestion(question)" class="btn btn-link p-0 ms-2" title="Edit">
                       <i class="bi bi-pencil-square"></i>
                     </button>
@@ -515,6 +515,7 @@ export default {
   padding: 20px;
   background-color: #f8f9fa;
   border-radius: 8px;
+  margin-bottom: 50px;
 }
 
 .question-card {

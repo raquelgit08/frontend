@@ -62,7 +62,7 @@
           </div>
         </div>
         <!-- Pagination Controls -->
-        <nav>
+        <nav style="margin-bottom: 30px;">
           <ul class="pagination justify-content-center">
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
               <button class="page-link" @click="changePage(currentPage - 1)">Previous</button>

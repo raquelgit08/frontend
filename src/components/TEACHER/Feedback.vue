@@ -22,7 +22,7 @@
     </nav>
 
     <!-- Feedback Page Content -->
-    <div class="feedback-page">
+    <div class="feedback-page" style="margin-bottom: 70px;">
       <div class="container-fluid">
  
         <div v-if="error" class="alert alert-danger">{{ error }}</div>
