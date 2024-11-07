@@ -420,7 +420,7 @@ html, body {
 
 .login-left {
   width: 45%;
-  background-color: #e0e0f8;
+  background-color: #fae5f0;
   display: flex;
   align-items: center;
   justify-content: center;

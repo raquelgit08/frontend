@@ -274,7 +274,7 @@ export default {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   border: 1px solid #200909;
   overflow: hidden;
-  margin-bottom: 120px;
+  margin-bottom: 60px;
 }
 
 .table-custom th {

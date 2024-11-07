@@ -34,6 +34,7 @@
           <tr>
             <th>#</th>
             <th>Position</th>
+            <th>ID</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -41,6 +42,7 @@
           <tr v-for="(position, index) in filteredList" :key="position.id" class="align-middle">
             <td>{{ index + 1 }}</td>
             <td>{{ position.teacher_postion }}</td>
+            <td>{{ position.id }}</td>
             <td>
 
               <button class="btn edit btn-md me-2" @click="openEditModal(position)">
@@ -117,6 +119,7 @@ export default {
             Authorization: `Bearer ${token}`
           }
         });
+        
         this.positions = response.data.data;
       } catch (error) {
         console.error('Error fetching positions:', error);
@@ -273,7 +276,7 @@ export default {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   border: 1px solid #200909;
   overflow: hidden;
-  margin-bottom: 120px;
+  margin-bottom: 60px;
 }
 
 .table-custom th {

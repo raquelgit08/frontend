@@ -29,17 +29,19 @@
           <tr>
             <th>#</th>
             <th>Strand</th>
-            <th>Grade Level</th>
             <th>Section</th>
+            <th>Strand Id</th>
+            <th>Section Id</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(section, index) in filteredList" :key="section.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ section.strand.addstrand }}</td>
-            <td>{{ section.strand.grade_level }}</td>
+            <td>{{ section.strand.addstrand }} - {{ section.strand.grade_level }}</td>
             <td>{{ section.section }}</td>
+            <td>{{ section.strand.id }}</td>
+            <td>{{ section.id }}</td>
             <td>
 
               <button class="btn edit btn-md me-2" @click="openEditModal(section)">
@@ -369,7 +371,7 @@ async saveSection() {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   border: 1px solid #200909;
   overflow: hidden;
-  margin-bottom: 120px;
+  margin-bottom: 60px;
 }
 
 .table-custom th {
